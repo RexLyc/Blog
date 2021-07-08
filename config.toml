@@ -23,6 +23,11 @@ paginate = 7
 canonifyurls = true
 enableEmoji = true
 
+[markup]
+  [markup.goldmark]    
+    [markup.goldmark.renderer]     
+      unsafe = true
+
 [permalinks]
   post = "/:year/:month/:slug/"
 
@@ -56,25 +61,25 @@ enableEmoji = true
 [[menu.main]]
   weight = 2
   identifier = "categories"
-  name = "Categories"
+  name = "奕成的个人空间的分类"
   pre = "<i class=\"sidebar-button-icon fa fa-lg fa-bookmark\"></i>"
   url = "/categories"
 [[menu.main]]
   weight = 3
   identifier = "tags"
-  name = "Tags"
+  name = "奕成的个人空间的标签"
   pre = "<i class=\"sidebar-button-icon fa fa-lg fa-tags\"></i>"
   url = "/tags"
 [[menu.main]]
   weight = 4
   identifier = "archives"
-  name = "Archives"
+  name = "奕成个人空间的时轴"
   pre = "<i class=\"sidebar-button-icon fa fa-lg fa-archive\"></i>"
   url = "/archives"
 [[menu.main]]
   weight = 5
   identifier = "about"
-  name = "About"
+  name = "关于"
   pre = "<i class=\"sidebar-button-icon fa fa-lg fa-question\"></i>"
   url = "/#about"
 

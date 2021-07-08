@@ -6,13 +6,22 @@
     <description>Recent content on 奕成的个人空间</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Wed, 07 Jul 2021 23:02:57 +0800</lastBuildDate><atom:link href="https://www.lyclife.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 08 Jul 2021 22:41:56 +0800</lastBuildDate><atom:link href="https://www.lyclife.com/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>算法导论-开坑篇</title>
-      <link>https://www.lyclife.com/2021/07/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA-%E5%BC%80%E5%9D%91%E7%AF%87/</link>
+      <title>算法导论其一（施工中）</title>
+      <link>https://www.lyclife.com/2021/07/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E4%B8%80%E6%96%BD%E5%B7%A5%E4%B8%AD/</link>
+      <pubDate>Thu, 08 Jul 2021 22:41:56 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/07/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E4%B8%80%E6%96%BD%E5%B7%A5%E4%B8%AD/</guid>
+      <description>&lt;p&gt;工欲善其事必先利其器，写出优良算法的基础是拥有对算法性能衡量的能力。一起回顾一下时间复杂度的计算吧。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>算法导论开坑篇</title>
+      <link>https://www.lyclife.com/2021/07/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%BC%80%E5%9D%91%E7%AF%87/</link>
       <pubDate>Wed, 07 Jul 2021 23:02:57 +0800</pubDate>
       
-      <guid>https://www.lyclife.com/2021/07/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA-%E5%BC%80%E5%9D%91%E7%AF%87/</guid>
+      <guid>https://www.lyclife.com/2021/07/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%BC%80%E5%9D%91%E7%AF%87/</guid>
       <description>&lt;p&gt;什么时候学点算法都不晚&amp;hellip;&amp;hellip;算法导论实际上是本科课程，当然还有高阶版本。但是基础往往是最重要的，时常回头看看，或许会有新的理解。&lt;/p&gt;</description>
     </item>
     

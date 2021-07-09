@@ -62,6 +62,28 @@
   <meta property="twitter:image" content="https://www.lyclife.com/images/author.jpg">
 
 
+    
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [["$", "$"]],
+    },
+    displayMath: [
+      ["$$", "$$"],
+      ["\[\[", "\]\]"],
+    ],
+    svg: {
+      fontCache: "global",
+    },
+  };
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script
+  id="MathJax-script"
+  async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+></script>
+
     <title>算法导论其一（施工中）</title>
 
     <link rel="icon" href="https://www.lyclife.com/favicon.png">
@@ -73,7 +95,7 @@
 
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
-    <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
     
     
@@ -263,15 +285,20 @@
 </ol>
 <h1 id="性能衡量工具">性能衡量工具</h1>
 <ol start="0">
-<li>例子</li>
+<li>数学符号
+<ul>
+<li>~~$\sum_{i=0}^N{X_i}$~~</li>
+</ul>
+</li>
 <li>主方法（Master Method）</li>
 <li>画递归树</li>
 <li>代换法（猜想并证明）</li>
+<li>举例</li>
 </ol>
 <h1 id="平摊分析">平摊分析</h1>
-<p>部分算法、数据结构，它的单一操作可能最坏、但平摊耗费较小。不保证实时性能。对于这类算法和数据结构，不能用常规方法分析，需要对其平均性能进行估计。
-0. 例子</p>
-<ol>
+<p>部分算法、数据结构，它的单一操作可能最坏、但平摊耗费较小。不保证实时性能。对于这类算法和数据结构，不能用常规方法分析，需要对其平均性能进行估计。</p>
+<ol start="0">
+<li>例子</li>
 <li>聚集分析</li>
 <li>记账法</li>
 <li>势能法</li>
@@ -285,6 +312,17 @@
 </ol>
 <h1 id="参考资料">参考资料</h1>
 <p><em>学点英语，主要是尽量把术语发音正确噢</em> 😜<a href="https://www.bilibili.com/video/BV1Tb411M7FA?from=search&seid=3716615071312119347" target="_blank">MIT6.046Jのbilibili传送门</a></p>
+<h1 id="本节博客搭建过程中的坑">本节博客搭建过程中的坑</h1>
+<ol start="0">
+<li>添加内嵌html支持，需要修改toml，令markdown引擎支持内嵌html（unsafe模式）</li>
+<li><a href="https://note.qidong.name/2018/03/hugo-mathjax/" target="_blank">使用MathJax在Hugo的Markdown中绘制公式</a>
+<ul>
+<li>第一步：添加一个单独的html于主题文件夹partials下，并引入所需的js库，css内容。</li>
+<li>第二步：去head.html中利用插值表达式引用该html。</li>
+<li>第三步：最好是在markdown开头的Front Matter部分添加math: true。也可以在toml中全局启用MathJax。</li>
+</ul>
+</li>
+</ol>
               
             </div>
           </div>
@@ -309,7 +347,7 @@
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--disabled">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/%E6%88%91%E7%9A%84%E8%8F%9C%E5%8D%95/" data-tooltip="我的菜单">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
@@ -373,7 +411,7 @@
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--disabled">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/%E6%88%91%E7%9A%84%E8%8F%9C%E5%8D%95/" data-tooltip="我的菜单">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
@@ -454,9 +492,7 @@
 
     
   
-    
-      <div id="cover" style="background-image:url('https://www.lyclife.com/images/cover.jpg');"></div>
-    
+    <div id="cover" style="background-image:url('https://gitee.com/rexlyc/BlogMedia/raw/master/background/bridge_linjiangmen.jpg');"></div>
   
 
 
@@ -465,7 +501,7 @@
 
 <script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/11.0.1/highlight.min.js"></script>
 
-<script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
 
 
 <script src="https://www.lyclife.com/js/script-pcw6v3xilnxydl1vddzazdverrnn9ctynvnxgwho987mfyqkuylcb1nlt.min.js"></script>
@@ -503,6 +539,15 @@ $(document).ready(function() {
     
   
 
+
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_CHTML-full" integrity="sha256-GhM+5JHb6QUzOQPXSJLEWP7R73CbkisjzK5Eyij4U9w=" crossorigin="anonymous"></script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      CommonHTML: { linebreaks: { automatic: true } },
+      tex2jax: { inlineMath: [ ['$', '$'], ['\\(','\\)'] ], displayMath: [ ['$$','$$'], ['\\[', '\\]'] ], processEscapes: false },
+      messageStyle: 'none'
+    });
+  </script>
 
 
 

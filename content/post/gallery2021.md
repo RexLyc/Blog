@@ -1,0 +1,95 @@
+---
+title: "2021年影集"
+date: 2021-07-09T22:29:44+08:00
+categories:
+- 摄影
+- 图片和短视频
+tags:
+- 摄影
+autoThumbnailImage : true
+thumbnailImagePosition: left
+gallery:
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/3-4/_DSF6529.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/3-4/_DSF6532.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/3-4/_DSF6534.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/3-4/_DSF6615.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/3-4/_DSF6633.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/3-4/_DSF6967.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/3-4/_DSF6968.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/3-4/_DSF7050.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/3-4/_DSF7054.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/3-4/_DSF7059.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/3-4/_DSF7088.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/5/_DSF7102_2.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/5/_DSF7141.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/5/_DSF7152.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/5/_DSF7162.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/5/_DSF7186.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/5/_DSF7314.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/5/_DSF7358.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/5/_DSF7372.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/5/_DSF7388.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/5/_DSF7419.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/5/_DSF7426.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/5/_DSF7434.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/5/_DSF7437.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/5/_DSF7446.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/5/_DSF7459.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/5/_DSF7461.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/5/_DSF7518.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/5/_DSF7537.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/6/_DSF7596.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/6/_DSF7615.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/6/_DSF7643.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/6/_DSF7669.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/6/_DSF7690.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/6/_DSF7698_1.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/6/_DSF7706.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/6/_DSF7720.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/6/_DSF7748.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/DSCF0152.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/DSCF0157.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/DSCF0205.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/DSCF0213.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/DSCF0287.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/DSCF0299.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/DSCF0304.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/DSCF0452_ps.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/DSCF0485.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/DSCF0499.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF0547.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF0558.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF3957.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF5382.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF5458.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF5497.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF5498.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF5551.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF5573.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF5604.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF5629.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF5720.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF5724.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF5922.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF5936.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF5981.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF6008.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF6128.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF6254.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF6288.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF6292.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF6301.jpg
+- https://gitee.com/rexlyc/BlogMedia/raw/master/gallery2021/before3/_DSF6332.jpg
+---
+这本影集记录富士X-T4相机到手之后（2020年11月到2021年末的全部作品）。
+<!--more-->
+- 包含事件
+    - 在校生活 & 毕业
+    - 在吉林的春节假期
+    - 雾凇
+    - 烟花
+    - 奥森桃花
+    - 圆明园荷花
+    - 颐和园
+    - 很多月亮
+    - 很多日落

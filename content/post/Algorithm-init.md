@@ -13,7 +13,7 @@ thumbnailImage: images/thumbnail/algorithm.jpg
 什么时候学点算法都不晚......算法导论实际上是本科课程，当然还有高阶版本。但是基础往往是最重要的，时常回头看看，或许会有新的理解。
 <!--more-->
 # 总览
-![avatar](/images/postImage/algo6046.svg)
+![algo](/images/postImage/algo6046.svg)
 随着时间推移，本图可能在后续的文章中更新，请以最新的图片为准噢。
 # 参考资料
 - 《算法导论》

@@ -7,40 +7,38 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="generator" content="Hugo 0.85.0 with theme Tranquilpeak 0.4.8-BETA">
 <meta name="author" content="李奕成">
-<meta name="keywords" content="">
-<meta name="description" content="在大城市生活独自生活的你，是否经常思念家乡的菜。自己动手丰衣足食。今天是手残美食博主，明天就是大手子。滚动更新，欢迎推荐菜谱。">
+<meta name="keywords" content="tech">
+<meta name="description" content="工欲善其事必先利其器，写出优良算法的基础是拥有对算法性能衡量的能力。一起回顾一下时间复杂度的计算吧。">
 
 
-<meta property="og:description" content="在大城市生活独自生活的你，是否经常思念家乡的菜。自己动手丰衣足食。今天是手残美食博主，明天就是大手子。滚动更新，欢迎推荐菜谱。">
+<meta property="og:description" content="工欲善其事必先利其器，写出优良算法的基础是拥有对算法性能衡量的能力。一起回顾一下时间复杂度的计算吧。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="我的菜单">
-<meta name="twitter:title" content="我的菜单">
-<meta property="og:url" content="https://www.lyclife.com/2021/07/%E6%88%91%E7%9A%84%E8%8F%9C%E5%8D%95/">
-<meta property="twitter:url" content="https://www.lyclife.com/2021/07/%E6%88%91%E7%9A%84%E8%8F%9C%E5%8D%95/">
+<meta property="og:title" content="算法导论其一：分析（施工中）">
+<meta name="twitter:title" content="算法导论其一：分析（施工中）">
+<meta property="og:url" content="https://www.lyclife.com/2021/07/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E4%B8%80%E5%88%86%E6%9E%90%E6%96%BD%E5%B7%A5%E4%B8%AD/">
+<meta property="twitter:url" content="https://www.lyclife.com/2021/07/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E4%B8%80%E5%88%86%E6%9E%90%E6%96%BD%E5%B7%A5%E4%B8%AD/">
 <meta property="og:site_name" content="奕成的个人空间">
-<meta property="og:description" content="在大城市生活独自生活的你，是否经常思念家乡的菜。自己动手丰衣足食。今天是手残美食博主，明天就是大手子。滚动更新，欢迎推荐菜谱。">
-<meta name="twitter:description" content="在大城市生活独自生活的你，是否经常思念家乡的菜。自己动手丰衣足食。今天是手残美食博主，明天就是大手子。滚动更新，欢迎推荐菜谱。">
+<meta property="og:description" content="工欲善其事必先利其器，写出优良算法的基础是拥有对算法性能衡量的能力。一起回顾一下时间复杂度的计算吧。">
+<meta name="twitter:description" content="工欲善其事必先利其器，写出优良算法的基础是拥有对算法性能衡量的能力。一起回顾一下时间复杂度的计算吧。">
 <meta property="og:locale" content="zh-cn">
 
   
-    <meta property="article:published_time" content="2021-07-09T21:38:59">
+    <meta property="article:published_time" content="2021-07-08T22:41:56">
   
   
-    <meta property="article:modified_time" content="2021-07-09T21:38:59">
+    <meta property="article:modified_time" content="2021-07-08T22:41:56">
   
-  
-  
-    
-      <meta property="article:section" content="生活">
-    
-      <meta property="article:section" content="料理">
-    
   
   
     
-      <meta property="article:tag" content="滚动更新">
+      <meta property="article:section" content="计算机科学与技术">
     
-      <meta property="article:tag" content="自己动手丰衣足食">
+      <meta property="article:section" content="算法">
+    
+  
+  
+    
+      <meta property="article:tag" content="算法系列">
     
   
 
@@ -53,8 +51,8 @@
 
 
 
-  <meta property="og:image" content="https://gitee.com/rexlyc/BlogMedia/raw/master/thumbnail/braveCattle.jpg">
-  <meta property="twitter:image" content="https://gitee.com/rexlyc/BlogMedia/raw/master/thumbnail/braveCattle.jpg">
+  <meta property="og:image" content="https://www.lyclife.com/images/thumbnail/algorithm.jpg">
+  <meta property="twitter:image" content="https://www.lyclife.com/images/thumbnail/algorithm.jpg">
 
 
 
@@ -65,14 +63,35 @@
 
 
     
-    <title>我的菜单</title>
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [["$", "$"]],
+    },
+    displayMath: [
+      ["$$", "$$"],
+      ["\[\[", "\]\]"],
+    ],
+    svg: {
+      fontCache: "global",
+    },
+  };
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script
+  id="MathJax-script"
+  async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+></script>
+
+    <title>算法导论其一：分析（施工中）</title>
 
     <link rel="icon" href="https://www.lyclife.com/favicon.png">
     
 
     
 
-    <link rel="canonical" href="https://www.lyclife.com/2021/07/%E6%88%91%E7%9A%84%E8%8F%9C%E5%8D%95/">
+    <link rel="canonical" href="https://www.lyclife.com/2021/07/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E4%B8%80%E5%88%86%E6%9E%90%E6%96%BD%E5%B7%A5%E4%B8%AD/">
 
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
@@ -222,15 +241,15 @@
             <div class="post-header main-content-wrap text-left">
   
     <h1 class="post-title" itemprop="headline">
-      我的菜单
+      算法导论其一：分析（施工中）
     </h1>
   
   
   <div class="postShorten-meta post-meta">
     
-      <time itemprop="datePublished" datetime="2021-07-09T21:38:59&#43;08:00">
+      <time itemprop="datePublished" datetime="2021-07-08T22:41:56&#43;08:00">
         
-  七月 9, 2021
+  七月 8, 2021
 
       </time>
     
@@ -239,9 +258,9 @@
   
     <span>发布在</span>
     
-      <a class="category-link" href="https://www.lyclife.com/categories/%e7%94%9f%e6%b4%bb">生活</a>, 
+      <a class="category-link" href="https://www.lyclife.com/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba%e7%a7%91%e5%ad%a6%e4%b8%8e%e6%8a%80%e6%9c%af">计算机科学与技术</a>, 
     
-      <a class="category-link" href="https://www.lyclife.com/categories/%e6%96%99%e7%90%86">料理</a>
+      <a class="category-link" href="https://www.lyclife.com/categories/%e7%ae%97%e6%b3%95">算法</a>
     
   
 
@@ -251,39 +270,134 @@
           
           <div class="post-content markdown" itemprop="articleBody">
             <div class="main-content-wrap">
-              <p>在大城市生活独自生活的你，是否经常思念家乡的菜。自己动手丰衣足食。今天是手残美食博主，明天就是大手子。滚动更新，欢迎推荐菜谱。</p>
-<h1 id="思乡の锅包肉">思乡の锅包肉</h1>
+              <p>工欲善其事必先利其器，写出优良算法的基础是拥有对算法性能衡量的能力。一起回顾一下时间复杂度的计算吧。</p>
+<blockquote>
+<p>假设计算机无限快，并且计算机存储器是免费的，那么你还有任何理由来研究算法吗？</p>
+<p align="right">——《算法导论》</p>
+</blockquote>
+<h1 id="关注点">关注点</h1>
+<ol start="0">
+<li>性能：尽量跑的快一点</li>
+<li>安全：比如不要泄露内存</li>
+<li>扩展：泛用性很强（对字符串排序、对数字排序）</li>
+<li>易用性：接口简单</li>
+<li>鲁棒性：稳定（不要忽快忽慢，忽然崩溃）</li>
+</ol>
+<h1 id="常用性能衡量工具">常用性能衡量工具</h1>
+<ol start="0">
+<li>数学符号（渐进记号）
 <ul>
-<li>小声BB
+<li>定义域为自然数域 $\mathrm{N}=\{0,1,2,&hellip;\}$</li>
+<li>目的：衡量并比较算法性能优劣</li>
+<li>$\Theta$记号：$\Theta(g(n))=\{f(n);\exists c_1,c_2,n_0,\forall n\ge n_0,0\le c_1 g(n) \le f(n) \le c_2 g(n)\}$
 <ul>
-<li>思乡锅包肉的精髓就是一定要使用糖醋碗汁，番茄酱是什么邪教。</li>
+<li>人话：一定输入规模之后，$f$可以被$g$夹着。渐近地代表了一个函数的上界和下界。</li>
 </ul>
 </li>
-<li>推荐教程，<a href="https://www.bilibili.com/video/BV1ZQ4y1N7qZ">bilibili老东北美食</a></li>
-<li>由于一些原因，本菜和下面的菜都是牛肉哦。</li>
-<li>我的经验:
+<li>$\mathrm{O}$记号：$\mathrm{O}(g(n))=\{f(n);\exists c,n_0,\forall n\ge n_0,0\le f(n) \le c g(n)\}$
+<ul>
+<li>人话：一定输入规模之后，$f$不会比$g$大。$\Theta$记号是隐含着$\mathrm{O}$的。</li>
+</ul>
+</li>
+<li>$\Omega$记号：$\Omega(g(n))=\{f(n);\exists c,n_0,\forall n\ge n_0,0\le c g(n)\le f(n) \}$
+<ul>
+<li>人话：一定输入规模之后，$f$不会比$g$小。$\Theta$记号也是隐含着$\mathrm{O}$的。</li>
+</ul>
+</li>
+<li>$\mathrm{o}$记号：$\mathrm{o}(g(n))=\{f(n);\forall c, \exists n_0,\forall n\ge n_0,0\le f(n) \le c g(n)\}$
+<ul>
+<li>人话：一定是非渐近紧确的上界，标志着在输入规模足够之后，$f$是$g$的等价无穷小了。</li>
+</ul>
+</li>
+<li>$\omega$记号：$\omega(g(n))=\{f(n);\forall c, \exists n_0,\forall n\ge n_0,0\le c g(n)\le f(n) \}$
+<ul>
+<li>人话：一定是非渐近紧确的下届，标志着在输入规模足够之后，$g$是$f$的等价无穷小了。</li>
+</ul>
+</li>
+<li>注意：
 <ol>
-<li>确实要用土豆淀粉，有种玄乎的说法是要买散装饭店用的，但我买成包的也能用。</li>
-<li>油混水混淀粉混面粉，比例是很关键的，以后可以多试一试。现在的糊还是不够厚。</li>
-<li>碗汁不用很多，但糖一定要多。糖醋比也很关键。决定最后的口感了。</li>
-<li>鸡精味精我个人觉得没必要加（其实是因为我忘买了）。</li>
-<li>糖醋汁下锅的时候会让整个屋子变酸，请提前告诉你的室友和小伙伴，不要让他们害怕。</li>
+<li>$\Theta \mathrm{O} \Omega$记号都是不保证渐近紧确的。</li>
+<li>传递性：五种符号都支持</li>
+<li>自反性：$\Theta \mathrm{O} \Omega$</li>
+<li>对称性：$\Theta$</li>
+<li>转置对称性（即$fg$对换位置）：$\mathrm{O}$和$\Omega$，$\mathrm{o}$和$\omega$</li>
 </ol>
 </li>
-<li>可能失误：
+<li>运算约定
 <ol>
-<li>面粉和淀粉不要加多了，挂糊之后是会缓慢变硬的。</li>
+<li>最常用的写法是：$f(n)=\Theta(g(n))$，更标准的写法是$f(n)\in \Theta(g(n))$。</li>
+<li>出现在一个“等式”中，如：$2n^2+3n+1=2n^2+\Theta(n)$，此时渐近符号代表某个不在乎其名字的匿名函数。</li>
+<li>出现在“等式”两边，如：$2n^2+\Theta(n)=\Theta(n^2)$，此时代表，无论左侧的匿名函数如何选择，总有一个右边的匿名函数能使等式成立。<strong>可以整体理解为，任意左侧的属于右侧</strong></li>
+</ol>
+</li>
+<li>常用数学：
+<ol>
+<li>任何底大于1的指数函数都比任何多项式函数增长的更快：$n^b=\mathrm{o}(a^n),a&gt;1$</li>
+<li>任何正多项式函数都比多相对数函数增长的更快：$lg^bn=\mathrm{o}(n^a),a&gt;0$</li>
+<li>易知：$n!=\mathrm{o}(n^n),n!=\omega(2^n)$，并可用斯特林公式证明：$lg(n!)=\Theta(nlgn)$</li>
 </ol>
 </li>
 </ul>
-<!-- markdown目前无法调整图片大小 -->
-<!-- ![成品](https://gitee.com/rexlyc/BlogMedia/raw/master/food/guobaorou-1-finished.jpg) -->
-<center><img src="https://gitee.com/rexlyc/BlogMedia/raw/master/food/guobaorou-1-finished.jpg" width="256" height="256" ></center>
-<!-- 并排展示的可行办法，设置为沿左侧浮动 -->
-<!-- <div style="float:left;border:solid 1px 000;margin:2px;"><img src="https://gitee.com/rexlyc/BlogMedia/raw/master/food/guobaorou-1-half.jpg"  width="256" height="256" ></div>
-<div style="float:left;border:solid 1px 000;margin:2px;"><img src="https://gitee.com/rexlyc/BlogMedia/raw/master/food/guobaorou-1-finished.jpg" width="256" height="256" ></div> -->
-<!-- 需要恢复为无浮动 -->
-<!-- <div style="float:none;clear:both;"></div> -->
+</li>
+<li>主方法（Master Method）
+<ol>
+<li>形式：对递归表达式$T(n)=aT(\frac{n}{b})+f(n)$，要求$f(n)$渐近趋正（n够大的时候都大于0），$b&gt;1,a\ge 1$</li>
+<li>比较：$f(n)$ vs $n^{log_b^a}$
+<ul>
+<li>若存在常数$\varepsilon&gt;0$，使得$f(n)=\mathrm{O}(n^{(log_b a)-\varepsilon})$，则有$T(n)=\Theta(n^{log_b a})$</li>
+<li>若$f(n)=\Theta(n^{log_b a})$，则$T(n)=\Theta(n^{log_b a} lgn)$</li>
+<li>若存在常数$\varepsilon&gt;0$，使得$f(n)=\Omega(n^{(log_b a)+\epsilon})$，且对常数$c&lt;1$与所有足够大的$n$，有$af(\frac{n}{b})\le cf(n)$，则$T(n)=\Theta(f(n))$</li>
+</ul>
+</li>
+<li>主方法并不能适用于所有递归表达式，有些式子无法满足所有</li>
+<li>主方法是有严格证明的，可以看，但没必要（折磨自己）。</li>
+</ol>
+</li>
+<li>画递归树
+<ul>
+<li>通常可以先用递归树获得一个不太严谨的答案，然后使用代换法证明</li>
+<li>核心思想是统计出出所有的叶节点数量，并计算每一层的任务量</li>
+</ul>
+</li>
+<li>代换法（猜想并归纳证明）
+0. 例如：$T(n)=4T(n/2)+n$
+<ol>
+<li>猜想是$T(n)=\mathrm{O}(n^2)$（不紧确）</li>
+<li>设$T(k) \le c_1 k^2 - c_2 k$</li>
+<li>代换原始递归式并证明可以满足猜想</li>
+<li>证明边界情况满足（例如T(1)或T(2)等）</li>
+<li>需要较高的猜想技巧，另外该方法并不保证猜出渐近紧确的界</li>
+</ol>
+</li>
+</ol>
+<h1 id="平摊分析等待补充">平摊分析（等待补充）</h1>
+<p>部分算法、数据结构，它的单一操作可能最坏、但平摊耗费较小。不保证实时性能。对于这类算法和数据结构，不能用常规方法分析，需要对其平均性能进行估计。</p>
+<ol start="0">
+<li>例子</li>
+<li>聚集分析</li>
+<li>记账法</li>
+<li>势能法</li>
+</ol>
+<h1 id="竞争分析等待补充">竞争分析（等待补充）</h1>
+<ol start="0">
+<li>分类</li>
+<li>应用</li>
+<li>方法</li>
+<li>举例</li>
+</ol>
+<h1 id="参考资料">参考资料</h1>
+<p><em>学点英语，主要是尽量把术语发音正确噢</em> 😜<a href="https://www.bilibili.com/video/BV1Tb411M7FA?from=search&seid=3716615071312119347" target="_blank">MIT6.046Jのbilibili传送门</a></p>
+<h1 id="本节博客搭建过程中的坑">本节博客搭建过程中的坑</h1>
+<ol start="0">
+<li>添加内嵌html支持，需要修改toml，令markdown引擎支持内嵌html（unsafe模式）</li>
+<li><a href="https://note.qidong.name/2018/03/hugo-mathjax/" target="_blank">使用MathJax在Hugo的Markdown中绘制公式</a>
+<ul>
+<li>第一步：添加一个单独的html于主题文件夹partials下，并引入所需的js库，css内容。</li>
+<li>第二步：去head.html中利用插值表达式引用该html。</li>
+<li>第三步：最好是在markdown开头的Front Matter部分添加math: true。也可以在toml中全局启用MathJax。</li>
+</ul>
+</li>
+</ol>
               
             </div>
           </div>
@@ -295,9 +409,7 @@
                   <div class="post-footer-tags">
                     <span class="text-color-light text-small">标签</span><br/>
                     
-  <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/%E6%BB%9A%E5%8A%A8%E6%9B%B4%E6%96%B0/">滚动更新</a>
-
-  <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/%E8%87%AA%E5%B7%B1%E5%8A%A8%E6%89%8B%E4%B8%B0%E8%A1%A3%E8%B6%B3%E9%A3%9F/">自己动手丰衣足食</a>
+  <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/%E7%AE%97%E6%B3%95%E7%B3%BB%E5%88%97/">算法系列</a>
 
                   </div>
                 
@@ -310,7 +422,7 @@
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/2021%E5%B9%B4%E5%BD%B1%E9%9B%86/" data-tooltip="2021年影集">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/%E6%88%91%E7%9A%84%E8%8F%9C%E5%8D%95/" data-tooltip="我的菜单">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
@@ -318,7 +430,7 @@
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E4%B8%80%E5%88%86%E6%9E%90%E6%96%BD%E5%B7%A5%E4%B8%AD/" data-tooltip="算法导论其一：分析（施工中）">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%BC%80%E5%9D%91%E7%AF%87/" data-tooltip="算法导论开坑篇">
               
                   <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
                   <i class="fa fa-angle-right"></i>
@@ -374,7 +486,7 @@
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/2021%E5%B9%B4%E5%BD%B1%E9%9B%86/" data-tooltip="2021年影集">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/%E6%88%91%E7%9A%84%E8%8F%9C%E5%8D%95/" data-tooltip="我的菜单">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
@@ -382,7 +494,7 @@
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E4%B8%80%E5%88%86%E6%9E%90%E6%96%BD%E5%B7%A5%E4%B8%AD/" data-tooltip="算法导论其一：分析（施工中）">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%BC%80%E5%9D%91%E7%AF%87/" data-tooltip="算法导论开坑篇">
               
                   <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
                   <i class="fa fa-angle-right"></i>
@@ -502,6 +614,15 @@ $(document).ready(function() {
     
   
 
+
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_CHTML-full" integrity="sha256-GhM+5JHb6QUzOQPXSJLEWP7R73CbkisjzK5Eyij4U9w=" crossorigin="anonymous"></script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      CommonHTML: { linebreaks: { automatic: true } },
+      tex2jax: { inlineMath: [ ['$', '$'], ['\\(','\\)'] ], displayMath: [ ['$$','$$'], ['\\[', '\\]'] ], processEscapes: false },
+      messageStyle: 'none'
+    });
+  </script>
 
 
 

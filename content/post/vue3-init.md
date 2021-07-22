@@ -7,8 +7,14 @@ categories:
 tags:
 - 系列开坑
 - Vue3
-# thumbnailImagePosition: left
-# thumbnailImage: images/thumbnail/algorithm.jpg
+thumbnailImagePosition: left
+thumbnailImage: https://gitee.com/rexlyc/BlogMedia/raw/master/thumbnail/vue.png
 ---
 前端是世界上最伟大的职业（迫真）。Vue3是国人（尤雨溪）主导的优秀前端框架，简单好用，童叟无欺。快进来看一看。
 <!--more-->
+Vue3的教程其实非常多，去bilibili上搜索就能搜索到非常多，因此本系列将会从实际案例出发，讲述一些Vue3的使用方式。
+
+# 安装
+# 运行
+# 打包
+# 实用第三方库

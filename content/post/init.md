@@ -9,7 +9,7 @@ tags:
 - 网站建设
 thumbnailImagePosition: left
 thumbnailImage: images/thumbnail/zero.jpg
-coverImage: images/coverImage/zero.jpg
+coverImage: https://gitee.com/rexlyc/BlogMedia/raw/master/coverImage/zero.jpg
 # metaAlignment: center
 # coverMeta: in
 coverSize: partial

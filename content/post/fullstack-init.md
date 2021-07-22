@@ -7,8 +7,8 @@ categories:
 tags:
 - 系列开坑
 - 全栈
-thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/algorithm.jpg
+# thumbnailImagePosition: left
+# thumbnailImage: images/thumbnail/algorithm.jpg
 ---
 虽然技多不压身，但是也要注意不要让自己所学过杂。一定要有自己最精通的领域。
 本文另外还会记录一些特别有趣和有用的依赖库。

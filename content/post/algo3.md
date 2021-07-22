@@ -1,5 +1,5 @@
 ---
-title: "算法导论其三：排序（施工中）"
+title: "算法导论其三：排序"
 date: 2021-07-17T15:11:40+08:00
 categories:
 - 计算机科学与技术
@@ -121,12 +121,45 @@ math: true
     2. 使用随机函数，随机化选取主元，移动主元到开始位置，复用上面的quick_sort。
 # 基于计数
 - ## 基数排序
+    1. 一种最初用在老式穿孔卡上的算法。从分解数字为不同位，并按照每一位进行排序的思路。
+    2. 步骤：
+        1. 从最低位开始，以最低位为排序元素，对数组元素排序。（一般采用计数排序等稳定排序）
+        2. 循环直到取到最高位
+    3. 关于表格中的复杂度，d代表位数，r代表每一位的取值范围大小，n为待排序规模。
+    4. 多说一句：关于2.1种采用稳定排序的必要性，排序稳定性决定了基数排序的正确性（比如在某位相等时，只有排序顺序稳定则最终结果才一定是正确的）
 - ## 桶排序
+    1. 概况：当输入符合均匀分布时，可以在线性**期望**时间复杂度下运行。桶就是一系列有大小顺序的区间，算法的实现效率关键在于桶的设计。（准确的说，只要各个桶的元素数量的平方和与总元素数成线性关系即可）
+    2. 步骤：
+        1. 将数据按桶分配到不同的桶中
+        2. 每个桶内部排序（例如插入排序）
+        3. 将各个桶直接顺序相连
+    3. 为什么使用插入排序还可以是线性**期望**时间复杂度？
+        1. 具体证明可查看算法导论相关章节
+        2. 核心思路：
+            - 总体上是证明$T(n)=\Theta(n)+\sum_{i=0}^{n-1}O(n_{i}^2)$的期望为线性。其中$n_{i}$代表第i个桶中的元素个数。
+            - 关键在于证明$\sum_{i=0}^{n-1}O(E[n_{i}^2])$是线性的。（E代表期望）
+            - 推理的关键在于令$n_i=\sum_{j=1}^{n}X_{ij}$，其中$X_{ij}=I\\{A[j]$落在桶$i$中$\\}$。$X_{ij}$是指示器随机变量（参考算法导论其一：分析）。
 - ## 计数排序
     1. 概况：假设n个输入元素中的每一个都是介于0到k之间的整数，此处k为某个证书。当$k=O(n)$时，计数排序的运行时间是$\Theta(n)$。
     2. 基本思路是对于每一个输入元素x，计数小于x的元素个数。从而直接将x放在指定的位置。
     ```cpp
-    // to be continued
+    std::vector<int> count_sort(std::vector<int>& input) {
+        std::vector<int> ret(input.size(), 0);
+        auto minmaxElement = std::minmax_element(input.begin(), input.end());
+        std::vector<unsigned int> count(*minmaxElement.second - *minmaxElement.first + 1, 0);
+        for (auto& t : input) {
+            count[t - *minmaxElement.first]++;
+        }
+        for (size_t i = 1; i != count.size(); ++i) {
+            count[i] += count[i - 1];
+        }
+        for (auto& t : input) {
+            cout << count[t - *minmaxElement.first] - 1 << endl;
+            ret[count[t - *minmaxElement.first] - 1] = t;
+            count[t - *minmaxElement.first]--;
+        }
+        return ret;
+    }
     ```
 # 多说几句
 1. 基于比较的排序，最优的渐进时间复杂度就是$O(nlogn)$，这一点是有证明的（决策树模型）。

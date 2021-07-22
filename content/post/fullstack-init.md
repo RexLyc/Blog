@@ -13,6 +13,10 @@ thumbnailImage: images/thumbnail/algorithm.jpg
 虽然技多不压身，但是也要注意不要让自己所学过杂。一定要有自己最精通的领域。
 本文另外还会记录一些特别有趣和有用的依赖库。
 <!--more-->
+# 当前更新热点（计划8月完成主要内容）
+    1. Vue3、js、ts
+    2. Spring、Java
+
 # 前端学习内容
 1. 前端框架
 2. Javascript

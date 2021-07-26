@@ -13,6 +13,10 @@ thumbnailImage: https://gitee.com/rexlyc/BlogMedia/raw/master/thumbnail/spring.j
 Java长期稳占编程语言Top3，好用的框架功不可没。Spring框架是其中的集大成者。学一点总没有错。
 <!--more-->
 本系列主要以讲解Spring框架中的原理为主。目标是理清一个Spring程序在执行时的行为。
+# 前置知识
+1. Java语言基础
+2. JVM
+3. 设计模式
 # 发展概况
 - 世界上只有两种编程语言：一种被人痛骂，一种没人使用。Java发展20多年，有很多痛点和缺陷。但不妨碍它曾经代表了语言发展的一种潮流。
 - Spring框架创建之初的主要目的是用来替代更加重量级的企业级Java技术，尤其是EJB（企业级JavaBean，Enterprise JavaBean）。
@@ -50,3 +54,10 @@ Java长期稳占编程语言Top3，好用的框架功不可没。Spring框架是
 《精通Spring》
 
 《精通Spring 4.X:企业应用开发实战》
+
+《从零开始造Spring》
+
+Spring源代码（打断点跟进阅读）
+
+# 工具
+1. javap：java自带的反汇编工具，和idea不同，仅把字节码做简单可视化，保留字节码原汁原味

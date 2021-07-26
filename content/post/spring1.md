@@ -1,5 +1,5 @@
 ---
-title: "Spring框架-Bean详解"
+title: "Spring框架-Bean详解（施工中）"
 date: 2021-07-26T09:42:07+08:00
 categories:
 - 计算机科学与技术
@@ -12,7 +12,7 @@ thumbnailImage: https://gitee.com/rexlyc/BlogMedia/raw/master/thumbnail/spring.j
 Bean作为Spring程序构成的基础之一，其行为奠定软件的基础功能。本章主要介绍Bean的部分原理和实用操作。
 <!--more-->
 # 什么是Bean
-Spring Bean是被Spring实例化、组装并由Spring容器管理的Java对象。
+Spring Bean是被Spring实例化、组装并由Spring容器管理的Java对象。默认情况下，Spring中的bean都是单例的。
 # 定义方式
 1. 用@Component注解（或其衍生物）注解一个Java类型。
 2. 编写配置类型（带有@Configuration的类型），使用@Bean注解编写一个工厂方法返回Bean。
@@ -24,9 +24,10 @@ Spring Bean是被Spring实例化、组装并由Spring容器管理的Java对象�
     - 自动注入存在两种可能性，如果没找到任何bean或找到多个符合条件的bean，默认情况都会报错。
 2. 显式装配，编写配置类型@Configuration，用@Bean返回。一般会手动调用new来创建对象。
 3. xml跳过（不推荐使用）
-# 一些细节
-1. 默认情况下，Spring中的bean都是单例的。
-2. 
+# 关键原理
+1. @ComponentScan：
+    - 处理器ComponentScanAnnotationParser，位于org.springframework.context.annotation包。大致流程（有待确认）：配置类加载→ComponentScan→加载所有已找到的bean的定义→AbstractApplicationContext开始创建bean。
+    - ComponentScan过程中，扫描的是.class字节码文件，从中寻找@Component注解。（findCandidateComponents）
 # 一个bean的典型生命周期
 1. 实例化（instantiation）
 2. 填充属性（Populate）
@@ -65,3 +66,6 @@ public class PojoTest implements BeanFactoryAware {
     }
 }
 ```
+
+# 参考资料
+[史上最通俗易懂的ASM教程 知乎](https://zhuanlan.zhihu.com/p/94498015?utm_source=wechat_timeline)

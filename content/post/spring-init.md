@@ -38,45 +38,6 @@ Java长期稳占编程语言Top3，好用的框架功不可没。Spring框架是
 5. 应用程序上下文（Application Context）：装载bean的定义并负责装配的组件。Spring提供多种应用程序上下文，如从java配置类代码、xml配置中加载。
 6. 样板式代码（boilerplate code）：为了实现通用的和简单的任务，不得不一遍遍重复编写的代码。（经典案例是JDBC的初始化、查询、异常处理代码）
 
-# 一个bean的典型生命周期
-1. 实例化（instantiation）
-2. 填充属性（Populate）
-3. 初始化（Initialization）
-    1. 调用setBeanName方法【可选，需要实现BeanNameAware接口】
-    2. 调用setBeanFactory方法【可选，需要实现BeanFactoryAware接口】
-    3. 调用setApplictionContext方法【可选，需要实现ApplicationContextAware接口】
-    4. 调用预初始化方法【可选，需要实现BeanPostProcessor接口】
-    5. 调用afterPropertiesSet方法【可选，需要实现InitializingBean接口，或在用xml等方式装配时指定了初始化方法】
-    6. 调用自定义初始化方法
-    7. 调用初始化后方法【可选，需要实现BeanPostProcessor接口】
-4. bean开始使用
-5. 销毁（Destruction）
-    1. 容器关闭后：调用destroy方法【可选，需要实现DisposableBean接口，或在用xml等方式装配时制定了销毁方法】
-    2. 调用自定义销毁方法
-> 分清楚初始化方法和构造函数的区别，构造函数和构造块会在实例化阶段被调用。
-
-```Java
-//在使用处Autowired就能看到效果
-@Component
-public class PojoTest implements BeanFactoryAware {
-    private BeanFactory myBeanFactory;
-
-    public PojoTest(){
-        System.out.println("in self construct");
-    }
-
-    {
-        System.out.println("in construct block");
-    }
-
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        System.out.println("in setBeanFactory");
-        this.myBeanFactory=beanFactory;
-    }
-}
-```
-
 # Spring框架典型构成
 ![Spring框架运行时结构](https://docs.spring.io/spring-framework/docs/4.2.x/spring-framework-reference/html/images/spring-overview.png)
 图片来自[Spring官网，4.2.x版本](https://docs.spring.io/spring-framework/docs/4.2.x/spring-framework-reference/html/overview.html)，最新版本可能有变动。

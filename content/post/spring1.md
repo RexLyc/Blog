@@ -14,9 +14,9 @@ Bean作为Spring程序构成的基础之一，其行为奠定软件的基础功�
 # 什么是Bean
 Spring Bean是被Spring实例化、组装并由Spring容器管理的Java对象。默认情况下，Spring中的bean都是单例的。
 # 定义方式
-1. 用@Component注解（或其衍生物）注解一个Java类型。
-2. 编写配置类型（带有@Configuration的类型），使用@Bean注解编写一个工厂方法返回Bean。
-3. 通过XML配置声明Bean定义。
+1. 用@Component注解（或其衍生物）注解一个Java类型
+2. 编写配置类型（带有@Configuration的类型），使用@Bean注解编写一个工厂方法返回Bean
+3. 通过XML配置声明Bean定义（不推荐使用）
 > 更推荐使用类型安全的1和2来完成定义。
 # 装配
 1. （推荐）自动化的装配：使用@ComponentScan来自动化扫描，对于支持Bean定义，将会自动生成Bean。搭配@Autowired注解，将会自动把生成的Bean注入到依赖的对象中。
@@ -28,6 +28,13 @@ Spring Bean是被Spring实例化、组装并由Spring容器管理的Java对象�
 1. @ComponentScan：
     - 处理器ComponentScanAnnotationParser，位于org.springframework.context.annotation包。大致流程（有待确认）：配置类加载→ComponentScan→加载所有已找到的bean的定义→AbstractApplicationContext开始创建bean。
     - ComponentScan过程中，扫描的是.class字节码文件，从中寻找@Component注解。（findCandidateComponents）
+2. @Scope:
+    - 负责控制组件的生命周期。作用于@Component类型，或@Bean函数前。
+    - 常用选项包括：
+        - "prototype"：每一次populateBean都产生一个新的Bean
+        - "singleton"：全局唯一的单例模式
+        - "request"：每一个http request产生一个
+        - "session"：每一个http session产生一个
 # 一个bean的典型生命周期
 1. 实例化（instantiation）
 2. 填充属性（Populate）

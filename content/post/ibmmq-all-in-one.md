@@ -38,29 +38,39 @@ tags:
     - 配置用户环境
         - \# passwd mqm（rpm安装过程中已经创建了一个名为mqm的用户和组，设置密码来解锁使用）
         - /etc/profile修改环境变量，并source
-            MQ_HOME=/opt/mqm/bin
-            PATH=$MQ_HOME:$PATH
-            export PATH
+            <br>&emsp;MQ_HOME=/opt/mqm/bin
+            <br>&emsp;PATH=$MQ_HOME:$PATH
+            <br>&emsp;export PATH
         - su - mqm（切换用户）
         - 将mqm的主目录下，文件、目录修改为mqm用户名和用户组
 - Windows（仅Explorer）
     - 下载到安装包压缩包，形如：ms0t_mqexplorer_9100_windows_x86_64.zip
     - 解压缩，双击setup.exe安装
 # 配置
-- 创建队列管理器：crtmqm -q YOUR_MQM_NAME
-- 开启队列管理器：strmqm YOUR_MQM_NAME
-- 查看队列管理器状态：dspmq
-- 打开队列管理器（此步往下都在管理器中执行）：runmqsc YOUR_MQM_NAME
-- 定义服务器连接通道：DEFINE CHANNEL(YOUR_CONN_NAME) CHLTYPE(SVRCONN) TRPTYPE(TCP) MCAUSER(YOUR_USER_NAME)
-- 创建监听：DEFINE LISTENER(YOUR_LISTENER_NAME) TRPTYPE(TCP) PORT(1414) CONTROL(QMGR)
+- 创建队列管理器：
+<br>&emsp;crtmqm -q YOUR_MQM_NAME
+- 开启队列管理器：
+<br>&emsp;strmqm YOUR_MQM_NAME
+- 查看队列管理器状态：
+<br>&emsp;dspmq
+- 打开队列管理器（此步往下都在管理器中执行）：
+<br>&emsp;runmqsc YOUR_MQM_NAME
+- 定义服务器连接通道：
+<br>&emsp;DEFINE CHANNEL(YOUR_CONN_NAME) CHLTYPE(SVRCONN) TRPTYPE(TCP) MCAUSER(YOUR_USER_NAME)
+- 创建监听：
+<br>&emsp;DEFINE LISTENER(YOUR_LISTENER_NAME) TRPTYPE(TCP) PORT(1414) CONTROL(QMGR)
     - control属性代表启动、停止的控制方式：MANUAL为手动、QMGR为随QM启停、STARTONLY为随QM启动但不随其停止
-- 启动监听：START LISTENER(YOUR_LISTNER_NAME)
+- 启动监听：
+<br>&emsp;START LISTENER(YOUR_LISTNER_NAME)
 - 发送&接收的队列&通道配置：暂时跳过
 - 权限问题：
     - 取消验证：
-        - 关闭通道鉴权：ALTER QMGR CHLAUTH(DISABLED)
-        - 禁用连接权限认证：ALTER QMGR CONNAUTH('')
-        - 刷新安全策略：REFRESH SECURITY TYPE(CONNAUTH)
+        - 关闭通道鉴权：
+        <br>&emsp;ALTER QMGR CHLAUTH(DISABLED)
+        - 禁用连接权限认证：
+        <br>&emsp;ALTER QMGR CONNAUTH('')
+        - 刷新安全策略：
+        <br>&emsp;REFRESH SECURITY TYPE(CONNAUTH)
     - 正常验证：（TODO）
 - 结束：end
 > 注意：创建队列和通道时，定义名字的或者绑定名字的时候不加‘’的是默认大写的，加上‘’是区分大小写的，这是一个坑。
@@ -101,9 +111,213 @@ tags:
     ```
     - 配置
     ```yml
+    #ibm mq 配置信息
+    project.mq.host= 172.16.20.51
+    project.mq.port= 1414
+    #(队列管理器名称)
+    project.mq.queue-manager= MQTEST
+    #(通道名称)
+    project.mq.channel= SERVERCONN
+    #创建的MQ用户
+    project.mq.username= mqm #填上你的用户名
+    #创建的MQ用户连接密码
+    project.mq.password= 123456 #如果关闭了验证，这里随意
+    #连接超时
+    project.mq.receive-timeout= 20000
     ```
-    - 代码
+    - 配置类代码
     ```java
+    package com.liyicheng.springlearn.config;
+
+    import com.ibm.mq.jms.MQQueueConnectionFactory;
+    import com.ibm.msg.client.wmq.WMQConstants;
+    import org.springframework.beans.factory.annotation.Value;
+    import org.springframework.context.annotation.Bean;
+    import org.springframework.context.annotation.Configuration;
+    import org.springframework.context.annotation.Primary;
+    import org.springframework.jms.connection.CachingConnectionFactory;
+    import org.springframework.jms.connection.JmsTransactionManager;
+    import org.springframework.jms.connection.UserCredentialsConnectionFactoryAdapter;
+    import org.springframework.jms.core.JmsOperations;
+    import org.springframework.jms.core.JmsTemplate;
+    import org.springframework.transaction.PlatformTransactionManager;
+
+    /**
+    * @author liyicheng
+    * @date 2021-07-28 17:52:57
+    **/
+    @Configuration
+    public class JmsConfig {
+        /**
+        * 注入连接参数:
+        * 建立JmsConfig类，添加注解@Configuration，并将以上属性注入到此类
+        */
+        @Value("${project.mq.host}")
+        private String host;
+        @Value("${project.mq.port}")
+        private Integer port;
+        @Value("${project.mq.queue-manager}")
+        private String queueManager;
+        @Value("${project.mq.channel}")
+        private String channel;
+        @Value("${project.mq.username}")
+        private String username;
+        @Value("${project.mq.password}")
+        private String password;
+        @Value("${project.mq.receive-timeout}")
+        private long receiveTimeout;
+
+        /**
+        * 配置连接工厂:
+        * CCSID要与连接到的队列管理器一致，Windows下默认为1381，
+        * Linux下默认为1208。1208表示UTF-8字符集，建议把队列管理器的CCSID改为1208
+        *
+        * @return
+        */
+        @Bean
+        public MQQueueConnectionFactory mqQueueConnectionFactory() {
+            MQQueueConnectionFactory mqQueueConnectionFactory = new MQQueueConnectionFactory();
+            mqQueueConnectionFactory.setHostName(host);
+            try {
+                mqQueueConnectionFactory.setTransportType(WMQConstants.WMQ_CM_CLIENT);
+                mqQueueConnectionFactory.setCCSID(1208);
+                mqQueueConnectionFactory.setChannel(channel);
+                mqQueueConnectionFactory.setPort(port);
+                mqQueueConnectionFactory.setQueueManager(queueManager);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return mqQueueConnectionFactory;
+        }
+
+        /**
+        * 配置连接认证:
+        * 如不需要账户密码链接可以跳过此步，直接将mqQueueConnectionFactory注入下一步的缓存连接工厂。
+        *
+        * @param mqQueueConnectionFactory
+        * @return
+        */
+        @Bean
+        UserCredentialsConnectionFactoryAdapter userCredentialsConnectionFactoryAdapter(MQQueueConnectionFactory mqQueueConnectionFactory) {
+            UserCredentialsConnectionFactoryAdapter userCredentialsConnectionFactoryAdapter = new UserCredentialsConnectionFactoryAdapter();
+            userCredentialsConnectionFactoryAdapter.setUsername(username);
+            userCredentialsConnectionFactoryAdapter.setPassword(password);
+            userCredentialsConnectionFactoryAdapter.setTargetConnectionFactory(mqQueueConnectionFactory);
+            return userCredentialsConnectionFactoryAdapter;
+        }
+
+        /**
+        * 配置缓存连接工厂:
+        * 不配置该类则每次与MQ交互都需要重新创建连接，大幅降低速度。
+        */
+        @Bean
+        @Primary
+        public CachingConnectionFactory cachingConnectionFactory(UserCredentialsConnectionFactoryAdapter userCredentialsConnectionFactoryAdapter) {
+            CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
+            cachingConnectionFactory.setTargetConnectionFactory(userCredentialsConnectionFactoryAdapter);
+            cachingConnectionFactory.setSessionCacheSize(500);
+            cachingConnectionFactory.setReconnectOnException(true);
+            return cachingConnectionFactory;
+        }
+
+        /**
+        * 配置事务管理器:
+        * 不使用事务可以跳过该步骤。
+        * 如需使用事务，可添加注解@EnableTransactionManagement到程序入口类中，事务的具体用法可参考Spring Trasaction。
+        *
+        * @param cachingConnectionFactory
+        * @return
+        */
+        @Bean
+        public PlatformTransactionManager jmsTransactionManager(CachingConnectionFactory cachingConnectionFactory) {
+            JmsTransactionManager jmsTransactionManager = new JmsTransactionManager();
+            jmsTransactionManager.setConnectionFactory(cachingConnectionFactory);
+            return jmsTransactionManager;
+        }
+
+        /**
+        * 配置JMS模板:
+        * JmsOperations为JmsTemplate的实现接口。
+        * 重要：不设置setReceiveTimeout时，当队列为空，从队列中取出消息的方法将会一直挂起直到队列内有消息
+        *
+        * @param cachingConnectionFactory
+        * @return
+        */
+        @Bean
+        public JmsOperations jmsOperations(CachingConnectionFactory cachingConnectionFactory) {
+            JmsTemplate jmsTemplate = new JmsTemplate(cachingConnectionFactory);
+            jmsTemplate.setReceiveTimeout(receiveTimeout);
+            return jmsTemplate;
+        }
+    }
+    ```
+    - 生产者代码
+    ```java
+    package com.liyicheng.springlearn.producer;
+
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.jms.core.JmsOperations;
+    import org.springframework.stereotype.Component;
+
+    import javax.annotation.PostConstruct;
+
+    /**
+    * @author liyicheng
+    * @date 2021-07-28 17:54:09
+    **/
+    @Component
+    public class SendMessage {
+
+        @Autowired
+        JmsOperations jmsOperations;
+
+        //@PostConstruct在服务器加载Servle的时候运行，并且只会被服务器执行一次, @PreDestroy在destroy()方法执行执行之后执行
+        @PostConstruct
+        public void send(){
+            jmsOperations.convertAndSend("Q1", "my message...");
+            System.out.println("开始发送消息");
+        }
+
+    }
+    ```
+    - 消费者代码
+    ```java
+    package com.liyicheng.springlearn.consumer;
+
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.jms.annotation.JmsListener;
+    import org.springframework.jms.core.JmsOperations;
+    import org.springframework.jms.listener.adapter.MessageListenerAdapter;
+    import org.springframework.stereotype.Component;
+
+    import javax.jms.JMSException;
+    import javax.jms.Message;
+    import javax.jms.TextMessage;
+
+    /**
+    * @author liyicheng
+    * @date 2021-07-28 17:54:40
+    **/
+    @Component
+    public class ReceiveMessage  extends MessageListenerAdapter {
+        @Autowired
+        JmsOperations jmsOperations;
+
+
+        @Override
+        @JmsListener(destination = "Q1") //队列
+        public void onMessage(Message message) {
+            //必须转换如果不转换直接message.tostring消息的传输有限制。
+            TextMessage textMessage= (TextMessage) message;  //转换成文本消息
+            try {
+                System.out.println("MQ_send传来的值为:" +textMessage.getText());
+            } catch (JMSException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+    }
     ```
     
 # 参考资料
@@ -114,3 +328,5 @@ tags:
 [IBM WebSphere MQ for linux 安装详解](http://www.shterm.cn/176.html)
 
 [IBM MQ 远程队列的创建与使用](https://blog.csdn.net/ILYPTING/article/details/104749065)
+
+[SpringBoot整合IBMMQ连接发送和接收](https://blog.csdn.net/u012448904/article/details/90474548  )

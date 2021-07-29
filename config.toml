@@ -164,7 +164,7 @@ enableEmoji = true
   autoThumbnailImage = true
 
   # Your favicon path, default is "/favicon.png"
-  # favicon = "/favicon.png"
+  favicon = "/images/favicon.png"
 
   # Header configuration
   # The link at the right of the header is customizable

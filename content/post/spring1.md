@@ -35,6 +35,10 @@ Spring Bean是被Spring实例化、组装并由Spring容器管理的Java对象�
         - "singleton"：全局唯一的单例模式
         - "request"：每一个http request产生一个
         - "session"：每一个http session产生一个
+3. @Bean：
+    - 作为显式装配的必要注解，对一个返回Bean的工厂函数进行注解。
+    - 工厂函数可以拥有参数，参数内容将会自动注入（隐含@Autowired）
+        - 可以搭配@Primary、@Qualifier区分自动注入的Bean来源
 # 一个bean的典型生命周期
 1. 实例化（instantiation）
 2. 填充属性（Populate）

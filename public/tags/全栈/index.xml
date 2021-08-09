@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>全栈 on 奕成的个人空间</title>
+    <link>https://www.lyclife.com/tags/%E5%85%A8%E6%A0%88/</link>
+    <description>Recent content in 全栈 on 奕成的个人空间</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 19 Jul 2021 11:15:05 +0800</lastBuildDate><atom:link href="https://www.lyclife.com/tags/%E5%85%A8%E6%A0%88/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>全栈学习开坑篇（施工中）</title>
+      <link>https://www.lyclife.com/2021/07/%E5%85%A8%E6%A0%88%E5%AD%A6%E4%B9%A0%E5%BC%80%E5%9D%91%E7%AF%87%E6%96%BD%E5%B7%A5%E4%B8%AD/</link>
+      <pubDate>Mon, 19 Jul 2021 11:15:05 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/07/%E5%85%A8%E6%A0%88%E5%AD%A6%E4%B9%A0%E5%BC%80%E5%9D%91%E7%AF%87%E6%96%BD%E5%B7%A5%E4%B8%AD/</guid>
+      <description>&lt;p&gt;虽然技多不压身，但是也要注意不要让自己所学过杂。一定要有自己最精通的领域。
+本文另外还会记录一些特别有趣和有用的依赖库。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

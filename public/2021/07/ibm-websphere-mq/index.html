@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.87.0 with theme Tranquilpeak 0.4.8-BETA">
+<meta name="author" content="李奕成">
+<meta name="keywords" content="">
+<meta name="description" content="由于工作原因，需要使用到IBMMQ，由于相关资料较少，所以在此特地整理一篇。尽力涵盖安装、配置、使用。">
+
+
+<meta property="og:description" content="由于工作原因，需要使用到IBMMQ，由于相关资料较少，所以在此特地整理一篇。尽力涵盖安装、配置、使用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IBM WebSphere MQ">
+<meta name="twitter:title" content="IBM WebSphere MQ">
+<meta property="og:url" content="https://www.lyclife.com/2021/07/ibm-websphere-mq/">
+<meta property="twitter:url" content="https://www.lyclife.com/2021/07/ibm-websphere-mq/">
+<meta property="og:site_name" content="奕成的个人空间">
+<meta property="og:description" content="由于工作原因，需要使用到IBMMQ，由于相关资料较少，所以在此特地整理一篇。尽力涵盖安装、配置、使用。">
+<meta name="twitter:description" content="由于工作原因，需要使用到IBMMQ，由于相关资料较少，所以在此特地整理一篇。尽力涵盖安装、配置、使用。">
+<meta property="og:locale" content="zh-cn">
+
+  
+    <meta property="article:published_time" content="2021-07-27T16:43:16">
+  
+  
+    <meta property="article:modified_time" content="2021-07-27T16:43:16">
+  
+  
+  
+    
+      <meta property="article:section" content="计算机科学与技术">
+    
+      <meta property="article:section" content="中间件">
+    
+  
+  
+    
+      <meta property="article:tag" content="中间件">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+
+
+
+
+
+
+
+
+
+
+  <meta property="og:image" content="https://www.lyclife.com/images/author.jpg">
+  <meta property="twitter:image" content="https://www.lyclife.com/images/author.jpg">
+
+
+    
+    <title>IBM WebSphere MQ</title>
+
+    <link rel="icon" href="https://www.lyclife.com/images/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="https://www.lyclife.com/2021/07/ibm-websphere-mq/">
+
+    
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" rel="stylesheet">
+    
+    
+    <link rel="stylesheet" href="https://www.lyclife.com/css/style-twzjdbqhmnnacqs0pwwdzcdbt8yhv8giawvjqjmyfoqnvazl0dalmnhdkvp7.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="https://www.lyclife.com/">奕成的个人空间</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="https://www.lyclife.com/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="https://www.lyclife.com/#about">
+          <img class="sidebar-profile-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+        </a>
+        <h4 class="sidebar-profile-name">李奕成</h4>
+        
+          <h5 class="sidebar-profile-bio">每天都是最好的一天</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">首页</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">分类</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">标签</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">归档</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">关于</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://github.com/RexLyc" target="_blank" rel="noopener">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/images/wechat.jpg">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-wechat"></i>
+      
+      <span class="sidebar-button-desc">微信</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="4"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
+  
+    <h1 class="post-title" itemprop="headline">
+      IBM WebSphere MQ
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2021-07-27T16:43:16&#43;08:00">
+        
+  七月 27, 2021
+
+      </time>
+    
+    
+  
+  
+    <span>发布在</span>
+    
+      <a class="category-link" href="https://www.lyclife.com/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba%e7%a7%91%e5%ad%a6%e4%b8%8e%e6%8a%80%e6%9c%af">计算机科学与技术</a>, 
+    
+      <a class="category-link" href="https://www.lyclife.com/categories/%e4%b8%ad%e9%97%b4%e4%bb%b6">中间件</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              <p>由于工作原因，需要使用到IBMMQ，由于相关资料较少，所以在此特地整理一篇。尽力涵盖安装、配置、使用。</p>
+<h1 id="安装">安装</h1>
+<p>最离谱的事情就是安装，尚且不知道从哪里能一步步找到到Linux的服务器安装包连接，以及Windows的Explorer客户端的安装包。</p>
+<ul>
+<li>网上查到的安装包网址：
+<ul>
+<li><a href="http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/">下载无需安装的压缩包</a></li>
+</ul>
+</li>
+<li>Linux
+<ul>
+<li>找到压缩包之后（名称如：WS_MQ_V8.0.0.2_LINUX_ON_X86_64_RELEASE.tar.gz），解压。</li>
+<li>server目录下，./mqlicense.sh -accept</li>
+<li>rpm安装各个包
+<ul>
+<li>e.g.：rpm -ivh MQSeriesRuntime-xxxx.rpm</li>
+</ul>
+</li>
+<li>各包内容
+<ul>
+<li>Runtime（MQSeriesRuntime），运行时环境，必须安装（客户端和服务器端都需要）</li>
+<li>Server（MQSeriesServer），运行队列管理器和提供消息队列服务，服务器端需要</li>
+<li>Client（MQSeriesClient），MQ的很小的功能子集，连接Server组件，不提供队列管理器</li>
+<li>SDK（MQSeriesSDK),开发需要，用来编译应用程序</li>
+<li>Sample programs，示例程序</li>
+<li>Java messaging（MQSeriesJava），支持Java消息服务功能（JMS）</li>
+<li>Man pages，帮助文档，提供control命令，MQI命令，MQSC命令帮助</li>
+<li>Java JRE，必须，Java运行时，支持MQ部分Java编写的功能</li>
+<li>Message Catalogs，支持的语言</li>
+<li>Global Security Kit，支持加密安全认证功能，必须先安装JRE</li>
+<li>Telemetry Service（MQSeriesXRService），遥感通信MQTT协议，支持传感器等设备连接通信</li>
+<li>MQ Explorer，管理监控MQ</li>
+<li>Managed File Transfer，文件传输</li>
+<li>Advanced Message Security，更高级的安全保护，必须安装JRE和Security Kit</li>
+<li>AMQP Service，提供AMQP通道，支持MQ Light APIs</li>
+</ul>
+</li>
+<li>配置用户环境
+<ul>
+<li># passwd mqm（rpm安装过程中已经创建了一个名为mqm的用户和组，设置密码来解锁使用）</li>
+<li>/etc/profile修改环境变量，并source
+<br> MQ_HOME=/opt/mqm/bin
+<br> PATH=$MQ_HOME:$PATH
+<br> export PATH</li>
+<li>su - mqm（切换用户）</li>
+<li>将mqm的主目录下，文件、目录修改为mqm用户名和用户组</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Windows（仅Explorer）
+<ul>
+<li>下载到安装包压缩包，形如：ms0t_mqexplorer_9100_windows_x86_64.zip</li>
+<li>解压缩，双击setup.exe安装</li>
+</ul>
+</li>
+</ul>
+<h1 id="配置">配置</h1>
+<ul>
+<li>创建队列管理器：
+<br> crtmqm -q YOUR_MQM_NAME</li>
+<li>开启队列管理器：
+<br> strmqm YOUR_MQM_NAME</li>
+<li>查看队列管理器状态：
+<br> dspmq</li>
+<li>打开队列管理器（此步往下都在管理器中执行）：
+<br> runmqsc YOUR_MQM_NAME</li>
+<li>定义服务器连接通道：
+<br> DEFINE CHANNEL(YOUR_CONN_NAME) CHLTYPE(SVRCONN) TRPTYPE(TCP) MCAUSER(YOUR_USER_NAME)</li>
+<li>创建监听：
+<br> DEFINE LISTENER(YOUR_LISTENER_NAME) TRPTYPE(TCP) PORT(1414) CONTROL(QMGR)
+<ul>
+<li>control属性代表启动、停止的控制方式：MANUAL为手动、QMGR为随QM启停、STARTONLY为随QM启动但不随其停止</li>
+</ul>
+</li>
+<li>启动监听：
+<br> START LISTENER(YOUR_LISTNER_NAME)</li>
+<li>发送&amp;接收的队列&amp;通道配置：暂时跳过</li>
+<li>权限问题：
+<ul>
+<li>取消验证：
+<ul>
+<li>关闭通道鉴权：
+<br> ALTER QMGR CHLAUTH(DISABLED)</li>
+<li>禁用连接权限认证：
+<br> ALTER QMGR CONNAUTH('')</li>
+<li>刷新安全策略：
+<br> REFRESH SECURITY TYPE(CONNAUTH)</li>
+</ul>
+</li>
+<li>正常验证：（TODO）</li>
+</ul>
+</li>
+<li>结束：end</li>
+</ul>
+<blockquote>
+<p>注意：创建队列和通道时，定义名字的或者绑定名字的时候不加‘’的是默认大写的，加上‘’是区分大小写的，这是一个坑。</p>
+</blockquote>
+<h1 id="ibmmq基本使用">IBMMQ基本使用</h1>
+<ul>
+<li>主要概念
+<ul>
+<li>队列
+<ul>
+<li>本地队列：物理上位于本地队列管理器中的队列</li>
+<li>本地传输队列：临时存储目标为远程管理器的消息的队列。队列管理器利用传输队列，分阶段的将消息发送到远程队列。一个本地传输队列是位于网络两侧的两个队列管理器的连接的桥梁。</li>
+<li>远程队列：一个不与该应用程序直接相连的队列管理器下的队列。(发送方的远程队列就是接收方的本地队列)</li>
+<li><a href="https://www.cnblogs.com/ealenxie/p/9244776.html">其他队列分类</a></li>
+</ul>
+</li>
+<li>通道
+<ul>
+<li>发送通道：将消息发送到远程队列（给出传输队列、远程队列、远程队列管理器的信息）</li>
+<li>接收通道：获取远程发到本地的消息</li>
+<li>服务器连接通道：用于客户端和服务器连接</li>
+</ul>
+</li>
+<li>QM：队列管理器</li>
+<li>队列深度：当前队列中的消息数量</li>
+<li>内网连接和外网连接：据说是有区别的，但是尚未接触到。</li>
+</ul>
+</li>
+<li>关键文件
+<ul>
+<li>日志
+<ul>
+<li>/var/mqm/qmgrs/YOUR_MQM_NAME/errors/***.log</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>和Spring整合
+<ul>
+<li>依赖</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;dependency&gt;</span>
+    <span style="color:#f92672">&lt;groupId&gt;</span>org.springframework<span style="color:#f92672">&lt;/groupId&gt;</span>
+    <span style="color:#f92672">&lt;artifactId&gt;</span>spring-jms<span style="color:#f92672">&lt;/artifactId&gt;</span>
+<span style="color:#f92672">&lt;/dependency&gt;</span>
+<span style="color:#f92672">&lt;dependency&gt;</span>
+    <span style="color:#f92672">&lt;groupId&gt;</span>javax.jms<span style="color:#f92672">&lt;/groupId&gt;</span>
+    <span style="color:#f92672">&lt;artifactId&gt;</span>javax.jms-api<span style="color:#f92672">&lt;/artifactId&gt;</span>
+    <span style="color:#f92672">&lt;version&gt;</span>2.0.1<span style="color:#f92672">&lt;/version&gt;</span>
+<span style="color:#f92672">&lt;/dependency&gt;</span>
+<span style="color:#f92672">&lt;dependency&gt;</span>
+    <span style="color:#f92672">&lt;groupId&gt;</span>com.ibm.mq<span style="color:#f92672">&lt;/groupId&gt;</span>
+    <span style="color:#f92672">&lt;artifactId&gt;</span>com.ibm.mq.allclient<span style="color:#f92672">&lt;/artifactId&gt;</span>
+    <span style="color:#f92672">&lt;version&gt;</span>9.1.1.0<span style="color:#f92672">&lt;/version&gt;</span>
+<span style="color:#f92672">&lt;/dependency&gt;</span>
+</code></pre></div><ul>
+<li>配置</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#75715e">#ibm mq 配置信息</span>
+<span style="color:#ae81ff">project.mq.host= 172.16.20.51</span>
+<span style="color:#ae81ff">project.mq.port= 1414</span>
+<span style="color:#75715e">#(队列管理器名称)</span>
+<span style="color:#ae81ff">project.mq.queue-manager= MQTEST</span>
+<span style="color:#75715e">#(通道名称)</span>
+<span style="color:#ae81ff">project.mq.channel= SERVERCONN</span>
+<span style="color:#75715e">#创建的MQ用户</span>
+<span style="color:#ae81ff">project.mq.username= mqm</span> <span style="color:#75715e">#填上你的用户名</span>
+<span style="color:#75715e">#创建的MQ用户连接密码</span>
+<span style="color:#ae81ff">project.mq.password= 123456</span> <span style="color:#75715e">#如果关闭了验证，这里随意</span>
+<span style="color:#75715e">#连接超时</span>
+<span style="color:#ae81ff">project.mq.receive-timeout= 20000</span>
+</code></pre></div><ul>
+<li>配置类代码</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> com.liyicheng.springlearn.config<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> com.ibm.mq.jms.MQQueueConnectionFactory<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> com.ibm.msg.client.wmq.WMQConstants<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.springframework.beans.factory.annotation.Value<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.springframework.context.annotation.Bean<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.springframework.context.annotation.Configuration<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.springframework.context.annotation.Primary<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.springframework.jms.connection.CachingConnectionFactory<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.springframework.jms.connection.JmsTransactionManager<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.springframework.jms.connection.UserCredentialsConnectionFactoryAdapter<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.springframework.jms.core.JmsOperations<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.springframework.jms.core.JmsTemplate<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.springframework.transaction.PlatformTransactionManager<span style="color:#f92672">;</span>
+
+<span style="color:#75715e">/**
+</span><span style="color:#75715e">* @author liyicheng
+</span><span style="color:#75715e">* @date 2021-07-28 17:52:57
+</span><span style="color:#75715e">**/</span>
+<span style="color:#a6e22e">@Configuration</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">JmsConfig</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">    * 注入连接参数:
+</span><span style="color:#75715e">    * 建立JmsConfig类，添加注解@Configuration，并将以上属性注入到此类
+</span><span style="color:#75715e">    */</span>
+    <span style="color:#a6e22e">@Value</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;${project.mq.host}&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">private</span> String host<span style="color:#f92672">;</span>
+    <span style="color:#a6e22e">@Value</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;${project.mq.port}&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">private</span> Integer port<span style="color:#f92672">;</span>
+    <span style="color:#a6e22e">@Value</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;${project.mq.queue-manager}&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">private</span> String queueManager<span style="color:#f92672">;</span>
+    <span style="color:#a6e22e">@Value</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;${project.mq.channel}&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">private</span> String channel<span style="color:#f92672">;</span>
+    <span style="color:#a6e22e">@Value</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;${project.mq.username}&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">private</span> String username<span style="color:#f92672">;</span>
+    <span style="color:#a6e22e">@Value</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;${project.mq.password}&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">private</span> String password<span style="color:#f92672">;</span>
+    <span style="color:#a6e22e">@Value</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;${project.mq.receive-timeout}&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">long</span> receiveTimeout<span style="color:#f92672">;</span>
+
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">    * 配置连接工厂:
+</span><span style="color:#75715e">    * CCSID要与连接到的队列管理器一致，Windows下默认为1381，
+</span><span style="color:#75715e">    * Linux下默认为1208。1208表示UTF-8字符集，建议把队列管理器的CCSID改为1208
+</span><span style="color:#75715e">    *
+</span><span style="color:#75715e">    * @return
+</span><span style="color:#75715e">    */</span>
+    <span style="color:#a6e22e">@Bean</span>
+    <span style="color:#66d9ef">public</span> MQQueueConnectionFactory <span style="color:#a6e22e">mqQueueConnectionFactory</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        MQQueueConnectionFactory mqQueueConnectionFactory <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> MQQueueConnectionFactory<span style="color:#f92672">();</span>
+        mqQueueConnectionFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">setHostName</span><span style="color:#f92672">(</span>host<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            mqQueueConnectionFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">setTransportType</span><span style="color:#f92672">(</span>WMQConstants<span style="color:#f92672">.</span><span style="color:#a6e22e">WMQ_CM_CLIENT</span><span style="color:#f92672">);</span>
+            mqQueueConnectionFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">setCCSID</span><span style="color:#f92672">(</span>1208<span style="color:#f92672">);</span>
+            mqQueueConnectionFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">setChannel</span><span style="color:#f92672">(</span>channel<span style="color:#f92672">);</span>
+            mqQueueConnectionFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">setPort</span><span style="color:#f92672">(</span>port<span style="color:#f92672">);</span>
+            mqQueueConnectionFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">setQueueManager</span><span style="color:#f92672">(</span>queueManager<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Exception e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> mqQueueConnectionFactory<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">    * 配置连接认证:
+</span><span style="color:#75715e">    * 如不需要账户密码链接可以跳过此步，直接将mqQueueConnectionFactory注入下一步的缓存连接工厂。
+</span><span style="color:#75715e">    *
+</span><span style="color:#75715e">    * @param mqQueueConnectionFactory
+</span><span style="color:#75715e">    * @return
+</span><span style="color:#75715e">    */</span>
+    <span style="color:#a6e22e">@Bean</span>
+    UserCredentialsConnectionFactoryAdapter <span style="color:#a6e22e">userCredentialsConnectionFactoryAdapter</span><span style="color:#f92672">(</span>MQQueueConnectionFactory mqQueueConnectionFactory<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        UserCredentialsConnectionFactoryAdapter userCredentialsConnectionFactoryAdapter <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> UserCredentialsConnectionFactoryAdapter<span style="color:#f92672">();</span>
+        userCredentialsConnectionFactoryAdapter<span style="color:#f92672">.</span><span style="color:#a6e22e">setUsername</span><span style="color:#f92672">(</span>username<span style="color:#f92672">);</span>
+        userCredentialsConnectionFactoryAdapter<span style="color:#f92672">.</span><span style="color:#a6e22e">setPassword</span><span style="color:#f92672">(</span>password<span style="color:#f92672">);</span>
+        userCredentialsConnectionFactoryAdapter<span style="color:#f92672">.</span><span style="color:#a6e22e">setTargetConnectionFactory</span><span style="color:#f92672">(</span>mqQueueConnectionFactory<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">return</span> userCredentialsConnectionFactoryAdapter<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">    * 配置缓存连接工厂:
+</span><span style="color:#75715e">    * 不配置该类则每次与MQ交互都需要重新创建连接，大幅降低速度。
+</span><span style="color:#75715e">    */</span>
+    <span style="color:#a6e22e">@Bean</span>
+    <span style="color:#a6e22e">@Primary</span>
+    <span style="color:#66d9ef">public</span> CachingConnectionFactory <span style="color:#a6e22e">cachingConnectionFactory</span><span style="color:#f92672">(</span>UserCredentialsConnectionFactoryAdapter userCredentialsConnectionFactoryAdapter<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        CachingConnectionFactory cachingConnectionFactory <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CachingConnectionFactory<span style="color:#f92672">();</span>
+        cachingConnectionFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">setTargetConnectionFactory</span><span style="color:#f92672">(</span>userCredentialsConnectionFactoryAdapter<span style="color:#f92672">);</span>
+        cachingConnectionFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">setSessionCacheSize</span><span style="color:#f92672">(</span>500<span style="color:#f92672">);</span>
+        cachingConnectionFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">setReconnectOnException</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">return</span> cachingConnectionFactory<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">    * 配置事务管理器:
+</span><span style="color:#75715e">    * 不使用事务可以跳过该步骤。
+</span><span style="color:#75715e">    * 如需使用事务，可添加注解@EnableTransactionManagement到程序入口类中，事务的具体用法可参考Spring Trasaction。
+</span><span style="color:#75715e">    *
+</span><span style="color:#75715e">    * @param cachingConnectionFactory
+</span><span style="color:#75715e">    * @return
+</span><span style="color:#75715e">    */</span>
+    <span style="color:#a6e22e">@Bean</span>
+    <span style="color:#66d9ef">public</span> PlatformTransactionManager <span style="color:#a6e22e">jmsTransactionManager</span><span style="color:#f92672">(</span>CachingConnectionFactory cachingConnectionFactory<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        JmsTransactionManager jmsTransactionManager <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> JmsTransactionManager<span style="color:#f92672">();</span>
+        jmsTransactionManager<span style="color:#f92672">.</span><span style="color:#a6e22e">setConnectionFactory</span><span style="color:#f92672">(</span>cachingConnectionFactory<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">return</span> jmsTransactionManager<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">/**
+</span><span style="color:#75715e">    * 配置JMS模板:
+</span><span style="color:#75715e">    * JmsOperations为JmsTemplate的实现接口。
+</span><span style="color:#75715e">    * 重要：不设置setReceiveTimeout时，当队列为空，从队列中取出消息的方法将会一直挂起直到队列内有消息
+</span><span style="color:#75715e">    *
+</span><span style="color:#75715e">    * @param cachingConnectionFactory
+</span><span style="color:#75715e">    * @return
+</span><span style="color:#75715e">    */</span>
+    <span style="color:#a6e22e">@Bean</span>
+    <span style="color:#66d9ef">public</span> JmsOperations <span style="color:#a6e22e">jmsOperations</span><span style="color:#f92672">(</span>CachingConnectionFactory cachingConnectionFactory<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        JmsTemplate jmsTemplate <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> JmsTemplate<span style="color:#f92672">(</span>cachingConnectionFactory<span style="color:#f92672">);</span>
+        jmsTemplate<span style="color:#f92672">.</span><span style="color:#a6e22e">setReceiveTimeout</span><span style="color:#f92672">(</span>receiveTimeout<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">return</span> jmsTemplate<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><ul>
+<li>生产者代码</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> com.liyicheng.springlearn.producer<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> org.springframework.beans.factory.annotation.Autowired<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.springframework.jms.core.JmsOperations<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.springframework.stereotype.Component<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> javax.annotation.PostConstruct<span style="color:#f92672">;</span>
+
+<span style="color:#75715e">/**
+</span><span style="color:#75715e">* @author liyicheng
+</span><span style="color:#75715e">* @date 2021-07-28 17:54:09
+</span><span style="color:#75715e">**/</span>
+<span style="color:#a6e22e">@Component</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SendMessage</span> <span style="color:#f92672">{</span>
+
+    <span style="color:#a6e22e">@Autowired</span>
+    JmsOperations jmsOperations<span style="color:#f92672">;</span>
+
+    <span style="color:#75715e">//@PostConstruct在服务器加载Servle的时候运行，并且只会被服务器执行一次, @PreDestroy在destroy()方法执行执行之后执行
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">@PostConstruct</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">send</span><span style="color:#f92672">(){</span>
+        jmsOperations<span style="color:#f92672">.</span><span style="color:#a6e22e">convertAndSend</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Q1&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;my message...&#34;</span><span style="color:#f92672">);</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;开始发送消息&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+<span style="color:#f92672">}</span>
+</code></pre></div><ul>
+<li>消费者代码</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> com.liyicheng.springlearn.consumer<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> org.springframework.beans.factory.annotation.Autowired<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.springframework.jms.annotation.JmsListener<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.springframework.jms.core.JmsOperations<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.springframework.jms.listener.adapter.MessageListenerAdapter<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.springframework.stereotype.Component<span style="color:#f92672">;</span>
+
+<span style="color:#f92672">import</span> javax.jms.JMSException<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.jms.Message<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> javax.jms.TextMessage<span style="color:#f92672">;</span>
+
+<span style="color:#75715e">/**
+</span><span style="color:#75715e">* @author liyicheng
+</span><span style="color:#75715e">* @date 2021-07-28 17:54:40
+</span><span style="color:#75715e">**/</span>
+<span style="color:#a6e22e">@Component</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReceiveMessage</span>  <span style="color:#66d9ef">extends</span> MessageListenerAdapter <span style="color:#f92672">{</span>
+    <span style="color:#a6e22e">@Autowired</span>
+    JmsOperations jmsOperations<span style="color:#f92672">;</span>
+
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#a6e22e">@JmsListener</span><span style="color:#f92672">(</span>destination <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Q1&#34;</span><span style="color:#f92672">)</span> <span style="color:#75715e">//队列
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onMessage</span><span style="color:#f92672">(</span>Message message<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">//必须转换如果不转换直接message.tostring消息的传输有限制。
+</span><span style="color:#75715e"></span>        TextMessage textMessage<span style="color:#f92672">=</span> <span style="color:#f92672">(</span>TextMessage<span style="color:#f92672">)</span> message<span style="color:#f92672">;</span>  <span style="color:#75715e">//转换成文本消息
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;MQ_send传来的值为:&#34;</span> <span style="color:#f92672">+</span>textMessage<span style="color:#f92672">.</span><span style="color:#a6e22e">getText</span><span style="color:#f92672">());</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>JMSException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+
+    <span style="color:#f92672">}</span>
+
+<span style="color:#f92672">}</span>
+</code></pre></div></li>
+</ul>
+<h1 id="参考资料">参考资料</h1>
+<p><a href="https://blog.csdn.net/chengyan0079/article/details/78922889">在Linux系统安装IBM WebSphere MQ</a></p>
+<p><a href="https://blog.csdn.net/weixin_37539417/article/details/93488229">Linux安装IBM WebSphere MQ以及配置</a></p>
+<p><a href="http://www.shterm.cn/176.html">IBM WebSphere MQ for linux 安装详解</a></p>
+<p><a href="https://blog.csdn.net/ILYPTING/article/details/104749065">IBM MQ 远程队列的创建与使用</a></p>
+<p><a href="https://blog.csdn.net/u012448904/article/details/90474548">SpringBoot整合IBMMQ连接发送和接收</a></p>
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">标签</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/08/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%BC%80%E5%9D%91%E7%AF%87%E6%96%BD%E5%B7%A5%E4%B8%AD/" data-tooltip="设计模式开坑篇（施工中）">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/spring%E6%A1%86%E6%9E%B6-%E5%85%B3%E9%94%AE%E6%B3%A8%E8%A7%A3%E5%A4%A7%E5%85%A8%E6%96%BD%E5%B7%A5%E4%B8%AD/" data-tooltip="Spring框架-关键注解大全（施工中）">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+      
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2021 李奕成. All Rights Reserved 
+  </span>
+  <a href="https://beian.miit.gov.cn/#/Integrated/index" target="blank">吉ICP备2021004867</a>
+  
+  <div>
+    <img src="https://www.lyclife.com/images/beian.png">
+    <a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010502045148" target="blank">京公网安备11010502045148</a>
+  </div>
+  
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/08/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%BC%80%E5%9D%91%E7%AF%87%E6%96%BD%E5%B7%A5%E4%B8%AD/" data-tooltip="设计模式开坑篇（施工中）">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/spring%E6%A1%86%E6%9E%B6-%E5%85%B3%E9%94%AE%E6%B3%A8%E8%A7%A3%E5%A4%A7%E5%85%A8%E6%96%BD%E5%B7%A5%E4%B8%AD/" data-tooltip="Spring框架-关键注解大全（施工中）">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+      
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+    
+    <h4 id="about-card-name">李奕成</h4>
+    
+      <div id="about-card-bio">每天都是最好的一天</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        京投 软件研发
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        北京·朝阳
+      </div>
+    
+  </div>
+</div>
+
+    
+
+    
+  
+    <div id="cover" style="background-image:url('https://gitee.com/rexlyc/BlogMedia/raw/master/background/bridge_linjiangmen.jpg');"></div>
+  
+
+
+    
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/11.0.1/highlight.min.js"></script>
+
+<script src="https://cdn.bootcdn.net/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js"></script>
+
+
+<script src="https://www.lyclife.com/js/script-pcw6v3xilnxydl1vddzazdverrnn9ctynvnxgwho987mfyqkuylcb1nlt.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+  
+
+
+
+
+    
+  </body>
+</html>
+

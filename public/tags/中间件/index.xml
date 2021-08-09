@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>中间件 on 奕成的个人空间</title>
+    <link>https://www.lyclife.com/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/</link>
+    <description>Recent content in 中间件 on 奕成的个人空间</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Tue, 27 Jul 2021 16:43:16 +0800</lastBuildDate><atom:link href="https://www.lyclife.com/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>IBM WebSphere MQ</title>
+      <link>https://www.lyclife.com/2021/07/ibm-websphere-mq/</link>
+      <pubDate>Tue, 27 Jul 2021 16:43:16 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/07/ibm-websphere-mq/</guid>
+      <description>&lt;p&gt;由于工作原因，需要使用到IBMMQ，由于相关资料较少，所以在此特地整理一篇。尽力涵盖安装、配置、使用。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

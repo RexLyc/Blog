@@ -5,40 +5,42 @@
     <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Hugo 0.84.1 with theme Tranquilpeak 0.4.8-BETA">
+<meta name="generator" content="Hugo 0.87.0 with theme Tranquilpeak 0.4.8-BETA">
 <meta name="author" content="李奕成">
-<meta name="keywords" content="tech">
-<meta name="description" content="工欲善其事必先利其器，写出优良算法的基础是拥有对算法性能衡量的能力。一起回顾一下时间复杂度的计算吧。">
+<meta name="keywords" content="">
+<meta name="description" content="Java长期稳占编程语言Top3，好用的框架功不可没。Spring框架是其中的集大成者。学一点总没有错。">
 
 
-<meta property="og:description" content="工欲善其事必先利其器，写出优良算法的基础是拥有对算法性能衡量的能力。一起回顾一下时间复杂度的计算吧。">
+<meta property="og:description" content="Java长期稳占编程语言Top3，好用的框架功不可没。Spring框架是其中的集大成者。学一点总没有错。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="算法导论其一（施工中）">
-<meta name="twitter:title" content="算法导论其一（施工中）">
-<meta property="og:url" content="https://www.lyclife.com/2021/07/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E4%B8%80%E6%96%BD%E5%B7%A5%E4%B8%AD/">
-<meta property="twitter:url" content="https://www.lyclife.com/2021/07/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E4%B8%80%E6%96%BD%E5%B7%A5%E4%B8%AD/">
+<meta property="og:title" content="Spring框架开坑篇">
+<meta name="twitter:title" content="Spring框架开坑篇">
+<meta property="og:url" content="https://www.lyclife.com/2021/07/spring%E6%A1%86%E6%9E%B6%E5%BC%80%E5%9D%91%E7%AF%87/">
+<meta property="twitter:url" content="https://www.lyclife.com/2021/07/spring%E6%A1%86%E6%9E%B6%E5%BC%80%E5%9D%91%E7%AF%87/">
 <meta property="og:site_name" content="奕成的个人空间">
-<meta property="og:description" content="工欲善其事必先利其器，写出优良算法的基础是拥有对算法性能衡量的能力。一起回顾一下时间复杂度的计算吧。">
-<meta name="twitter:description" content="工欲善其事必先利其器，写出优良算法的基础是拥有对算法性能衡量的能力。一起回顾一下时间复杂度的计算吧。">
+<meta property="og:description" content="Java长期稳占编程语言Top3，好用的框架功不可没。Spring框架是其中的集大成者。学一点总没有错。">
+<meta name="twitter:description" content="Java长期稳占编程语言Top3，好用的框架功不可没。Spring框架是其中的集大成者。学一点总没有错。">
 <meta property="og:locale" content="zh-cn">
 
   
-    <meta property="article:published_time" content="2021-07-08T22:41:56">
+    <meta property="article:published_time" content="2021-07-22T16:52:58">
   
   
-    <meta property="article:modified_time" content="2021-07-08T22:41:56">
+    <meta property="article:modified_time" content="2021-07-22T16:52:58">
   
   
   
     
       <meta property="article:section" content="计算机科学与技术">
     
-      <meta property="article:section" content="算法">
+      <meta property="article:section" content="Spring">
     
   
   
     
-      <meta property="article:tag" content="算法系列">
+      <meta property="article:tag" content="系列开坑">
+    
+      <meta property="article:tag" content="Spring">
     
   
 
@@ -51,8 +53,8 @@
 
 
 
-  <meta property="og:image" content="https://www.lyclife.com/images/thumbnail/algorithm.jpg">
-  <meta property="twitter:image" content="https://www.lyclife.com/images/thumbnail/algorithm.jpg">
+  <meta property="og:image" content="https://gitee.com/rexlyc/BlogMedia/raw/master/thumbnail/spring.jpg">
+  <meta property="twitter:image" content="https://gitee.com/rexlyc/BlogMedia/raw/master/thumbnail/spring.jpg">
 
 
 
@@ -63,40 +65,19 @@
 
 
     
-<script>
-  MathJax = {
-    tex: {
-      inlineMath: [["$", "$"]],
-    },
-    displayMath: [
-      ["$$", "$$"],
-      ["\[\[", "\]\]"],
-    ],
-    svg: {
-      fontCache: "global",
-    },
-  };
-</script>
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script
-  id="MathJax-script"
-  async
-  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
-></script>
+    <title>Spring框架开坑篇</title>
 
-    <title>算法导论其一（施工中）</title>
-
-    <link rel="icon" href="https://www.lyclife.com/favicon.png">
+    <link rel="icon" href="https://www.lyclife.com/images/favicon.png">
     
 
     
 
-    <link rel="canonical" href="https://www.lyclife.com/2021/07/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E4%B8%80%E6%96%BD%E5%B7%A5%E4%B8%AD/">
+    <link rel="canonical" href="https://www.lyclife.com/2021/07/spring%E6%A1%86%E6%9E%B6%E5%BC%80%E5%9D%91%E7%AF%87/">
 
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" rel="stylesheet">
     
     
     <link rel="stylesheet" href="https://www.lyclife.com/css/style-twzjdbqhmnnacqs0pwwdzcdbt8yhv8giawvjqjmyfoqnvazl0dalmnhdkvp7.min.css" />
@@ -241,15 +222,15 @@
             <div class="post-header main-content-wrap text-left">
   
     <h1 class="post-title" itemprop="headline">
-      算法导论其一（施工中）
+      Spring框架开坑篇
     </h1>
   
   
   <div class="postShorten-meta post-meta">
     
-      <time itemprop="datePublished" datetime="2021-07-08T22:41:56&#43;08:00">
+      <time itemprop="datePublished" datetime="2021-07-22T16:52:58&#43;08:00">
         
-  七月 8, 2021
+  七月 22, 2021
 
       </time>
     
@@ -260,7 +241,7 @@
     
       <a class="category-link" href="https://www.lyclife.com/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba%e7%a7%91%e5%ad%a6%e4%b8%8e%e6%8a%80%e6%9c%af">计算机科学与技术</a>, 
     
-      <a class="category-link" href="https://www.lyclife.com/categories/%e7%ae%97%e6%b3%95">算法</a>
+      <a class="category-link" href="https://www.lyclife.com/categories/spring">Spring</a>
     
   
 
@@ -270,58 +251,58 @@
           
           <div class="post-content markdown" itemprop="articleBody">
             <div class="main-content-wrap">
-              <p>工欲善其事必先利其器，写出优良算法的基础是拥有对算法性能衡量的能力。一起回顾一下时间复杂度的计算吧。</p>
-<blockquote>
-<p>假设计算机无限快，并且计算机存储器是免费的，那么你还有任何理由来研究算法吗？</p>
-<p align="right">——《算法导论》</p>
-</blockquote>
-<h1 id="关注点">关注点</h1>
-<ol start="0">
-<li>性能：尽量跑的快一点</li>
-<li>安全：比如不要泄露内存</li>
-<li>扩展：泛用性很强（对字符串排序、对数字排序）</li>
-<li>易用性：接口简单</li>
-<li>鲁棒性：稳定（不要忽快忽慢，忽然崩溃）</li>
+              <p>Java长期稳占编程语言Top3，好用的框架功不可没。Spring框架是其中的集大成者。学一点总没有错。</p>
+<p>本系列主要以讲解Spring框架中的原理为主。目标是理清一个Spring程序在执行时的行为。</p>
+<h1 id="前置知识">前置知识</h1>
+<ol>
+<li>Java语言基础</li>
+<li>JVM</li>
+<li>设计模式</li>
 </ol>
-<h1 id="性能衡量工具">性能衡量工具</h1>
-<ol start="0">
-<li>数学符号
+<h1 id="发展概况">发展概况</h1>
 <ul>
-<li>~~$\sum_{i=0}^N{X_i}$~~</li>
+<li>世界上只有两种编程语言：一种被人痛骂，一种没人使用。Java发展20多年，有很多痛点和缺陷。但不妨碍它曾经代表了语言发展的一种潮流。</li>
+<li>Spring框架创建之初的主要目的是用来替代更加重量级的企业级Java技术，尤其是EJB（企业级JavaBean，Enterprise JavaBean）。</li>
+<li>Spring是一个开源框架，由Rod Johnsom主导创建。第一本著作是《Expert One-on-One：J2EE Design and Development》</li>
+<li>Spring框架的最终目的是简化Java开发，学习内容核心主要是弄懂其运行原理，内容如下。</li>
 </ul>
-</li>
-<li>主方法（Master Method）</li>
-<li>画递归树</li>
-<li>代换法（猜想并证明）</li>
-<li>举例</li>
+<h1 id="控制反转inversion-of-controlioc">控制反转（Inversion of Control，IoC）</h1>
+<ul>
+<li>依赖对象的获取反转。即原来依赖类实例由当前类型自己获取，使用，销毁。但现在需要经Spring框架进行创建和注入。</li>
+<li>搭配依赖注入，共同实现松耦合。</li>
+</ul>
+<h1 id="依赖注入didependency-injectiondi">依赖注入DI（Dependency Injection，DI）</h1>
+<ul>
+<li>让代码之间保持松耦合（耦合是必要的，但需要被谨慎的管理），也是让POJO也能发挥魔力的方式之一。</li>
+<li>通过接口来表明依赖关系，可以在类型毫不知情的情况下，替换具体实现类型。</li>
+</ul>
+<h1 id="面向切片编程aspect-oriented-programmingaop">面向切片编程（Aspect-Oriented Programming，AOP）</h1>
+<ul>
+<li>允许把遍布应用各处的功能分离出来形成可重用的组件。能够促进软件系统中各个组件实现关注点分离，即每个组件只关注自己的核心功能。例如日志、事务管理、安全这样的服务组件常常融入其他业务组件，最适合分离出来。</li>
+<li>通过切面编程，业务代码中可以完全不用编写无关功能的代码。业务类型也完全不知道有附属组件的存在。</li>
+</ul>
+<h1 id="其他概念">其他概念</h1>
+<ol>
+<li>容器（container）：在基于Spring的应用程序中，对象生存于Spring容器中。bean工厂是最简单的容器，应用程序上下文也是基于bean工厂构建的。</li>
+<li>POJO：一个不实现任何接口，不继承任何类，不需要遵守任何Java开发框架、模型要求的类型。Spring框架极力避免代码侵入，它不希望强迫使用者通过继承、实现等方式将代码和框架绑定在一起。也即是说使用者只需按照以往的方式编写类型。最坏的情况顶多是，给一个类使用了Spring注解，但它还是一个POJO。</li>
+<li>JavaBean：可序列化的（实现serializable接口），具有一个无参构造器，有按照命名规范的getter、setter、is方法。由于serializable接口是一个标记接口（无方法），因此宽松情况下也可以认为JavaBean只是一个支持序列化的POJO。</li>
+<li>装配（wiring）：创建类型实例之间的运行时协作关系的行为。Spring提供XML、Java等装配方式。</li>
+<li>应用程序上下文（Application Context）：装载bean的定义并负责装配的组件。Spring提供多种应用程序上下文，如从java配置类代码、xml配置中加载。</li>
+<li>样板式代码（boilerplate code）：为了实现通用的和简单的任务，不得不一遍遍重复编写的代码。（经典案例是JDBC的初始化、查询、异常处理代码）</li>
 </ol>
-<h1 id="平摊分析">平摊分析</h1>
-<p>部分算法、数据结构，它的单一操作可能最坏、但平摊耗费较小。不保证实时性能。对于这类算法和数据结构，不能用常规方法分析，需要对其平均性能进行估计。</p>
-<ol start="0">
-<li>例子</li>
-<li>聚集分析</li>
-<li>记账法</li>
-<li>势能法</li>
-</ol>
-<h1 id="竞争分析">竞争分析</h1>
-<ol start="0">
-<li>分类</li>
-<li>应用</li>
-<li>方法</li>
-<li>举例</li>
-</ol>
+<h1 id="spring框架典型构成">Spring框架典型构成</h1>
+<p><img src="https://docs.spring.io/spring-framework/docs/4.2.x/spring-framework-reference/html/images/spring-overview.png" alt="Spring框架运行时结构">
+图片来自<a href="https://docs.spring.io/spring-framework/docs/4.2.x/spring-framework-reference/html/overview.html">Spring官网，4.2.x版本</a>，最新版本可能有变动。</p>
 <h1 id="参考资料">参考资料</h1>
-<p><em>学点英语，主要是尽量把术语发音正确噢</em> 😜<a href="https://www.bilibili.com/video/BV1Tb411M7FA?from=search&seid=3716615071312119347" target="_blank">MIT6.046Jのbilibili传送门</a></p>
-<h1 id="本节博客搭建过程中的坑">本节博客搭建过程中的坑</h1>
-<ol start="0">
-<li>添加内嵌html支持，需要修改toml，令markdown引擎支持内嵌html（unsafe模式）</li>
-<li><a href="https://note.qidong.name/2018/03/hugo-mathjax/" target="_blank">使用MathJax在Hugo的Markdown中绘制公式</a>
-<ul>
-<li>第一步：添加一个单独的html于主题文件夹partials下，并引入所需的js库，css内容。</li>
-<li>第二步：去head.html中利用插值表达式引用该html。</li>
-<li>第三步：最好是在markdown开头的Front Matter部分添加math: true。也可以在toml中全局启用MathJax。</li>
-</ul>
-</li>
+<p>《Spring实战》</p>
+<p>《Spring5核心原理》</p>
+<p>《精通Spring》</p>
+<p>《精通Spring 4.X:企业应用开发实战》</p>
+<p>《从零开始造Spring》</p>
+<p>Spring源代码（打断点跟进阅读）</p>
+<h1 id="工具">工具</h1>
+<ol>
+<li>javap：java自带的反汇编工具，和idea不同，仅把字节码做简单可视化，保留字节码原汁原味</li>
 </ol>
               
             </div>
@@ -334,7 +315,9 @@
                   <div class="post-footer-tags">
                     <span class="text-color-light text-small">标签</span><br/>
                     
-  <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/%E7%AE%97%E6%B3%95%E7%B3%BB%E5%88%97/">算法系列</a>
+  <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/%E7%B3%BB%E5%88%97%E5%BC%80%E5%9D%91/">系列开坑</a>
+
+  <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/spring/">Spring</a>
 
                   </div>
                 
@@ -347,7 +330,7 @@
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/%E6%88%91%E7%9A%84%E8%8F%9C%E5%8D%95/" data-tooltip="我的菜单">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/vue3%E7%B3%BB%E5%88%97%E5%BC%80%E5%9D%91%E7%AF%87%E6%96%BD%E5%B7%A5%E4%B8%AD/" data-tooltip="Vue3系列开坑篇（施工中）">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
@@ -355,7 +338,7 @@
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%BC%80%E5%9D%91%E7%AF%87/" data-tooltip="算法导论开坑篇">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/%E5%85%A8%E6%A0%88%E5%AD%A6%E4%B9%A0%E5%BC%80%E5%9D%91%E7%AF%87%E6%96%BD%E5%B7%A5%E4%B8%AD/" data-tooltip="全栈学习开坑篇（施工中）">
               
                   <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
                   <i class="fa fa-angle-right"></i>
@@ -400,8 +383,7 @@
     <img src="https://www.lyclife.com/images/beian.png">
     <a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010502045148" target="blank">京公网安备11010502045148</a>
   </div>
-  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-  <span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+  
 </footer>
 
       </div>
@@ -413,7 +395,7 @@
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/%E6%88%91%E7%9A%84%E8%8F%9C%E5%8D%95/" data-tooltip="我的菜单">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/vue3%E7%B3%BB%E5%88%97%E5%BC%80%E5%9D%91%E7%AF%87%E6%96%BD%E5%B7%A5%E4%B8%AD/" data-tooltip="Vue3系列开坑篇（施工中）">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
@@ -421,7 +403,7 @@
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%BC%80%E5%9D%91%E7%AF%87/" data-tooltip="算法导论开坑篇">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/%E5%85%A8%E6%A0%88%E5%AD%A6%E4%B9%A0%E5%BC%80%E5%9D%91%E7%AF%87%E6%96%BD%E5%B7%A5%E4%B8%AD/" data-tooltip="全栈学习开坑篇（施工中）">
               
                   <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
                   <i class="fa fa-angle-right"></i>
@@ -503,7 +485,7 @@
 
 <script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/11.0.1/highlight.min.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js"></script>
 
 
 <script src="https://www.lyclife.com/js/script-pcw6v3xilnxydl1vddzazdverrnn9ctynvnxgwho987mfyqkuylcb1nlt.min.js"></script>
@@ -541,15 +523,6 @@ $(document).ready(function() {
     
   
 
-
-  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_CHTML-full" integrity="sha256-GhM+5JHb6QUzOQPXSJLEWP7R73CbkisjzK5Eyij4U9w=" crossorigin="anonymous"></script>
-  <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      CommonHTML: { linebreaks: { automatic: true } },
-      tex2jax: { inlineMath: [ ['$', '$'], ['\\(','\\)'] ], displayMath: [ ['$$','$$'], ['\\[', '\\]'] ], processEscapes: false },
-      messageStyle: 'none'
-    });
-  </script>
 
 
 

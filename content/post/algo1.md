@@ -88,3 +88,4 @@ math: true
     - 第一步：添加一个单独的html于主题文件夹partials下，并引入所需的js库，css内容。
     - 第二步：去head.html中利用插值表达式引用该html。
     - 第三步：最好是在markdown开头的Front Matter部分添加math: true。也可以在toml中全局启用MathJax。
+2. 使用bootcdn对js、css等进行加速，注意只能使用主题中限定的版本。

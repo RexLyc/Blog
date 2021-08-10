@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Hugo 0.85.0 with theme Tranquilpeak 0.4.8-BETA">
+<meta name="generator" content="Hugo 0.87.0 with theme Tranquilpeak 0.4.8-BETA">
 <meta name="author" content="李奕成">
 <meta name="keywords" content="">
 <meta name="description" content="由于工作原因，需要使用到IBMMQ，由于相关资料较少，所以在此特地整理一篇。尽力涵盖安装、配置、使用。">
@@ -39,6 +39,8 @@
   
     
       <meta property="article:tag" content="中间件">
+    
+      <meta property="article:tag" content="施工中">
     
   
 
@@ -381,7 +383,7 @@
 <ul>
 <li>依赖</li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;dependency&gt;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;dependency&gt;</span>
     <span style="color:#f92672">&lt;groupId&gt;</span>org.springframework<span style="color:#f92672">&lt;/groupId&gt;</span>
     <span style="color:#f92672">&lt;artifactId&gt;</span>spring-jms<span style="color:#f92672">&lt;/artifactId&gt;</span>
 <span style="color:#f92672">&lt;/dependency&gt;</span>
@@ -398,7 +400,7 @@
 </code></pre></div><ul>
 <li>配置</li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#75715e">#ibm mq 配置信息</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#75715e">#ibm mq 配置信息</span>
 <span style="color:#ae81ff">project.mq.host= 172.16.20.51</span>
 <span style="color:#ae81ff">project.mq.port= 1414</span>
 <span style="color:#75715e">#(队列管理器名称)</span>
@@ -414,7 +416,7 @@
 </code></pre></div><ul>
 <li>配置类代码</li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> com.liyicheng.springlearn.config<span style="color:#f92672">;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> com.liyicheng.springlearn.config<span style="color:#f92672">;</span>
 
 <span style="color:#f92672">import</span> com.ibm.mq.jms.MQQueueConnectionFactory<span style="color:#f92672">;</span>
 <span style="color:#f92672">import</span> com.ibm.msg.client.wmq.WMQConstants<span style="color:#f92672">;</span>
@@ -540,7 +542,7 @@
 </code></pre></div><ul>
 <li>生产者代码</li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> com.liyicheng.springlearn.producer<span style="color:#f92672">;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> com.liyicheng.springlearn.producer<span style="color:#f92672">;</span>
 
 <span style="color:#f92672">import</span> org.springframework.beans.factory.annotation.Autowired<span style="color:#f92672">;</span>
 <span style="color:#f92672">import</span> org.springframework.jms.core.JmsOperations<span style="color:#f92672">;</span>
@@ -569,7 +571,7 @@
 </code></pre></div><ul>
 <li>消费者代码</li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> com.liyicheng.springlearn.consumer<span style="color:#f92672">;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> com.liyicheng.springlearn.consumer<span style="color:#f92672">;</span>
 
 <span style="color:#f92672">import</span> org.springframework.beans.factory.annotation.Autowired<span style="color:#f92672">;</span>
 <span style="color:#f92672">import</span> org.springframework.jms.annotation.JmsListener<span style="color:#f92672">;</span>
@@ -626,6 +628,8 @@
                     
   <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
 
+  <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/%E6%96%BD%E5%B7%A5%E4%B8%AD/">施工中</a>
+
                   </div>
                 
               
@@ -637,7 +641,7 @@
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/08/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%BC%80%E5%9D%91%E7%AF%87%E6%96%BD%E5%B7%A5%E4%B8%AD/" data-tooltip="设计模式开坑篇（施工中）">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/08/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%BC%80%E5%9D%91%E7%AF%87/" data-tooltip="设计模式开坑篇">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
@@ -645,7 +649,7 @@
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/spring%E6%A1%86%E6%9E%B6-%E5%85%B3%E9%94%AE%E6%B3%A8%E8%A7%A3%E5%A4%A7%E5%85%A8%E6%96%BD%E5%B7%A5%E4%B8%AD/" data-tooltip="Spring框架-关键注解大全（施工中）">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/spring%E6%A1%86%E6%9E%B6-%E5%85%B3%E9%94%AE%E6%B3%A8%E8%A7%A3%E5%A4%A7%E5%85%A8/" data-tooltip="Spring框架-关键注解大全">
               
                   <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
                   <i class="fa fa-angle-right"></i>
@@ -702,7 +706,7 @@
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/08/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%BC%80%E5%9D%91%E7%AF%87%E6%96%BD%E5%B7%A5%E4%B8%AD/" data-tooltip="设计模式开坑篇（施工中）">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/08/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%BC%80%E5%9D%91%E7%AF%87/" data-tooltip="设计模式开坑篇">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
@@ -710,7 +714,7 @@
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/spring%E6%A1%86%E6%9E%B6-%E5%85%B3%E9%94%AE%E6%B3%A8%E8%A7%A3%E5%A4%A7%E5%85%A8%E6%96%BD%E5%B7%A5%E4%B8%AD/" data-tooltip="Spring框架-关键注解大全（施工中）">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/07/spring%E6%A1%86%E6%9E%B6-%E5%85%B3%E9%94%AE%E6%B3%A8%E8%A7%A3%E5%A4%A7%E5%85%A8/" data-tooltip="Spring框架-关键注解大全">
               
                   <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
                   <i class="fa fa-angle-right"></i>

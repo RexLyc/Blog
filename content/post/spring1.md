@@ -1,11 +1,12 @@
 ---
-title: "Spring框架-Bean详解（施工中）"
+title: "Spring框架-Bean详解"
 date: 2021-07-26T09:42:07+08:00
 categories:
 - 计算机科学与技术
 - Spring
 tags:
 - Spring
+- 施工中
 thumbnailImagePosition: left
 thumbnailImage: images/thumbnail/spring.jpg
 ---

@@ -6,6 +6,7 @@ categories:
 - 中间件
 tags:
 - 中间件
+- 施工中
 #thumbnailImage: //example.com/image.jpg
 ---
 由于工作原因，需要使用到IBMMQ，由于相关资料较少，所以在此特地整理一篇。尽力涵盖安装、配置、使用。

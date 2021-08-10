@@ -1,5 +1,5 @@
 ---
-title: "全栈学习开坑篇（施工中）"
+title: "全栈学习开坑篇"
 date: 2021-07-19T11:15:05+08:00
 categories:
 - 计算机科学与技术
@@ -7,6 +7,7 @@ categories:
 tags:
 - 系列开坑
 - 全栈
+- 施工中
 thumbnailImagePosition: left
 thumbnailImage: images/thumbnail/fullstack.jpg
 ---

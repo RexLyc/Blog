@@ -8,7 +8,7 @@ tags:
 - 个人总结
 thumbnailImagePosition: left
 thumbnailImage: images/thumbnail/ship.jpg
-coverImage: https://gitee.com/rexlyc/BlogMedia/raw/master/coverImage/2021halfSummary.jpg
+coverImage: images/coverImage/2021halfSummary.jpg
 # metaAlignment: center
 # coverMeta: in
 coverSize: partial

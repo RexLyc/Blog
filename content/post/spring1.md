@@ -7,7 +7,7 @@ categories:
 tags:
 - Spring
 thumbnailImagePosition: left
-thumbnailImage: https://gitee.com/rexlyc/BlogMedia/raw/master/thumbnail/spring.jpg
+thumbnailImage: images/thumbnail/spring.jpg
 ---
 Bean作为Spring程序构成的基础之一，其行为奠定软件的基础功能。本章主要介绍Bean的部分原理和实用操作。
 <!--more-->

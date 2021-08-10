@@ -8,7 +8,7 @@ tags:
 - 滚动更新
 - 自己动手丰衣足食
 thumbnailImagePosition: left
-thumbnailImage: https://gitee.com/rexlyc/BlogMedia/raw/master/thumbnail/braveCattle.jpg
+thumbnailImage: images/thumbnail/braveCattle.jpg
 ---
 在大城市生活独自生活的你，是否经常思念家乡的菜。自己动手丰衣足食。今天是手残美食博主，明天就是大手子。滚动更新，欢迎推荐菜谱。
 <!--more-->
@@ -26,12 +26,13 @@ thumbnailImage: https://gitee.com/rexlyc/BlogMedia/raw/master/thumbnail/braveCat
 - 可能失误：
     1. 面粉和淀粉不要加多了，挂糊之后是会缓慢变硬的。
 <!-- markdown目前无法调整图片大小 -->
-<!-- ![成品](https://gitee.com/rexlyc/BlogMedia/raw/master/food/guobaorou-1-finished.jpg) -->
+<!-- ![成品](images/food/guobaorou-1-finished.jpg) -->
 
-<center><img src="https://gitee.com/rexlyc/BlogMedia/raw/master/food/guobaorou-1-finished.jpg" width="256" height="256" ></center>
+<!-- 改用本地目录必须以/开头 -->
+<center><img src="/images/food/guobaorou-1-finished.jpg" width="256" height="256" ></center>
 
 <!-- 并排展示的可行办法，设置为沿左侧浮动 -->
-<!-- <div style="float:left;border:solid 1px 000;margin:2px;"><img src="https://gitee.com/rexlyc/BlogMedia/raw/master/food/guobaorou-1-half.jpg"  width="256" height="256" ></div>
-<div style="float:left;border:solid 1px 000;margin:2px;"><img src="https://gitee.com/rexlyc/BlogMedia/raw/master/food/guobaorou-1-finished.jpg" width="256" height="256" ></div> -->
+<!-- <div style="float:left;border:solid 1px 000;margin:2px;"><img src="images/food/guobaorou-1-half.jpg"  width="256" height="256" ></div>
+<div style="float:left;border:solid 1px 000;margin:2px;"><img src="images/food/guobaorou-1-finished.jpg" width="256" height="256" ></div> -->
 <!-- 需要恢复为无浮动 -->
 <!-- <div style="float:none;clear:both;"></div> -->

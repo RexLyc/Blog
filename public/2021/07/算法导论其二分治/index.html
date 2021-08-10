@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Hugo 0.87.0 with theme Tranquilpeak 0.4.8-BETA">
+<meta name="generator" content="Hugo 0.85.0 with theme Tranquilpeak 0.4.8-BETA">
 <meta name="author" content="李奕成">
 <meta name="keywords" content="tech">
 <meta name="description" content="分治法是诸多算法的基本思想，把大问题分解为小问题，依次解决并最终合并。">
@@ -284,7 +284,7 @@
 </ol>
 </li>
 <li>代码(C++)
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// std::upper_bound（首个大于value）可能的实现
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// std::upper_bound（首个大于value）可能的实现
 </span><span style="color:#75715e"></span><span style="color:#66d9ef">template</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ForwardIt</span>, <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">T</span><span style="color:#f92672">&gt;</span>
 ForwardIt upper_bound(ForwardIt first, ForwardIt last, <span style="color:#66d9ef">const</span> T<span style="color:#f92672">&amp;</span> value)
 {
@@ -321,7 +321,7 @@ ForwardIt upper_bound(ForwardIt first, ForwardIt last, <span style="color:#66d9e
 </ol>
 </li>
 <li>代码(C++)
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">pow</span>(<span style="color:#66d9ef">int</span> x, <span style="color:#66d9ef">int</span> n){
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">pow</span>(<span style="color:#66d9ef">int</span> x, <span style="color:#66d9ef">int</span> n){
     <span style="color:#66d9ef">int</span> result <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
     <span style="color:#75715e">// 自底向上非递归写法（其实用在这里是一个不恰当的例子）
 </span><span style="color:#75715e"></span>    <span style="color:#75715e">// 但本写法是最好的写法，从二进制角度好理解一些
@@ -391,7 +391,7 @@ ForwardIt upper_bound(ForwardIt first, ForwardIt last, <span style="color:#66d9e
 <li>大规模集成电路（VLSI）中希望获得效率尽量高的布局。可认为电子器件往往是成二叉树树形拓扑的，如何尽量减少布局面积。</li>
 <li>面积=宽×高，可以把递归树的高度和宽度视为面积中的高和宽。</li>
 </ul>
- <center><img src="https://gitee.com/rexlyc/BlogMedia/raw/master/algoSeries/H-Layout.png" width="128" height="128" ></center>
+ <center><img src="https://www.lyclife.com/images/algoSeries/H-Layout.png" width="128" height="128" ></center>
 <ul>
 <li>一种较优化的解的面积是线性的（n个节点），即H布局，水平和垂直方向，复杂度都是$T(n)=2(n/4)+O(1)=\Theta(\sqrt{n})$。</li>
 </ul>
@@ -575,7 +575,9 @@ ForwardIt upper_bound(ForwardIt first, ForwardIt last, <span style="color:#66d9e
 
     
   
-    <div id="cover" style="background-image:url('https://gitee.com/rexlyc/BlogMedia/raw/master/background/bridge_linjiangmen.jpg');"></div>
+    
+      <div id="cover" style="background-image:url('https://www.lyclife.com/images/background/bridge_linjiangmen.jpg');"></div>
+    
   
 
 

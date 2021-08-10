@@ -8,7 +8,7 @@ tags:
 - 系列开坑
 - Vue3
 thumbnailImagePosition: left
-thumbnailImage: https://gitee.com/rexlyc/BlogMedia/raw/master/thumbnail/vue.png
+thumbnailImage: images/thumbnail/vue.png
 ---
 前端是世界上最伟大的职业（迫真）。Vue3是国人（尤雨溪）主导的优秀前端框架，简单好用，童叟无欺。快进来看一看。
 <!--more-->

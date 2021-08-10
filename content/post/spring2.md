@@ -7,7 +7,7 @@ categories:
 tags:
 - Spring
 thumbnailImagePosition: left
-thumbnailImage: https://gitee.com/rexlyc/BlogMedia/raw/master/thumbnail/spring.jpg
+thumbnailImage: images/thumbnail/spring.jpg
 ---
 
 <!--more-->

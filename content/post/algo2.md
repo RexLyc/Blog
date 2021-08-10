@@ -100,7 +100,7 @@ math: true
 6. H layout（了解）
     - 大规模集成电路（VLSI）中希望获得效率尽量高的布局。可认为电子器件往往是成二叉树树形拓扑的，如何尽量减少布局面积。
     - 面积=宽×高，可以把递归树的高度和宽度视为面积中的高和宽。
-    <center><img src="https://gitee.com/rexlyc/BlogMedia/raw/master/algoSeries/H-Layout.png" width="128" height="128" ></center>
+    <center><img src="/images/algoSeries/H-Layout.png" width="128" height="128" ></center>
 
     - 一种较优化的解的面积是线性的（n个节点），即H布局，水平和垂直方向，复杂度都是$T(n)=2(n/4)+O(1)=\Theta(\sqrt{n})$。
 

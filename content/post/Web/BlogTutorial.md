@@ -8,7 +8,9 @@ tags:
 - 滚动更新
 - 网站建设
 - 施工中
-#thumbnailImage: //example.com/image.jpg #这里放那个奕成之印，高清一点
+thumbnailImagePosition: left
+thumbnailImage: images/thumbnail/lycStamp.png
+math: true
 ---
 这篇博文就是想分享一下从零开始的博客搭建之路。让有想法的朋友们也能一样记录自己的生活，让网络见证自己的成长。
 <!--more-->
@@ -23,5 +25,8 @@ tags:
 - 内容准备
 - 部署
 - 扩展内容
+# Hugo进阶
+- 如何自定义模板
+    - 其实我也想知道
 # 注意事项
 - 合规

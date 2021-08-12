@@ -273,8 +273,182 @@
           <div class="post-content markdown" itemprop="articleBody">
             <div class="main-content-wrap">
               <p>求中位数是非常经典，且有相当精妙算法的一个问题。代表了顺序统计问题的思考方式。</p>
-<p>欸~没写完呢~
-虚晃一枪</p>
+<h1 id="问题描述">问题描述</h1>
+<ul>
+<li>中位数：数组排序后，位于中点的数字（总数奇数即为一个数字，否则有2个）。</li>
+<li>顺序统计问题（选择问题）：求包含n个数字的集合中的第i小的数字，$1 \le i \le n$。第i个数字也叫做第i顺序统计量。</li>
+</ul>
+<h1 id="思路">思路</h1>
+<ul>
+<li>暴力想法：排序，排序之后任意顺位的数字都不是问题。复杂度$\mathrm{O}(nlogn)$。
+<ul>
+<li>面试官：“那有没有更快的呢？”</li>
+</ul>
+</li>
+<li>优化：实际上求排序相当于获取了过多的细节。降低时间复杂度的办法就是<strong>减少信息获取</strong>。</li>
+</ul>
+<h1 id="同时求最大最小值">同时求最大最小值</h1>
+<ul>
+<li>暴力想法：每个数字比较两次，即和存储的最大和最小值都比较。比较次数$2n-2$。</li>
+<li>优化想法：成对比较，每次取两个数字，并取两个数字中的小者和当前最小值比较，大者和当前最大值比较。比较次数至多$3 \lfloor n/2 \rfloor$。</li>
+<li>渐进时间$\Theta(n)$</li>
+<li>为什么要这么吝啬：常数项其实影响很大（这里就差出去1.5倍），别让自己总是无意识的写出很暴力的算法。</li>
+</ul>
+<h1 id="选择问题">选择问题</h1>
+<ul>
+<li>随机选择算法
+<ul>
+<li>很好理解的一个<strong>期望</strong>时间复杂度为$\Theta(n)$的算法（注意期望的含义哈，有随机在里面了，还不得有点幺蛾子）</li>
+<li>思路概述：在排序章节，我们学习了随机化快速排序，其核心思想是随机选取主元，并用主元将当前片段$A[l,r]$分片（partition操作）。随机选择算法利用了这一过程，在求第i小元素时，先进行分片，可以很容易的得知当前主元的位置p，$l\le p \le r$。若$p==i$，则问题结束。否则根据p和i的大小分别选择分片的前半段和后半段进行递归。</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// 传统单向扫描
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">template</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> iter<span style="color:#f92672">&gt;</span>
+iter partition(iter begin, iter end, iter pivot) {
+    std<span style="color:#f92672">::</span>iter_swap(begin, pivot);
+    iter i, j;
+    <span style="color:#66d9ef">for</span> (i <span style="color:#f92672">=</span> begin, j <span style="color:#f92672">=</span> begin <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>; j <span style="color:#f92672">!=</span> end; <span style="color:#f92672">++</span>j) {
+        <span style="color:#66d9ef">if</span> (<span style="color:#f92672">*</span>j <span style="color:#f92672">&lt;</span> <span style="color:#f92672">*</span>begin) {
+            <span style="color:#f92672">++</span>i;
+            std<span style="color:#f92672">::</span>iter_swap(i, j);
+        }
+    }
+    std<span style="color:#f92672">::</span>iter_swap(i, begin);
+    <span style="color:#66d9ef">return</span> i;
+}
+
+<span style="color:#75715e">// 调试用的，留给你啦
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">template</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> iter<span style="color:#f92672">&gt;</span>
+<span style="color:#66d9ef">void</span> iterPrint(iter begin, iter end) {
+    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span> it <span style="color:#f92672">=</span> begin; it <span style="color:#f92672">!=</span> end; <span style="color:#f92672">++</span>it) {
+        std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#f92672">*</span>it <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; &#34;</span>;
+    }
+    std<span style="color:#f92672">::</span>cout<span style="color:#f92672">&lt;&lt;</span>std<span style="color:#f92672">::</span>endl;
+}
+
+<span style="color:#75715e">// randomized - select
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">template</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> iter<span style="color:#f92672">&gt;</span>
+iter randomizedSelect(iter curBegin, iter curEnd, size_t i) {
+    <span style="color:#75715e">// 使用了C++11中简单好用的mt19937随机数，用chrono库获取时间作为种子
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">static</span> std<span style="color:#f92672">::</span>size_t seed <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>chrono<span style="color:#f92672">::</span>system_clock<span style="color:#f92672">::</span>now().time_since_epoch().count();
+    <span style="color:#66d9ef">static</span> std<span style="color:#f92672">::</span>mt19937_64 rand(seed);
+    <span style="color:#66d9ef">if</span> (curBegin <span style="color:#f92672">==</span> curEnd) {
+        <span style="color:#66d9ef">return</span> curBegin;
+    }
+    <span style="color:#75715e">// 随机数范围是0到区间最后一位，构造函数就是给出这个闭区间。
+</span><span style="color:#75715e"></span>    std<span style="color:#f92672">::</span>uniform_int_distribution<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>size_t<span style="color:#f92672">&gt;</span> dist(<span style="color:#ae81ff">0</span>, std<span style="color:#f92672">::</span>distance(curBegin, curEnd)<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>);
+    <span style="color:#66d9ef">auto</span> pIndex <span style="color:#f92672">=</span> curBegin;
+    std<span style="color:#f92672">::</span>advance(pIndex, dist(rand));
+    <span style="color:#75715e">//std::cout &lt;&lt; std::distance(curBegin, pIndex) &lt;&lt; std::endl;
+</span><span style="color:#75715e"></span>    pIndex <span style="color:#f92672">=</span> partition(curBegin, curEnd, pIndex);
+    <span style="color:#75715e">//std::cout &lt;&lt; std::distance(curBegin, pIndex) &lt;&lt; std::endl;
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">//iterPrint(curBegin, curEnd);
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (std<span style="color:#f92672">::</span>distance(curBegin,pIndex)<span style="color:#f92672">==</span> i) {
+        <span style="color:#66d9ef">return</span> pIndex;
+    }
+    <span style="color:#66d9ef">else</span> <span style="color:#a6e22e">if</span> (std<span style="color:#f92672">::</span>distance(curBegin, pIndex) <span style="color:#f92672">&lt;</span> i) {
+        <span style="color:#66d9ef">return</span> randomizedSelect(pIndex <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>, curEnd, i <span style="color:#f92672">-</span> std<span style="color:#f92672">::</span>distance(curBegin, pIndex)<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>);
+    }
+    <span style="color:#66d9ef">else</span> {
+        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">randomizedSelect</span>(curBegin, pIndex, i);
+    }
+}
+</code></pre></div></li>
+<li>BFPRT算法
+<ul>
+<li>这个非常炫酷的，<strong>最坏</strong>时间复杂度$\Theta(n)$的算法，由Blum、Floyd、Pratt、Rivest、Tarjan发明。巧妙到虽然可能写不出来，但是看过就一定能有印象（指对算法很巧妙这件事情有印象）的程度。</li>
+<li>普通分片和随机化分片的最大问题，无法保证主元选取得很好。BFPRT主要解决的就是这个问题。</li>
+<li>步骤：
+<ol>
+<li>将数据分为$\lceil n/5 \rceil$组，除1个组外，其他组全部是5个数。</li>
+<li>每一组求中位数</li>
+<li>对每一组的中位数求中位数（从第1步开始递归）</li>
+<li>用中位数的中位数对当前数组分片，得知该中位数所在位置为k</li>
+<li>和随机选择算法同理，比较k和选择值i，分情况递归。</li>
+</ol>
+</li>
+<li>算法在存在双中位数情况下，默认取小的那个。</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// partition和iterPrint在上面，自取
+</span><span style="color:#75715e">// 使用插入排序获得中位数
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">template</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> iter<span style="color:#f92672">&gt;</span>
+iter GetMedian(iter begin, iter end) {
+    <span style="color:#75715e">// insert sort
+</span><span style="color:#75715e"></span>    iter a, b;
+    <span style="color:#66d9ef">for</span> (std<span style="color:#f92672">::</span>size_t i <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; i <span style="color:#f92672">!=</span> std<span style="color:#f92672">::</span>distance(begin, end); <span style="color:#f92672">++</span>i) {
+        <span style="color:#66d9ef">for</span> (std<span style="color:#f92672">::</span>size_t j <span style="color:#f92672">=</span> i; j <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span>; <span style="color:#f92672">--</span>j) {
+            a <span style="color:#f92672">=</span> b <span style="color:#f92672">=</span> begin;
+            std<span style="color:#f92672">::</span>advance(a, j <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>);
+            std<span style="color:#f92672">::</span>advance(b, j);
+            <span style="color:#66d9ef">if</span> (<span style="color:#f92672">*</span>a<span style="color:#f92672">&gt;*</span>b) {
+                std<span style="color:#f92672">::</span>iter_swap(a,b);
+            }
+            <span style="color:#66d9ef">else</span> {
+                <span style="color:#66d9ef">break</span>;
+            }
+        }
+    }
+    <span style="color:#75715e">//iterPrint(begin, end);
+</span><span style="color:#75715e"></span>    std<span style="color:#f92672">::</span>advance(begin, (std<span style="color:#f92672">::</span>distance(begin, end) <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">/</span> <span style="color:#ae81ff">2</span>); <span style="color:#75715e">// 默认取较小的中位数
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">//std::cout &lt;&lt; &#34;choose local median: &#34; &lt;&lt; *begin &lt;&lt; std::endl;
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> begin;
+}
+
+<span style="color:#66d9ef">template</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> iter<span style="color:#f92672">&gt;</span>
+iter BFPRT(iter curBegin, iter curEnd, std<span style="color:#f92672">::</span>size_t i) {
+    <span style="color:#66d9ef">typedef</span> std<span style="color:#f92672">::</span>iterator_traits<span style="color:#f92672">&lt;</span>iter<span style="color:#f92672">&gt;::</span>value_type T;
+    <span style="color:#66d9ef">if</span> (std<span style="color:#f92672">::</span>distance(curBegin,curEnd)<span style="color:#f92672">==</span><span style="color:#ae81ff">1</span>) {
+        <span style="color:#66d9ef">return</span> curBegin;
+    }
+    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> medians;
+    medians.reserve((std<span style="color:#f92672">::</span>distance(curBegin, curEnd) <span style="color:#f92672">+</span> <span style="color:#ae81ff">4</span>) <span style="color:#f92672">/</span> <span style="color:#ae81ff">5</span>); <span style="color:#75715e">// 保证不完整的一组也考虑进来
+</span><span style="color:#75715e"></span>    iter it <span style="color:#f92672">=</span> curBegin;
+    iter temp <span style="color:#f92672">=</span> it;
+    <span style="color:#66d9ef">while</span> (std<span style="color:#f92672">::</span>distance(it, curEnd) <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">5</span>) {
+        std<span style="color:#f92672">::</span>advance(temp, <span style="color:#ae81ff">5</span>);
+        medians.push_back(<span style="color:#f92672">*</span>GetMedian(it, temp));
+        it <span style="color:#f92672">=</span> temp;
+    }
+    <span style="color:#66d9ef">if</span> (it <span style="color:#f92672">!=</span> curEnd) { <span style="color:#75715e">// 这就是那不完整的一组
+</span><span style="color:#75715e"></span>        medians.push_back(<span style="color:#f92672">*</span>GetMedian(it, curEnd));
+    }
+    iter pivot <span style="color:#f92672">=</span> BFPRT(medians.begin(), medians.end(), medians.size() <span style="color:#f92672">/</span> <span style="color:#ae81ff">2</span>);
+    pivot <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>find(curBegin, curEnd, <span style="color:#f92672">*</span>pivot); <span style="color:#75715e">//找到原来容器中的位置
+</span><span style="color:#75715e"></span>    pivot <span style="color:#f92672">=</span> partition(curBegin, curEnd, pivot); <span style="color:#75715e">//找到分片之后的位置（这里暂时没想到更好的办法）
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">//iterPrint(curBegin, curEnd);
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (std<span style="color:#f92672">::</span>distance(curBegin, pivot) <span style="color:#f92672">==</span> i) {
+        <span style="color:#66d9ef">return</span> pivot;
+    }
+    <span style="color:#66d9ef">else</span> <span style="color:#a6e22e">if</span> (std<span style="color:#f92672">::</span>distance(curBegin, pivot) <span style="color:#f92672">&lt;</span> i) {
+        <span style="color:#66d9ef">return</span> BFPRT(pivot <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>, curEnd, i <span style="color:#f92672">-</span> std<span style="color:#f92672">::</span>distance(curBegin, pivot) <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>);
+    }
+    <span style="color:#66d9ef">else</span> {
+        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">BFPRT</span>(curBegin, pivot, i);
+    }
+}
+</code></pre></div><ul>
+<li>为什么是$\Theta(n)$?
+<ul>
+<li>关键图解（可以去看一眼视频课，这里讲的比较好）
+<img src="https://www.lyclife.com/images/algoSeries/BFPRT.svg" alt="pic"></li>
+<li>从上图可以知道，求中位数的中位数x后，实际上将原有数据分为了4个部分，左上角的一定不比x大的区域，右下角的一定不比x小的区域。</li>
+<li>因此我们可以认为，小于等于x的元素至少有 $3(\lceil \frac{1}{2} \lceil \frac{n}{5} \rceil \rceil -2) \ge \frac{3n}{10} -6$
+<ul>
+<li>注意这里为了谨慎（并且好算），我们去掉x所在的组，和假设有可能会多出来的不完整一组，里面$-2$了。</li>
+</ul>
+</li>
+<li>最坏情况下，我们要去递归更多的一半，此时很容易知道$T(n)=T(\frac{n}{5})+T(\frac{7n}{10}+6) + \Theta(n)$
+<ul>
+<li>第一项是递归处理各组的中位数，求出中位数的中位数；第二项是求顺序统计量的递归；第三项是当前统计各组中位数的花费。</li>
+<li>使用代换法就能够获得严格证明，即令$T(n)\le cn$，c需要是一个足够大的常数。<em><strong>最妙的地方来啦</strong></em> : $\frac{n}{5}+\frac{7n}{10} \lt n $</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="尾声">尾声</h1>
+<p>  实际上，BFPRT理论意义大于实际意义，这个最坏线性时间的算法，常数项太大了（代码也多）。随机化选择算法其实是你更好的选择啦。</p>
               
             </div>
           </div>

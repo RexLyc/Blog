@@ -55,6 +55,9 @@
 
 
 
+  <meta property="og:image" content="https://www.lyclife.com/images/thumbnail/lycStamp.png">
+  <meta property="twitter:image" content="https://www.lyclife.com/images/thumbnail/lycStamp.png">
+
 
 
 
@@ -64,6 +67,27 @@
 
 
     
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [["$", "$"]],
+    },
+    displayMath: [
+      ["$$", "$$"],
+      ["\[\[", "\]\]"],
+    ],
+    svg: {
+      fontCache: "global",
+    },
+  };
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script
+  id="MathJax-script"
+  async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+></script>
+
     <title>博客搭建之路</title>
 
     <link rel="icon" href="https://www.lyclife.com/images/favicon.png">
@@ -266,6 +290,14 @@
 <li>部署</li>
 <li>扩展内容</li>
 </ul>
+<h1 id="hugo进阶">Hugo进阶</h1>
+<ul>
+<li>如何自定义模板
+<ul>
+<li>其实我也想知道</li>
+</ul>
+</li>
+</ul>
 <h1 id="注意事项">注意事项</h1>
 <ul>
 <li>合规</li>
@@ -298,7 +330,7 @@
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--disabled">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/08/git/" data-tooltip="Git">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
@@ -363,7 +395,7 @@
           
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--disabled">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/08/git/" data-tooltip="Git">
               
                   <i class="fa fa-angle-left"></i>
                   <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
@@ -493,6 +525,15 @@ $(document).ready(function() {
     
   
 
+
+<script src="https://cdn.bootcdn.net/ajax/libs/mathjax/2.7.4/MathJax.js"></script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      CommonHTML: { linebreaks: { automatic: true } },
+      tex2jax: { inlineMath: [ ['$', '$'], ['\\(','\\)'] ], displayMath: [ ['$$','$$'], ['\\[', '\\]'] ], processEscapes: false },
+      messageStyle: 'none'
+    });
+  </script>
 
 
 

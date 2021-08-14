@@ -3,7 +3,7 @@ title: "2021年影集"
 date: 2021-07-09T22:29:44+08:00
 categories:
 - 摄影
-- 图片和短视频
+- 图片
 tags:
 - 摄影
 autoThumbnailImage : true

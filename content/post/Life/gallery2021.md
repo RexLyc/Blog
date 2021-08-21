@@ -9,13 +9,16 @@ tags:
 autoThumbnailImage : true
 thumbnailImagePosition: left
 gallery:
+- /images/gallery2021/8/_DSF7791.jpg
 - /images/gallery2021/3-4/_DSF6529.jpg
+- /images/gallery2021/3-4/_DSF6968.jpg
+- /images/gallery2021/8/_DSF7793.jpg
 - /images/gallery2021/3-4/_DSF6532.jpg
+- /images/gallery2021/8/_DSF7798.jpg
 - /images/gallery2021/3-4/_DSF6534.jpg
 - /images/gallery2021/3-4/_DSF6615.jpg
 - /images/gallery2021/3-4/_DSF6633.jpg
 - /images/gallery2021/3-4/_DSF6967.jpg
-- /images/gallery2021/3-4/_DSF6968.jpg
 - /images/gallery2021/3-4/_DSF7050.jpg
 - /images/gallery2021/3-4/_DSF7054.jpg
 - /images/gallery2021/3-4/_DSF7059.jpg

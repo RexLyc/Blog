@@ -2,14 +2,15 @@
 title: "饥荒Linux服务器搭建教程"
 date: 2021-08-21T21:39:30+08:00
 categories:
-- category
-- subcategory
+- 娱乐
+- 电子游戏
 tags:
-- tag1
-- tag2
+- 电子游戏
+- 教程
 keywords:
 - tech
-#thumbnailImage: //example.com/image.jpg
+thumbnailImagePosition: left
+thumbnailImage: /images/thumbnail/dst.jpg
 ---
 
 <!--more-->
@@ -38,16 +39,18 @@ chmod +x master_create.sh cave_create.sh
 3. 复制本地游戏目录（包含Caves、Master）到Linux服务器下指定的存储位置（包含Caves、Master）的位置
 4. 用master_creat、cave_create创建游戏，记得配置防火墙
 5. 配置服务器mod
-    - TODO
+    - windows上创建时，可以看到Master、Caves下面都有一个mod***.lua的文件，里面有带有workshop开头的数字串，代表mod的ID。
+    - 将这一系列id以ServerModSetup("你的id")形式，分多行写入到path/to/your/dst/mods/dedicated_server_mods_setup.lua 
 6. 配置管理员
-    - TODO
-
+    - 在指定的饥荒存档路径，如~/dstsave/World1/adminlist.txt里按行添加用户Klei ID（游戏内左下角账户信息查看）。
 # 可能的问题
 1. 缺少一些32位的库，并且由于系统是64位的，需要显式指定32位。(:i386)
     - 可以用ldd查看一下依赖库，避免手动尝试的尴尬。
     - [libcurl-gnutls.so.4缺少](https://wuter.cn/2282.html/)
-2. force_install_dir指定的不好，建议用绝对路径。这里的当前路径是steamCmd的安装位置，ubuntu的apt安装后大概是~/.steam下面的某一级。我现在这个就弄乱了。
+2. steamcmd中，force_install_dir指定的不好，建议用绝对路径。这里的当前路径是steamCmd的安装位置，ubuntu的apt安装后大概是~/.steam下面的某一级。我现在这个就弄乱了。
 <!-- 快乐老家 密码#Friend4Ever -->
+# 一些实用远程指令
+1. c_rollback()：输入参数为回退的天数，如c_rollback(2)代表回到2天前。
 # 参考资料
 [主要参考：官方论坛关于SteamCMD的相关内容](https://developer.valvesoftware.com/wiki/SteamCMD)
 [centos7搭建饥荒服务器](https://blog.csdn.net/zhang41228/article/details/103106298)

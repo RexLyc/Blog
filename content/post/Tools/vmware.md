@@ -7,6 +7,7 @@ categories:
 tags:
 - VMWare
 - 实用工具
+- 施工中
 ---
 VMWare作为Windows上最常用的虚拟机。
 <!--more-->

@@ -1,11 +1,12 @@
 ---
-title: "算法导论其一：分析（施工中）"
+title: "算法导论其一：分析"
 date: 2021-07-08T22:41:56+08:00
 categories:
 - 计算机科学与技术
 - 算法
 tags:
 - 算法系列
+- 施工中
 thumbnailImagePosition: left
 thumbnailImage: images/thumbnail/algorithm.jpg
 math: true

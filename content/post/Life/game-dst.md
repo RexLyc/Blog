@@ -47,7 +47,8 @@ chmod +x master_create.sh cave_create.sh
 1. 缺少一些32位的库，并且由于系统是64位的，需要显式指定32位。(:i386)
     - 可以用ldd查看一下依赖库，避免手动尝试的尴尬。
     - [libcurl-gnutls.so.4缺少](https://wuter.cn/2282.html/)
-2. steamcmd中，force_install_dir指定的不好，建议用绝对路径。这里的当前路径是steamCmd的安装位置，ubuntu的apt安装后大概是~/.steam下面的某一级。我现在这个就弄乱了。
+2. steamcmd中，force_install_dir指定的不好容易忘记，建议不要指定，用默认的就行。非要用记得用绝对路径。如果你修改了，那么每一次登录steamcmd都需要重新指定，不然是会安装到默认位置的。
+3. 只要客户端有更新，就要去更新服务器，重新执行一次app_update 343050 validate等指令即可。
 <!-- 快乐老家 密码#Friend4Ever -->
 # 一些实用远程指令
 1. c_rollback()：输入参数为回退的天数，如c_rollback(2)代表回到2天前。

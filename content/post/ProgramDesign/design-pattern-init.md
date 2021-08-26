@@ -7,7 +7,8 @@ categories:
 tags:
 - 系列开坑
 - 设计模式
-- 施工中
+thumbnailImagePosition: left
+thumbnailImage: images/thumbnail/design-pattern.svg
 ---
 软件行业发展到现在，大部分需求场景下，优秀的开发模式已有定论。本系列结合场景和代码，总结常用设计模式。
 <!--more-->.
@@ -57,23 +58,23 @@ tags:
 1. 耦合性：指模块之间的信息、参数的依赖程度。
 2. 内聚性：和耦合相对，指功能相关的程序组合成一个模块的程度。
 # 图例
-- 实现
-<center><img src="/images/algoSeries/ImplementUML.svg" ></center>
+- 实现：新类型实现了接口
+<center><img src="/images/ProgramDesign/ImplementUML.svg" ></center></br>
 
-- 继承
-<center><img src="/images/algoSeries/ExtendUML.svg" ></center>
+- 泛化：新类型泛化原有类型
+<center><img src="/images/ProgramDesign/GeneralizationUML.svg" ></center></br>
 
-- 组合
-<center><img src="/images/algoSeries/CompositionUML.svg" ></center>
+- 组合：被组合类（CPU）是组合类（Computer）不可分割的一部分，这里我们假定处理器焊死在电脑上
+<center><img src="/images/ProgramDesign/CompositionUML.svg" ></center></br>
 
-- 聚合
-<center><img src="/images/algoSeries/AggregationUML.svg" ></center>
+- 聚合：被聚合类（Computer）是聚合类（Classroom）的一部分，两者地位并不平等，但被聚合类是单独存在的
+<center><img src="/images/ProgramDesign/AggregationUML.svg" ></center></br>
 
-- 依赖
-<center><img src="/images/algoSeries/ImplementUML.svg" ></center>
+- 依赖：被依赖类（Logger）为依赖类型提供必要能力，但不是依赖类型的成员
+<center><img src="/images/ProgramDesign/DependencyUML.svg" ></center></br>
 
-- 关联
-<center><img src="/images/algoSeries/ImplementUML.svg" ></center>
+- 关联：被关联类（Student）在关联类型（Teacher）中有保留，两者地位平等，不负责生命周期管理。也存在双向关联
+<center><img src="/images/ProgramDesign/AssociationUML.svg" ></center></br>
 
 # 参考资料
 《Head First设计模式》

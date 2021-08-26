@@ -57,7 +57,24 @@ tags:
 1. 耦合性：指模块之间的信息、参数的依赖程度。
 2. 内聚性：和耦合相对，指功能相关的程序组合成一个模块的程度。
 # 图例
-<!-- 插入UML图例定义 -->
+- 实现
+<center><img src="/images/algoSeries/ImplementUML.svg" ></center>
+
+- 继承
+<center><img src="/images/algoSeries/ExtendUML.svg" ></center>
+
+- 组合
+<center><img src="/images/algoSeries/CompositionUML.svg" ></center>
+
+- 聚合
+<center><img src="/images/algoSeries/AggregationUML.svg" ></center>
+
+- 依赖
+<center><img src="/images/algoSeries/ImplementUML.svg" ></center>
+
+- 关联
+<center><img src="/images/algoSeries/ImplementUML.svg" ></center>
+
 # 参考资料
 《Head First设计模式》
 

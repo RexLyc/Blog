@@ -6,7 +6,8 @@ categories:
 - 视频
 tags:
 - 摄影
-# thumbnailImage: //example.com/image.jpg
+thumbnailImagePosition: left
+thumbnailImage: /images/thumbnail/bilibili.jpg
 ---
 2021年的各类视频投稿集锦。
 <!--more-->

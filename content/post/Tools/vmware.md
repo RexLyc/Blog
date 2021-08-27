@@ -7,7 +7,8 @@ categories:
 tags:
 - VMWare
 - 实用工具
-- 施工中
+thumbnailImagePosition: left
+thumbnailImage: /images/thumbnail/VMware.jpg
 ---
 VMWare作为Windows上最常用的虚拟机。
 <!--more-->
@@ -17,7 +18,7 @@ VMWare作为Windows上最常用的虚拟机。
 3. 在虚拟机内/mnt/hgfs/下寻找共享目录即可
 # 故障及解决方案
 - 虚拟机上不去网
-    - 情况：Ubuntu18.04 Desktop，配置桥接模式，ifconfig只有lo。
+    - 情况：Ubuntu18.04 Desktop，配置桥接模式，ifconfig只有lo。有时虚拟机无法正常启动、关闭，强制关闭后开机会无法上网。
     - Ubuntu Desktop版本用的网络管理是NetworkManager，NetworkManager运行问题，尝试以下代码。
     ```bash
     sudo service NetworkManager stop

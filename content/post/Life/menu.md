@@ -74,6 +74,28 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
     4. 翻炒几下后即可调味，调料勺盐一勺，白糖两勺。
 <center><img src="/images/food/PotatoFriedEgg.jpg" width="256" height="256" ></center>
 
+## 炒豇豆
+- 当前水平：还行
+- 菜谱：
+    1. 一把豇豆、葱姜蒜、肉丝、尖椒段
+    2. 炒肉丝至变色，加少许盐去腥，加入葱姜炒出香味
+    3. 加入尖椒，稍微翻炒，加入豇豆
+    4. 反复翻炒至豇豆变为暗绿色
+    5. 加盐（一把豇豆差不多半勺盐）、加酱油（一汤勺的量），翻炒至上色
+    6. 加入蒜末，翻炒出蒜香味
+<center><img src="/images/food/Cowpea.jpg" width="256" height="256" ></center>
+
+## 地三鲜
+- 当前水平：不太行
+- 菜谱：
+    1. 两根线茄子、一些蒜、尖椒、土豆
+    2. 油炸土豆块、茄子块（据说先用小苏打水泡一下可以少吸油）、辣椒（稍微炸一下就行）
+    3. 加入葱姜爆香，加辣椒，稍微翻炒后加入少许水，调味（1汤勺酱油、2勺糖、一勺盐）
+    4. 加入土豆，汤汁吸收差不多加入茄子，可以水淀粉勾芡（但没必要）
+- 当前问题：
+    - 太油了，不太健康。。。
+<center><img src="/images/food/PotatoEggplantPepper.jpg" width="256" height="256" ></center>
+
 # 主食
 ## 酸甜炒面
 - 当前水平：不太行
@@ -83,6 +105,14 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
     3. 热油下蒜，下西红柿，下油菜，断生后下入面条，锅边淋入糖醋碗汁。
 - 上一次失误：太酸了，糖的量少了，而且米醋确实味道不太对，应当用白醋。
 <center><img src="/images/food/FriedNoodles-SourSweet.jpg" width="256" height="256" ></center>
+
+# 汤
+## 蘑菇葱花汤
+- 当前水平：还行
+- 菜谱：
+    1. 准备口蘑、葱花
+    2. 口蘑去杆，口朝下稍微煎一下，马上翻过来，煎至出水
+    3. 加水，加葱花，开锅5分钟，加足量盐，少少十三香
 
 # 凉菜
 ## 酱牛肉拍黄瓜

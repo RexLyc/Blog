@@ -17,12 +17,19 @@ math: true
 <!-- 插入一张图 -->
 # 术语
 1. 权：
-2. 度：
-    - 入度：
-    - 出度：
+2. 度：当前顶点所属边的总数
+    - 入度：当前顶点作为边终点的数量（仅有向图）
+    - 出度：当前顶点作为边起点的数量（仅有向图）
 3. $G=(V,E)$：表示一个以V为顶点集，E为边集的图。
+	- 有向图的边集：$E\subset V\times V$
+	- 无向图的边集：无序的顶点对儿
 4. 前驱：路径$(u,v)$中，如果顶点$i$在$j$前面访问，则称$i$是$j$的前驱。
 5. 后继：和前驱相反，如果顶点$i$在$j$前面访问，则称$j$是$i$的后继。
+6. 路径：从顶点u到定点v且长度为k的路径是顶点序列$v_0,v_1,...,v_k$，且$v_0=u$，$v_k=v$，且对任意$i\in[0,k),(v_i,v_{i+1})\in E$。
+	- 若路径上的各个点均互不相等，则称为简单路径
+7. 图算法中的复杂度表示约定：不写$O(|V|)$，直接写$O(V)$。
+8. 完全图：指所有点之间都有边的图。
+9. 连通图：指任意点对儿之间都有一条路径的图。
 # 数据结构
 1. 邻接矩阵：对于一个无权图$G=(V,E)$（有权图同理），维护一个矩阵$A=(a_{ij})$，其中
 </br><center>$a_{ij} = \left\\{ \begin{array}{11}
@@ -30,12 +37,23 @@ math: true
     0 & \mathrm{否则}
  \end{array} \right.$</center>
  
-2. 邻接表：对于一个无权图$G=(V,E)$（有权图同理），维护一个包含$|V|$个列表的数组$A$组成，该数组的每一个元素$A[u]$是一个列表，列表中的元素$v$，代表$(u,v)\in E$。
+2. 邻接表：对于一个无权图$G=(V,E)$（有权图同理），维护一个包含$|V|$个列表的数组$A$组成，该数组的每一个元素$A[u]$是一个列表，列表中的元素$v$，代表$(u,v)\in E$。（A代表Adjacency）
 > 邻接矩阵并不一定就浪费空间，如果是无权图，可以用位运算的形式压缩，每个标记只占一个bit，只是这样做确实很麻烦。</br>另外只要是无向图，就可以只用一半的矩阵空间，对于java这种天生支持异形数组的语言来说还是ok的。就是用的时候带着一股邪气。
 # 图搜索
 1. 广度优先搜索（BFS：breadth-first search）
-- 基本思路：算法每一层的搜索，都会沿着已发现的节点的边界，访问所有到当前边界距离为1的所有未发现顶点。
+- 基本思路：算法每一层的搜索，都会沿着已发现的节点的边界，访问所有到当前边界距离为1的所有未发现顶点。原书中证明了广度优先搜索在寻找最短路径方面的正确性。
 - 实现思路：广度优先搜索天生适合用队列进行实现，其遍历过程等价于队列节点的入队出队过程。
+- 时间复杂度：在不考虑复杂的附加算法的前提下，广度优先搜索的复杂度由源点的**可达**顶点，以及相关边共同构成，为$O(V+E)$。
+- 广度优先搜索的性质和术语：
+	- 广度优先树：BFS在搜索过程中，实际上建立了一个当前图G的子图，即一个广度优先树。根s即为源点，包含所有可达顶点。**对任意顶点v，从树中s到v的路径即图中s到v的最短距离**。
+	- 每个顶点只会被发现一次，除根以外，图G中顶点满足其父节点$\pi[u] \neq \mathrm{NIL}$。
+	- 前驱子图（predecessor subgraph）：对图$G=(V,E)$，和给定的源顶点s，其前驱子图$G_\pi=(V_\pi,E_\pi)$，其中$V_\pi=\\{v \in V:\pi[v]\ne \mathrm{NIL}\\} \bigcup \\{s\\}$，$E_\pi=\\{(\pi[v],v):v\in V_pi-\\{s\\}\\}$。
+	- 如果$V_\pi$由s可达顶点组成，则前驱子图即为G的广度优先树。实际上在经过一次广度优先搜索之后，就恰好形成了这样一个树，此时表中除了源点以外没有找到自己前驱的节点，都是不可达顶点。
+<!-- <details>
+ <summary>折叠</summary>
+ 详细内容
+</details> -->
+
 ```cpp
 // 本段代码实现了对一个二维地图从左上角到右下角的广度优先搜索过程
 #include<iostream>
@@ -78,6 +96,7 @@ void bfs(const std::vector<std::vector<int>>& input, std::pair<std::size_t, std:
 	}
 }
 int main() {
+	// 并非邻接矩阵或邻接表，这是一个二维的地图，每一个数字是一个顶点
 	std::vector<std::vector<int>> input = {
 		{1,2,4,7,11},
 		{3,5,8,12,16},
@@ -90,8 +109,24 @@ int main() {
 }
 ```
 2. 深度优先搜索
-- 基本思路：扩展当前已访问集合时，以特定规则从某点开始，沿着一条路径一直扩展顶点，直到无法继续。
+- 基本思路：扩展当前已访问集合时，以特定规则从某未被访问的点开始，沿着一条路径一直扩展顶点，直到无法继续。
 - 实现思路：深度优先搜索天生适合用栈实现（不喜欢实现栈直接递归调用即可），扩展节点的过程是入栈，递归返回的过程是出栈。
+- 时间复杂度：由于深度优先搜索仍然只访问所有顶点有且只有一次，所以为$\Theta(V+E)$。
+- 深度优先搜索的性质和术语：
+	- 深度优先搜索森林：一般来说深度优先搜索会访问所有顶点，因此形成的搜索树有多个。
+	- 前驱子图：$G_\pi=(V,E_\pi)$，其中$E_\pi=\\{(\pi[v],v):v\in V \mathrm{且} \pi[v]\ne \mathrm{NIL}\\}$。
+	- 深度优先森林中边的分类：
+		- 树边：深度优先森林$G_\pi$中的边，若顶点v是在探寻边(u,v)时首次被发现，则(u,v)是一条树边。
+		- 反向边：连接顶点v到其某一祖先u的边。存在反向边则意味着存在环
+		- 正向边：连接顶点u到某个后裔v的非树边。
+		- 交叉边：其他类型的边。
+	- 深度优先森林中的后裔和祖先：v是u的后裔，当且仅当v是由u扩展出来的子孙节点。此时u是v的祖先。
+	- 发现时刻$d[u]$：顶点u在图中被发现并开始访问的时刻（开始扩展u的后裔）
+	- 完成时刻$f[u]$：顶点u在图中完成访问的时刻（不会再扩展u的后裔）
+	- 括号定理：在深度优先搜索中，顶点u和v，下述条件有且仅有一个为真
+		1. 区间[d[u],f[u]]和区间[d[v],f[v]]完全不相交，且在深度优先森林中，u、v都不是对方的后裔
+		2. 区间[d[u],f[u]]$\subset$[d[v],f[v]],且u是v的后裔
+		3. 区间[d[u],f[u]]$\supset$[d[v],f[v]],且v是u的后裔
 ```cpp
 // 本段代码代表了一个用深度优先搜索从起始地点走到目的地的过程
 #include<iostream>
@@ -166,7 +201,7 @@ void dfs(const std::vector<std::vector<int>>& input, std::pair<int, int> current
 	}
 }
 int main(){
-    //表格中1为可走的地点，0为不可走的（路径和墙）。
+    //表格中1为可走的路径，0为不可走的墙。
 	std::vector<std::vector<int>> maze = {
 		{1,0,1,1,1},
 		{1,1,1,0,1},
@@ -179,7 +214,68 @@ int main(){
 }
 ```
 # 拓扑排序
-- 对于有向图而言，图的拓扑是一个非常有用的基础信息。
+- 对于有向图而言，图的拓扑是一个非常有用的基础信息。代表了顶点之间的先后顺序
+- 输出：一个顶点的线性序列，在该序列中，对任意边$(u,v)\in E$，则必有u在序列中早于v出现。
+- 基本思路：
+	- 方法一：拓扑排序的顺序，和深度优先搜索森林中任意顶点u的f[u]的升序相同。调用dfs算法，保存完成时间f[u]。
+	- 方法二：移除图中入度为0的点及其边，更新子图，重复直到所有顶点被移除。
+- 方法一的问题：需要添加额外代码判断是否存在环（方法就是判断是否存在反向边）
+```cpp
+// BFS算法解决拓扑排序
+#include<iostream>
+#include<vector>
+#include<unordered_set>
+#include<stack>
+bool topoDfsVisit(const std::vector<std::vector<int>>& adj, std::stack<int>& output
+	, std::unordered_set<int>& visited, std::unordered_set<int>& ancient, int current) {
+	visited.insert(current);
+	ancient.insert(current);//记录祖先
+	for (auto& t : adj[current]) {
+		if (ancient.find(t) != ancient.end()) {//违反无环要求
+			return false;
+		}
+		else if (visited.find(t) == visited.end()) {//尚未访问
+			if (!topoDfsVisit(adj, output, visited, ancient, t)) {//子树违反无环要求
+				return false;
+			}
+		}
+	}
+	output.push(current);
+	ancient.erase(current);//递归返回，从祖先列表中删除自己
+	return true;
+}
+
+bool topoSortDfs(const std::vector<std::vector<int>>& adj, std::stack<int>& output) {
+	std::unordered_set<int> visited;
+	std::unordered_set<int> ancient;
+	for (int i = 0; i != adj.size(); ++i) {
+		if (visited.find(i) == visited.end()) {
+			if (!topoDfsVisit(adj, output, visited, ancient, i)) {//子树违反无环要求
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+int main(){
+	// 一个有向无环邻接表
+	std::vector<std::vector<int>> adj = {
+		{},{2,7},{3},{4,8},{5},{},{7},{3},{5}
+	};
+	std::stack<int> output;
+	if (topoSortDfs(adj, output)) {
+		while (!output.empty()) {
+			std::cout << output.top() << " ";
+			output.pop();
+		}
+	}
+	else {
+		std::cout << "no topo, there has circle" << std::endl;
+	}
+	return 0;
+}
+```
 # 图分解
 # 生成树问题
 # 最短路径问题

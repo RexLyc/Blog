@@ -286,8 +286,8 @@ int main(){
 		1. 调用一次dfs计算图中各顶点的f(u)
 		2. 求原图G的逆图$G^T$
 		3. 在逆图上，根据1中的f(u)降序调用dfs。每一次dfs扩展出来的顶点，即每一棵深度优先树，组成一个强连通分支。
-	- 方法二（Tarjan算法）：
-	- 方法三（Gabow算法）：
+	- 方法二（Tarjan算法）：更好更强大的一种求强连通分支的算法。贴一个链接，[史上最清晰的Tarjan算法详解](https://segmentfault.com/a/1190000039149539)。平均比Kosaraju快30%。
+	- 方法三（Gabow算法）：Tarjan的提升版本，据说更快一些。[Gabow简单讲解和源码](https://blog.csdn.net/w745241408/article/details/7524523)
 - Kosaraju算法的证明：
 	- 术语：
 		- 逆图$G^{T}=(V,E^{T})$，即对任意$(u,v)\in E^{T}，\mathrm{满足}(v,u)\in E$。
@@ -302,6 +302,138 @@ int main(){
 		3. 根据归纳假设，和白色路径定理，此时C中所有顶点均为u的后裔。
 		4. 由于选取顶点由完成时间f决定，此时对于剩余的任何强连通分支$C'$，都有$f(u)=f(C)>f(C')$。此时根据归纳假设和引理第2条，在$G^{T}$中任何离开C的边，必定指向已被访问过的强连通分支（在$G$中，该边是进入$C$的，所以该分支的完成时间f必定更晚，所以在$G^{Y}$中此时已经被访问过了）。
 		5. 因此，对于C以外的任何其他强连通分支以外的点，都不可能是u的后裔。综合第3点，说明C中的顶点等价于u的后裔。因此在$G^{T}中，根为u的深度优先树恰好形成了强连通分支C$。
+```cpp
+#include<iostream>
+#include<vector>
+#include<algorithm>
+#include<unordered_set>
+// 双DFS强连通分支，即Kosaraju算法的实现
+void visitDFS(const std::vector<std::vector<int>>& adj
+	, std::vector<int>& finishOrder, std::unordered_set<int>& visited, int current) {
+	for (auto& t : adj[current]) {
+		if (visited.find(t) == visited.end()) {
+			visited.insert(t);
+			visitDFS(adj, finishOrder, visited, t);
+		}
+	}
+	finishOrder.push_back(current);
+}
+
+void finishDFS(const std::vector<std::vector<int>>& adj, std::vector<int>& finishOrder) {
+	std::unordered_set<int> visited;
+	for (int i = 0; i != adj.size(); ++i) {
+		if (visited.find(i) == visited.end()) {
+			visited.insert(i);
+			visitDFS(adj, finishOrder, visited, i);
+		}
+	}
+}
+
+std::vector<std::vector<int>> reverseGraph(const std::vector<std::vector<int>>& adj) {
+	std::vector<std::vector<int>> rAdj(adj.size());
+	for (int i = 0; i != adj.size(); ++i) {
+		for (auto& t : adj[i]) {
+			rAdj[t].push_back(i);
+		}
+	}
+	return rAdj;
+}
+
+void visitSCC(const std::vector<std::vector<int>>& adj
+	, std::vector<std::vector<int>>& sccGraph, std::unordered_set<int>& visited, int current) {
+	
+	for (auto& t : adj[current]) {
+		if (visited.find(t) == visited.end()) {
+			visited.insert(t);
+			sccGraph.back().push_back(t);
+			visitSCC(adj, sccGraph, visited, t);
+		}
+	}
+}
+
+void getSCC(const std::vector<std::vector<int>>& adj
+	, std::vector<std::vector<int>>& sccGraph, std::vector<int> finishOrder) {
+	std::unordered_set<int> visited;
+	for (auto& t : finishOrder) {
+		if (visited.find(t) == visited.end()) {
+			sccGraph.push_back(std::vector<int>());
+			sccGraph.back().push_back(t);
+			visited.insert(t);
+			visitSCC(adj, sccGraph, visited, t);
+		}
+	}
+}
+
+void sccDFS(const std::vector<std::vector<int>>& adj, std::vector<std::vector<int>>& sccGraph) {
+	std::vector<int> finishOrder;
+	finishDFS(adj, finishOrder);
+	std::reverse(finishOrder.begin(), finishOrder.end());
+	auto rAdj = reverseGraph(adj);
+	getSCC(rAdj, sccGraph, finishOrder);
+}
+
+int main(){
+	std::vector<std::vector<int>> adj = {
+		{1}
+		,{2}
+		,{0,3}
+		,{4,5}
+		,{5}
+		,{4}
+	};
+	std::vector<std::vector<int>> sccGraph;
+	sccDFS(adj, sccGraph);
+	for (auto& t : sccGraph) {
+		for (auto& tt : t) {
+			std::cout << tt << " ";
+		}
+		std::cout << std::endl;
+	}
+	return 0;
+}
+```
 # 生成树问题
 # 最短路径问题
 # 最大流问题
+- 流网络：一个有向图$G=(V,E)$，其中每条边$(u,v)\in E$均有一个非负容量$c(u,v)\ge 0$。网络中有两个特别的顶点，源点s，和汇点t。为了方便起见，约定$\forall v \in V, s\leadsto v \leadsto t$。
+- 流：在流网络$G=(V,E)$中，流是一个实值函数$f:V \times V \to \mathbf{R}$。可以理解为，流是一个流网络中的流量分配情况。需要满足以下性质：
+	1. 容量限制：$\forall u,v \in V, f(u,v) \le c(u,)$
+	2. 反对称性：$\forall u,v \in V, f(u,v) = -f(v,u)$
+	3. 流守恒性：$\forall u\in V-{s,t}, \sum_{v\in V}f(u,v)=0$
+- 多个源点和多个汇点：转化为具有一个超级源点、超级汇点的流网络，其中超级源点到多个源点，以及多个汇点到超级汇点都具有无限容量。
+- 最大流：在给定流网络的前提下，求出网络中能接受的最大流量。
+- 术语和基本性质：
+	- 流的值：定义为$|f|=\sum_{v\in V}f(s,v)$。即从原点出发的总流。注意符号$|f|$，并不代表流的绝对值。
+	- 流的和：设f为G的一个流，$f'$是由f导出的G的残留网络$G_f$的一个流。则$f+f'$也是G中的一个流，其值为$|f+f'|=|f|+|f'|$。
+	- 对集合运算：$f(X,Y)=\sum_{x\in X}\sum_{y\in Y}f(x,y)$。其中$X ,Y\subset V,$
+		- $f(X,X)=0$
+		- $f(X,Y)=-f(Y,X)$
+		- 若$X \cap Y = \emptyset$，则有$f(X \cup Y,Z)=f(X,Z)+f(Y,Z)$且$f(Z,X \cup Y)=f(Z,X)+f(Z,Y)$
+	- 边残留容量：设f为G的一个流，对顶点$u,v\in V$，若在不超过容量$c(u,v)$的前提下，从u到v可以压入额外的网络流量，就是(u,v)的残留容量，记为$c_f(u,v)=c(u,v)-f(u,v)$
+	- 残留网络：给定一个流网络$G=(V,E)$和流$f$，由$f$压得的$G$的残留网络是$G_f=(V,E_f)$，其中$E_f=\\{(u,v)\in V \times V:c_f(u,v)>0\\}$
+	- 增广路径：已知一个流网络G和流f，增广路径p是残留网络$G_f$中从s到t的一条简单路径。
+	- 增广路径的残留容量：能够沿着增广路径p上每一条边传输的网络流的最大值，定义为$c_f(p)=min\\{c_f(u,v):(u,v)\mathrm{在}p\mathrm{上}\\}$
+		- 在一个流网络G和流f中，设p是$G_f$的一条增广路径。定义流$f_p:V\times V \to \mathbf{R}$。
+		</br><center>$f_p(u,v) = \left\\{ \begin{array}{11}
+			c_f(p) & \mathrm{如果}(u,v)\in p\\\\
+			-c_f(p) & \mathrm{否则}(v,u)\in p\\\\
+			0 & \mathrm{否则}
+		\end{array} \right.$</center>
+		</br>则$f_p$是$G_f$上的一个流，其值为$|f_p|=c_f(p)>0$
+		- 在此基础上，定义流$f'=f+f_p$，则$f'$是G的一个流，其值$|f'|=|f|+|f_p|>|f|$。
+	- 割：流网络G的割$(S,T)$将V划分为S和$T=V-S$两个部分，且有$s\in S,t \in T$。如果f是流网络的一个流，则穿过割$(S,T)$的净流被定义为$f(S,T)$。割$(S,T)$的容量是$c(S,T)$。一个网络的最小割就是网络中所有割中具有最小容量的割。
+		- 引理：对一个流网络G中任意流f来说，其值的上界为G的任意的割的容量。
+- 最大流最小割定理：如果f是具有源点s和汇点t的流网络G中的一个流，则下列条件是等价的：
+	1. f是G的一个最大流
+	2. 残留网络$G_f$不包含增广路径
+	3. 对G的某个割$(S,T)$，有$|f|=c(S,T)$
+- Ford-Fulkerson方法：
+	- 核心思路：通过不断尝试扩展增广路径，最终获得最大流。
+- 具体实现：
+	- Edmonds-Karp算法：用广度优先搜索计算增广路径p。时间复杂度$O(VE^2)$。
+		1. 用广度优先搜索，逐层计算从源点s到汇点t的最大流量
+		2. 用最大流量更新增广路径上的各边容量，并统计当前流量
+		3. 重复步骤1，直到广度优先搜索无法抵达汇点t
+```cpp
+
+```

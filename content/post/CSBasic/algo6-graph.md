@@ -393,10 +393,19 @@ int main(){
 }
 ```
 # 生成树问题
+- 术语
+- Prim算法
+- Kruskal算法
 # 最短路径问题
+- 术语
+## 单源最短路
+- Dijkstra算法
+- Bellman-Ford算法
+## 多源最短路
+- Floyd算法
 # 最大流问题
 - 流网络：一个有向图$G=(V,E)$，其中每条边$(u,v)\in E$均有一个非负容量$c(u,v)\ge 0$。网络中有两个特别的顶点，源点s，和汇点t。为了方便起见，约定$\forall v \in V, s\leadsto v \leadsto t$。
-- 流：在流网络$G=(V,E)$中，流是一个实值函数$f:V \times V \to \mathbf{R}$。可以理解为，流是一个流网络中的流量分配情况。需要满足以下性质：
+- 流：在流网络$G=(V,E)$中，流是一个实值函数$f:V \times V \to \mathbf{R}$。可以理解为，流是一个流网络中的流量分配情况。需要满足以下性质：（注意流从定义上的定义域就是$V \times V$的）
 	1. 容量限制：$\forall u,v \in V, f(u,v) \le c(u,)$
 	2. 反对称性：$\forall u,v \in V, f(u,v) = -f(v,u)$
 	3. 流守恒性：$\forall u\in V-{s,t}, \sum_{v\in V}f(u,v)=0$
@@ -411,6 +420,7 @@ int main(){
 		- 若$X \cap Y = \emptyset$，则有$f(X \cup Y,Z)=f(X,Z)+f(Y,Z)$且$f(Z,X \cup Y)=f(Z,X)+f(Z,Y)$
 	- 边残留容量：设f为G的一个流，对顶点$u,v\in V$，若在不超过容量$c(u,v)$的前提下，从u到v可以压入额外的网络流量，就是(u,v)的残留容量，记为$c_f(u,v)=c(u,v)-f(u,v)$
 	- 残留网络：给定一个流网络$G=(V,E)$和流$f$，由$f$压得的$G$的残留网络是$G_f=(V,E_f)$，其中$E_f=\\{(u,v)\in V \times V:c_f(u,v)>0\\}$
+		- 注意残留网络，不仅包含从s到t方向上，未被填满的边，也包括反方向的边（虽然边实际上是单向的，但正向压入了流量$x$，代表反向可以压入$x$，等价于把这条边的流量清空）
 	- 增广路径：已知一个流网络G和流f，增广路径p是残留网络$G_f$中从s到t的一条简单路径。
 	- 增广路径的残留容量：能够沿着增广路径p上每一条边传输的网络流的最大值，定义为$c_f(p)=min\\{c_f(u,v):(u,v)\mathrm{在}p\mathrm{上}\\}$
 		- 在一个流网络G和流f中，设p是$G_f$的一条增广路径。定义流$f_p:V\times V \to \mathbf{R}$。
@@ -451,7 +461,7 @@ int main(){
 			0 & \mathrm{否则}
 		\end{array} \right.$
 	</br>
-		$e(v)=c(s,v), e(s)=\sum-c(s,v),{(s,v)\in E}$
+		$e(v)=c(s,v), e(s)=-\sum c(s,v),{(s,v)\in E}$
 		</center>
 	- 基本思路：
 		1. 初始化前置流
@@ -464,7 +474,23 @@ int main(){
 		- 引理：容许网络不包含回路。
 		- 引理：如果顶点u是溢出顶点，且$(u,v)$是容许边，则可以压入，该操作不会产生新的容许边，并且可能将$(u,v)$变为非容许边。
 		- 引理：如果顶点u是溢出顶点，且不存在$(u,v)$是容许边，则可以重标记，操作后至少有一条$(u,v)$，即离开u的容许边，但不会有$(v,u)$，即进入u的容许边。
-	- 相邻表：重标记和前移算法中的边都存储在相邻表中。如果给定流网络G，对顶点u，相邻表$N[u]$是一个关于G中u的相邻顶点（前驱或后继）的单链表。
+	- 相邻表：重标记和前移算法中的边都存储在相邻表中。如果给定流网络G，对顶点$u\in V-\\{s,t\\}$，相邻表$N[u]$是一个关于G中包含u的残留边中的另一端顶点的单链表。（注意没有$N[s]$或$N[t]$但某点u的相邻表$N[u]$中是可以有$s$和$t$的）
+	- 溢出顶点的排除：对于每一个溢出顶点，重复步骤
+		1. 从相邻表$N[u]$中取当前溢出顶点的待处理相邻顶点$v$，初始值为链表头。
+		2. 如果$v$为空，则重标记当前节点，回到1
+		3. 如果$(u,v)$为容许边，流量压入$(u,v)$，转4
+			- 这一步可能将流量向$t$有效传输，也可能发现无法传递余流而退回给前驱相邻节点。
+		4. 移动待处理顶点为链表的下一个顶点
+	- 核心算法：
+		1. 初始化前置流
+		2. 计算包含$V-\\{s,t\\}$顶点的链表L（L在运算过程中隐含了容许网络的拓扑排序）
+		3. 计算$V-\\{s,t\\}$中每个顶点的相邻表
+		4. 取L头节点$u$
+		5. 若u部位不为空
+		6. 记录u的当前高度，在u上调用溢出顶点排除程序
+			- 如果之前在u上调用过溢出顶点排除程序，后续调用将在之前访问相邻表$N[u]$的位置继续
+		7. 高度不变，赋值$u$为$u$的下一个顶点，转5
+		8. 否则（高度一定变高），将$u$移动到L头部，并赋值$u$为$u$的下一个顶点，转5
 - 流网络算法应用：
 	1. 最大二分匹配：
 		- 术语：给定一个无向图$G=(V,E)$，一个匹配是边的子集合$M \subset E$，且满足对所有顶点$v \in V$，M中至多有一条边和v关联，被关联的顶点被称为匹配，否则是无匹配的。
@@ -473,6 +499,66 @@ int main(){
 		</br>&emsp;&emsp;$\cup \\{(u,v):u\in L,v \in R,(u,v)\in E\\} $
 		</br>&emsp;&emsp;$\cup\\{(v,t):v\in R\\}$
 		</br>有向图$G'$的边集$E'$中每条边具有单位容量。此时该有向图的最大流就是原图的最大匹配。
-```cpp
+```python
+# 节选自wikipedia，已翻译
+# 使用Python语言，用邻接矩阵实现，且实际上未建立相邻表，性能相对较差
+# https://en.wikipedia.org/wiki/Push%E2%80%93relabel_maximum_flow_algorithm
+def relabel_to_front(C, source: int, sink: int) -> int:
+    n = len(C)  # 容量邻接矩阵
+    F = [[0] * n for _ in range(n)] # 流矩阵
+    # 残留容量即为 C[u][v] - F[u][v]
 
+    height = [0] * n  # 定点高度
+    excess = [0] * n  # 余流
+
+	# 记录每个顶点当前初立的相邻表中的顶点
+	# 对相邻表很粗糙的实现，并未真正实现表，只记录了当前的相邻顶点
+    seen   = [0] * n  
+    # 构造不包含源点和终点的链表L
+    nodelist = [i for i in range(n) if i != source and i != sink]
+
+    def push(u, v): # 压入
+        send = min(excess[u], C[u][v] - F[u][v])
+        F[u][v] += send
+        F[v][u] -= send
+        excess[u] -= send
+        excess[v] += send
+
+    def relabel(u):
+        # 重标记u找到一个最小可压入高度
+        min_height = ∞
+        for v in xrange(n): # 邻接矩阵的弊端，遍历所有顶点
+            if C[u][v] - F[u][v] > 0:
+                min_height = min(min_height, height[v])
+                height[u] = min_height + 1
+
+    def discharge(u): # 溢出顶点排除
+        while excess[u] > 0:
+            if seen[u] < n:  # 相邻表仍有后继顶点
+                v = seen[u]
+                if C[u][v] - F[u][v] > 0 and height[u] > height[v]: # 寻找可压入的相邻顶点
+                    push(u, v)
+                else:
+                    seen[u] += 1
+            else:  # 相邻表中无后继，重标记
+                relabel(u)
+                seen[u] = 0
+
+    height[source] = n  # 初始化源点高度
+    excess[source] = ∞  # 初始化源点余流（偷懒）
+    for v in range(n): # 前置流初始化
+        push(source, v)
+
+    p = 0
+    while p < len(nodelist):
+        u = nodelist[p]
+        old_height = height[u]
+        discharge(u)
+        if height[u] > old_height:
+            nodelist.insert(0, nodelist.pop(p))  # 发生重标记，进行前移
+            p = 0  # 从头开始（这里有待商榷，应该可以直接=1了，=0没意义）
+        else:
+            p += 1
+
+    return sum(F[source])
 ```

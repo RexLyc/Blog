@@ -42,8 +42,6 @@
     
       <meta property="article:tag" content="设计模式">
     
-      <meta property="article:tag" content="施工中">
-    
   
 
 
@@ -54,6 +52,9 @@
 
 
 
+
+  <meta property="og:image" content="https://www.lyclife.com/images/thumbnail/design-pattern.svg">
+  <meta property="twitter:image" content="https://www.lyclife.com/images/thumbnail/design-pattern.svg">
 
 
 
@@ -251,53 +252,102 @@
           <div class="post-content markdown" itemprop="articleBody">
             <div class="main-content-wrap">
               <p>软件行业发展到现在，大部分需求场景下，优秀的开发模式已有定论。本系列结合场景和代码，总结常用设计模式。</p>
+<p>.</p>
 <h1 id="为什么要看设计模式">为什么要看设计模式</h1>
 <ul>
 <li>虽然设计模式经常被人吐槽，但实际上学一点设计模式本质上只是想借鉴前人经验。</li>
 <li>不仅是代码复用，更要体会经验复用，分解问题的方式方法。</li>
 </ul>
-<h1 id="常用设计模式列表">常用设计模式列表</h1>
+<h1 id="常用设计模式速览">常用设计模式速览</h1>
 <ol>
-<li>创建型
+<li>创建型：如何更优雅的创建对象
 <ul>
-<li>单例模式</li>
-<li>抽象工厂</li>
-<li>工厂方法</li>
-<li>生成器</li>
-<li>原型</li>
+<li>单例模式（Singleton）：一个类型在程序生命周期内只有一个实例</li>
+<li>抽象工厂（Abstract Factory）：提供一个接口用于创建相关对象的工厂，是工厂的工厂</li>
+<li>工厂方法（Factory）：提供创建实例的接口，由具体的子类工厂决定具体实例化的类型</li>
+<li>生成器（Builder）：将复杂对象的构建和表示分离，适合用于类型内部元素组合方式多变，而每个元素构造方式相对稳定的情况</li>
+<li>原型（Prototype）：用于创建重复的对象，并保证性能。即为创建代价较高的对象，提供克隆方法。</li>
 </ul>
 </li>
-<li>结构型
+<li>结构型：如何更优雅的扩展功能、精简代码
 <ul>
-<li>组合模式</li>
-<li>外观</li>
-<li>代理</li>
-<li>适配器</li>
-<li>装饰器</li>
-<li>桥接器</li>
-<li>享元</li>
+<li>组合模式（Composite）：部分整体模式，对象内部有同类型对象的集合，例如展开成树状结构的表达式。</li>
+<li>外观（Facade）：优化接口，降低外部使用模块的复杂度。可以用于封装多个类。项目中期优化使用。</li>
+<li>代理（Proxy）：增加中间层，为其他对象提供接口以提供对当前被代理对象的访问。一般针对一个类。</li>
+<li>适配器（Adaptor）：为两个已有的不兼容模块间的接口建立连接，使得能够共同工作。非必要不应使用适配器模式，而应当进行重构。项目后期兼容开发。</li>
+<li>装饰器（Decorator）：允许向一个现有的对象的某个接口添加新的扩展功能，而不改变已有结构。由一个抽象类实现一个接口，可以一直扩展下去。</li>
+<li>桥接器（Bridge）：把抽象和实现解耦。将多变的部分单独抽象为接口，在实体类中进行使用。由一个抽象类持有一个接口。项目前期设计。</li>
+<li>享元（Flyweight）：尝试重用现有的同类对象，如果无法匹配则创建新的对象。</li>
+<li>过滤器模式（Filter）：一个接口继承体系内，用不同实现过滤同一组对象。过滤操作可以组合成复杂的语义。</li>
 </ul>
 </li>
-<li>行为型
+<li>行为型：如何更优雅的完成一些操作
 <ul>
-<li>迭代器</li>
-<li>观察者</li>
-<li>模板方法</li>
-<li>命令</li>
-<li>状态</li>
-<li>策略模式</li>
-<li>职责链</li>
-<li>中介者</li>
-<li>访问者</li>
-<li>解释器</li>
-<li>备忘录</li>
-<li>MVC</li>
+<li>迭代器（Iterator）：提供一个获取迭代器的接口，顺序访问集合对象元素。</li>
+<li>观察者（Observer）：对存在一对多依赖关系的情况，保管相关依赖对象的集合，变更属性则通知依赖它的对象。</li>
+<li>模板方法（Template）：允许重写部分方法，但这些方法的调用将会以抽象类中定义的逻辑进行。</li>
+<li>命令（Command）：数据驱动，将命令包裹在对象中进行传递，调用对象负责寻找合适的处理对象，将命令传递过去。调用者→命令→接收者，即调用者实际保存若干命令，命令中封装对接收者的实际调用。</li>
+<li>状态（State）：对象内部保存一个状态对象（每种状态需要实现不同状态下的行为，并且行为会变更依赖对象），根据不同状态变更行为。用来避免过多条件语句。表现为类的行为是受状态控制而变化。可以优雅的实现状态机。</li>
+<li>策略模式（Strategy）：创建统一接口下表示各种策略的对象，使之可被替换。表现上是一个类中接口的行为可以动态变化、替换。</li>
+<li>职责链（Chain ofResponsibility）：也叫责任链，将请求的发送者和接收者解耦，多个对象都有可能接收请求，直到有对象处理为止。</li>
+<li>中介者（Mediator）：提供一个中介类处理不同类之间的通信，降低通信的复杂性。</li>
+<li>访问者（Visitor）：针对一些易变且和对象类型无关的操作，在被访问的类里放一个对外接收访问者的接口，将数据结构和数据操作分离。</li>
+<li>解释器（Interpreter）：评估语言的语法或表达式，用于实现简单文法。（终结符表达式、非终结符表达式）</li>
+<li>备忘录（Memento）：保存对象的状态，以便在需要的时候恢复对象。由备忘录对象、备忘录管理对象构成。</li>
+<li>MVC：Model代表存取数据的对象，View包含可视化内容，Controller控制数据双向流动</li>
+</ul>
+</li>
+<li>其他：
+<ul>
+<li>空对象（Null Object）：取代空对象实例检测，反应一种不做任何动作的子类情况。</li>
 </ul>
 </li>
 </ol>
+<h1 id="七大原则">七大原则</h1>
+<ol>
+<li>开闭原则：允许扩展，禁止修改。</li>
+<li>单一职责原则：一个类只做一件事情。</li>
+<li>依赖倒转原则：高层模块不应依赖底层模块。即开发应当面向抽象（接口），而不针对具体实现。</li>
+<li>迪米特（最小知识原则）：高内聚，低耦合。一个对象应当尽量减少自己的依赖类型、减少和自己有耦合关系的类型。提升模块之间的独立程度。</li>
+<li>里氏代换原则：任何可以使用父类的地方，均应可以使用子类。</li>
+<li>接口隔离原则：接口应当尽量分化、细化，不应当强迫用户实现一些不会使用到的接口。互相依赖应当建立在最小的接口集合上。</li>
+<li>组合/聚合复用原则：尽量使用组合和聚合少使用继承来完成代码复用。</li>
+</ol>
+<h1 id="术语">术语</h1>
+<ol>
+<li>耦合性：指模块之间的信息、参数的依赖程度。</li>
+<li>内聚性：和耦合相对，指功能相关的程序组合成一个模块的程度。</li>
+</ol>
+<h1 id="图例">图例</h1>
+<ul>
+<li>实现：新类型实现了接口</li>
+</ul>
+<center><img src="https://www.lyclife.com/images/ProgramDesign/ImplementUML.svg" ></center></br>
+<ul>
+<li>泛化：新类型泛化原有类型</li>
+</ul>
+<center><img src="https://www.lyclife.com/images/ProgramDesign/GeneralizationUML.svg" ></center></br>
+<ul>
+<li>组合：被组合类（CPU）是组合类（Computer）不可分割的一部分，这里我们假定处理器焊死在电脑上</li>
+</ul>
+<center><img src="https://www.lyclife.com/images/ProgramDesign/CompositionUML.svg" ></center></br>
+<ul>
+<li>聚合：被聚合类（Computer）是聚合类（Classroom）的一部分，两者地位并不平等，但被聚合类是单独存在的</li>
+</ul>
+<center><img src="https://www.lyclife.com/images/ProgramDesign/AggregationUML.svg" ></center></br>
+<ul>
+<li>依赖：被依赖类（Logger）为依赖类型提供必要能力，但不是依赖类型的成员</li>
+</ul>
+<center><img src="https://www.lyclife.com/images/ProgramDesign/DependencyUML.svg" ></center></br>
+<ul>
+<li>关联：被关联类（Student）在关联类型（Teacher）中有保留，两者地位平等，不负责生命周期管理。也存在双向关联</li>
+</ul>
+<center><img src="https://www.lyclife.com/images/ProgramDesign/AssociationUML.svg" ></center></br>
 <h1 id="参考资料">参考资料</h1>
 <p>《Head First设计模式》</p>
 <p><a href="https://blog.csdn.net/yanlin813/article/details/52664805">24种设计模式大全</a></p>
+<p><a href="https://www.runoob.com/design-pattern/design-pattern-tutorial.html">设计模式-菜鸟教程</a></p>
+<p><a href="https://www.cnblogs.com/peida/archive/2008/08/01/1257574.html">桥接模式、外观模式、适配器模式的区别</a></p>
               
             </div>
           </div>
@@ -312,8 +362,6 @@
   <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/%E7%B3%BB%E5%88%97%E5%BC%80%E5%9D%91/">系列开坑</a>
 
   <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a>
-
-  <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/%E6%96%BD%E5%B7%A5%E4%B8%AD/">施工中</a>
 
                   </div>
                 

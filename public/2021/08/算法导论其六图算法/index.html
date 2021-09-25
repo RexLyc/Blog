@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.87.0 with theme Tranquilpeak 0.4.8-BETA">
+<meta name="author" content="李奕成">
+<meta name="keywords" content="">
+<meta name="description" content="最炫酷但其实大部分工程师很少使用的图算法闪亮登场，图算法是很多应用场景最常用的算法。另外本期将会回收系列封面，一起进来看看。">
+
+
+<meta property="og:description" content="最炫酷但其实大部分工程师很少使用的图算法闪亮登场，图算法是很多应用场景最常用的算法。另外本期将会回收系列封面，一起进来看看。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="算法导论其六：图算法">
+<meta name="twitter:title" content="算法导论其六：图算法">
+<meta property="og:url" content="https://www.lyclife.com/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E5%85%AD%E5%9B%BE%E7%AE%97%E6%B3%95/">
+<meta property="twitter:url" content="https://www.lyclife.com/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E5%85%AD%E5%9B%BE%E7%AE%97%E6%B3%95/">
+<meta property="og:site_name" content="奕成的个人空间">
+<meta property="og:description" content="最炫酷但其实大部分工程师很少使用的图算法闪亮登场，图算法是很多应用场景最常用的算法。另外本期将会回收系列封面，一起进来看看。">
+<meta name="twitter:description" content="最炫酷但其实大部分工程师很少使用的图算法闪亮登场，图算法是很多应用场景最常用的算法。另外本期将会回收系列封面，一起进来看看。">
+<meta property="og:locale" content="zh-cn">
+
+  
+    <meta property="article:published_time" content="2021-08-16T10:10:21">
+  
+  
+    <meta property="article:modified_time" content="2021-08-16T10:10:21">
+  
+  
+  
+    
+      <meta property="article:section" content="计算机科学与技术">
+    
+      <meta property="article:section" content="算法">
+    
+  
+  
+    
+      <meta property="article:tag" content="算法系列">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+
+
+
+
+
+
+  <meta property="og:image" content="https://www.lyclife.com/images/thumbnail/algorithm.jpg">
+  <meta property="twitter:image" content="https://www.lyclife.com/images/thumbnail/algorithm.jpg">
+
+
+
+
+
+  <meta property="og:image" content="https://www.lyclife.com/images/author.jpg">
+  <meta property="twitter:image" content="https://www.lyclife.com/images/author.jpg">
+
+
+    
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [["$", "$"]],
+    },
+    displayMath: [
+      ["$$", "$$"],
+      ["\[\[", "\]\]"],
+    ],
+    svg: {
+      fontCache: "global",
+    },
+  };
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script
+  id="MathJax-script"
+  async
+  src="https://www.lyclife.com/scripts/MathJax-3.2.0/es5/tex-mml-chtml.js"
+></script>
+
+    <title>算法导论其六：图算法</title>
+
+    <link rel="icon" href="https://www.lyclife.com/images/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="https://www.lyclife.com/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E5%85%AD%E5%9B%BE%E7%AE%97%E6%B3%95/">
+
+    
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" rel="stylesheet">
+    
+    
+    <link rel="stylesheet" href="https://www.lyclife.com/css/style-twzjdbqhmnnacqs0pwwdzcdbt8yhv8giawvjqjmyfoqnvazl0dalmnhdkvp7.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="https://www.lyclife.com/">奕成的个人空间</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="https://www.lyclife.com/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="https://www.lyclife.com/#about">
+          <img class="sidebar-profile-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+        </a>
+        <h4 class="sidebar-profile-name">李奕成</h4>
+        
+          <h5 class="sidebar-profile-bio">每天都是最好的一天</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">首页</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">分类</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">标签</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">归档</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">关于</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://github.com/RexLyc" target="_blank" rel="noopener">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/images/wechat.jpg">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-wechat"></i>
+      
+      <span class="sidebar-button-desc">微信</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="4"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
+  
+    <h1 class="post-title" itemprop="headline">
+      算法导论其六：图算法
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2021-08-16T10:10:21&#43;08:00">
+        
+  八月 16, 2021
+
+      </time>
+    
+    
+  
+  
+    <span>发布在</span>
+    
+      <a class="category-link" href="https://www.lyclife.com/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba%e7%a7%91%e5%ad%a6%e4%b8%8e%e6%8a%80%e6%9c%af">计算机科学与技术</a>, 
+    
+      <a class="category-link" href="https://www.lyclife.com/categories/%e7%ae%97%e6%b3%95">算法</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              <p>最炫酷但其实大部分工程师很少使用的图算法闪亮登场，图算法是很多应用场景最常用的算法。另外本期将会回收系列封面，一起进来看看。</p>
+<p>算法导论中所指的图，是由顶点和边组成的逻辑上的图。这样的图是一些现实问题的抽象表示，算法研究者从中总结了一些重要的基础算法，如最短路径问题、最小生成树问题。</p>
+<!-- 插入一张图 -->
+<h1 id="术语">术语</h1>
+<ol>
+<li>权：</li>
+<li>度：当前顶点所属边的总数
+<ul>
+<li>入度：当前顶点作为边终点的数量（仅有向图）</li>
+<li>出度：当前顶点作为边起点的数量（仅有向图）</li>
+</ul>
+</li>
+<li>$G=(V,E)$：表示一个以V为顶点集，E为边集的图。
+<ul>
+<li>有向图的边集：$E\subset V\times V$</li>
+<li>无向图的边集：无序的顶点对儿</li>
+</ul>
+</li>
+<li>前驱：路径$(u,v)$中，如果顶点$i$在$j$前面访问，则称$i$是$j$的前驱。</li>
+<li>后继：和前驱相反，如果顶点$i$在$j$前面访问，则称$j$是$i$的后继。</li>
+<li>路径：从顶点u到定点v且长度为k的路径是顶点序列$v_0,v_1,&hellip;,v_k$，且$v_0=u$，$v_k=v$，且对任意$i\in[0,k),(v_i,v_{i+1})\in E$。记为$u \leadsto v$
+<ul>
+<li>若路径上的各个点均互不相等，则称为简单路径</li>
+</ul>
+</li>
+<li>图算法中的复杂度表示约定：不写$O(|V|)$，直接写$O(V)$。</li>
+<li>完全图：指所有点之间都有边的图。</li>
+<li>连通图：指任意点对儿之间都有一条路径的图。</li>
+</ol>
+<h1 id="数据结构">数据结构</h1>
+<ol>
+<li>
+<p>邻接矩阵：对于一个无权图$G=(V,E)$（有权图同理），维护一个矩阵$A=(a_{ij})$，其中
+</br><center>$a_{ij} = \left\{ \begin{array}{11}
+1 &amp; \mathrm{如果}(i,j)\in E\\<br>
+0 &amp; \mathrm{否则}
+\end{array} \right.$</center></p>
+</li>
+<li>
+<p>邻接表：对于一个无权图$G=(V,E)$（有权图同理），维护一个包含$|V|$个列表的数组$A$组成，该数组的每一个元素$A[u]$是一个列表，列表中的元素$v$，代表$(u,v)\in E$。（A代表Adjacency）</p>
+</li>
+</ol>
+<blockquote>
+<p>邻接矩阵并不一定就浪费空间，如果是无权图，可以用位运算的形式压缩，每个标记只占一个bit，只是这样做确实很麻烦。</br>另外只要是无向图，就可以只用一半的矩阵空间，对于java这种天生支持异形数组的语言来说还是ok的。就是用的时候带着一股邪气。</p>
+</blockquote>
+<h1 id="图搜索">图搜索</h1>
+<ol>
+<li>广度优先搜索（BFS：breadth-first search）</li>
+</ol>
+<ul>
+<li>基本思路：算法每一层的搜索，都会沿着已发现的节点的边界，访问所有到当前边界距离为1的所有未发现顶点。原书中证明了广度优先搜索在寻找最短路径方面的正确性。</li>
+<li>实现思路：广度优先搜索天生适合用队列进行实现，其遍历过程等价于队列节点的入队出队过程。</li>
+<li>时间复杂度：在不考虑复杂的附加算法的前提下，广度优先搜索的复杂度由源点的<strong>可达</strong>顶点，以及相关边共同构成，为$O(V+E)$。</li>
+<li>广度优先搜索的性质和术语：
+<ul>
+<li>广度优先树：BFS在搜索过程中，实际上建立了一个当前图G的子图，即一个广度优先树。根s即为源点，包含所有可达顶点。<strong>对任意顶点v，从树中s到v的路径即图中s到v的最短距离</strong>。</li>
+<li>每个顶点只会被发现一次，除根以外，图G中顶点满足其父节点$\pi[u] \neq \mathrm{NIL}$。</li>
+<li>前驱子图（predecessor subgraph）：对图$G=(V,E)$，和给定的源顶点s，其前驱子图$G_\pi=(V_\pi,E_\pi)$，其中$V_\pi=\{v \in V:\pi[v]\ne \mathrm{NIL}\} \bigcup \{s\}$，$E_\pi=\{(\pi[v],v):v\in V_pi-\{s\}\}$。</li>
+<li>如果$V_\pi$由s可达顶点组成，则前驱子图即为G的广度优先树。实际上在经过一次广度优先搜索之后，就恰好形成了这样一个树，此时表中除了源点以外没有找到自己前驱的节点，都是不可达顶点。</li>
+</ul>
+</li>
+</ul>
+<!-- <details>
+ <summary>折叠</summary>
+ 详细内容
+</details> -->
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// 本段代码实现了对一个二维地图从左上角到右下角的广度优先搜索过程
+</span><span style="color:#75715e"></span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;queue&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;unordered_set&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>size_t, std<span style="color:#f92672">::</span>size_t<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">operator</span><span style="color:#f92672">+</span>(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>size_t, std<span style="color:#f92672">::</span>size_t<span style="color:#f92672">&gt;&amp;</span> a
+        , <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>size_t, std<span style="color:#f92672">::</span>size_t<span style="color:#f92672">&gt;&amp;</span> b) {
+	std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>size_t, std<span style="color:#f92672">::</span>size_t<span style="color:#f92672">&gt;</span> ret <span style="color:#f92672">=</span> a;
+	ret.first <span style="color:#f92672">+=</span> b.first;
+	ret.second <span style="color:#f92672">+=</span> b.second;
+	<span style="color:#66d9ef">return</span> ret;
+}
+
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">posHasher</span> {
+	std<span style="color:#f92672">::</span>size_t <span style="color:#66d9ef">operator</span>()(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>size_t, std<span style="color:#f92672">::</span>size_t<span style="color:#f92672">&gt;&amp;</span> value) <span style="color:#66d9ef">const</span>{
+		<span style="color:#66d9ef">return</span> std<span style="color:#f92672">::</span>hash<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>size_t<span style="color:#f92672">&gt;</span>()(value.first) <span style="color:#f92672">^</span> std<span style="color:#f92672">::</span>hash<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>size_t<span style="color:#f92672">&gt;</span>()(value.second);
+	}
+};
+
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">bfs</span>(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;&amp;</span> input, std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>size_t, std<span style="color:#f92672">::</span>size_t<span style="color:#f92672">&gt;</span> start) {
+	std<span style="color:#f92672">::</span>queue<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>size_t, std<span style="color:#f92672">::</span>size_t<span style="color:#f92672">&gt;&gt;</span> bfsQueue;
+	std<span style="color:#f92672">::</span>unordered_set<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>size_t, std<span style="color:#f92672">::</span>size_t<span style="color:#f92672">&gt;</span>, posHasher<span style="color:#f92672">&gt;</span> flag;
+	flag.insert(start); <span style="color:#75715e">// 访问标记
+</span><span style="color:#75715e"></span>	bfsQueue.push(start); <span style="color:#75715e">// 访问队列
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// 模拟二维地图上只允许向右向下运动
+</span><span style="color:#75715e"></span>	std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>size_t, std<span style="color:#f92672">::</span>size_t<span style="color:#f92672">&gt;&gt;</span> pace <span style="color:#f92672">=</span> { {<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">1</span>},{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">0</span>} }; 
+	<span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>bfsQueue.empty()) { <span style="color:#75715e">//仍有节点可访问
+</span><span style="color:#75715e"></span>		<span style="color:#66d9ef">auto</span> point <span style="color:#f92672">=</span> bfsQueue.front();
+		std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> input[point.first][point.second] <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+		bfsQueue.pop();
+		<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span> <span style="color:#f92672">&amp;</span>p:pace) { <span style="color:#75715e">//尝试扩展邻接节点
+</span><span style="color:#75715e"></span>			<span style="color:#66d9ef">auto</span> nextPoint <span style="color:#f92672">=</span> point <span style="color:#f92672">+</span> p;
+			<span style="color:#66d9ef">if</span> (nextPoint.first<span style="color:#f92672">&lt;</span>input.size()<span style="color:#f92672">&amp;&amp;</span>nextPoint.second<span style="color:#f92672">&lt;</span>input[<span style="color:#ae81ff">0</span>].size() <span style="color:#75715e">// 地图边界
+</span><span style="color:#75715e"></span>				<span style="color:#f92672">&amp;&amp;</span>flag.find(nextPoint) <span style="color:#f92672">==</span> flag.end()) { <span style="color:#75715e">//未被访问
+</span><span style="color:#75715e"></span>				flag.insert(nextPoint);
+				bfsQueue.push(nextPoint);
+			}
+		}
+	}
+}
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
+	<span style="color:#75715e">// 并非邻接矩阵或邻接表，这是一个二维的地图，每一个数字是一个顶点
+</span><span style="color:#75715e"></span>	std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;</span> input <span style="color:#f92672">=</span> {
+		{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">7</span>,<span style="color:#ae81ff">11</span>},
+		{<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">5</span>,<span style="color:#ae81ff">8</span>,<span style="color:#ae81ff">12</span>,<span style="color:#ae81ff">16</span>},
+		{<span style="color:#ae81ff">6</span>,<span style="color:#ae81ff">9</span>,<span style="color:#ae81ff">13</span>,<span style="color:#ae81ff">17</span>,<span style="color:#ae81ff">20</span>},
+		{<span style="color:#ae81ff">10</span>,<span style="color:#ae81ff">14</span>,<span style="color:#ae81ff">18</span>,<span style="color:#ae81ff">21</span>,<span style="color:#ae81ff">23</span>},
+		{<span style="color:#ae81ff">15</span>,<span style="color:#ae81ff">19</span>,<span style="color:#ae81ff">22</span>,<span style="color:#ae81ff">24</span>,<span style="color:#ae81ff">25</span>}
+	};
+	bfs(input, { <span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">0</span> });
+	<span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+}
+</code></pre></div><ol start="2">
+<li>深度优先搜索</li>
+</ol>
+<ul>
+<li>基本思路：扩展当前已访问集合时，以特定规则从某未被访问的点开始，沿着一条路径一直扩展顶点，直到无法继续。</li>
+<li>实现思路：深度优先搜索天生适合用栈实现（不喜欢实现栈直接递归调用即可），扩展节点的过程是入栈，递归返回的过程是出栈。</li>
+<li>时间复杂度：由于深度优先搜索仍然只访问所有顶点有且只有一次，所以为$\Theta(V+E)$。</li>
+<li>深度优先搜索的性质和术语：
+<ul>
+<li>深度优先搜索森林：一般来说深度优先搜索会访问所有顶点，因此形成的搜索树有多个。</li>
+<li>前驱子图：$G_\pi=(V,E_\pi)$，其中$E_\pi=\{(\pi[v],v):v\in V \mathrm{且} \pi[v]\ne \mathrm{NIL}\}$。</li>
+<li>深度优先森林中边的分类：
+<ul>
+<li>树边：深度优先森林$G_\pi$中的边，若顶点v是在探寻边(u,v)时首次被发现，则(u,v)是一条树边。</li>
+<li>反向边：连接顶点v到其某一祖先u的边。存在反向边则意味着存在环</li>
+<li>正向边：连接顶点u到某个后裔v的非树边。</li>
+<li>交叉边：其他类型的边。</li>
+</ul>
+</li>
+<li>深度优先森林中的后裔和祖先：v是u的后裔，当且仅当v是由u扩展出来的子孙节点。此时u是v的祖先。</li>
+<li>发现时刻$d[u]$：顶点u在图中被发现并开始访问的时刻（开始扩展u的后裔）</li>
+<li>完成时刻$f[u]$：顶点u在图中完成访问的时刻（不会再扩展u的后裔）
+<ul>
+<li>实际上，也可以用白色、灰色、黑色，分别代表顶点的未访问，正在扩展后裔、完成扩展这三种状态。</li>
+</ul>
+</li>
+<li>括号定理：在深度优先搜索中，顶点u和v，下述条件有且仅有一个为真
+<ol>
+<li>区间[d[u],f[u]]和区间[d[v],f[v]]完全不相交，且在深度优先森林中，u、v都不是对方的后裔</li>
+<li>区间[d[u],f[u]]$\subset$[d[v],f[v]],且u是v的后裔</li>
+<li>区间[d[u],f[u]]$\supset$[d[v],f[v]],且v是u的后裔</li>
+</ol>
+</li>
+<li>白色路径定理：在图$G=(V,E)$的深度优先森林中，顶点v是顶点u的后裔，当且仅当，在$d[u]$时刻发现u时，可以沿一条全为白色顶点组成的路径到达v。</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// 本段代码代表了一个用深度优先搜索从起始地点走到目的地的过程
+</span><span style="color:#75715e"></span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;unordered_set&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;stack&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">template</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> T<span style="color:#f92672">&gt;</span>
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">posHasher</span> {
+	std<span style="color:#f92672">::</span>size_t <span style="color:#66d9ef">operator</span>()(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span>T, T<span style="color:#f92672">&gt;&amp;</span> value) <span style="color:#66d9ef">const</span>{
+		<span style="color:#66d9ef">return</span> std<span style="color:#f92672">::</span>hash<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>()(value.first) <span style="color:#f92672">^</span> std<span style="color:#f92672">::</span>hash<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>()(value.second);
+	}
+};
+
+std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">operator</span><span style="color:#f92672">+</span>(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&amp;</span> a, <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&amp;</span> b) {
+	std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> ret <span style="color:#f92672">=</span> a;
+	ret.first <span style="color:#f92672">+=</span> b.first;
+	ret.second <span style="color:#f92672">+=</span> b.second;
+	<span style="color:#66d9ef">return</span> ret;
+}
+
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">dfs</span>(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;&amp;</span> input, std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> currentPos
+        ,std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span> <span style="color:#f92672">&gt;</span> targetPos) {
+	std<span style="color:#f92672">::</span>stack<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;</span> pathStack;
+	std<span style="color:#f92672">::</span>unordered_set<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span>, posHasher<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;</span> flag;
+	flag.insert(currentPos);
+	pathStack.push(currentPos);
+	std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;</span> pace <span style="color:#f92672">=</span> { {<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">1</span>},{<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">0</span>},{<span style="color:#ae81ff">0</span>,<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>},{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">0</span>} };
+	<span style="color:#66d9ef">bool</span> find <span style="color:#f92672">=</span> false;
+	<span style="color:#66d9ef">bool</span> newPos;
+	<span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>pathStack.empty()) {
+		<span style="color:#66d9ef">auto</span> pos <span style="color:#f92672">=</span> pathStack.top();
+		<span style="color:#75715e">// 扩展标记，如果本轮没有扩展，说明当前节点无法再向下深度搜索
+</span><span style="color:#75715e"></span>		newPos <span style="color:#f92672">=</span> false;
+		<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> p : pace) {
+			<span style="color:#66d9ef">auto</span> nextPoint <span style="color:#f92672">=</span> pos <span style="color:#f92672">+</span> p;
+			<span style="color:#66d9ef">if</span> (nextPoint <span style="color:#f92672">==</span> targetPos) {
+				pathStack.push(nextPoint);
+				find <span style="color:#f92672">=</span> true; <span style="color:#75715e">// 结果标记
+</span><span style="color:#75715e"></span>				<span style="color:#66d9ef">break</span>;
+			}
+			<span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (nextPoint.first <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> nextPoint.first <span style="color:#f92672">&lt;</span> input.size()
+				<span style="color:#f92672">&amp;&amp;</span> nextPoint.second <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> nextPoint.second <span style="color:#f92672">&lt;</span> input[<span style="color:#ae81ff">0</span>].size()
+				<span style="color:#f92672">&amp;&amp;</span> flag.find(nextPoint) <span style="color:#f92672">==</span> flag.end()
+                <span style="color:#f92672">&amp;&amp;</span>input[nextPoint.first][nextPoint.second]) {
+				pathStack.push(nextPoint);
+				flag.insert(nextPoint);
+				newPos <span style="color:#f92672">=</span> true;
+				<span style="color:#66d9ef">break</span>;
+			}
+		}
+		<span style="color:#66d9ef">if</span> (find) {
+			<span style="color:#66d9ef">break</span>;
+		}
+		<span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>newPos) {
+			pathStack.pop();
+		}
+	}
+	<span style="color:#66d9ef">if</span> (find) {
+		<span style="color:#75715e">// 输出路径
+</span><span style="color:#75715e"></span>		std<span style="color:#f92672">::</span>stack<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span>,<span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;</span> result;
+		<span style="color:#66d9ef">while</span>(<span style="color:#f92672">!</span>pathStack.empty()) {
+			result.push(pathStack.top());
+			pathStack.pop();
+		}
+		<span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>result.empty()) {
+			std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> result.top().first <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;,&#34;</span> <span style="color:#f92672">&lt;&lt;</span> result.top().second <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+			result.pop();
+		}
+	}
+	<span style="color:#66d9ef">else</span> {
+		std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;cant move to target&#34;</span> <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+	}
+}
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(){
+    <span style="color:#75715e">//表格中1为可走的路径，0为不可走的墙。
+</span><span style="color:#75715e"></span>	std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;</span> maze <span style="color:#f92672">=</span> {
+		{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>},
+		{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">1</span>},
+		{<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">0</span>},
+		{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>},
+		{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">1</span>}
+	};
+	dfs(maze, { <span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">0</span> }, { maze.size() <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>,maze.size() <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span> });
+    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+}
+</code></pre></div><h1 id="拓扑排序">拓扑排序</h1>
+<ul>
+<li>对于有向图而言，图的拓扑是一个非常有用的基础信息。代表了顶点之间的先后顺序</li>
+<li>输出：一个顶点的线性序列，在该序列中，对任意边$(u,v)\in E$，则必有u在序列中早于v出现。</li>
+<li>基本思路：
+<ul>
+<li>方法一：拓扑排序的顺序，和深度优先搜索森林中任意顶点u的f[u]的升序相同。调用dfs算法，保存完成时间f[u]。</li>
+<li>方法二：移除图中入度为0的点及其边，更新子图，重复直到所有顶点被移除。</li>
+</ul>
+</li>
+<li>方法一的问题：需要添加额外代码判断是否存在环（方法就是判断是否存在反向边）</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// BFS算法解决拓扑排序
+</span><span style="color:#75715e"></span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;unordered_set&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;stack&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">topoDfsVisit</span>(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;&amp;</span> adj, std<span style="color:#f92672">::</span>stack<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&amp;</span> output
+	, std<span style="color:#f92672">::</span>unordered_set<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&amp;</span> visited, std<span style="color:#f92672">::</span>unordered_set<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&amp;</span> ancient, <span style="color:#66d9ef">int</span> current) {
+	visited.insert(current);
+	ancient.insert(current);<span style="color:#75715e">//记录祖先
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> t : adj[current]) {
+		<span style="color:#66d9ef">if</span> (ancient.find(t) <span style="color:#f92672">!=</span> ancient.end()) {<span style="color:#75715e">//违反无环要求
+</span><span style="color:#75715e"></span>			<span style="color:#66d9ef">return</span> false;
+		}
+		<span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (visited.find(t) <span style="color:#f92672">==</span> visited.end()) {<span style="color:#75715e">//尚未访问
+</span><span style="color:#75715e"></span>			<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>topoDfsVisit(adj, output, visited, ancient, t)) {<span style="color:#75715e">//子树违反无环要求
+</span><span style="color:#75715e"></span>				<span style="color:#66d9ef">return</span> false;
+			}
+		}
+	}
+	output.push(current);
+	ancient.erase(current);<span style="color:#75715e">//递归返回，从祖先列表中删除自己
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">return</span> true;
+}
+
+<span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">topoSortDfs</span>(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;&amp;</span> adj, std<span style="color:#f92672">::</span>stack<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&amp;</span> output) {
+	std<span style="color:#f92672">::</span>unordered_set<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> visited;
+	std<span style="color:#f92672">::</span>unordered_set<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> ancient;
+	<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">!=</span> adj.size(); <span style="color:#f92672">++</span>i) {
+		<span style="color:#66d9ef">if</span> (visited.find(i) <span style="color:#f92672">==</span> visited.end()) {
+			<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>topoDfsVisit(adj, output, visited, ancient, i)) {<span style="color:#75715e">//子树违反无环要求
+</span><span style="color:#75715e"></span>				<span style="color:#66d9ef">return</span> false;
+			}
+		}
+	}
+	<span style="color:#66d9ef">return</span> true;
+}
+
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(){
+	<span style="color:#75715e">// 一个有向无环邻接表
+</span><span style="color:#75715e"></span>	std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;</span> adj <span style="color:#f92672">=</span> {
+		{},{<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">7</span>},{<span style="color:#ae81ff">3</span>},{<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">8</span>},{<span style="color:#ae81ff">5</span>},{},{<span style="color:#ae81ff">7</span>},{<span style="color:#ae81ff">3</span>},{<span style="color:#ae81ff">5</span>}
+	};
+	std<span style="color:#f92672">::</span>stack<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> output;
+	<span style="color:#66d9ef">if</span> (topoSortDfs(adj, output)) {
+		<span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>output.empty()) {
+			std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> output.top() <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; &#34;</span>;
+			output.pop();
+		}
+	}
+	<span style="color:#66d9ef">else</span> {
+		std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;no topo, there has circle&#34;</span> <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+	}
+	<span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+}
+</code></pre></div><h1 id="图分解">图分解</h1>
+<ul>
+<li>强连通分支：有向图$G=(V,E)$的一个强连通分支就是一个最大的顶点集合，满足$C\subset V$，且对于$\forall u,v \in C, u \leadsto v \mathrm{且} v \leadsto u$。</li>
+<li>强连通分支下的图分解：将图分为几个强连通分支。通常作为其他复杂算法的基础步骤，先计算每一个分支内的结果。最后合并不同分支之间的结果。</li>
+<li>基本思路：
+<ul>
+<li>方法一（Kosaraju算法）：
+<ol>
+<li>调用一次dfs计算图中各顶点的f(u)</li>
+<li>求原图G的逆图$G^T$</li>
+<li>在逆图上，根据1中的f(u)降序调用dfs。每一次dfs扩展出来的顶点，即每一棵深度优先树，组成一个强连通分支。</li>
+</ol>
+</li>
+<li>方法二（Tarjan算法）：更好更强大的一种求强连通分支的算法。贴一个链接，<a href="https://segmentfault.com/a/1190000039149539">史上最清晰的Tarjan算法详解</a>。平均比Kosaraju快30%。</li>
+<li>方法三（Gabow算法）：Tarjan的提升版本，据说更快一些。<a href="https://blog.csdn.net/w745241408/article/details/7524523">Gabow简单讲解和源码</a></li>
+</ul>
+</li>
+<li>Kosaraju算法的证明：
+<ul>
+<li>术语：
+<ul>
+<li>逆图$G^{T}=(V,E^{T})$，即对任意$(u,v)\in E^{T}，\mathrm{满足}(v,u)\in E$。</li>
+<li>分支图$G^{SCC}=(V^{SCC},E^{SCC})$，scc即strongly connected components，强连通分支。分支图代表了将每一个强连通分支视作一个顶点时，原图收缩后的样子。</li>
+<li>扩展发现和完成时间符号d、f定义：$\mathrm{对顶点集}V，d(V)=\min_{v\in V}\{d(v)\}，f(V)=\max_{v\in V} \{f(v)\}$</li>
+</ul>
+</li>
+<li>引理：
+<ol>
+<li>设$C$和$C'$是有向图$G=(V,E)$中两个不同的强连通分支，设$u,v\in C,u',v'\in C'$，若存在路径$u \leadsto u'$，则不可能同时存在路径$v \leadsto v'$</li>
+<li>设$C$和$C'$是有向图$G=(V,E)$中两个不同的强连通分支，假设有一条边$(u,v)\in E，其中u \in C，v \in C'，则f(C)&gt;f(C')$。</li>
+</ol>
+</li>
+<li>归纳证明：（注意当前的图是逆图$G^{T}$）
+<ol>
+<li>假设头k个深度优先树都是强连通分支。</li>
+<li>第k+1个树的顶点为u，并假设u目前位于强连通分支C中。（接下来证明以u为根的深度优先树恰好等价于强连通分支C）</li>
+<li>根据归纳假设，和白色路径定理，此时C中所有顶点均为u的后裔。</li>
+<li>由于选取顶点由完成时间f决定，此时对于剩余的任何强连通分支$C'$，都有$f(u)=f(C)&gt;f(C')$。此时根据归纳假设和引理第2条，在$G^{T}$中任何离开C的边，必定指向已被访问过的强连通分支（在$G$中，该边是进入$C$的，所以该分支的完成时间f必定更晚，所以在$G^{Y}$中此时已经被访问过了）。</li>
+<li>因此，对于C以外的任何其他强连通分支以外的点，都不可能是u的后裔。综合第3点，说明C中的顶点等价于u的后裔。因此在$G^{T}$中，根为u的深度优先树恰好形成了强连通分支C。</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;algorithm&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;unordered_set&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="color:#75715e">// 双DFS强连通分支，即Kosaraju算法的实现
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">visitDFS</span>(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;&amp;</span> adj
+	, std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&amp;</span> finishOrder, std<span style="color:#f92672">::</span>unordered_set<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&amp;</span> visited, <span style="color:#66d9ef">int</span> current) {
+	<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> t : adj[current]) {
+		<span style="color:#66d9ef">if</span> (visited.find(t) <span style="color:#f92672">==</span> visited.end()) {
+			visited.insert(t);
+			visitDFS(adj, finishOrder, visited, t);
+		}
+	}
+	finishOrder.push_back(current);
+}
+
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">finishDFS</span>(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;&amp;</span> adj, std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&amp;</span> finishOrder) {
+	std<span style="color:#f92672">::</span>unordered_set<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> visited;
+	<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">!=</span> adj.size(); <span style="color:#f92672">++</span>i) {
+		<span style="color:#66d9ef">if</span> (visited.find(i) <span style="color:#f92672">==</span> visited.end()) {
+			visited.insert(i);
+			visitDFS(adj, finishOrder, visited, i);
+		}
+	}
+}
+
+std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;</span> reverseGraph(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;&amp;</span> adj) {
+	std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;</span> rAdj(adj.size());
+	<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">!=</span> adj.size(); <span style="color:#f92672">++</span>i) {
+		<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> t : adj[i]) {
+			rAdj[t].push_back(i);
+		}
+	}
+	<span style="color:#66d9ef">return</span> rAdj;
+}
+
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">visitSCC</span>(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;&amp;</span> adj
+	, std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;&amp;</span> sccGraph, std<span style="color:#f92672">::</span>unordered_set<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&amp;</span> visited, <span style="color:#66d9ef">int</span> current) {
+	
+	<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> t : adj[current]) {
+		<span style="color:#66d9ef">if</span> (visited.find(t) <span style="color:#f92672">==</span> visited.end()) {
+			visited.insert(t);
+			sccGraph.back().push_back(t);
+			visitSCC(adj, sccGraph, visited, t);
+		}
+	}
+}
+
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">getSCC</span>(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;&amp;</span> adj
+	, std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;&amp;</span> sccGraph, std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> finishOrder) {
+	std<span style="color:#f92672">::</span>unordered_set<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> visited;
+	<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> t : finishOrder) {
+		<span style="color:#66d9ef">if</span> (visited.find(t) <span style="color:#f92672">==</span> visited.end()) {
+			sccGraph.push_back(std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span>());
+			sccGraph.back().push_back(t);
+			visited.insert(t);
+			visitSCC(adj, sccGraph, visited, t);
+		}
+	}
+}
+
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">sccDFS</span>(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;&amp;</span> adj, std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;&amp;</span> sccGraph) {
+	std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> finishOrder;
+	finishDFS(adj, finishOrder);
+	std<span style="color:#f92672">::</span>reverse(finishOrder.begin(), finishOrder.end());
+	<span style="color:#66d9ef">auto</span> rAdj <span style="color:#f92672">=</span> reverseGraph(adj);
+	getSCC(rAdj, sccGraph, finishOrder);
+}
+
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(){
+	std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;</span> adj <span style="color:#f92672">=</span> {
+		{<span style="color:#ae81ff">1</span>}
+		,{<span style="color:#ae81ff">2</span>}
+		,{<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">3</span>}
+		,{<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">5</span>}
+		,{<span style="color:#ae81ff">5</span>}
+		,{<span style="color:#ae81ff">4</span>}
+	};
+	std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;</span> sccGraph;
+	sccDFS(adj, sccGraph);
+	<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> t : sccGraph) {
+		<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> tt : t) {
+			std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> tt <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; &#34;</span>;
+		}
+		std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+	}
+	<span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+}
+</code></pre></div><h1 id="最小生成树问题minimum-spanning-tree">最小生成树问题（Minimum Spanning Tree）</h1>
+<ul>
+<li>简单描述：最小生成树问题是一类应用广泛的问题，比如将多个地点连通，或连接多个电位相同的电子元件，在这种情况下，最终生成的边数恰好比顶点数少1，且所有顶点连通。如何寻找满足条件的，总权值和最小的边集合，就是最小生成树问题。</li>
+<li>术语：
+<ul>
+<li>标准定义：一个无向连通图$G=(V,E)$，对图中每一条边$(u,v)\in E$，都有一个权值$w(u,v)$表示连接$u$和$v$的代价。希望找出一个无回路的子集$T\subset E$，它连接了所有的顶点，其权值和$w(T)=\sum_{(u,v)\in T} w(u,v)$最小。由于$T$无回路且连接所有的顶点，它也同时成为一棵树，称为生成树。确定$T$的问题，即为最小生成树问题。</li>
+<li>割：无向图$G$的一个割$(S,V-S)$是对$V$的一个划分。
+<ul>
+<li>当一条边$(u,v)\in E$的一个端点属于$S$，而另一个端点属于$V-S$，则称边$(u,v)$通过割$(S,V-S)$。</li>
+<li>如果一个边集$A$中，没有边通过割$(S,V-S)$，则称该割不妨碍该边集</li>
+<li>如果某条边的权值是通过一个割的所有边中最小的，则称该边为通过这个割的一个轻边</li>
+</ul>
+</li>
+<li>安全边：若边$(u,v)$加入一个最小生成树子集A，仍能使$A \cup \{(u,v)\}$为最小生成树的子集，则称其为安全边。
+<ul>
+<li>引理：设无向图$G=(V,E)$，$A$是$E$的一个最小生成树子集，若割$(S,V-S)$不妨碍$A$，且边$(u,v)$是该割的一个轻边，则该边是集合$A$的安全边。</li>
+</ul>
+</li>
+<li>通用思路：
+<ol>
+<li>初始化最小生成树子集A</li>
+<li>寻找一条安全边，加入子集A</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>Kruskal算法
+<ul>
+<li>贪心策略：Kruskal算法中，加入集合$A$的安全边，总是连接图中两个不同连通分支的最小权边。过程中$A$可能是一个森林（多棵树）。</li>
+<li>基础算法：
+<ol>
+<li>排序所有边</li>
+<li>从小到大，选取各边，若两端在不同连通分支则将该边加入</li>
+<li>循环直到找到$|V|-1$条边</li>
+</ol>
+</li>
+<li>时间复杂度：$O(ElogE)$</li>
+</ul>
+</li>
+<li>Prim算法
+<ul>
+<li>贪心策略：Prim算法中，$A$一直保持单棵树，每一次加入的安全边，总是连接树和一个不在树中的顶点，并且这条安全边是当前可选的安全边中最短的一个。</li>
+<li>时间复杂度：$O(ElogV)$，斐波那契堆优化下能更快。
+<ul>
+<li>注意$O(ElogV)$和$O(ElogE)$并没有本质区别，因为$|E|\le|V|^2$，易知$O(logE)=O(logV)$</li>
+</ul>
+</li>
+<li>优化：</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// kruskal &amp; prim
+</span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;unordered_map&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;algorithm&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;unordered_set&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;queue&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> node_id;
+
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">edge</span> {
+	node_id begin;
+	node_id end;
+	<span style="color:#66d9ef">int</span> weight;
+
+	edge(node_id begin, node_id end, <span style="color:#66d9ef">int</span> weight) {
+		<span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>begin <span style="color:#f92672">=</span> begin;
+		<span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>end <span style="color:#f92672">=</span> end;
+		<span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>weight <span style="color:#f92672">=</span> weight;
+	}
+
+	<span style="color:#66d9ef">bool</span> <span style="color:#66d9ef">operator</span><span style="color:#f92672">&lt;</span>(<span style="color:#66d9ef">const</span> edge<span style="color:#f92672">&amp;</span> b) {
+		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>weight <span style="color:#f92672">&lt;</span> b.weight;
+	}
+};
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">union_set</span> {
+<span style="color:#66d9ef">private</span><span style="color:#f92672">:</span>
+	std<span style="color:#f92672">::</span>unordered_map<span style="color:#f92672">&lt;</span>node_id, node_id<span style="color:#f92672">&gt;</span> set_;
+<span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+	<span style="color:#66d9ef">void</span> set_parent(node_id child, node_id parent) {
+		set_[child] <span style="color:#f92672">=</span> parent;
+	}
+
+	node_id <span style="color:#a6e22e">get_parent</span>(node_id child) {
+		std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>node_id<span style="color:#f92672">&gt;</span> path;
+		node_id current<span style="color:#f92672">=</span>child;
+		<span style="color:#66d9ef">while</span> (set_[current] <span style="color:#f92672">!=</span> current) {
+			path.push_back(current);
+			current <span style="color:#f92672">=</span> set_[current];
+		}
+		<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> t : path) {
+			set_[t] <span style="color:#f92672">=</span> current;
+		}
+		<span style="color:#66d9ef">return</span> current;
+	}
+
+	<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">make_union</span>(node_id a, node_id b) {
+		set_parent(get_parent(a), get_parent(b));
+	}
+
+	<span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">union_check</span>(node_id a, node_id b) {
+		<span style="color:#66d9ef">return</span> get_parent(a) <span style="color:#f92672">==</span> get_parent(b);
+	}
+
+	std<span style="color:#f92672">::</span>size_t size() {
+		<span style="color:#66d9ef">return</span> set_.size();
+	}
+};
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">minimum_spanning_tree</span> {
+<span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+	<span style="color:#66d9ef">virtual</span> <span style="color:#66d9ef">int</span> get_minimum_spanning_tree(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>edge<span style="color:#f92672">&gt;&amp;</span> graphEdges) <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+};
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">kruskal</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">public</span> minimum_spanning_tree {
+<span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+	<span style="color:#66d9ef">int</span> get_minimum_spanning_tree(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>edge<span style="color:#f92672">&gt;&amp;</span> graphEdges)
+	{
+		std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>edge<span style="color:#f92672">&gt;</span> graph(graphEdges.begin(), graphEdges.end());
+		std<span style="color:#f92672">::</span>sort(graph.begin(), graph.end());
+		union_set vertexSet;
+		<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> t : graph) {
+			vertexSet.set_parent(t.begin, t.begin);
+			vertexSet.set_parent(t.end, t.end);
+		}
+		std<span style="color:#f92672">::</span>size_t edge_count <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+		<span style="color:#66d9ef">int</span> weight_sum <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+		<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> t : graph) {
+			<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>vertexSet.union_check(t.begin, t.end)) {
+				edge_count<span style="color:#f92672">++</span>;
+				weight_sum <span style="color:#f92672">+=</span> t.weight;
+				vertexSet.make_union(t.begin, t.end);
+			}
+			<span style="color:#66d9ef">if</span> (edge_count <span style="color:#f92672">==</span> vertexSet.size()) {
+				<span style="color:#66d9ef">break</span>;
+			}
+		}
+		<span style="color:#66d9ef">return</span> weight_sum;
+	}
+};
+
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">distance_to_node</span> {
+	<span style="color:#66d9ef">int</span> weight;
+	node_id node;
+
+	distance_to_node(<span style="color:#66d9ef">int</span> weight, node_id node) {
+		<span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>weight <span style="color:#f92672">=</span> weight;
+		<span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>node <span style="color:#f92672">=</span> node;
+	}
+
+	<span style="color:#66d9ef">bool</span> <span style="color:#66d9ef">operator</span><span style="color:#f92672">&lt;</span>(<span style="color:#66d9ef">const</span> distance_to_node<span style="color:#f92672">&amp;</span> a) <span style="color:#66d9ef">const</span> {
+		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>weight <span style="color:#f92672">&lt;</span> a.weight;
+	}
+};
+
+<span style="color:#66d9ef">template</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> T<span style="color:#f92672">&gt;</span>
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">min_heap</span> {
+	<span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">operator</span>()(<span style="color:#66d9ef">const</span> T<span style="color:#f92672">&amp;</span> a, <span style="color:#66d9ef">const</span> T<span style="color:#f92672">&amp;</span> b) {
+		<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>(a <span style="color:#f92672">&lt;</span> b) <span style="color:#f92672">&amp;&amp;</span> <span style="color:#f92672">!</span>(b <span style="color:#f92672">&lt;</span> a)) <span style="color:#75715e">// strict weak order
+</span><span style="color:#75715e"></span>			<span style="color:#66d9ef">return</span> false;
+		<span style="color:#66d9ef">else</span>
+			<span style="color:#66d9ef">return</span> <span style="color:#f92672">!</span>(a <span style="color:#f92672">&lt;</span> b);
+	}
+};
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">prim</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">public</span> minimum_spanning_tree {
+<span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+	<span style="color:#66d9ef">int</span> get_minimum_spanning_tree(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>edge<span style="color:#f92672">&gt;&amp;</span> graphEdges)
+	{
+		std<span style="color:#f92672">::</span>priority_queue<span style="color:#f92672">&lt;</span>distance_to_node
+			,std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>distance_to_node<span style="color:#f92672">&gt;</span>
+			, min_heap<span style="color:#f92672">&lt;</span>distance_to_node<span style="color:#f92672">&gt;&gt;</span> distanceQueue;
+		std<span style="color:#f92672">::</span>unordered_map<span style="color:#f92672">&lt;</span>node_id, std<span style="color:#f92672">::</span>unordered_map<span style="color:#f92672">&lt;</span>node_id, <span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;</span> adj;
+		<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> t : graphEdges) {
+			adj[t.begin][t.end] <span style="color:#f92672">=</span> t.weight;
+			adj[t.end][t.begin] <span style="color:#f92672">=</span> t.weight;
+		}
+		std<span style="color:#f92672">::</span>unordered_set<span style="color:#f92672">&lt;</span>node_id<span style="color:#f92672">&gt;</span> seen;
+		distanceQueue.push(distance_to_node(<span style="color:#ae81ff">0</span>, graphEdges.front().begin));
+		std<span style="color:#f92672">::</span>size_t edge_count <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+		<span style="color:#66d9ef">int</span> weight_sum <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+		<span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>distanceQueue.empty()<span style="color:#f92672">&amp;&amp;</span>edge_count<span style="color:#f92672">!=</span>adj.size()) {
+			distance_to_node current <span style="color:#f92672">=</span> distanceQueue.top();
+			distanceQueue.pop();
+			<span style="color:#75715e">//std::cout &lt;&lt; seen.find(current.node) &lt;&lt;&#34; &#34;&lt;&lt; seen.end() &lt;&lt; std::endl;
+</span><span style="color:#75715e"></span>			<span style="color:#66d9ef">if</span> (seen.find(current.node) <span style="color:#f92672">==</span> seen.end()) {
+				seen.insert(current.node);
+				edge_count<span style="color:#f92672">++</span>;
+				weight_sum <span style="color:#f92672">+=</span> current.weight;
+				<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> t : adj[current.node]) {
+					<span style="color:#66d9ef">if</span> (seen.find(t.first) <span style="color:#f92672">==</span> seen.end()) {
+						distanceQueue.push(distance_to_node(t.second, t.first));
+					}
+				}
+			}
+		}
+		<span style="color:#66d9ef">return</span> weight_sum;
+	}
+};
+
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
+	minimum_spanning_tree<span style="color:#f92672">*</span> myTree <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> kruskal;
+	std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>edge<span style="color:#f92672">&gt;</span> graphEdges;
+	graphEdges.push_back(edge(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>));
+	graphEdges.push_back(edge(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">1</span>));
+	graphEdges.push_back(edge(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">2</span>));
+	graphEdges.push_back(edge(<span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">1</span>));
+	graphEdges.push_back(edge(<span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">1</span>));
+	graphEdges.push_back(edge(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">2</span>));
+	graphEdges.push_back(edge(<span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">2</span>));
+	graphEdges.push_back(edge(<span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">3</span>));
+	std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> myTree<span style="color:#f92672">-&gt;</span>get_minimum_spanning_tree(graphEdges) <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+	<span style="color:#66d9ef">delete</span> myTree;
+	myTree <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> prim;
+	std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> myTree<span style="color:#f92672">-&gt;</span>get_minimum_spanning_tree(graphEdges) <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+	<span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+}
+</code></pre></div><h1 id="最短路径问题">最短路径问题</h1>
+<ul>
+<li>术语：
+<ol>
+<li>对于带权有向图$G=(V,E)$，加权函数$w:E\to \mathbf{R}$为从边到实型权值的映射。路径$p=&lt;v_0,v_1,&hellip;,v_k&gt;$的权是其组成边的所有权值之和。$w(p)=\sum_{i=1}^{k}w(v_{i-1},v_i)$。定义从$u$到$v$的最短路径的权为：
+</br><center>$\delta(u,v) = \left\{ \begin{array}{11}
+min\{w(p):u\leadsto^p v\} &amp; \mathrm{如果两点间存在路径}\in E\\<br>
+\infty &amp; \mathrm{否则}
+\end{array} \right.$</center>
+</br>从顶点$u$到$v$的最短路径定义为权$w(p)=\delta(u,v)$的任何路径。</li>
+<li>单源最短路问题：寻找某个给定的固定的源点$s$到所有顶点$v\in V$的最短路径。</li>
+<li>多源最短路：寻找所有顶点对儿的最短路径。</li>
+<li>最短路径的最优子结构：一条两顶点间最短路径包含路径上其他顶点间的最短路径。
+<ul>
+<li>即：最短路径的子路径也是最短路径。</li>
+</ul>
+</li>
+<li>松弛（单源最短路）技术：松弛一条边$(u,v)$的过程中，要测试是否可以通过$u$，对迄今为止找到的到$v$的最短路径进行优化（更新其最短路径估计$d[v]$）。
+<ul>
+<li>三角不等式：$\delta(s,v)\le\delta(s,u)+w(u,v)$</li>
+<li>上界性质：最短路径估计$d[v]\ge\delta(s,v)$</li>
+<li>无路径性质：若不存在路径，则$d[v]=\delta(s,v)=\infty$</li>
+<li>收敛性质：若松弛边$(u,v)$之前的任何时间$d[u]=\delta(s,u)$，则松弛过后总有$d[v]=\delta(s,v)$</li>
+<li>路径松弛定理：若$p=&lt;v_0,v_1,&hellip;,v_k&gt;$是一条最短路径，且对$p$的边按照$(v_0,v_1)(v_1,v_2)&hellip;(v_{k-1},v_k)$进行松弛，则$d[v_k]=\delta(s,v_k)$。</li>
+<li>前驱子图性质：一旦对于所有$v\in V,d[v]=\delta(s,v)$，则前驱子图构成一个以s为根的最短路径树。</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<h2 id="单源最短路">单源最短路</h2>
+<ul>
+<li>Dijkstra算法：不存在负权边的情况下，时间复杂度$O(V^2)$，斐波那契堆优化下能更快。
+<ul>
+<li>基本思路：
+<ol>
+<li>初始化最短路径估计</li>
+<li>初始化已获得最短路径的顶点集合，空集$S$</li>
+<li>初始化以最短路径估计为关键字的顶点小顶堆（最小优先队列），初始只有源点</li>
+<li>穷尽堆顶顶点，直到获得一个未加入$S$的顶点$u$，加入$S$</li>
+<li>松弛$u$的邻接边，将松弛边的相关顶点加入最小优先队列，回到4</li>
+</ol>
+</li>
+<li>正确性证明思路：归纳法验证，一旦将顶点$u$加入$S$时，必有$d[u]=\delta(s,u)$。</li>
+<li>正确理解Prim算法和Dijkstra算法的区别。</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;queue&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;unordered_map&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;unordered_set&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">edge_adjacent</span> {
+	node_id end;
+	edge_weight weight;
+
+	edge_adjacent(node_id end, edge_weight weight) {
+		<span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>end <span style="color:#f92672">=</span> end;
+		<span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>weight <span style="color:#f92672">=</span> weight;
+	}
+
+	<span style="color:#66d9ef">bool</span> <span style="color:#66d9ef">operator</span><span style="color:#f92672">&lt;</span>(<span style="color:#66d9ef">const</span> edge_adjacent<span style="color:#f92672">&amp;</span> b) <span style="color:#66d9ef">const</span> {
+		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>weight <span style="color:#f92672">&lt;</span> b.weight;
+	}
+};
+
+<span style="color:#66d9ef">typedef</span> edge_adjacent distance_single_source;
+
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">node_adjacent</span> {
+	node_id begin;
+	std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>edge_adjacent<span style="color:#f92672">&gt;</span> edges;
+	node_adjacent(node_id begin, std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>edge_adjacent<span style="color:#f92672">&gt;&amp;&amp;</span> edges) {
+		<span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>begin <span style="color:#f92672">=</span> begin;
+		<span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>edges <span style="color:#f92672">=</span> edges;
+	}
+};
+
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">graph_adjacent</span> {
+	std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>node_adjacent<span style="color:#f92672">&gt;</span> nodes;
+};
+
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">graph_adjacent_map</span> {
+	std<span style="color:#f92672">::</span>unordered_map<span style="color:#f92672">&lt;</span>node_id, std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>edge_adjacent<span style="color:#f92672">&gt;&gt;</span> nodes;
+};
+
+<span style="color:#66d9ef">template</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> T<span style="color:#f92672">&gt;</span>
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">min_heap</span> {
+	<span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">operator</span>()(<span style="color:#66d9ef">const</span> T<span style="color:#f92672">&amp;</span> a, <span style="color:#66d9ef">const</span> T<span style="color:#f92672">&amp;</span> b) {
+		<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>(a <span style="color:#f92672">&lt;</span> b) <span style="color:#f92672">&amp;&amp;</span> <span style="color:#f92672">!</span>(b <span style="color:#f92672">&lt;</span> a)) <span style="color:#75715e">// strict weak order
+</span><span style="color:#75715e"></span>			<span style="color:#66d9ef">return</span> false;
+		<span style="color:#66d9ef">else</span>
+			<span style="color:#66d9ef">return</span> <span style="color:#f92672">!</span>(a <span style="color:#f92672">&lt;</span> b);
+	}
+};
+
+std<span style="color:#f92672">::</span>unordered_map<span style="color:#f92672">&lt;</span>node_id, edge_weight<span style="color:#f92672">&gt;</span> dijkstra(<span style="color:#66d9ef">const</span> graph_adjacent_map<span style="color:#f92672">&amp;</span> graph,node_id source) {
+	std<span style="color:#f92672">::</span>unordered_map<span style="color:#f92672">&lt;</span>node_id, edge_weight<span style="color:#f92672">&gt;</span> dist;
+	std<span style="color:#f92672">::</span>priority_queue<span style="color:#f92672">&lt;</span>edge_adjacent, std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>edge_adjacent<span style="color:#f92672">&gt;</span>, min_heap<span style="color:#f92672">&lt;</span>edge_adjacent<span style="color:#f92672">&gt;&gt;</span> node_distance;
+	std<span style="color:#f92672">::</span>unordered_set<span style="color:#f92672">&lt;</span>node_id<span style="color:#f92672">&gt;</span> arrived_nodes;
+	node_distance.push(edge_adjacent(source, <span style="color:#ae81ff">0</span>));
+	dist[source] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+	<span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>node_distance.empty()) {
+		<span style="color:#66d9ef">auto</span> node <span style="color:#f92672">=</span> node_distance.top();
+		node_distance.pop();
+		<span style="color:#66d9ef">if</span> (arrived_nodes.find(node.end) <span style="color:#f92672">!=</span> arrived_nodes.end()) {
+			<span style="color:#66d9ef">continue</span>;
+		}
+		<span style="color:#75715e">// new node
+</span><span style="color:#75715e"></span>		arrived_nodes.insert(node.end);
+		<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span> edge : graph.nodes.find(node.end)<span style="color:#f92672">-&gt;</span>second) {
+			<span style="color:#66d9ef">if</span> (dist.find(edge.end) <span style="color:#f92672">==</span> dist.end()
+				<span style="color:#f92672">||</span> dist.find(edge.end)<span style="color:#f92672">-&gt;</span>second <span style="color:#f92672">&gt;</span> edge.weight <span style="color:#f92672">+</span> dist.find(node.end)<span style="color:#f92672">-&gt;</span>second) { <span style="color:#75715e">// relax
+</span><span style="color:#75715e"></span>				dist[edge.end] <span style="color:#f92672">=</span> edge.weight <span style="color:#f92672">+</span> dist.find(node.end)<span style="color:#f92672">-&gt;</span>second;
+				node_distance.push(edge_adjacent(edge.end, dist[edge.end]));
+			}
+		}
+	}
+	<span style="color:#66d9ef">return</span> dist;
+}
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(){
+<span style="color:#75715e">#pragma region shortest_path
+</span><span style="color:#75715e"></span>	graph_adjacent_map graph_map;
+	graph_map.nodes[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> { {<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>} ,{<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">2</span>},{<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">3</span>} };
+	graph_map.nodes[<span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> { {<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">1</span>} ,{<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">4</span>},{<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">4</span>} };
+	graph_map.nodes[<span style="color:#ae81ff">2</span>] <span style="color:#f92672">=</span> { {<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">1</span>} ,{<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">2</span>},{<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">13</span>} };
+	graph_map.nodes[<span style="color:#ae81ff">3</span>] <span style="color:#f92672">=</span> { {<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">1</span>} ,{<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">2</span>},{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">3</span>} };
+	graph_map.nodes[<span style="color:#ae81ff">4</span>] <span style="color:#f92672">=</span> { {<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">1</span>} ,{<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">2</span>},{<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">3</span>} };
+	<span style="color:#66d9ef">try</span>
+	{
+		<span style="color:#66d9ef">auto</span> result <span style="color:#f92672">=</span> dijkstra(graph_map, <span style="color:#ae81ff">4</span>);
+		<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> t : result) {
+			std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;distance to &#34;</span> <span style="color:#f92672">&lt;&lt;</span> t.first <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; = &#34;</span> <span style="color:#f92672">&lt;&lt;</span> t.second <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+		}
+	}
+	<span style="color:#66d9ef">catch</span> (<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>exception<span style="color:#f92672">&amp;</span> e)
+	{
+		std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> e.what() <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+	}
+
+<span style="color:#75715e">#pragma endregion
+</span><span style="color:#75715e"></span>
+		<span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+	}
+</code></pre></div><ul>
+<li>Bellman-Ford算法：存在负权边的情况下，解决单源最短路径问题。时间复杂度$O(VE)$。
+<ul>
+<li>基本思路：
+<ol>
+<li>初始化最短路径估计</li>
+<li>对每一条边进行一个轮次松弛操作</li>
+<li>重复步骤2共$|V|-1$次，即共$(|V|-1)*|E|$次松弛</li>
+<li>判断任意边$(u,v)$，是否出现$d[v]&gt;d[u]+w(u,v)$</li>
+<li>是：则存在负权环，无最短路径</li>
+<li>否：存在最短路径，返回</li>
+</ol>
+</li>
+<li>正确性证明思路：对于一条路径$p=&lt;v_0,v_1,&hellip;,v_k&gt;$，第i轮次的松弛，松弛的边为$(v_{i-1},v_{i})$。根据路径松弛性质可知第i轮能够获得到$v_i$的最短路径。</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;unordered_map&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> node_id;
+<span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">int</span> edge_weight;
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">edge_adjacent</span> {
+	node_id end;
+	edge_weight weight;
+
+	edge_adjacent(node_id end, edge_weight weight) {
+		<span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>end <span style="color:#f92672">=</span> end;
+		<span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>weight <span style="color:#f92672">=</span> weight;
+	}
+
+	<span style="color:#66d9ef">bool</span> <span style="color:#66d9ef">operator</span><span style="color:#f92672">&lt;</span>(<span style="color:#66d9ef">const</span> edge_adjacent<span style="color:#f92672">&amp;</span> b) {
+		<span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>end <span style="color:#f92672">=</span> end;
+		<span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>weight <span style="color:#f92672">=</span> weight;
+	}
+};
+
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">node_adjacent</span> {
+	node_id begin;
+	std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>edge_adjacent<span style="color:#f92672">&gt;</span> edges;
+	node_adjacent(node_id begin, std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>edge_adjacent<span style="color:#f92672">&gt;&amp;&amp;</span> edges) {
+		<span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>begin <span style="color:#f92672">=</span> begin;
+		<span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>edges <span style="color:#f92672">=</span> edges;
+	}
+};
+
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">graph_adjacent</span> {
+	std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>node_adjacent<span style="color:#f92672">&gt;</span> nodes;
+};
+
+std<span style="color:#f92672">::</span>unordered_map<span style="color:#f92672">&lt;</span>node_id, edge_weight<span style="color:#f92672">&gt;</span> bellman_ford_shortest_path(<span style="color:#66d9ef">const</span> graph_adjacent<span style="color:#f92672">&amp;</span> graph,node_id source) {
+	<span style="color:#66d9ef">if</span> (graph.nodes.empty()) {
+		<span style="color:#66d9ef">throw</span> std<span style="color:#f92672">::</span>exception(<span style="color:#e6db74">&#34;empty graph&#34;</span>);
+	}
+	std<span style="color:#f92672">::</span>unordered_map<span style="color:#f92672">&lt;</span>node_id, edge_weight<span style="color:#f92672">&gt;</span> dist;
+	dist[source] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+	<span style="color:#66d9ef">for</span> (std<span style="color:#f92672">::</span>size_t i <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; i <span style="color:#f92672">!=</span> graph.nodes.size(); <span style="color:#f92672">++</span>i) {
+		<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> node : graph.nodes) {
+			<span style="color:#66d9ef">if</span> (dist.find(node.begin) <span style="color:#f92672">==</span> dist.end()) { <span style="color:#75715e">// the begin of this edge is reachable
+</span><span style="color:#75715e"></span>				<span style="color:#66d9ef">continue</span>;
+			}
+			<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> edge : node.edges) {
+				<span style="color:#66d9ef">if</span> (dist.find(edge.end) <span style="color:#f92672">==</span> dist.end()
+					<span style="color:#f92672">||</span> dist.find(edge.end)<span style="color:#f92672">-&gt;</span>second <span style="color:#f92672">&gt;</span> edge.weight <span style="color:#f92672">+</span> dist.find(node.begin)<span style="color:#f92672">-&gt;</span>second) { <span style="color:#75715e">// relax
+</span><span style="color:#75715e"></span>					dist[edge.end] <span style="color:#f92672">=</span> edge.weight <span style="color:#f92672">+</span> dist.find(node.begin)<span style="color:#f92672">-&gt;</span>second;
+				}
+			}
+		}
+	}
+	<span style="color:#75715e">// check if has false 
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> node : graph.nodes) {
+		<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> edge : node.edges) {
+			<span style="color:#66d9ef">if</span> (dist.find(edge.end)<span style="color:#f92672">-&gt;</span>second <span style="color:#f92672">&gt;</span> edge.weight <span style="color:#f92672">+</span> dist.find(node.begin)<span style="color:#f92672">-&gt;</span>second) {
+				<span style="color:#66d9ef">throw</span> std<span style="color:#f92672">::</span>exception(<span style="color:#e6db74">&#34;bad graph&#34;</span>);
+			}
+		}
+	}
+	<span style="color:#66d9ef">return</span> dist;
+}
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(){
+<span style="color:#75715e">#pragma region shortest_path
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">using</span> <span style="color:#66d9ef">namespace</span> lyc_algorithm;
+	graph_adjacent graph;
+	graph.nodes.push_back(node_adjacent(<span style="color:#ae81ff">0</span>, { {<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>} ,{<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">2</span>},{<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">3</span>} }));
+	graph.nodes.push_back(node_adjacent(<span style="color:#ae81ff">1</span>, { {<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">1</span>} ,{<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">4</span>},{<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">4</span>} }));
+	graph.nodes.push_back(node_adjacent(<span style="color:#ae81ff">2</span>, { {<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">1</span>} ,{<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">2</span>},{<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">13</span>} }));
+	graph.nodes.push_back(node_adjacent(<span style="color:#ae81ff">3</span>, { {<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">1</span>} ,{<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">2</span>},{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">3</span>} }));
+	graph.nodes.push_back(node_adjacent(<span style="color:#ae81ff">4</span>, { {<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">1</span>} ,{<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">2</span>},{<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">3</span>} }));
+	<span style="color:#66d9ef">try</span>
+	{
+		<span style="color:#66d9ef">auto</span> result <span style="color:#f92672">=</span> bellman_ford_shortest_path(graph, <span style="color:#ae81ff">4</span>);
+		<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> t : result) {
+			std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;distance to &#34;</span> <span style="color:#f92672">&lt;&lt;</span> t.first <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; = &#34;</span> <span style="color:#f92672">&lt;&lt;</span> t.second <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+		}
+	}
+	<span style="color:#66d9ef">catch</span> (<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>exception<span style="color:#f92672">&amp;</span> e)
+	{
+		std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> e.what() <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+	}
+
+<span style="color:#75715e">#pragma endregion
+</span><span style="color:#75715e"></span>
+	<span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+}
+</code></pre></div><h2 id="差分约束与最短路径">差分约束与最短路径</h2>
+<ul>
+<li>
+<p>差分约束系统</p>
+<ul>
+<li>线性规划矩阵A的每一行包含一个1和一个-1，A的所有其他元素都为0。因此由$Ax \le b$给出的约束条件是m个差分约束集合（m个不等式），包含n个未知元。例如$m=5,n=4$时的一种约束系统可表示为：
+</br><center>
+$\left(\begin{matrix} 1 &amp; -1 &amp; 0 &amp; 0\\<br>
+1 &amp; 0 &amp; 0 &amp; -1 \\<br>
+0 &amp; 1 &amp; 0 &amp; -1 \\ 
+0 &amp; 0 &amp; 1 &amp; -1 \\ 
+-1 &amp; 0 &amp; 1 &amp; 0 \\ \end{matrix}\right) 
+\left(\begin{matrix} x_1 \\ x_2 \\ x_3 \\ x_4  \end{matrix}\right)
+\le 
+\left(\begin{matrix} 0 \\ 1 \\ 2 \\ 3 \\ 4 \end{matrix}\right)$</li>
+</ul>
+  </center>
+<ul>
+<li>和图算法的关系：可以将差分约束转换为最短路径问题。
+<ul>
+<li>转换为图$G=(V,E)$，其中$V=\{v_0,v_1,&hellip;,v_n\}$,$E=\{(v_i,v_j):x_j-x_i\le b_k\mathrm{是一个约束条件}\}\cup \{(v_0,v_1),(v_0,v_2),&hellip;,(v_0,v_n)\}$。另外对于约束$x_j-x_i\le b_k$，边$(v_i,v_j)$具有权$w(v_i,v_j)=b_k$，而其他边则有$w(v_0,v_i)=0,1\le i \le n$。</li>
+<li>引入逻辑顶点$v_0$保证每个顶点均可从$v_0$到达。其他顶点就是未知元，边代表具有约束关系。</li>
+</ul>
+</li>
+<li>给定一差分约束系统$Ax\le b$，设$G=(V,E)$未其相应的约束图。如果$G$不包含负权回路。则系统的一个可行解为：
+</br><center>
+$x=(\delta(v_0,v_1),\delta(v_0,v_2),&hellip;,\delta(v_0,v_n))$</li>
+</ul>
+  </center>
+<ul>
+<li>证明思路：可以直接将权值的定义和可行解带入，易知其确为可行解。</li>
+</ul>
+</li>
+</ul>
+<h2 id="多源最短路">多源最短路</h2>
+<ul>
+<li>
+<p>当我们可以计算单源点最短路之后，很显然，重复$|V|$次就是所有源点可得到的最短路。但这个问题还有一些更好，或者更直观的办法。</p>
+</li>
+<li>
+<p>术语：</p>
+</li>
+<li>
+<p>Floyd算法（Floyd-Warshall算法）：时间复杂度$\Theta(V^3)$</p>
+<ul>
+<li>基本思路：
+<ol>
+<li>遍历取出节点记为$k$</li>
+<li>对每一个$k$，遍历点对$(i,j)$，尝试用$i\leadsto k,k\leadsto j$，更新$i\leadsto j$的最小路径估计</li>
+</ol>
+</li>
+<li>正确性证明思路：
+<ul>
+<li>对$k$，考虑顶点子集$\{v_1,v_2,&hellip;,v_k\}$，以及所有路径$i\leadsto j$中，中间节点均在此集合的路径，且设$p$是其中的最小权值路径。</li>
+<li>如果$k$不是$p$的中间顶点，则$p$的所有顶点在$\{v_1,v_2,&hellip;,v_{k-1}\}$中。不影响。</li>
+<li>如果$k$是$p$的中间顶点，则$p$可分解为$i\leadsto k \leadsto j$，两部分，而根据定义前后两个子路径已经是对应顶点间的最短路径（估计）。</li>
+<li>归纳法，可以得知当迭代到$k$取所有值，则可计算出真正的全部最短路径权值。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;xutility&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(){
+	std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;</span> graph<span style="color:#f92672">=</span>{{<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">3</span>},{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">5</span>},{<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">3</span>},{<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">0</span>}};
+	std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&gt;</span> dst<span style="color:#f92672">=</span>graph;
+	<span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">int</span> k<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>;k<span style="color:#f92672">!=</span>graph.size();<span style="color:#f92672">++</span>k){
+		<span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">int</span> i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>;i<span style="color:#f92672">!=</span>graph.size();<span style="color:#f92672">++</span>i){
+			<span style="color:#66d9ef">if</span>(i<span style="color:#f92672">==</span>k)
+				<span style="color:#66d9ef">continue</span>;
+			<span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">int</span> j<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>;j<span style="color:#f92672">!=</span>graph.size();<span style="color:#f92672">++</span>j){
+				<span style="color:#66d9ef">if</span>(i<span style="color:#f92672">==</span>j<span style="color:#f92672">||</span>k<span style="color:#f92672">==</span>j)
+					<span style="color:#66d9ef">continue</span>;
+				dst[i][j]<span style="color:#f92672">=</span>std<span style="color:#f92672">::</span>min(dst[i][j],dst[i][k]<span style="color:#f92672">+</span>dst[k][j]);
+			}
+		}
+	}
+	<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">!=</span> dst.size(); <span style="color:#f92672">++</span>i) {
+		<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> j <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; j <span style="color:#f92672">!=</span> dst.size(); <span style="color:#f92672">++</span>j) {
+			std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> dst[i][j] <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; &#34;</span>;
+		}
+		std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+	}
+	<span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+}
+</code></pre></div><ul>
+<li>Johnson算法：简单版时间复杂度可达$O(VElogV)$，斐波那契堆优化可达$O(V^2logV+VE)$，稀疏图更快
+<ul>
+<li>重赋权技术：
+<ul>
+<li>如果图$G=(V,E)$中所有边的权$w$都是非负的，则执行$|V|$次Dijkstra算法即可。</li>
+<li>如果存在负权，则重新设定一个权值权值函数$\hat{w}$，满足：路径$p$是加权函数$w$从$u$到$v$的一条最短路径，当且仅当$p$也是加权函数$\hat{w}$从$u$到$v$的一条最短路径；加权函数$\hat{w}$的值永远非负。</li>
+<li>构造方式：
+<ol>
+<li>构造新图$G'=(V',E')$，其中$V'=V\cup\{s\}$，$E'=E\cup\{(s,v):v\in V\}$。即添加一个超级源点$s$，连接所有其他顶点。且扩展原有加权函数$w$，使得$w(s,v)=0,v\in V$。</li>
+<li>设函数$h(v)=\delta(s,v)$，易知$h(v)\le h(u)+w(u,v)$，定义新权$\hat{w}(u,v)=w(u,v)+h(u)-h(v)$。注意$u\in V'$。</li>
+</ol>
+</li>
+<li>构造正确性的证明思路：
+<ul>
+<li>新权$\hat{w}(u,v)$的非负性很显然（带入$h$的定义,结合三角不等式）</li>
+<li>$w,\hat{w}$指示同一条最短路径：带入定义，展开$\hat{w}(p)=\sum_{i=1}^{k}\hat{w}(v_{i-1},v_i)$，可知$\hat{w}(p)=w(p)+h(v_0)-h(v_k)$。$h$是固定值，易知两者取得最短路径确实是当且仅当的。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>为什么要重赋权？在稀疏图的语境下，Djikstra比Bellman-ford更快，但是不能应用于带有负权边的图。</li>
+<li>基本思路：
+<ol>
+<li>调用bellman-ford算法计算构造图$G'=(V',E')$中，以$s$为源点的最短路径权值</li>
+<li>根据步骤1中结果，设定$h$，并构造$\hat{w}$</li>
+<li>基于$\hat{w}$，对每一个顶点调用djikstra算法，得到结果$\hat{\delta}(u,v)$</li>
+<li>还原$\delta(u,v)$</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;queue&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;unordered_map&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;unordered_set&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&#34;dijkstra.hpp&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span><span style="color:#75715e">&#34;bellman_ford.hpp&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">namespace</span> lyc_algorithm {
+	<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">edge_adjacent</span> {
+		node_id end;
+		edge_weight weight;
+
+		edge_adjacent(node_id end, edge_weight weight) {
+			<span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>end <span style="color:#f92672">=</span> end;
+			<span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>weight <span style="color:#f92672">=</span> weight;
+		}
+
+		<span style="color:#66d9ef">bool</span> <span style="color:#66d9ef">operator</span><span style="color:#f92672">&lt;</span>(<span style="color:#66d9ef">const</span> edge_adjacent<span style="color:#f92672">&amp;</span> b) <span style="color:#66d9ef">const</span> {
+			<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>weight <span style="color:#f92672">&lt;</span> b.weight;
+		}
+	};
+
+	<span style="color:#66d9ef">typedef</span> edge_adjacent distance_single_source;
+
+	<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">node_adjacent</span> {
+		node_id begin;
+		std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>edge_adjacent<span style="color:#f92672">&gt;</span> edges;
+		node_adjacent(node_id begin, std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>edge_adjacent<span style="color:#f92672">&gt;&amp;&amp;</span> edges) {
+			<span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>begin <span style="color:#f92672">=</span> begin;
+			<span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>edges <span style="color:#f92672">=</span> edges;
+		}
+	};
+
+	<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">graph_adjacent</span> {
+		std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>node_adjacent<span style="color:#f92672">&gt;</span> nodes;
+	};
+
+	<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">graph_adjacent_map</span> {
+		std<span style="color:#f92672">::</span>unordered_map<span style="color:#f92672">&lt;</span>node_id, std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>edge_adjacent<span style="color:#f92672">&gt;&gt;</span> nodes;
+	};
+
+	<span style="color:#66d9ef">template</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> T<span style="color:#f92672">&gt;</span>
+	<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">min_heap</span> {
+		<span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">operator</span>()(<span style="color:#66d9ef">const</span> T<span style="color:#f92672">&amp;</span> a, <span style="color:#66d9ef">const</span> T<span style="color:#f92672">&amp;</span> b) {
+			<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>(a <span style="color:#f92672">&lt;</span> b) <span style="color:#f92672">&amp;&amp;</span> <span style="color:#f92672">!</span>(b <span style="color:#f92672">&lt;</span> a)) <span style="color:#75715e">// strict weak order
+</span><span style="color:#75715e"></span>				<span style="color:#66d9ef">return</span> false;
+			<span style="color:#66d9ef">else</span>
+				<span style="color:#66d9ef">return</span> <span style="color:#f92672">!</span>(a <span style="color:#f92672">&lt;</span> b);
+		}
+	};
+
+	std<span style="color:#f92672">::</span>unordered_map<span style="color:#f92672">&lt;</span>node_id, edge_weight<span style="color:#f92672">&gt;</span> dijkstra(<span style="color:#66d9ef">const</span> graph_adjacent_map<span style="color:#f92672">&amp;</span> graph,node_id source) {
+		std<span style="color:#f92672">::</span>unordered_map<span style="color:#f92672">&lt;</span>node_id, edge_weight<span style="color:#f92672">&gt;</span> dist;
+		std<span style="color:#f92672">::</span>priority_queue<span style="color:#f92672">&lt;</span>edge_adjacent, std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>edge_adjacent<span style="color:#f92672">&gt;</span>, min_heap<span style="color:#f92672">&lt;</span>edge_adjacent<span style="color:#f92672">&gt;&gt;</span> node_distance;
+		std<span style="color:#f92672">::</span>unordered_set<span style="color:#f92672">&lt;</span>node_id<span style="color:#f92672">&gt;</span> arrived_nodes;
+		node_distance.push(edge_adjacent(source, <span style="color:#ae81ff">0</span>));
+		dist[source] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+		<span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>node_distance.empty()) {
+			<span style="color:#66d9ef">auto</span> node <span style="color:#f92672">=</span> node_distance.top();
+			node_distance.pop();
+			<span style="color:#66d9ef">if</span> (arrived_nodes.find(node.end) <span style="color:#f92672">!=</span> arrived_nodes.end()) {
+				<span style="color:#66d9ef">continue</span>;
+			}
+			<span style="color:#75715e">// new node
+</span><span style="color:#75715e"></span>			arrived_nodes.insert(node.end);
+			<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span> edge : graph.nodes.find(node.end)<span style="color:#f92672">-&gt;</span>second) {
+				<span style="color:#66d9ef">if</span> (dist.find(edge.end) <span style="color:#f92672">==</span> dist.end()
+					<span style="color:#f92672">||</span> dist.find(edge.end)<span style="color:#f92672">-&gt;</span>second <span style="color:#f92672">&gt;</span> edge.weight <span style="color:#f92672">+</span> dist.find(node.end)<span style="color:#f92672">-&gt;</span>second) { <span style="color:#75715e">// relax
+</span><span style="color:#75715e"></span>					dist[edge.end] <span style="color:#f92672">=</span> edge.weight <span style="color:#f92672">+</span> dist.find(node.end)<span style="color:#f92672">-&gt;</span>second;
+					node_distance.push(edge_adjacent(edge.end, dist[edge.end]));
+				}
+			}
+		}
+		<span style="color:#66d9ef">return</span> dist;
+	}
+
+	std<span style="color:#f92672">::</span>unordered_map<span style="color:#f92672">&lt;</span>node_id, edge_weight<span style="color:#f92672">&gt;</span> bellman_ford_shortest_path(<span style="color:#66d9ef">const</span> graph_adjacent_map<span style="color:#f92672">&amp;</span> graph, node_id source) {
+		<span style="color:#66d9ef">if</span> (graph.nodes.empty()) {
+			<span style="color:#66d9ef">throw</span> std<span style="color:#f92672">::</span>exception(<span style="color:#e6db74">&#34;empty graph&#34;</span>);
+		}
+		std<span style="color:#f92672">::</span>unordered_map<span style="color:#f92672">&lt;</span>node_id, edge_weight<span style="color:#f92672">&gt;</span> dist;
+		dist[source] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+		<span style="color:#66d9ef">for</span> (std<span style="color:#f92672">::</span>size_t i <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; i <span style="color:#f92672">!=</span> graph.nodes.size(); <span style="color:#f92672">++</span>i) {
+			<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> node : graph.nodes) {
+				<span style="color:#66d9ef">if</span> (dist.find(node.first) <span style="color:#f92672">==</span> dist.end()) { <span style="color:#75715e">// the begin of this edge is reachable
+</span><span style="color:#75715e"></span>					<span style="color:#66d9ef">continue</span>;
+				}
+				<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> edge : node.second) {
+					<span style="color:#66d9ef">if</span> (dist.find(edge.end) <span style="color:#f92672">==</span> dist.end()
+						<span style="color:#f92672">||</span> dist.find(edge.end)<span style="color:#f92672">-&gt;</span>second <span style="color:#f92672">&gt;</span> edge.weight <span style="color:#f92672">+</span> dist.find(node.first)<span style="color:#f92672">-&gt;</span>second) { <span style="color:#75715e">// relax
+</span><span style="color:#75715e"></span>						dist[edge.end] <span style="color:#f92672">=</span> edge.weight <span style="color:#f92672">+</span> dist.find(node.first)<span style="color:#f92672">-&gt;</span>second;
+					}
+				}
+			}
+		}
+		<span style="color:#75715e">// check if has false 
+</span><span style="color:#75715e"></span>		<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> node : graph.nodes) {
+			<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> edge : node.second) {
+				<span style="color:#66d9ef">if</span> (dist.find(edge.end)<span style="color:#f92672">-&gt;</span>second <span style="color:#f92672">&gt;</span> edge.weight <span style="color:#f92672">+</span> dist.find(node.first)<span style="color:#f92672">-&gt;</span>second) {
+					<span style="color:#66d9ef">throw</span> std<span style="color:#f92672">::</span>exception(<span style="color:#e6db74">&#34;bad graph&#34;</span>);
+				}
+			}
+		}
+		<span style="color:#66d9ef">return</span> dist;
+	}
+
+	std<span style="color:#f92672">::</span>unordered_map<span style="color:#f92672">&lt;</span>node_id,std<span style="color:#f92672">::</span>unordered_map<span style="color:#f92672">&lt;</span>node_id,edge_weight<span style="color:#f92672">&gt;&gt;</span> johnson(<span style="color:#66d9ef">const</span> graph_adjacent_map<span style="color:#f92672">&amp;</span> graph) {
+		<span style="color:#75715e">// create G&#39;
+</span><span style="color:#75715e"></span>		graph_adjacent_map graph_ <span style="color:#f92672">=</span> graph;
+		node_id id;
+		<span style="color:#66d9ef">for</span> (id <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; id <span style="color:#f92672">&lt;=</span> graph_.nodes.size(); <span style="color:#f92672">++</span>id) {
+			<span style="color:#66d9ef">if</span> (graph_.nodes.find(id) <span style="color:#f92672">==</span> graph_.nodes.end()) {
+				<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> t : graph.nodes) {
+					graph_.nodes[id].push_back(edge_adjacent(t.first, <span style="color:#ae81ff">0</span>));
+				}
+				<span style="color:#66d9ef">break</span>;
+			}
+		}
+		<span style="color:#66d9ef">auto</span> h <span style="color:#f92672">=</span> bellman_ford_shortest_path(graph_, id);
+		<span style="color:#75715e">// config w&#39; base on h &amp; w
+</span><span style="color:#75715e"></span>		<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> node : graph_.nodes) {
+			<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> edge : node.second) {
+				edge.weight <span style="color:#f92672">=</span> edge.weight <span style="color:#f92672">+</span> h[node.first] <span style="color:#f92672">-</span> h[edge.end];
+			}
+		}
+		std<span style="color:#f92672">::</span>unordered_map <span style="color:#f92672">&lt;</span> node_id, std<span style="color:#f92672">::</span>unordered_map<span style="color:#f92672">&lt;</span>node_id, edge_weight<span style="color:#f92672">&gt;&gt;</span> dist;
+		<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> node : graph_.nodes) {
+			<span style="color:#66d9ef">if</span> (node.first <span style="color:#f92672">==</span> id)
+				<span style="color:#66d9ef">continue</span>;
+			<span style="color:#66d9ef">auto</span> result <span style="color:#f92672">=</span> dijkstra(graph_, node.first);
+			<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> dist : result) {
+				dist.second <span style="color:#f92672">=</span> dist.second <span style="color:#f92672">-</span> h[node.first] <span style="color:#f92672">+</span> h[dist.first];
+			}
+			dist[node.first] <span style="color:#f92672">=</span> result;
+		}
+		<span style="color:#66d9ef">return</span> dist;
+	}
+}
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(){
+	<span style="color:#66d9ef">using</span> <span style="color:#66d9ef">namespace</span> lyc_algorithm;
+	graph_adjacent_map graph_map;
+	graph_map.nodes[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> { {<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>} ,{<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">2</span>},{<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">3</span>} };
+	graph_map.nodes[<span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> { {<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">1</span>} ,{<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">4</span>},{<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">4</span>} };
+	graph_map.nodes[<span style="color:#ae81ff">2</span>] <span style="color:#f92672">=</span> { {<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">1</span>} ,{<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">2</span>},{<span style="color:#ae81ff">0</span>,<span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>} };
+	graph_map.nodes[<span style="color:#ae81ff">3</span>] <span style="color:#f92672">=</span> { {<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">1</span>} ,{<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">2</span>},{<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">3</span>} };
+	graph_map.nodes[<span style="color:#ae81ff">4</span>] <span style="color:#f92672">=</span> { {<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">1</span>} ,{<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">2</span>},{<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">3</span>} };
+	<span style="color:#66d9ef">auto</span> result <span style="color:#f92672">=</span> johnson(graph_map);
+	<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> node : result) {
+		std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;from node: &#34;</span> <span style="color:#f92672">&lt;&lt;</span> node.first <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+		<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> end : node.second) {
+			std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;    to node: &#34;</span> <span style="color:#f92672">&lt;&lt;</span> end.first <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; -&gt; &#34;</span> <span style="color:#f92672">&lt;&lt;</span> end.second <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+		}
+	}
+	<span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+}
+</code></pre></div><h1 id="最大流问题">最大流问题</h1>
+<ul>
+<li>流网络：一个有向图$G=(V,E)$，其中每条边$(u,v)\in E$均有一个非负容量$c(u,v)\ge 0$。网络中有两个特别的顶点，源点s，和汇点t。为了方便起见，约定$\forall v \in V, s\leadsto v \leadsto t$。</li>
+<li>流：在流网络$G=(V,E)$中，流是一个实值函数$f:V \times V \to \mathbf{R}$。可以理解为，流是一个流网络中的流量分配情况。需要满足以下性质：（注意流从定义上的定义域就是$V \times V$的）
+<ol>
+<li>容量限制：$\forall u,v \in V, f(u,v) \le c(u,)$</li>
+<li>反对称性：$\forall u,v \in V, f(u,v) = -f(v,u)$</li>
+<li>流守恒性：$\forall u\in V-{s,t}, \sum_{v\in V}f(u,v)=0$</li>
+</ol>
+</li>
+<li>多个源点和多个汇点：转化为具有一个超级源点、超级汇点的流网络，其中超级源点到多个源点，以及多个汇点到超级汇点都具有无限容量。</li>
+<li>最大流：在给定流网络的前提下，求出网络中能接受的最大流量。</li>
+<li>术语和基本性质：
+<ul>
+<li>流的值：定义为$|f|=\sum_{v\in V}f(s,v)$。即从原点出发的总流。注意符号$|f|$，并不代表流的绝对值。</li>
+<li>流的和：设f为G的一个流，$f'$是由f导出的G的残留网络$G_f$的一个流。则$f+f'$也是G中的一个流，其值为$|f+f'|=|f|+|f'|$。</li>
+<li>对集合运算：$f(X,Y)=\sum_{x\in X}\sum_{y\in Y}f(x,y)$。其中$X ,Y\subset V,$
+<ul>
+<li>$f(X,X)=0$</li>
+<li>$f(X,Y)=-f(Y,X)$</li>
+<li>若$X \cap Y = \emptyset$，则有$f(X \cup Y,Z)=f(X,Z)+f(Y,Z)$且$f(Z,X \cup Y)=f(Z,X)+f(Z,Y)$</li>
+</ul>
+</li>
+<li>边残留容量：设f为G的一个流，对顶点$u,v\in V$，若在不超过容量$c(u,v)$的前提下，从u到v可以压入额外的网络流量，就是(u,v)的残留容量，记为$c_f(u,v)=c(u,v)-f(u,v)$</li>
+<li>残留网络：给定一个流网络$G=(V,E)$和流$f$，由$f$压得的$G$的残留网络是$G_f=(V,E_f)$，其中$E_f=\{(u,v)\in V \times V:c_f(u,v)&gt;0\}$
+<ul>
+<li>注意残留网络，不仅包含从s到t方向上，未被填满的边，也包括反方向的边（虽然边实际上是单向的，但正向压入了流量$x$，代表反向可以压入$x$，等价于把这条边的流量清空）</li>
+</ul>
+</li>
+<li>增广路径：已知一个流网络G和流f，增广路径p是残留网络$G_f$中从s到t的一条简单路径。</li>
+<li>增广路径的残留容量：能够沿着增广路径p上每一条边传输的网络流的最大值，定义为$c_f(p)=min\{c_f(u,v):(u,v)\mathrm{在}p\mathrm{上}\}$
+<ul>
+<li>在一个流网络G和流f中，设p是$G_f$的一条增广路径。定义流$f_p:V\times V \to \mathbf{R}$。
+</br><center>$f_p(u,v) = \left\{ \begin{array}{11}
+c_f(p) &amp; \mathrm{如果}(u,v)\in p\\<br>
+-c_f(p) &amp; \mathrm{否则}(v,u)\in p\\<br>
+0 &amp; \mathrm{否则}
+\end{array} \right.$</center>
+</br>则$f_p$是$G_f$上的一个流，其值为$|f_p|=c_f(p)&gt;0$</li>
+<li>在此基础上，定义流$f'=f+f_p$，则$f'$是G的一个流，其值$|f'|=|f|+|f_p|&gt;|f|$。</li>
+</ul>
+</li>
+<li>割：流网络G的割$(S,T)$将V划分为S和$T=V-S$两个部分，且有$s\in S,t \in T$。如果f是流网络的一个流，则穿过割$(S,T)$的净流被定义为$f(S,T)$。割$(S,T)$的容量是$c(S,T)$。一个网络的最小割就是网络中所有割中具有最小容量的割。
+<ul>
+<li>引理：对一个流网络G中任意流f来说，其值的上界为G的任意的割的容量。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>最大流最小割定理：如果f是具有源点s和汇点t的流网络G中的一个流，则下列条件是等价的：
+<ol>
+<li>f是G的一个最大流</li>
+<li>残留网络$G_f$不包含增广路径</li>
+<li>对G的某个割$(S,T)$，有$|f|=c(S,T)$</li>
+</ol>
+</li>
+<li>Ford-Fulkerson方法：
+<ul>
+<li>核心思路：通过不断尝试扩展增广路径，最终获得最大流。</li>
+<li>Edmonds-Karp算法：用广度优先搜索计算增广路径p。时间复杂度$O(VE^2)$。
+<ol>
+<li>用广度优先搜索，逐层计算从源点s到汇点t的最大流量</li>
+<li>用最大流量更新增广路径上的各边容量，并统计当前流量</li>
+<li>重复步骤1，直到广度优先搜索无法抵达汇点t</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>压入与重标记算法：不检查整个残留网络寻找增广路径，每次仅对一个顶点操作，检查相邻顶点。时间复杂度$O(V^2E)$
+<ul>
+<li>前置流：算法使用的一种特殊的流$f:V\times V \to \mathbf{R}$。满足反对称性和容量限制，但<strong>不满足流守恒</strong>，满足$\forall u \in V-\{s\},f(V,u)\ge 0$，即除源点以外的顶点的总净流为非负值。进入顶点$u$的总净流也称为进入$u$的余流，记为$e(u)=f(V,u)$。余流大于0称为溢出。</li>
+<li>高度函数：流网络G中，设f是G的一个前置流。若函数$h:V\to \mathbf{N}$满足$h(s)=|V|,h(t)=0$且对每条残留边$(u,v)\in E_f$，有$h(u)\le h(v)+1$。则称h为高度函数。</li>
+<li>压入操作：如果顶点u是溢出顶点，$c_f(u,v)&gt;0,$且$h(u)=h(v)+1$，则可以应用进行压入操作。将流量$min(e[u],c_f(u,v))$从u的余流中减去，压入(u,v)中，并增加v的余流。
+<ul>
+<li>饱和压入：如果压入后$c_f(u,v)=0$，则这一次的压入为饱和压入。否则为不饱和压入。<strong>在一次不饱和压入后，顶点u一定不再溢出</strong></li>
+</ul>
+</li>
+<li>重标记操作：如果u是溢出顶点，且$\forall (u,v)\in E_f$，有$h[u]\le h[v]$。修改高度函数$h[u]=1+min(h[v]:(u,v)\in E_f)$。注意重标记是针对残留网络进行的。但这个操作并不修改残留网络。</li>
+<li>前置流初始化：
+</br><center>$f(u,v) = \left\{ \begin{array}{11}
+c(u,v) &amp; \mathrm{如果}u=s\\<br>
+-c(v,u) &amp; \mathrm{如果}v=s\\<br>
+0 &amp; \mathrm{否则}
+\end{array} \right.$ 
+</br>
+$h(u) = \left\{ \begin{array}{11}
+|V| &amp; \mathrm{如果}u=s\\<br>
+0 &amp; \mathrm{否则}
+\end{array} \right.$
+</br>
+$e(v)=c(s,v), e(s)=-\sum c(s,v),{(s,v)\in E}$
+  </center>
+</li>
+<li>基本思路：
+<ol>
+<li>初始化前置流</li>
+<li>寻找支持压入或重标记的顶点，重复执行操作</li>
+</ol>
+</li>
+<li>正确性和复杂度的证明内容较多，有兴趣自己看一下吧。</li>
+</ul>
+</li>
+<li>重标记与前移算法：时间复杂度$O(V^3)$
+<ul>
+<li>压入与重标记算法的一个问题是：算法以任意次序执行压入或重标记操作。实际上这些操作可以被更高效的安排。</li>
+<li>容许边：流网络G，前置流f，如果$c_f(u,v)&gt;0$,且$h(u)=h(v)+1$，就说(u,v)是容许边。否则是非容许边。</li>
+<li>容许网络为$G{f,h}=(V,E_{f,h})$，其中$E_{f,h}$是容许边的集合。
+<ul>
+<li>引理：容许网络不包含回路。</li>
+<li>引理：如果顶点u是溢出顶点，且$(u,v)$是容许边，则可以压入，该操作不会产生新的容许边，并且可能将$(u,v)$变为非容许边。</li>
+<li>引理：如果顶点u是溢出顶点，且不存在$(u,v)$是容许边，则可以重标记，操作后至少有一条$(u,v)$，即离开u的容许边，但不会有$(v,u)$，即进入u的容许边。</li>
+</ul>
+</li>
+<li>相邻表：重标记和前移算法中的边都存储在相邻表中。如果给定流网络G，对顶点$u\in V-\{s,t\}$，相邻表$N[u]$是一个关于G中包含u的残留边中的另一端顶点的单链表。（注意没有$N[s]$或$N[t]$但某点u的相邻表$N[u]$中是可以有$s$和$t$的）</li>
+<li>溢出顶点的排除：对于每一个溢出顶点，重复步骤
+<ol>
+<li>从相邻表$N[u]$中取当前溢出顶点的待处理相邻顶点$v$，初始值为链表头。</li>
+<li>如果$v$为空，则重标记当前节点，回到1</li>
+<li>如果$(u,v)$为容许边，流量压入$(u,v)$，转4
+<ul>
+<li>这一步可能将流量向$t$有效传输，也可能发现无法传递余流而退回给前驱相邻节点。</li>
+</ul>
+</li>
+<li>移动待处理顶点为链表的下一个顶点</li>
+</ol>
+</li>
+<li>核心算法：
+<ol>
+<li>初始化前置流</li>
+<li>计算包含$V-\{s,t\}$顶点的链表L（L在运算过程中隐含了容许网络的拓扑排序）</li>
+<li>计算$V-\{s,t\}$中每个顶点的相邻表</li>
+<li>取L头节点$u$</li>
+<li>若u部位不为空</li>
+<li>记录u的当前高度，在u上调用溢出顶点排除程序
+<ul>
+<li>如果之前在u上调用过溢出顶点排除程序，后续调用将在之前访问相邻表$N[u]$的位置继续</li>
+</ul>
+</li>
+<li>高度不变，赋值$u$为$u$的下一个顶点，转5</li>
+<li>否则（高度一定变高），将$u$移动到L头部，并赋值$u$为$u$的下一个顶点，转5</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>流网络算法应用：
+<ol>
+<li>最大二分匹配：
+<ul>
+<li>术语：给定一个无向图$G=(V,E)$，一个匹配是边的子集合$M \subset E$，且满足对所有顶点$v \in V$，M中至多有一条边和v关联，被关联的顶点被称为匹配，否则是无匹配的。</li>
+<li>目标：最大匹配是最大势的匹配，势即匹配的边的数量$|M|$。</li>
+<li>基本思路：变化无向图为有向图$G'=(V',E')$，其中$V'=V\cup\{s,t\}$，$E'=\{(s,u):u\in L\}$ 
+</br>  $\cup \{(u,v):u\in L,v \in R,(u,v)\in E\} $
+</br>  $\cup\{(v,t):v\in R\}$
+</br>有向图$G'$的边集$E'$中每条边具有单位容量。此时该有向图的最大流就是原图的最大匹配。</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># 节选自wikipedia，已翻译</span>
+<span style="color:#75715e"># 使用Python语言，用邻接矩阵实现，且实际上未建立相邻表，性能相对较差</span>
+<span style="color:#75715e"># https://en.wikipedia.org/wiki/Push%E2%80%93relabel_maximum_flow_algorithm</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">relabel_to_front</span>(C, source: int, sink: int) <span style="color:#f92672">-&gt;</span> int:
+    n <span style="color:#f92672">=</span> len(C)  <span style="color:#75715e"># 容量邻接矩阵</span>
+    F <span style="color:#f92672">=</span> [[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">*</span> n <span style="color:#66d9ef">for</span> _ <span style="color:#f92672">in</span> range(n)] <span style="color:#75715e"># 流矩阵</span>
+    <span style="color:#75715e"># 残留容量即为 C[u][v] - F[u][v]</span>
+
+    height <span style="color:#f92672">=</span> [<span style="color:#ae81ff">0</span>] <span style="color:#f92672">*</span> n  <span style="color:#75715e"># 定点高度</span>
+    excess <span style="color:#f92672">=</span> [<span style="color:#ae81ff">0</span>] <span style="color:#f92672">*</span> n  <span style="color:#75715e"># 余流</span>
+
+	<span style="color:#75715e"># 记录每个顶点当前初立的相邻表中的顶点</span>
+	<span style="color:#75715e"># 对相邻表很粗糙的实现，并未真正实现表，只记录了当前的相邻顶点</span>
+    seen   <span style="color:#f92672">=</span> [<span style="color:#ae81ff">0</span>] <span style="color:#f92672">*</span> n  
+    <span style="color:#75715e"># 构造不包含源点和终点的链表L</span>
+    nodelist <span style="color:#f92672">=</span> [i <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(n) <span style="color:#66d9ef">if</span> i <span style="color:#f92672">!=</span> source <span style="color:#f92672">and</span> i <span style="color:#f92672">!=</span> sink]
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">push</span>(u, v): <span style="color:#75715e"># 压入</span>
+        send <span style="color:#f92672">=</span> min(excess[u], C[u][v] <span style="color:#f92672">-</span> F[u][v])
+        F[u][v] <span style="color:#f92672">+=</span> send
+        F[v][u] <span style="color:#f92672">-=</span> send
+        excess[u] <span style="color:#f92672">-=</span> send
+        excess[v] <span style="color:#f92672">+=</span> send
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">relabel</span>(u):
+        <span style="color:#75715e"># 重标记u找到一个最小可压入高度</span>
+        min_height <span style="color:#f92672">=</span> <span style="color:#960050;background-color:#1e0010">∞</span>
+        <span style="color:#66d9ef">for</span> v <span style="color:#f92672">in</span> xrange(n): <span style="color:#75715e"># 邻接矩阵的弊端，遍历所有顶点</span>
+            <span style="color:#66d9ef">if</span> C[u][v] <span style="color:#f92672">-</span> F[u][v] <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>:
+                min_height <span style="color:#f92672">=</span> min(min_height, height[v])
+                height[u] <span style="color:#f92672">=</span> min_height <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>
+
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">discharge</span>(u): <span style="color:#75715e"># 溢出顶点排除</span>
+        <span style="color:#66d9ef">while</span> excess[u] <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>:
+            <span style="color:#66d9ef">if</span> seen[u] <span style="color:#f92672">&lt;</span> n:  <span style="color:#75715e"># 相邻表仍有后继顶点</span>
+                v <span style="color:#f92672">=</span> seen[u]
+                <span style="color:#66d9ef">if</span> C[u][v] <span style="color:#f92672">-</span> F[u][v] <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">and</span> height[u] <span style="color:#f92672">&gt;</span> height[v]: <span style="color:#75715e"># 寻找可压入的相邻顶点</span>
+                    push(u, v)
+                <span style="color:#66d9ef">else</span>:
+                    seen[u] <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+            <span style="color:#66d9ef">else</span>:  <span style="color:#75715e"># 相邻表中无后继，重标记</span>
+                relabel(u)
+                seen[u] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+
+    height[source] <span style="color:#f92672">=</span> n  <span style="color:#75715e"># 初始化源点高度</span>
+    excess[source] <span style="color:#f92672">=</span> <span style="color:#960050;background-color:#1e0010">∞</span>  <span style="color:#75715e"># 初始化源点余流（偷懒）</span>
+    <span style="color:#66d9ef">for</span> v <span style="color:#f92672">in</span> range(n): <span style="color:#75715e"># 前置流初始化</span>
+        push(source, v)
+
+    p <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+    <span style="color:#66d9ef">while</span> p <span style="color:#f92672">&lt;</span> len(nodelist):
+        u <span style="color:#f92672">=</span> nodelist[p]
+        old_height <span style="color:#f92672">=</span> height[u]
+        discharge(u)
+        <span style="color:#66d9ef">if</span> height[u] <span style="color:#f92672">&gt;</span> old_height:
+            nodelist<span style="color:#f92672">.</span>insert(<span style="color:#ae81ff">0</span>, nodelist<span style="color:#f92672">.</span>pop(p))  <span style="color:#75715e"># 发生重标记，进行前移</span>
+            p <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>  <span style="color:#75715e"># 从头开始（这里有待商榷，应该可以直接=1了，=0没意义）</span>
+        <span style="color:#66d9ef">else</span>:
+            p <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+
+    <span style="color:#66d9ef">return</span> sum(F[source])
+</code></pre></div><h1 id="回收封面">回收封面</h1>
+<ul>
+<li>首先很感谢你有耐心看到这里。这一小节的内容是想把封面回收。计算机领域的一个经典问题就是P与NP问题。</li>
+<li>术语：
+<ul>
+<li>P问题（Polynomial）：具有多项式时间求解算法的问题。即复杂度形如$O(n^a)$，$a$为常数。</li>
+<li>NP问题（Nondeterminism Polynomial）：具有能在多项式时间内验证结果正确的算法的问题。注意NP问题的描述范围，只用于验证判定类问题（比如一个路径的长度是不是t），而不是直接适用于描述验证一个解是否是最优解等优化问题。</li>
+<li>NPC问题（NP Complete，完全NP问题）：存在这样一个NP问题，所有的NP问题都可以规约为它（即只要解决了这个问题，其他NP问题的解也可以在多项式时间内转换而同时得出）。它就是NPC问题。</li>
+<li>NPH问题（NP Hard，NP难问题）：所有NP问题都可以归约到该问题，但不一定是一个NP问题，即该问题复杂度可能更高，多项式时间内无法验证。</li>
+</ul>
+</li>
+<li>遗憾的是，我们还是不能知道P=NP成立与否。这两个集合之间的关系还等待确认。但很有趣的事情是，很多NP问题之间，看起来非常相似。</li>
+<li>旅行商问题：在一个带权重无负环的强连通图中，访问每个顶点恰好一次，并回到初始点，求这种访问方式中，权值和最小的走法。
+<ul>
+<li>至少目前而言，旅行商问题是NP完全的（这里的验证，是给定了路径和权值和之后进行验证）</li>
+</ul>
+</li>
+<li>最长简单路径问题：虽然我们知道最短路径问题是一个P问题，但是很有趣的是，最长简单路径问题是NP完全的。甚至即使所有边权值是1，它也是NP完全的。（最最长的，是把所有点走一遍）</li>
+</ul>
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">标签</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/%E7%AE%97%E6%B3%95%E7%B3%BB%E5%88%97/">算法系列</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E4%BA%94%E5%93%88%E5%B8%8C%E8%A1%A8/" data-tooltip="算法导论其五：哈希表">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/08/%E6%88%91%E7%9A%84%E8%A7%86%E9%A2%91%E6%8A%95%E7%A8%BF/" data-tooltip="我的视频投稿">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+      
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2021 李奕成. All Rights Reserved 
+  </span>
+  <a href="https://beian.miit.gov.cn/#/Integrated/index" target="blank">吉ICP备2021004867</a>
+  
+  <div>
+    <img src="https://www.lyclife.com/images/beian.png">
+    <a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010502045148" target="blank">京公网安备11010502045148</a>
+  </div>
+  
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E4%BA%94%E5%93%88%E5%B8%8C%E8%A1%A8/" data-tooltip="算法导论其五：哈希表">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/08/%E6%88%91%E7%9A%84%E8%A7%86%E9%A2%91%E6%8A%95%E7%A8%BF/" data-tooltip="我的视频投稿">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+      
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+    
+    <h4 id="about-card-name">李奕成</h4>
+    
+      <div id="about-card-bio">每天都是最好的一天</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        京投 软件研发
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        北京·朝阳
+      </div>
+    
+  </div>
+</div>
+
+    
+
+    
+  
+    
+      <div id="cover" style="background-image:url('https://www.lyclife.com/images/background/bridge_linjiangmen.jpg');"></div>
+    
+  
+
+
+    
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/11.0.1/highlight.min.js"></script>
+
+<script src="https://cdn.bootcdn.net/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js"></script>
+
+
+<script src="https://www.lyclife.com/js/script-pcw6v3xilnxydl1vddzazdverrnn9ctynvnxgwho987mfyqkuylcb1nlt.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+  
+
+
+<script src="https://www.lyclife.com/scripts/MathJax-3.2.0/es5/tex-chtml.js"></script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      CommonHTML: { linebreaks: { automatic: true } },
+      tex2jax: { inlineMath: [ ['$', '$'], ['\\(','\\)'] ], displayMath: [ ['$$','$$'], ['\\[', '\\]'] ], processEscapes: false },
+      messageStyle: 'none'
+    });
+  </script>
+
+
+
+    
+  </body>
+</html>
+

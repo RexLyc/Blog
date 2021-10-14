@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>VMWare on 奕成的个人空间</title>
+    <link>https://www.lyclife.com/categories/vmware/</link>
+    <description>Recent content in VMWare on 奕成的个人空间</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Fri, 20 Aug 2021 15:16:18 +0800</lastBuildDate><atom:link href="https://www.lyclife.com/categories/vmware/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>VMWare实用知识</title>
+      <link>https://www.lyclife.com/2021/08/vmware%E5%AE%9E%E7%94%A8%E7%9F%A5%E8%AF%86/</link>
+      <pubDate>Fri, 20 Aug 2021 15:16:18 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/08/vmware%E5%AE%9E%E7%94%A8%E7%9F%A5%E8%AF%86/</guid>
+      <description>&lt;p&gt;VMWare作为Windows上最常用的虚拟机。是跨平台开发必不可少的帮手。本文记录一些实用的VMWare知识&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

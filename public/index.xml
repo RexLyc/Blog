@@ -6,7 +6,43 @@
     <description>Recent content on 奕成的个人空间</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Mon, 16 Aug 2021 10:10:21 +0800</lastBuildDate><atom:link href="https://www.lyclife.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 27 Aug 2021 10:31:04 +0800</lastBuildDate><atom:link href="https://www.lyclife.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>算法导论其八：动态规划</title>
+      <link>https://www.lyclife.com/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E5%85%AB%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/</link>
+      <pubDate>Fri, 27 Aug 2021 10:31:04 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E5%85%AB%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/</guid>
+      <description>&lt;p&gt;动态规划可以简单的理解为带备忘录的搜索。本文尚未完成，&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>算法导论其七：树</title>
+      <link>https://www.lyclife.com/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E4%B8%83%E6%A0%91/</link>
+      <pubDate>Fri, 27 Aug 2021 10:30:52 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E4%B8%83%E6%A0%91/</guid>
+      <description>&lt;p&gt;树是一类特殊的图，但和图不一样的是，树作为数据结构的应用十分广泛。还有各种各样的变种用于加速一些特定领域的算法。性能是相当的妙啦~&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>饥荒Linux服务器搭建教程</title>
+      <link>https://www.lyclife.com/2021/08/%E9%A5%A5%E8%8D%92linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/</link>
+      <pubDate>Sat, 21 Aug 2021 21:39:30 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/08/%E9%A5%A5%E8%8D%92linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/</guid>
+      <description>&lt;p&gt;饥荒官方的服务器往往不够稳定，自己搭一个可以大幅度提高多人游戏的稳定性。并不算很复杂。步骤已经弄好啦，进来看一下就会~&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>VMWare实用知识</title>
+      <link>https://www.lyclife.com/2021/08/vmware%E5%AE%9E%E7%94%A8%E7%9F%A5%E8%AF%86/</link>
+      <pubDate>Fri, 20 Aug 2021 15:16:18 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/08/vmware%E5%AE%9E%E7%94%A8%E7%9F%A5%E8%AF%86/</guid>
+      <description>&lt;p&gt;VMWare作为Windows上最常用的虚拟机。是跨平台开发必不可少的帮手。本文记录一些实用的VMWare知识&lt;/p&gt;</description>
+    </item>
+    
     <item>
       <title>算法导论其五：哈希表</title>
       <link>https://www.lyclife.com/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E4%BA%94%E5%93%88%E5%B8%8C%E8%A1%A8/</link>
@@ -35,6 +71,15 @@
     </item>
     
     <item>
+      <title>Git</title>
+      <link>https://www.lyclife.com/2021/08/git/</link>
+      <pubDate>Wed, 11 Aug 2021 00:00:13 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/08/git/</guid>
+      <description>&lt;p&gt;据说git是大佬Linus用2周时间做出来的小工具。工具虽小，却成为了当今开源世界的重要基石。本文计划一站式解决Git从原理到实践上的核心问题。本文尚未完成&lt;/p&gt;</description>
+    </item>
+    
+    <item>
       <title>博客搭建之路</title>
       <link>https://www.lyclife.com/2021/08/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E4%B9%8B%E8%B7%AF/</link>
       <pubDate>Tue, 10 Aug 2021 23:14:17 +0800</pubDate>
@@ -59,6 +104,15 @@
       
       <guid>https://www.lyclife.com/2021/07/ibm-websphere-mq/</guid>
       <description>&lt;p&gt;由于工作原因，需要使用到IBMMQ，由于相关资料较少，所以在此特地整理一篇。尽力涵盖安装、配置、使用。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Spring框架-关键注解大全</title>
+      <link>https://www.lyclife.com/2021/07/spring%E6%A1%86%E6%9E%B6-%E5%85%B3%E9%94%AE%E6%B3%A8%E8%A7%A3%E5%A4%A7%E5%85%A8/</link>
+      <pubDate>Mon, 26 Jul 2021 23:59:42 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/07/spring%E6%A1%86%E6%9E%B6-%E5%85%B3%E9%94%AE%E6%B3%A8%E8%A7%A3%E5%A4%A7%E5%85%A8/</guid>
+      <description>&lt;p&gt;框架中有一些特别重要，通用的注解，在这里进行一定的讲解。本文尚未完成。&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -95,6 +149,16 @@
       
       <guid>https://www.lyclife.com/2021/07/spring%E6%A1%86%E6%9E%B6%E5%BC%80%E5%9D%91%E7%AF%87/</guid>
       <description>&lt;p&gt;Java长期稳占编程语言Top3，好用的框架功不可没。Spring框架是其中的集大成者。学一点总没有错。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>全栈学习开坑篇</title>
+      <link>https://www.lyclife.com/2021/07/%E5%85%A8%E6%A0%88%E5%AD%A6%E4%B9%A0%E5%BC%80%E5%9D%91%E7%AF%87/</link>
+      <pubDate>Mon, 19 Jul 2021 11:15:05 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/07/%E5%85%A8%E6%A0%88%E5%AD%A6%E4%B9%A0%E5%BC%80%E5%9D%91%E7%AF%87/</guid>
+      <description>&lt;p&gt;虽然技多不压身，但是也要注意不要让自己所学过杂。一定要有自己最精通的领域。
+本文另外还会记录一些特别有趣和有用的依赖库。&lt;/p&gt;</description>
     </item>
     
     <item>

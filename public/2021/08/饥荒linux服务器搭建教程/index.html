@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.87.0 with theme Tranquilpeak 0.4.8-BETA">
+<meta name="author" content="李奕成">
+<meta name="keywords" content="tech">
+<meta name="description" content="饥荒官方的服务器往往不够稳定，自己搭一个可以大幅度提高多人游戏的稳定性。并不算很复杂。步骤已经弄好啦，进来看一下就会~">
+
+
+<meta property="og:description" content="饥荒官方的服务器往往不够稳定，自己搭一个可以大幅度提高多人游戏的稳定性。并不算很复杂。步骤已经弄好啦，进来看一下就会~">
+<meta property="og:type" content="article">
+<meta property="og:title" content="饥荒Linux服务器搭建教程">
+<meta name="twitter:title" content="饥荒Linux服务器搭建教程">
+<meta property="og:url" content="https://www.lyclife.com/2021/08/%E9%A5%A5%E8%8D%92linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+<meta property="twitter:url" content="https://www.lyclife.com/2021/08/%E9%A5%A5%E8%8D%92linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+<meta property="og:site_name" content="奕成的个人空间">
+<meta property="og:description" content="饥荒官方的服务器往往不够稳定，自己搭一个可以大幅度提高多人游戏的稳定性。并不算很复杂。步骤已经弄好啦，进来看一下就会~">
+<meta name="twitter:description" content="饥荒官方的服务器往往不够稳定，自己搭一个可以大幅度提高多人游戏的稳定性。并不算很复杂。步骤已经弄好啦，进来看一下就会~">
+<meta property="og:locale" content="zh-cn">
+
+  
+    <meta property="article:published_time" content="2021-08-21T21:39:30">
+  
+  
+    <meta property="article:modified_time" content="2021-08-21T21:39:30">
+  
+  
+  
+    
+      <meta property="article:section" content="娱乐">
+    
+      <meta property="article:section" content="电子游戏">
+    
+  
+  
+    
+      <meta property="article:tag" content="电子游戏">
+    
+      <meta property="article:tag" content="教程">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+
+
+
+
+
+
+  <meta property="og:image" content="https://www.lyclife.com/images/thumbnail/dst.jpg">
+  <meta property="twitter:image" content="https://www.lyclife.com/images/thumbnail/dst.jpg">
+
+
+
+
+
+  <meta property="og:image" content="https://www.lyclife.com/images/author.jpg">
+  <meta property="twitter:image" content="https://www.lyclife.com/images/author.jpg">
+
+
+    
+    <title>饥荒Linux服务器搭建教程</title>
+
+    <link rel="icon" href="https://www.lyclife.com/images/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="https://www.lyclife.com/2021/08/%E9%A5%A5%E8%8D%92linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+
+    
+    <link href="https://www.lyclife.com/scripts/Font-Awesome-4.7.0/css/font-awesome.css" rel="stylesheet">
+    
+    
+    <link href="https://www.lyclife.com/scripts/fancybox-2.1.7/source/jquery.fancybox.css" rel="stylesheet">
+    <link href="https://www.lyclife.com/scripts/fancybox-2.1.7/source/helpers/jquery.fancybox-thumbs.css" rel="stylesheet">
+    
+    
+    <link rel="stylesheet" href="https://www.lyclife.com/css/style-twzjdbqhmnnacqs0pwwdzcdbt8yhv8giawvjqjmyfoqnvazl0dalmnhdkvp7.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="https://www.lyclife.com/">奕成的个人空间</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="https://www.lyclife.com/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="https://www.lyclife.com/#about">
+          <img class="sidebar-profile-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+        </a>
+        <h4 class="sidebar-profile-name">李奕成</h4>
+        
+          <h5 class="sidebar-profile-bio">每天都是最好的一天</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">首页</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">分类</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">标签</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">归档</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">关于</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://github.com/RexLyc" target="_blank" rel="noopener">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/images/wechat.jpg">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-wechat"></i>
+      
+      <span class="sidebar-button-desc">微信</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="4"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
+  
+    <h1 class="post-title" itemprop="headline">
+      饥荒Linux服务器搭建教程
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2021-08-21T21:39:30&#43;08:00">
+        
+  八月 21, 2021
+
+      </time>
+    
+    
+  
+  
+    <span>发布在</span>
+    
+      <a class="category-link" href="https://www.lyclife.com/categories/%e5%a8%b1%e4%b9%90">娱乐</a>, 
+    
+      <a class="category-link" href="https://www.lyclife.com/categories/%e7%94%b5%e5%ad%90%e6%b8%b8%e6%88%8f">电子游戏</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              <p>饥荒官方的服务器往往不够稳定，自己搭一个可以大幅度提高多人游戏的稳定性。并不算很复杂。步骤已经弄好啦，进来看一下就会~</p>
+<h1 id="概述">概述</h1>
+<p>本文安装于Ubuntu18.04环境，处理器2核，内存4G，带宽6M。验证有效。</p>
+<h1 id="基本步骤">基本步骤</h1>
+<ol>
+<li>安装steamCMD、登录、安装饥荒服务器</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">sudo apt install steamcmd
+<span style="color:#75715e"># 可能需要的依赖 sudo apt install lib32gcc1 libsdl2-2.0.0:i386</span>
+steamcmd
+Steam&gt; login anonymous
+  系统输出一堆balabala
+Steam&gt; app_update <span style="color:#ae81ff">343050</span> validate
+  系统输出一堆balabala
+Steam&gt; quit
+cd /path/to/your/dst/bin
+echo <span style="color:#e6db74">&#34;./dontstarve_dedicated_server_nullrenderer -console -persistent_storage_root /home/ubuntu/Game/dstsave -conf_dir dst -cluster World1 -shard Master&#34;</span> &gt; master_create.sh
+echo <span style="color:#e6db74">&#34;./dontstarve_dedicated_server_nullrenderer -console -persistent_storage_root /home/ubuntu/Game/dstsave -conf_dir dst -cluster World1 -shard Caves&#34;</span> &gt; cave_create.sh
+chmod +x master_create.sh cave_create.sh
+./master_create.sh <span style="color:#75715e">#运行一下看到WILL NOT START就退出即可</span>
+./cave_create.sh <span style="color:#75715e">#运行一下看到WILL NOT START就退出即可</span>
+<span style="color:#75715e"># 上两句的目的是生成一下默认配置</span>
+</code></pre></div><ol start="2">
+<li>在本地电脑上创建一个饥荒服务器</li>
+<li>复制本地游戏目录（包含Caves、Master）到Linux服务器下指定的存储位置（包含Caves、Master）的位置</li>
+<li>用master_creat、cave_create创建游戏，记得配置防火墙</li>
+<li>配置服务器mod
+<ul>
+<li>windows上创建时，可以看到Master、Caves下面都有一个mod***.lua的文件，里面有带有workshop开头的数字串，代表mod的ID。</li>
+<li>将这一系列id以ServerModSetup(&ldquo;你的id&rdquo;)形式，分多行写入到path/to/your/dst/mods/dedicated_server_mods_setup.lua</li>
+</ul>
+</li>
+<li>配置管理员
+<ul>
+<li>在指定的饥荒存档路径，如~/dstsave/World1/adminlist.txt里按行添加用户Klei ID（游戏内左下角账户信息查看）。</li>
+</ul>
+</li>
+</ol>
+<h1 id="可能的问题">可能的问题</h1>
+<ol>
+<li>缺少一些32位的库，并且由于系统是64位的，需要显式指定32位。(:i386)
+<ul>
+<li>可以用ldd查看一下依赖库，避免手动尝试的尴尬。</li>
+<li><a href="https://wuter.cn/2282.html/">libcurl-gnutls.so.4缺少</a></li>
+</ul>
+</li>
+<li>steamcmd中，force_install_dir指定的不好容易忘记，建议不要指定，用默认的就行。非要用记得用绝对路径。如果你修改了，那么每一次登录steamcmd都需要重新指定，不然是会安装到默认位置的。</li>
+<li>只要客户端有更新，就要去更新服务器，重新执行一次app_update 343050 validate等指令即可。</li>
+</ol>
+<!-- 快乐老家 密码#Friend4Ever -->
+<h1 id="一些实用远程指令">一些实用远程指令</h1>
+<ol>
+<li>c_rollback()：输入参数为回退的天数，如c_rollback(2)代表回到2天前。</li>
+</ol>
+<h1 id="参考资料">参考资料</h1>
+<p><a href="https://developer.valvesoftware.com/wiki/SteamCMD">主要参考：官方论坛关于SteamCMD的相关内容</a>
+<a href="https://blog.csdn.net/zhang41228/article/details/103106298">centos7搭建饥荒服务器</a>
+<a href="https://developer.valvesoftware.com/wiki/Dedicated_Servers_List">SteamCMD良好支持的服务器游戏列表</a></p>
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">标签</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/%E7%94%B5%E5%AD%90%E6%B8%B8%E6%88%8F/">电子游戏</a>
+
+  <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/%E6%95%99%E7%A8%8B/">教程</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E4%B8%83%E6%A0%91/" data-tooltip="算法导论其七：树">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/08/vmware%E5%AE%9E%E7%94%A8%E7%9F%A5%E8%AF%86/" data-tooltip="VMWare实用知识">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+      
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2021 李奕成. All Rights Reserved 
+  </span>
+  <a href="https://beian.miit.gov.cn/#/Integrated/index" target="blank">吉ICP备2021004867</a>
+  
+  <div>
+    <img src="https://www.lyclife.com/images/beian.png">
+    <a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010502045148" target="blank">京公网安备11010502045148</a>
+  </div>
+  
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E4%B8%83%E6%A0%91/" data-tooltip="算法导论其七：树">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/08/vmware%E5%AE%9E%E7%94%A8%E7%9F%A5%E8%AF%86/" data-tooltip="VMWare实用知识">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+      
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+    
+    <h4 id="about-card-name">李奕成</h4>
+    
+      <div id="about-card-bio">每天都是最好的一天</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        京投 软件研发
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        北京·朝阳
+      </div>
+    
+  </div>
+</div>
+
+    
+
+    
+  
+    
+      <div id="cover" style="background-image:url('https://www.lyclife.com/images/background/bridge_linjiangmen.jpg');"></div>
+    
+  
+
+
+    
+<script src="https://www.lyclife.com/scripts/jquery360/jquery.min.js"></script>
+
+<script src="https://www.lyclife.com/scripts/highlight.min.js"></script>
+
+
+<script src="https://www.lyclife.com/scripts/fancybox-2.1.7/jquery.fancybox.min.js"></script>
+
+
+<script src="https://www.lyclife.com/js/script-pcw6v3xilnxydl1vddzazdverrnn9ctynvnxgwho987mfyqkuylcb1nlt.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+  
+
+
+
+
+    
+  </body>
+</html>
+

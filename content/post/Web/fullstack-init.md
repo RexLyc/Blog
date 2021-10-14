@@ -1,4 +1,4 @@
-<!-- ---
+---
 title: "全栈学习开坑篇"
 date: 2021-07-19T11:15:05+08:00
 categories:
@@ -10,7 +10,7 @@ tags:
 - 施工中
 thumbnailImagePosition: left
 thumbnailImage: images/thumbnail/fullstack.jpg
---- -->
+---
 虽然技多不压身，但是也要注意不要让自己所学过杂。一定要有自己最精通的领域。
 本文另外还会记录一些特别有趣和有用的依赖库。
 <!--more-->

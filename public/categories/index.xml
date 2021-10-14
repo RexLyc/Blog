@@ -6,11 +6,11 @@
     <description>Recent content in Categories on 奕成的个人空间</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Mon, 16 Aug 2021 10:10:21 +0800</lastBuildDate><atom:link href="https://www.lyclife.com/categories/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 27 Aug 2021 10:31:04 +0800</lastBuildDate><atom:link href="https://www.lyclife.com/categories/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>算法</title>
       <link>https://www.lyclife.com/categories/%E7%AE%97%E6%B3%95/</link>
-      <pubDate>Mon, 16 Aug 2021 10:10:21 +0800</pubDate>
+      <pubDate>Fri, 27 Aug 2021 10:31:04 +0800</pubDate>
       
       <guid>https://www.lyclife.com/categories/%E7%AE%97%E6%B3%95/</guid>
       <description></description>
@@ -19,9 +19,45 @@
     <item>
       <title>计算机科学与技术</title>
       <link>https://www.lyclife.com/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E4%B8%8E%E6%8A%80%E6%9C%AF/</link>
-      <pubDate>Mon, 16 Aug 2021 10:10:21 +0800</pubDate>
+      <pubDate>Fri, 27 Aug 2021 10:31:04 +0800</pubDate>
       
       <guid>https://www.lyclife.com/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E4%B8%8E%E6%8A%80%E6%9C%AF/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>娱乐</title>
+      <link>https://www.lyclife.com/categories/%E5%A8%B1%E4%B9%90/</link>
+      <pubDate>Sat, 21 Aug 2021 21:39:30 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/categories/%E5%A8%B1%E4%B9%90/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>电子游戏</title>
+      <link>https://www.lyclife.com/categories/%E7%94%B5%E5%AD%90%E6%B8%B8%E6%88%8F/</link>
+      <pubDate>Sat, 21 Aug 2021 21:39:30 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/categories/%E7%94%B5%E5%AD%90%E6%B8%B8%E6%88%8F/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>VMWare</title>
+      <link>https://www.lyclife.com/categories/vmware/</link>
+      <pubDate>Fri, 20 Aug 2021 15:16:18 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/categories/vmware/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>实用工具</title>
+      <link>https://www.lyclife.com/categories/%E5%AE%9E%E7%94%A8%E5%B7%A5%E5%85%B7/</link>
+      <pubDate>Fri, 20 Aug 2021 15:16:18 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/categories/%E5%AE%9E%E7%94%A8%E5%B7%A5%E5%85%B7/</guid>
       <description></description>
     </item>
     
@@ -73,7 +109,7 @@
     <item>
       <title>Spring</title>
       <link>https://www.lyclife.com/categories/spring/</link>
-      <pubDate>Mon, 26 Jul 2021 09:42:07 +0800</pubDate>
+      <pubDate>Mon, 26 Jul 2021 23:59:42 +0800</pubDate>
       
       <guid>https://www.lyclife.com/categories/spring/</guid>
       <description></description>
@@ -85,6 +121,15 @@
       <pubDate>Thu, 22 Jul 2021 17:06:17 +0800</pubDate>
       
       <guid>https://www.lyclife.com/categories/vue3/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>全栈</title>
+      <link>https://www.lyclife.com/categories/%E5%85%A8%E6%A0%88/</link>
+      <pubDate>Mon, 19 Jul 2021 11:15:05 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/categories/%E5%85%A8%E6%A0%88/</guid>
       <description></description>
     </item>
     

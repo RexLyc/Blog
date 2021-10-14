@@ -1,5 +1,5 @@
-<!-- ---
-title: "VMWare实用记录"
+---
+title: "VMWare实用知识"
 date: 2021-08-20T15:16:18+08:00
 categories:
 - 实用工具
@@ -9,8 +9,8 @@ tags:
 - 实用工具
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/VMware.jpg
---- -->
-VMWare作为Windows上最常用的虚拟机。
+---
+VMWare作为Windows上最常用的虚拟机。是跨平台开发必不可少的帮手。本文记录一些实用的VMWare知识
 <!--more-->
 # 共享文件夹
 1. 需要虚拟机内系统支持该特性（VMWare Tools）

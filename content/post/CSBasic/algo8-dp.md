@@ -1,4 +1,4 @@
-<!-- ---
+---
 title: "算法导论其八：动态规划"
 date: 2021-08-27T10:31:04+08:00
 categories:
@@ -10,6 +10,6 @@ tags:
 thumbnailImagePosition: left
 thumbnailImage: images/thumbnail/algorithm.jpg
 math: true
---- -->
-
+---
+动态规划可以简单的理解为带备忘录的搜索。本文尚未完成，
 <!--more-->

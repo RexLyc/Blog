@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Hugo 0.87.0 with theme Tranquilpeak 0.4.8-BETA">
+<meta name="generator" content="Hugo 0.85.0 with theme Tranquilpeak 0.4.8-BETA">
 <meta name="author" content="李奕成">
 <meta name="keywords" content="">
 <meta name="description" content="最炫酷但其实大部分工程师很少使用的图算法闪亮登场，图算法是很多应用场景最常用的算法。另外本期将会回收系列封面，一起进来看看。">
@@ -338,7 +338,7 @@
  <summary>折叠</summary>
  详细内容
 </details> -->
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// 本段代码实现了对一个二维地图从左上角到右下角的广度优先搜索过程
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// 本段代码实现了对一个二维地图从左上角到右下角的广度优先搜索过程
 </span><span style="color:#75715e"></span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;queue&gt;</span><span style="color:#75715e">
@@ -427,7 +427,7 @@
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// 本段代码代表了一个用深度优先搜索从起始地点走到目的地的过程
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// 本段代码代表了一个用深度优先搜索从起始地点走到目的地的过程
 </span><span style="color:#75715e"></span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;unordered_set&gt;</span><span style="color:#75715e">
@@ -523,7 +523,7 @@ std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</sp
 </li>
 <li>方法一的问题：需要添加额外代码判断是否存在环（方法就是判断是否存在反向边）</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// BFS算法解决拓扑排序
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// BFS算法解决拓扑排序
 </span><span style="color:#75715e"></span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;unordered_set&gt;</span><span style="color:#75715e">
@@ -621,7 +621,7 @@ std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</sp
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;algorithm&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;unordered_set&gt;</span><span style="color:#75715e">
@@ -760,7 +760,7 @@ std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// kruskal &amp; prim
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// kruskal &amp; prim
 </span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;unordered_map&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;algorithm&gt;</span><span style="color:#75715e">
@@ -976,7 +976,7 @@ min\{w(p):u\leadsto^p v\} &amp; \mathrm{如果两点间存在路径}\in E\\<br>
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;queue&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;unordered_map&gt;</span><span style="color:#75715e">
@@ -1090,7 +1090,7 @@ std<span style="color:#f92672">::</span>unordered_map<span style="color:#f92672"
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;unordered_map&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e"></span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> node_id;
@@ -1239,7 +1239,7 @@ $x=(\delta(v_0,v_1),\delta(v_0,v_2),&hellip;,\delta(v_0,v_n))$</li>
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;xutility&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(){
@@ -1297,7 +1297,7 @@ $x=(\delta(v_0,v_1),\delta(v_0,v_2),&hellip;,\delta(v_0,v_n))$</li>
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;queue&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;unordered_map&gt;</span><span style="color:#75715e">
@@ -1612,7 +1612,7 @@ $e(v)=c(s,v), e(s)=-\sum c(s,v),{(s,v)\in E}$
 </ol>
 </li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># 节选自wikipedia，已翻译</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># 节选自wikipedia，已翻译</span>
 <span style="color:#75715e"># 使用Python语言，用邻接矩阵实现，且实际上未建立相邻表，性能相对较差</span>
 <span style="color:#75715e"># https://en.wikipedia.org/wiki/Push%E2%80%93relabel_maximum_flow_algorithm</span>
 <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">relabel_to_front</span>(C, source: int, sink: int) <span style="color:#f92672">-&gt;</span> int:

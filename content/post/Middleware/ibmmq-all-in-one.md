@@ -40,9 +40,9 @@ thumbnailImage: /images/thumbnail/IBM.jpg
     - 配置用户环境
         - \# passwd mqm（rpm安装过程中已经创建了一个名为mqm的用户和组，设置密码来解锁使用）
         - /etc/profile修改环境变量，并source
-            <br>&emsp;MQ_HOME=/opt/mqm/bin
-            <br>&emsp;PATH=$MQ_HOME:$PATH
-            <br>&emsp;export PATH
+            <br/> &emsp; MQ_HOME=/opt/mqm/bin
+            <br/> &emsp; PATH=$MQ_HOME:$PATH
+            <br/> &emsp; export PATH
         - su - mqm（切换用户）
         - 将mqm的主目录下，文件、目录修改为mqm用户名和用户组
 - Windows（仅Explorer）
@@ -50,30 +50,36 @@ thumbnailImage: /images/thumbnail/IBM.jpg
     - 解压缩，双击setup.exe安装
 # 配置
 - 创建队列管理器：
-<br>&emsp;crtmqm -q YOUR_MQM_NAME
+<br/> &emsp; crtmqm -q YOUR_MQM_NAME
 - 开启队列管理器：
-<br>&emsp;strmqm YOUR_MQM_NAME
+<br/> &emsp; strmqm YOUR_MQM_NAME
 - 查看队列管理器状态：
-<br>&emsp;dspmq
+<br/> &emsp; dspmq
 - 打开队列管理器（此步往下都在管理器中执行）：
-<br>&emsp;runmqsc YOUR_MQM_NAME
+<br/> &emsp; runmqsc YOUR_MQM_NAME
 - 定义服务器连接通道：
-<br>&emsp;DEFINE CHANNEL(YOUR_CONN_NAME) CHLTYPE(SVRCONN) TRPTYPE(TCP) MCAUSER(YOUR_USER_NAME)
+<br/> &emsp; DEFINE CHANNEL(YOUR_CONN_NAME) CHLTYPE(SVRCONN) TRPTYPE(TCP) MCAUSER(YOUR_USER_NAME)
 - 创建监听：
-<br>&emsp;DEFINE LISTENER(YOUR_LISTENER_NAME) TRPTYPE(TCP) PORT(1414) CONTROL(QMGR)
+<br/> &emsp; DEFINE LISTENER(YOUR_LISTENER_NAME) TRPTYPE(TCP) PORT(1414) CONTROL(QMGR)
     - control属性代表启动、停止的控制方式：MANUAL为手动、QMGR为随QM启停、STARTONLY为随QM启动但不随其停止
 - 启动监听：
-<br>&emsp;START LISTENER(YOUR_LISTNER_NAME)
+<br/> &emsp; START LISTENER(YOUR_LISTNER_NAME)
 - 发送&接收的队列&通道配置：暂时跳过
 - 权限问题：
     - 取消验证：
         - 关闭通道鉴权：
-        <br>&emsp;ALTER QMGR CHLAUTH(DISABLED)
+        <br/> &emsp; ALTER QMGR CHLAUTH(DISABLED)
         - 禁用连接权限认证：
-        <br>&emsp;ALTER QMGR CONNAUTH('')
+        <br/> &emsp; ALTER QMGR CONNAUTH('')
         - 刷新安全策略：
-        <br>&emsp;REFRESH SECURITY TYPE(CONNAUTH)
-    - 正常验证：（TODO）
+        <br/> &emsp; REFRESH SECURITY TYPE(CONNAUTH)
+    - 正常验证：
+        - 关闭对mqm的禁用
+        <br/> &emsp; SET CHLAUTH(*) TYPE(BLOCKUSER) USERLIST(*MQADMIN) ACTION(REMOVE)
+        - 从windows等系统访问时会有windows系统用户名称绑定的CLNTUSER，根据自己的情况添加
+        <br/> &emsp; SET CHLAUTH(*) TYPE(USERMAP) CLNTUSER('liyicheng') USERSRC(MAP) MCAUSER('mqm') ACTION(ADD)
+        - 或者允许从一个指定ip访问时
+        <br/> &emsp; SET CHLAUTH(*) TYPE(ADDRESSMAP) ADDRESS(10.8.203.215) USERSRC(MAP) MCAUSER('mqm') ACTION(ADD)
 - 结束：end
 > 注意：创建队列和通道时，定义名字的或者绑定名字的时候不加‘’的是默认大写的，加上‘’是区分大小写的，这是一个坑。
 # IBMMQ基本使用
@@ -332,3 +338,5 @@ thumbnailImage: /images/thumbnail/IBM.jpg
 [IBM MQ 远程队列的创建与使用](https://blog.csdn.net/ILYPTING/article/details/104749065)
 
 [SpringBoot整合IBMMQ连接发送和接收](https://blog.csdn.net/u012448904/article/details/90474548  )
+
+[IBMMQ搭建和远程访问队列管理器时的权限配置](https://www.cnblogs.com/shawWey/p/12204917.html)

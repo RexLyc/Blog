@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Hugo 0.87.0 with theme Tranquilpeak 0.4.8-BETA">
+<meta name="generator" content="Hugo 0.85.0 with theme Tranquilpeak 0.4.8-BETA">
 <meta name="author" content="李奕成">
 <meta name="keywords" content="">
 <meta name="description" content="  前端是世界上最伟大的职业（迫真）。Vue3是国人（尤雨溪）主导的优秀前端框架，简单好用，童叟无欺。快进来看一看。">
@@ -264,7 +264,7 @@
 <li>引入vue的方式有很多种。事实上大部分类库、框架都有这几种引入方式。
 <ol>
 <li>在页面上直接引入链接。
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-html" data-lang="html">&lt;<span style="color:#f92672">script</span> <span style="color:#a6e22e">src</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;https://unpkg.com/vue@next&#34;</span>&gt;&lt;/<span style="color:#f92672">script</span>&gt;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-html" data-lang="html">&lt;<span style="color:#f92672">script</span> <span style="color:#a6e22e">src</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;https://unpkg.com/vue@next&#34;</span>&gt;&lt;/<span style="color:#f92672">script</span>&gt;
 </code></pre></div></li>
 <li>手动下载</li>
 <li>使用npm（Nodejs包管理器）安装</li>
@@ -280,18 +280,18 @@
 </ul>
 </li>
 <li>**[可选]**更换npm使用的源为淘宝镜像源。（也可以找其他镜像）
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">npm config set registry http://registry.npm.taobao.org <span style="color:#75715e">#全局切换</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">npm config set registry http://registry.npm.taobao.org <span style="color:#75715e">#全局切换</span>
 npm get registry <span style="color:#75715e">#查看当前源</span>
 </code></pre></div></li>
 <li>安装脚手架vue-clie
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">npm install -g @vue/cli
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">npm install -g @vue/cli
 vue upgrade --next
 </code></pre></div><ul>
 <li>注意区分@vue/cli、vue-cli，他们是脚手架的不同版本，相互之间隔离。</li>
 </ul>
 </li>
 <li>查看安装情况
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">node --version
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">node --version
 npm --version
 vue -V
 </code></pre></div><ul>
@@ -301,7 +301,7 @@ vue -V
 </ol>
 </li>
 <li>使用脚手架创建项目
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">cd /path/to/your/project
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">cd /path/to/your/project
 vue create YourProjectName
 </code></pre></div><ul>
 <li>按照需要选择配置，不熟悉的话可以默认。</li>
@@ -310,12 +310,12 @@ vue create YourProjectName
 </ol>
 <h1 id="运行">运行</h1>
 <p>  在使用脚手架的前提下。运行一个vue3项目是很简单的。如对默认的空项目，只需到package.json同级目录下，执行</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">npm run serve <span style="color:#75715e">#serve名称可修改，具体参照package.json中的配置</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">npm run serve <span style="color:#75715e">#serve名称可修改，具体参照package.json中的配置</span>
 </code></pre></div><h1 id="打包">打包</h1>
 <p>  根据package.json中关于build的配置，一般来说直接执行脚本即可完成用于部署的构建。如对默认空项目，在package.json同级下执行</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">npm run build
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">npm run build
 </code></pre></div><p>  此时内容将会生成到dist/目录下。需要使用一个http服务器来进行对网页的服务。最简单的方法依然是使用npm，执行</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">npm run -g  serve <span style="color:#75715e">#-g的意思是全局安装，而不是在当前项目中</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">npm run -g  serve <span style="color:#75715e">#-g的意思是全局安装，而不是在当前项目中</span>
 serve -s dist <span style="color:#75715e">#指定为dist目录做http服务器</span>
 </code></pre></div><ul>
 <li>额外注意</li>

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Hugo 0.87.0 with theme Tranquilpeak 0.4.8-BETA">
+<meta name="generator" content="Hugo 0.85.0 with theme Tranquilpeak 0.4.8-BETA">
 <meta name="author" content="李奕成">
 <meta name="keywords" content="">
 <meta name="description" content="VMWare作为Windows上最常用的虚拟机。是跨平台开发必不可少的帮手。本文记录一些实用的VMWare知识">
@@ -267,7 +267,7 @@
 <li>情况：Ubuntu18.04 Desktop，配置桥接模式，ifconfig只有lo。有时虚拟机无法正常启动、关闭，强制关闭后开机会无法上网。</li>
 <li>Ubuntu Desktop版本用的网络管理是NetworkManager，NetworkManager运行问题，尝试以下代码。</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">sudo service NetworkManager stop
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">sudo service NetworkManager stop
 sudo rm /var/lib/NetworkManager/NetworkManager.state <span style="color:#75715e">#删之前可以看一下里面enable应该是false</span>
 sudo service NetworkManager start
 </code></pre></div><ul>

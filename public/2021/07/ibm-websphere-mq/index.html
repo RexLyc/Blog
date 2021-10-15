@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Hugo 0.87.0 with theme Tranquilpeak 0.4.8-BETA">
+<meta name="generator" content="Hugo 0.85.0 with theme Tranquilpeak 0.4.8-BETA">
 <meta name="author" content="李奕成">
 <meta name="keywords" content="">
 <meta name="description" content="由于工作原因，需要使用到IBMMQ，由于相关资料较少，所以在此特地整理一篇。尽力涵盖安装、配置、使用。">
@@ -294,9 +294,9 @@
 <ul>
 <li># passwd mqm（rpm安装过程中已经创建了一个名为mqm的用户和组，设置密码来解锁使用）</li>
 <li>/etc/profile修改环境变量，并source
-<br> MQ_HOME=/opt/mqm/bin
-<br> PATH=$MQ_HOME:$PATH
-<br> export PATH</li>
+<br/>   MQ_HOME=/opt/mqm/bin
+<br/>   PATH=$MQ_HOME:$PATH
+<br/>   export PATH</li>
 <li>su - mqm（切换用户）</li>
 <li>将mqm的主目录下，文件、目录修改为mqm用户名和用户组</li>
 </ul>
@@ -313,37 +313,46 @@
 <h1 id="配置">配置</h1>
 <ul>
 <li>创建队列管理器：
-<br> crtmqm -q YOUR_MQM_NAME</li>
+<br/>   crtmqm -q YOUR_MQM_NAME</li>
 <li>开启队列管理器：
-<br> strmqm YOUR_MQM_NAME</li>
+<br/>   strmqm YOUR_MQM_NAME</li>
 <li>查看队列管理器状态：
-<br> dspmq</li>
+<br/>   dspmq</li>
 <li>打开队列管理器（此步往下都在管理器中执行）：
-<br> runmqsc YOUR_MQM_NAME</li>
+<br/>   runmqsc YOUR_MQM_NAME</li>
 <li>定义服务器连接通道：
-<br> DEFINE CHANNEL(YOUR_CONN_NAME) CHLTYPE(SVRCONN) TRPTYPE(TCP) MCAUSER(YOUR_USER_NAME)</li>
+<br/>   DEFINE CHANNEL(YOUR_CONN_NAME) CHLTYPE(SVRCONN) TRPTYPE(TCP) MCAUSER(YOUR_USER_NAME)</li>
 <li>创建监听：
-<br> DEFINE LISTENER(YOUR_LISTENER_NAME) TRPTYPE(TCP) PORT(1414) CONTROL(QMGR)
+<br/>   DEFINE LISTENER(YOUR_LISTENER_NAME) TRPTYPE(TCP) PORT(1414) CONTROL(QMGR)
 <ul>
 <li>control属性代表启动、停止的控制方式：MANUAL为手动、QMGR为随QM启停、STARTONLY为随QM启动但不随其停止</li>
 </ul>
 </li>
 <li>启动监听：
-<br> START LISTENER(YOUR_LISTNER_NAME)</li>
+<br/>   START LISTENER(YOUR_LISTNER_NAME)</li>
 <li>发送&amp;接收的队列&amp;通道配置：暂时跳过</li>
 <li>权限问题：
 <ul>
 <li>取消验证：
 <ul>
 <li>关闭通道鉴权：
-<br> ALTER QMGR CHLAUTH(DISABLED)</li>
+<br/>   ALTER QMGR CHLAUTH(DISABLED)</li>
 <li>禁用连接权限认证：
-<br> ALTER QMGR CONNAUTH('')</li>
+<br/>   ALTER QMGR CONNAUTH('')</li>
 <li>刷新安全策略：
-<br> REFRESH SECURITY TYPE(CONNAUTH)</li>
+<br/>   REFRESH SECURITY TYPE(CONNAUTH)</li>
 </ul>
 </li>
-<li>正常验证：（TODO）</li>
+<li>正常验证：
+<ul>
+<li>关闭对mqm的禁用
+<br/>   SET CHLAUTH(*) TYPE(BLOCKUSER) USERLIST(*MQADMIN) ACTION(REMOVE)</li>
+<li>从windows等系统访问时会有windows系统用户名称绑定的CLNTUSER，根据自己的情况添加
+<br/>   SET CHLAUTH(*) TYPE(USERMAP) CLNTUSER(&lsquo;liyicheng&rsquo;) USERSRC(MAP) MCAUSER(&lsquo;mqm&rsquo;) ACTION(ADD)</li>
+<li>或者允许从一个指定ip访问时
+<br/>   SET CHLAUTH(*) TYPE(ADDRESSMAP) ADDRESS(10.8.203.215) USERSRC(MAP) MCAUSER(&lsquo;mqm&rsquo;) ACTION(ADD)</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>结束：end</li>
@@ -388,7 +397,7 @@
 <ul>
 <li>依赖</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;dependency&gt;</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;dependency&gt;</span>
     <span style="color:#f92672">&lt;groupId&gt;</span>org.springframework<span style="color:#f92672">&lt;/groupId&gt;</span>
     <span style="color:#f92672">&lt;artifactId&gt;</span>spring-jms<span style="color:#f92672">&lt;/artifactId&gt;</span>
 <span style="color:#f92672">&lt;/dependency&gt;</span>
@@ -405,7 +414,7 @@
 </code></pre></div><ul>
 <li>配置</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#75715e">#ibm mq 配置信息</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#75715e">#ibm mq 配置信息</span>
 <span style="color:#ae81ff">project.mq.host= 172.16.20.51</span>
 <span style="color:#ae81ff">project.mq.port= 1414</span>
 <span style="color:#75715e">#(队列管理器名称)</span>
@@ -421,7 +430,7 @@
 </code></pre></div><ul>
 <li>配置类代码</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> com.liyicheng.springlearn.config<span style="color:#f92672">;</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> com.liyicheng.springlearn.config<span style="color:#f92672">;</span>
 
 <span style="color:#f92672">import</span> com.ibm.mq.jms.MQQueueConnectionFactory<span style="color:#f92672">;</span>
 <span style="color:#f92672">import</span> com.ibm.msg.client.wmq.WMQConstants<span style="color:#f92672">;</span>
@@ -547,7 +556,7 @@
 </code></pre></div><ul>
 <li>生产者代码</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> com.liyicheng.springlearn.producer<span style="color:#f92672">;</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> com.liyicheng.springlearn.producer<span style="color:#f92672">;</span>
 
 <span style="color:#f92672">import</span> org.springframework.beans.factory.annotation.Autowired<span style="color:#f92672">;</span>
 <span style="color:#f92672">import</span> org.springframework.jms.core.JmsOperations<span style="color:#f92672">;</span>
@@ -576,7 +585,7 @@
 </code></pre></div><ul>
 <li>消费者代码</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> com.liyicheng.springlearn.consumer<span style="color:#f92672">;</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#f92672">package</span> com.liyicheng.springlearn.consumer<span style="color:#f92672">;</span>
 
 <span style="color:#f92672">import</span> org.springframework.beans.factory.annotation.Autowired<span style="color:#f92672">;</span>
 <span style="color:#f92672">import</span> org.springframework.jms.annotation.JmsListener<span style="color:#f92672">;</span>
@@ -620,6 +629,7 @@
 <p><a href="http://www.shterm.cn/176.html">IBM WebSphere MQ for linux 安装详解</a></p>
 <p><a href="https://blog.csdn.net/ILYPTING/article/details/104749065">IBM MQ 远程队列的创建与使用</a></p>
 <p><a href="https://blog.csdn.net/u012448904/article/details/90474548">SpringBoot整合IBMMQ连接发送和接收</a></p>
+<p><a href="https://www.cnblogs.com/shawWey/p/12204917.html">IBMMQ搭建和远程访问队列管理器时的权限配置</a></p>
               
             </div>
           </div>

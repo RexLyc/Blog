@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Hugo 0.87.0 with theme Tranquilpeak 0.4.8-BETA">
+<meta name="generator" content="Hugo 0.85.0 with theme Tranquilpeak 0.4.8-BETA">
 <meta name="author" content="李奕成">
 <meta name="keywords" content="">
 <meta name="description" content="排序问题是编程中的重要基石，排序中用到的很多思想也非常有借鉴价值。">
@@ -407,7 +407,7 @@
 </ol>
 </li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// 堆化
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// 堆化
 </span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">heapify</span>(vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&amp;</span> input, size_t i, size_t count) {
     <span style="color:#66d9ef">while</span> (i<span style="color:#f92672">&lt;</span>count)
     {
@@ -456,7 +456,7 @@
 </ol>
 </li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">//很妙的单向扫描写法（循环不变式：i的下一个是大于pivot）
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">//很妙的单向扫描写法（循环不变式：i的下一个是大于pivot）
 </span><span style="color:#75715e"></span><span style="color:#66d9ef">template</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> ForwardIt<span style="color:#f92672">&gt;</span>
 <span style="color:#66d9ef">void</span> quick_sort(ForwardIt begin, ForwardIt end) {
     <span style="color:#75715e">//partition
@@ -537,7 +537,7 @@
 <li>概况：假设n个输入元素中的每一个都是介于0到k之间的整数，此处k为某个证书。当$k=O(n)$时，计数排序的运行时间是$\Theta(n)$。</li>
 <li>基本思路是对于每一个输入元素x，计数小于x的元素个数。从而直接将x放在指定的位置。</li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> count_sort(std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&amp;</span> input) {
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> count_sort(std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;&amp;</span> input) {
     std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> ret(input.size(), <span style="color:#ae81ff">0</span>);
     <span style="color:#66d9ef">auto</span> minmaxElement <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>minmax_element(input.begin(), input.end());
     std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> count(<span style="color:#f92672">*</span>minmaxElement.second <span style="color:#f92672">-</span> <span style="color:#f92672">*</span>minmaxElement.first <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>);

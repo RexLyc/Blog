@@ -25,4 +25,7 @@ Linux系统是目前世界上最流行的操作系统。操作系统的学习内
 2. 终端与控制台
 3. 必备命令
 4. Shell编程
-5. 发行版知识 
+5. 发行版知识
+# 参考资料
+- [Linux Tools Quick Tutorial](https://linuxtools-rst.readthedocs.io/zh_CN/latest/index.html#)
+- 《鸟哥的Linux私房菜》

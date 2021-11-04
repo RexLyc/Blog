@@ -45,23 +45,37 @@ SSH（Secure Shell）安全外壳协议，是常用的登录到远程服务器�
 1. ssh端口转发（forwarding port）：
     1. 需求：有一个公网ip，有一群分布在不同内网的内网机器，希望内网机器之间能ssh互连
     2. 设备：
-        - 公网主机用户名userA，地址ipA，端口portA
+        - 公网主机用户名userA，地址ipA，对外网登录主机端口portA，对内网被登陆主机端口portB
         - 内网登录主机用户名userSrc，地址ipSrc，端口portSrc
         - 内网被登录主机用户名userDst，地址ipDst，端口portDst
     3. 公网机器端搭建步骤
         ```sh
-        ssh -fCNL 1235:localhost:1234 localhost
-        # 打开防火墙 1235 1234端口
+        # 本地代理，将portA内容转发给portB
+        # *号表示支持任意ip访问portA，不局限于本公网机器
+        ssh -fCNL "*:portA:localhost:portB" localhost 
+        # 也是本地代理，但不支持外网访问portA
+        ssh -fCNL portA:localhost:portB localhost 
         ```
     4. 内网机器端搭建步骤
         ```sh
-        ssh -fCNR 1234:localhost:22 ubuntu@82.157.175.91
+        # 远程代理，将代理机上portB转发给本地22
+        ssh -fCNR portB:localhost:22 userA@ipA
         ```
-    5. 其他实用
+    5. 免密：将公钥互相赋给对方的authorized_keys
+    6. autossh和daemon
         ```sh
-        killall ssh #清理全部ssh配置规则（杀死对应的服务进程）
-        ssh -p1235 localhost #配置完成后，从公网机器上执行此命令跳转到内网
         ```
+    7. 其他实用
+        ```sh
+        # 清理全部ssh代理配置（杀死对应的服务进程）
+        killall ssh
+        # 若公网机器使用了"*:portA..."，可从任意机器登录内网机器
+        ssh -p portA userDst@ipA
+        # 若未使用"*:portA...",只能从公网机器上执行此命令跳转到内网
+        ssh -p portA userDst@localhost
+        ```
+    8. 注意事项
+        - 需打开所有涉及到的端口的防火墙
 # 参考资料
 - 核心协议：RFC 4251（协议架构）、RFC 4253（传输层协议）、RFC 4252（鉴权协议）、RFC 4254（连接协议）
 - [SSH Academy](https://www.ssh.com/academy/ssh/protocol) 

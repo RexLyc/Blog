@@ -6,7 +6,7 @@ categories:
 - 操作系统
 tags:
 - 操作系统系列
-- 开坑篇
+- 命令行
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/linux.jpg
 ---
@@ -42,7 +42,7 @@ SSH（Secure Shell）安全外壳协议，是常用的登录到远程服务器�
     scp -r user@src:/path/to/your/dir user@dest_host:/path/to/your/newdir #目录整体拷贝
     ```
 # 实用进阶
-1. ssh端口转发（forwarding port）：
+1. ssh跳板与端口转发（forwarding port）：
     1. 需求：有一个公网ip，有一群分布在不同内网的内网机器，希望内网机器之间能ssh互连
     2. 设备：
         - 公网主机用户名userA，地址ipA，对外网登录主机端口portA，对内网被登陆主机端口portB
@@ -61,9 +61,27 @@ SSH（Secure Shell）安全外壳协议，是常用的登录到远程服务器�
         # 远程代理，将代理机上portB转发给本地22
         ssh -fCNR portB:localhost:22 userA@ipA
         ```
-    5. 免密：将公钥互相赋给对方的authorized_keys
+    5. 免密：
+        - 方法一：将公钥互相赋给对方的authorized_keys
+        - 方法二：用spawn、expect、send指令完成自动发送密码（密码在脚本中明文存储了，不太安全）
+            ```sh
+            # 安装必须内容
+            sudo apt install expect
+            sudo apt install tcl tk # 可能需要安装
+            # 编写脚本如下（注意第一行的内容是必须的，即该脚本由expect执行）
+            #!/usr/bin/expect
+            spawn ssh -fCNR portB:localhost:22 userA@ipA # spawn包裹下的原指令
+            expect "*password" # 匹配模式
+            send "你的密码" # 危险
+            expect eof # 结束
+            ```
     6. autossh和daemon
+        - 经过以上步骤，已经能够进行基础的ssh转发了，但是这种方式并不够稳定，开机也未自动化。接下来的步骤将会解决这个问题
         ```sh
+        # 使用crontab，支持各种linux版本
+        crontab -e
+        # 内网被登陆机器侧，进入编辑页面，在存储着公钥的用户账号下填入以下开机计划
+        autossh -M 监听端口 -fCNR portA:localhost:22 userA@ipA
         ```
     7. 其他实用
         ```sh
@@ -76,6 +94,12 @@ SSH（Secure Shell）安全外壳协议，是常用的登录到远程服务器�
         ```
     8. 注意事项
         - 需打开所有涉及到的端口的防火墙
+        - 本教程的方法不仅仅支持ssh协议，这种端口转发实际上构建了一个安全的隧道，稍加改造即可用于其他协议的使用
+        - 本文环境中，内网被登录机器机器为RaspberryPi，有一些和教程有出入的地方
+            - autossh仍然需要使用-f，才能完成后台运行，而此时无法使用spawn，只能使用上传公钥的免密方式
+            - crontab中需要以pi身份执行（才能用到.ssh目录下的公钥），脚本和网络教程也有些出入，需要在指定用户身份下进行操作。
+    9. 需要解决的问题：
+        - 每一次重启、开机前，需要上一次的ssh状态被正常关闭，即使用killall等方式。不能直接不关就重启，会导致无法跳转。
 # 参考资料
 - 核心协议：RFC 4251（协议架构）、RFC 4253（传输层协议）、RFC 4252（鉴权协议）、RFC 4254（连接协议）
 - [SSH Academy](https://www.ssh.com/academy/ssh/protocol) 

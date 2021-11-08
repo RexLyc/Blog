@@ -110,6 +110,14 @@ SSH（Secure Shell）安全外壳协议，是常用的登录到远程服务器�
             autossh -M 5678 -fCNR 1234:localhost:22 ubuntu@82.157.175.91
             echo "finish open autossh"
             ```
+        - 外网主机侧修改配置/etc/sshd/sshd_config
+            ```sh
+            # 避免ssh连接意外中断后外网服务器不及时回收端口
+            # 30s进行一次探测
+            ClientAliveInterval 30
+            # 3次失败则断开
+            ClientAliveCountMax 3
+            ```
     7. 其他实用
         ```sh
         # 清理全部ssh代理配置（杀死对应的服务进程）
@@ -133,3 +141,4 @@ SSH（Secure Shell）安全外壳协议，是常用的登录到远程服务器�
 - [SSH反向连接及Autossh](https://www.cnblogs.com/eshizhan/archive/2012/07/16/2592902.html)
 - [利用SSH端口转发登陆远程内网服务器](https://blog.csdn.net/u010412858/article/details/81270078)
 - [云服务器通过内网穿透的方式ssh访问内网服务器](https://www.cnblogs.com/schips/p/using_pubilc_server_config_ssh_for_nat_in_ubuntu.html)
+- [sshd_config配置详解](https://www.cnblogs.com/wangliangblog/p/6226488.html)

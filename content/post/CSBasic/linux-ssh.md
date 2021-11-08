@@ -63,6 +63,10 @@ SSH（Secure Shell）安全外壳协议，是常用的登录到远程服务器�
         ```
     5. 免密：
         - 方法一：将公钥互相赋给对方的authorized_keys
+            ```sh
+            # 将本地公钥拷给远端机器
+            ssh-copy-id -i .ssh/id_rsa.pub remoteUser@remoteHost
+            ```
         - 方法二：用spawn、expect、send指令完成自动发送密码（密码在脚本中明文存储了，不太安全）
             ```sh
             # 安装必须内容
@@ -75,14 +79,37 @@ SSH（Secure Shell）安全外壳协议，是常用的登录到远程服务器�
             send "你的密码" # 危险
             expect eof # 结束
             ```
-    6. autossh和daemon
+    6. autossh和开机自启动
         - 经过以上步骤，已经能够进行基础的ssh转发了，但是这种方式并不够稳定，开机也未自动化。接下来的步骤将会解决这个问题
-        ```sh
-        # 使用crontab，支持各种linux版本
-        crontab -e
-        # 内网被登陆机器侧，进入编辑页面，在存储着公钥的用户账号下填入以下开机计划
-        autossh -M 监听端口 -fCNR portA:localhost:22 userA@ipA
-        ```
+            ```sh
+            # 使用crontab，支持各种linux版本
+            crontab -e
+            # 内网被登陆机器侧，进入编辑页面，在存储着公钥的用户账号下填入以下开机计划
+            @reboot autossh -M 监听端口 -fCNR portA:localhost:22 userA@ipA
+            # 也可以为了方便修改，将内容存放到另外的脚本，并填写开机计划如
+            @reboot /home/user/my-autossh.sh > /home/user/crontab.log 2>&1
+            ```
+        - my-autossh.sh脚本（需要考虑网络问题）
+            ```sh
+            #!/usr/bin/zsh
+            while true
+            do
+                    # 检测到指定主机的连通，避免crontab执行时网络尚未连通
+                    ping -c 8 -w 100 82.157.175.91
+                    if [[ $? != 0 ]];then
+                            echo " ping fail "
+                            sleep 5
+                    else
+                            echo " ping ok"
+                            break
+                    fi
+            done
+            echo "try to open autossh"
+            killall ssh # 清理ssh
+            killall autossh
+            autossh -M 5678 -fCNR 1234:localhost:22 ubuntu@82.157.175.91
+            echo "finish open autossh"
+            ```
     7. 其他实用
         ```sh
         # 清理全部ssh代理配置（杀死对应的服务进程）
@@ -91,15 +118,14 @@ SSH（Secure Shell）安全外壳协议，是常用的登录到远程服务器�
         ssh -p portA userDst@ipA
         # 若未使用"*:portA...",只能从公网机器上执行此命令跳转到内网
         ssh -p portA userDst@localhost
+        knock # 检测远端端口是否开放的命令
         ```
     8. 注意事项
         - 需打开所有涉及到的端口的防火墙
         - 本教程的方法不仅仅支持ssh协议，这种端口转发实际上构建了一个安全的隧道，稍加改造即可用于其他协议的使用
         - 本文环境中，内网被登录机器机器为RaspberryPi，有一些和教程有出入的地方
-            - autossh仍然需要使用-f，才能完成后台运行，而此时无法使用spawn，只能使用上传公钥的免密方式
-            - crontab中需要以pi身份执行（才能用到.ssh目录下的公钥），脚本和网络教程也有些出入，需要在指定用户身份下进行操作。
-    9. 需要解决的问题：
-        - 每一次重启、开机前，需要上一次的ssh状态被正常关闭，即使用killall等方式。不能直接不关就重启，会导致无法跳转。
+            - autossh使用-f时才能在后台运行，而此时无法使用spawn，只能使用上传公钥的免密方式
+            - crontab在不同用户下的执行任务是区分的，需要在指定用户的命令行环境下进行设置
 # 参考资料
 - 核心协议：RFC 4251（协议架构）、RFC 4253（传输层协议）、RFC 4252（鉴权协议）、RFC 4254（连接协议）
 - [SSH Academy](https://www.ssh.com/academy/ssh/protocol) 
@@ -107,4 +133,3 @@ SSH（Secure Shell）安全外壳协议，是常用的登录到远程服务器�
 - [SSH反向连接及Autossh](https://www.cnblogs.com/eshizhan/archive/2012/07/16/2592902.html)
 - [利用SSH端口转发登陆远程内网服务器](https://blog.csdn.net/u010412858/article/details/81270078)
 - [云服务器通过内网穿透的方式ssh访问内网服务器](https://www.cnblogs.com/schips/p/using_pubilc_server_config_ssh_for_nat_in_ubuntu.html)
-- 

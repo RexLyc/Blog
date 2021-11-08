@@ -38,3 +38,33 @@ tags:
         }
         ```
     - 参考:[精灵加载去缓存](https://segmentfault.com/a/1190000022280843)
+
+# 树莓派
+## 网络配置
+- 树莓派还是推荐使用Raspbian系统，而且最好选择无桌面版，功耗低
+- 配置网络推荐使用自带工具：raspi-config，可以对大部分功能、硬件进行设置。
+# 命令行工具
+## ZSH美化
+1. 环境：MobaXterm（Windows）、Raspbian
+2. 美化脚本
+    1. 在目标机器上安装zsh并启用
+        ```sh
+        # 安装zsh
+        sudo apt install zsh
+        # 设置为当前用户的默认shell
+        sudo usermod -s `whereis zsh` $(whoami)
+        sudo reboot
+        ```
+    2. 在本机上安装需要的字体（MobaXterm一般不需要再安装了）
+    3. 继续目标机器上的配置
+        ```sh
+        # 安装powerlevel10k
+        git clone --depth=1 https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerlevel10k
+        p10k configure
+        # 安装zsh高亮
+        sudo apt install zsh-syntax-highlighting
+        echo "source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ~/.zshrc
+        # 当然也可以实用oh-my-zsh来完成主题的配置
+        sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+        ```
+3. 参考：[Ubuntu18.04安装并美化zsh](https://www.sysgeek.cn/install-zsh-shell-ubuntu-18-04/)

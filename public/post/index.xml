@@ -6,7 +6,34 @@
     <description>Recent content in Posts on 奕成的个人空间</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Fri, 27 Aug 2021 10:31:04 +0800</lastBuildDate><atom:link href="https://www.lyclife.com/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 03 Nov 2021 11:17:33 +0800</lastBuildDate><atom:link href="https://www.lyclife.com/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>边学边用linux-SSH篇</title>
+      <link>https://www.lyclife.com/2021/11/%E8%BE%B9%E5%AD%A6%E8%BE%B9%E7%94%A8linux-ssh%E7%AF%87/</link>
+      <pubDate>Wed, 03 Nov 2021 11:17:33 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/11/%E8%BE%B9%E5%AD%A6%E8%BE%B9%E7%94%A8linux-ssh%E7%AF%87/</guid>
+      <description>&lt;p&gt;SSH（Secure Shell）安全外壳协议，是常用的登录到远程服务器的协议。在日常开发中具有不可撼动的基础地位。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>边学边用linux-开坑篇</title>
+      <link>https://www.lyclife.com/2021/11/%E8%BE%B9%E5%AD%A6%E8%BE%B9%E7%94%A8linux-%E5%BC%80%E5%9D%91%E7%AF%87/</link>
+      <pubDate>Mon, 01 Nov 2021 17:24:49 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/11/%E8%BE%B9%E5%AD%A6%E8%BE%B9%E7%94%A8linux-%E5%BC%80%E5%9D%91%E7%AF%87/</guid>
+      <description>&lt;p&gt;Linux系统是目前世界上最流行的操作系统。操作系统的学习内容很多，本系列主要目标是完成对原理的理解，并以此为基础支持在实践中的良好体验。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>技术杂项</title>
+      <link>https://www.lyclife.com/2021/11/%E6%8A%80%E6%9C%AF%E6%9D%82%E9%A1%B9/</link>
+      <pubDate>Mon, 01 Nov 2021 15:20:01 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/11/%E6%8A%80%E6%9C%AF%E6%9D%82%E9%A1%B9/</guid>
+      <description>&lt;p&gt;一些尚未形成体系，但是可能很有用的技术杂项整理。&lt;/p&gt;</description>
+    </item>
+    
     <item>
       <title>算法导论其八：动态规划</title>
       <link>https://www.lyclife.com/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E5%85%AB%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/</link>

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Hugo 0.85.0 with theme Tranquilpeak 0.4.8-BETA">
+<meta name="generator" content="Hugo 0.87.0 with theme Tranquilpeak 0.4.8-BETA">
 <meta name="author" content="李奕成">
 <meta name="keywords" content="">
 <meta name="description" content="求中位数是非常经典，且有相当精妙算法的一个问题。代表了顺序统计问题的思考方式。">
@@ -301,7 +301,7 @@
 <li>很好理解的一个<strong>期望</strong>时间复杂度为$\Theta(n)$的算法（注意期望的含义哈，有随机在里面了，还不得有点幺蛾子）</li>
 <li>思路概述：在排序章节，我们学习了随机化快速排序，其核心思想是随机选取主元，并用主元将当前片段$A[l,r]$分片（partition操作）。随机选择算法利用了这一过程，在求第i小元素时，先进行分片，可以很容易的得知当前主元的位置p，$l\le p \le r$。若$p==i$，则问题结束。否则根据p和i的大小分别选择分片的前半段和后半段进行递归。</li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// 传统单向扫描
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// 传统单向扫描
 </span><span style="color:#75715e"></span><span style="color:#66d9ef">template</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> iter<span style="color:#f92672">&gt;</span>
 iter partition(iter begin, iter end, iter pivot) {
     std<span style="color:#f92672">::</span>iter_swap(begin, pivot);
@@ -368,7 +368,7 @@ iter randomizedSelect(iter curBegin, iter curEnd, size_t i) {
 </li>
 <li>算法在存在双中位数情况下，默认取小的那个。</li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// partition和iterPrint在上面，自取
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// partition和iterPrint在上面，自取
 </span><span style="color:#75715e">// 使用插入排序获得中位数
 </span><span style="color:#75715e"></span><span style="color:#66d9ef">template</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> iter<span style="color:#f92672">&gt;</span>
 iter GetMedian(iter begin, iter end) {

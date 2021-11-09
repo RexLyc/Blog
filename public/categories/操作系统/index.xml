@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>操作系统 on 奕成的个人空间</title>
+    <link>https://www.lyclife.com/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/</link>
+    <description>Recent content in 操作系统 on 奕成的个人空间</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Wed, 03 Nov 2021 11:17:33 +0800</lastBuildDate><atom:link href="https://www.lyclife.com/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>边学边用linux-SSH篇</title>
+      <link>https://www.lyclife.com/2021/11/%E8%BE%B9%E5%AD%A6%E8%BE%B9%E7%94%A8linux-ssh%E7%AF%87/</link>
+      <pubDate>Wed, 03 Nov 2021 11:17:33 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/11/%E8%BE%B9%E5%AD%A6%E8%BE%B9%E7%94%A8linux-ssh%E7%AF%87/</guid>
+      <description>&lt;p&gt;SSH（Secure Shell）安全外壳协议，是常用的登录到远程服务器的协议。在日常开发中具有不可撼动的基础地位。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>边学边用linux-开坑篇</title>
+      <link>https://www.lyclife.com/2021/11/%E8%BE%B9%E5%AD%A6%E8%BE%B9%E7%94%A8linux-%E5%BC%80%E5%9D%91%E7%AF%87/</link>
+      <pubDate>Mon, 01 Nov 2021 17:24:49 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/11/%E8%BE%B9%E5%AD%A6%E8%BE%B9%E7%94%A8linux-%E5%BC%80%E5%9D%91%E7%AF%87/</guid>
+      <description>&lt;p&gt;Linux系统是目前世界上最流行的操作系统。操作系统的学习内容很多，本系列主要目标是完成对原理的理解，并以此为基础支持在实践中的良好体验。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

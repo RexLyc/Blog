@@ -954,6 +954,8 @@ int main(){
 	- 简而言之，B树的每一个节点聚合了大量的关键字，比如1000个，那么一个高度为2的B树，实际已经可以存储10亿量级的关键字，而且存取任意关键字，只需要两次读盘。
 	- 实现上，一个节点可以恰好构造为一个虚拟文件系统的一个页。
 	- 根节点一般常驻内存。
+	- 假定没有重复元素（大多数树都以这种条件要求，不过实现支持重复元素也很简单就是了）
+	- 渐进时间复杂度$O(logn)$。
 - 定义：一颗B树是具有以下性质的有根树
 	- 每个节点$x$包含域：$n\[x\]$(当前存储在节点x中的关键字数量)，$key_1\[x\]...key_{n\[x\]}\[x\]$（全部关键字，按非降序排列），$leaf\[x\]$（指示节点x是否为叶子节点的布尔值）。
 	- 指向子女的指针：$c_1\[x\]...c_{n\[x\]+1}\[x\]$，根据全部关键字划分，恰好为$n\[x\]+1$个。
@@ -961,12 +963,91 @@ int main(){
 	- 每一个节点包含的关键字数量有上界和下界。以称$t$为B树的最小度数，则有：
 		- 每个非根节点必须至少有$t-1$个关键字，至少有$t$个子女。如果树非空，根节点至少有$1$个关键字。
 		- 每个节点至多有$2t-1$个关键字，即至多有$2t$个子女。如果达到此最大值，称该节点是满的。
-> $t=2$时的B树最为简单，也就构成了一个2-3-4树。而红黑树和2-3-4树也有一定的关系。由此可以看出，B树、2-3-4树、红黑树，都有着一定的联系。
-- 基本操作：Page235
-	1. 创建空树
-	2. 搜索
-	3. 插入
-	4. 删除
+		> $t=2$时的B树最为简单，也就构成了一个2-3-4树。而红黑树和2-3-4树也有一定的关系。由此可以看出，B树、2-3-4树、红黑树，都有着一定的联系。
+- 基本操作：由于B树的出现和磁盘操作非常相关，因此这里也保留了读盘$\mathrm{DISK\\_READ}()$、写盘$\mathrm{DISK\\_WRITE}()$操作。
+	1. 创建新节点：$\mathrm{ALLOCATE\\_NODE}()$
+	2. 创建空树：$\mathrm{B\\_TREE\\_CREATE}(T)$
+		1. &emsp;$\mathrm{ALLOCATE\\_NODE}(x)$
+		2. &emsp;$leaf\[x\] \gets true$
+		3. &emsp;$n\[x\] \gets 0$
+		4. &emsp;$DISK\\_WRITE(x)$
+		5. &emsp;$root[T]\gets x$
+	3. 搜索：$\mathrm{B\\_TREE\\_SEARCH}(x,k)$
+		1. &emsp;$i \gets 1$
+		2. &emsp;$\mathbf{while} \ i \le n\[x\] \ and \ k > key_i\[x\]$
+		3. &emsp;&emsp;&emsp; $\mathbf{do} \ i \gets i+1$
+		4. &emsp;$\mathbf{if} \ i \le n\[x\] \ and \ k=key_i\[x\]$
+		5. &emsp;&emsp;&emsp; $\mathbf{then \ return}(x,i)$
+		6. &emsp;$\mathbf{if} \ leaf\[x\]$
+		7. &emsp;&emsp;&emsp; $\mathbf{then \ return} \ \mathrm{NIL}$
+		8. &emsp;$\mathbf{else}$
+		9. &emsp;&emsp;&emsp; $\mathrm{DISK\\_READ}(c_i\[x\])$
+		9. &emsp;&emsp;&emsp; $\mathrm{B\\_TREE\\_SEARCH}(c_i\[x\],k)$
+	4. 插入：B_TREE_INSERT($T,k$)
+
+		![B树节点分裂](/images/algoSeries/BTreeSplitNode.svg)
+		
+		> 先来思考一下插入复杂的原因哈。我们找到位置之后，如果不满，那直接插入了。否则，该节点需要分裂。更麻烦的是，该节点分裂之后，可能父节点超出了满节点的限制，父节点还需要分裂，以此向上直到根节点，都需要处理。
+		- 满节点分裂子程序：$\mathrm{B\\_TREE\\_SPLIT\\_CHILD}(x,i,y)$，其中$y=c_i\[x\]$是$x$的一个满子节点。
+			1. &emsp;$z \gets \mathrm{ALLOCATE\\_NODE}()$
+			2. &emsp;$leaf[z] \gets leaf[y]$
+			3. &emsp;$n[z] \gets t-1$
+			4. &emsp;$\mathbf{for} \ j \gets \mathbf{to} \ t-1$
+			5. &emsp;&emsp;&emsp; $\mathbf{do} \ key_i[z] \gets key_{j+t}[y]$
+			6. &emsp;$\mathbf{if} \ \mathrm{not} \ leaf[y]$
+			7. &emsp;&emsp;&emsp; $\mathbf{then} \ \mathbf{for} \ j \gets 1 \ \mathbf{to} \ t$
+			8. &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; $\mathbf{do} \ c_j[z] \gets c_{j+t}[y]$
+			9. &emsp; $n[y] \gets t-1$
+			10. &emsp; $\mathbf{for} \ j \gets n\[x\] + 1 \ \mathbf{downto} \ i + 1 $
+			11. &emsp;&emsp;&emsp; $\mathbf{do} \ c_{j+1}\[x\] \gets c_j\[x\]$
+			12. &emsp; $key_i\[x\] \gets key_t\[x\]$
+			13. &emsp; $n\[x\] \gets n\[x\] + 1$
+			14. &emsp; $\mathrm{DISK\\_WRITE}(y)$
+			15. &emsp; $\mathrm{DISK\\_WRITE}(z)$
+			16. &emsp; $\mathrm{DISK\\_WRITE}(x)$
+			> 简单总结：由于满节点关键字一定是奇数个。分裂将满节点的中间的关键字提升到父节点，其余关键字一半一半。
+		- 非满节点插入子程序：$\mathrm{B\\_TREE\\_INSERT\\_NONFULL}(x,k)$
+			1. &emsp; $i \gets n\[x\]$
+			1. &emsp; $\mathbf{if} \ leaf\[x\]$
+			1. &emsp; $\mathbf{then}$
+			1. &emsp;&emsp;&emsp; $\mathbf{while} \ i \ge 1 \ \mathrm{and} \ k < key_i\[x\]$
+			1. &emsp;&emsp;&emsp; $\mathbf{do}$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp; $key_{i+1}\[x\] \gets key_i\[x\]$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp; $i \gets i-1$
+			1. &emsp;&emsp;&emsp; $key_{i+1}\[x\] \gets k$
+			1. &emsp;&emsp;&emsp; $n\[x\] \gets n\[x\]+1$
+			1. &emsp;&emsp;&emsp; $\mathrm{DISK\\_WRITE}(x)$
+			1. &emsp; $\mathbf{else}$
+			1. &emsp;&emsp;&emsp; $\mathbf{while} \ i \ge 1 \ and \ k < key_i\[x\]$
+			1. &emsp;&emsp;&emsp; $\mathbf{do}$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp; $i \gets i-1$
+			1. &emsp;&emsp;&emsp; $i \gets i+1$
+			1. &emsp;&emsp;&emsp; $\mathrm{DISK\\_READ}(c_i\[x\])$
+			1. &emsp;&emsp;&emsp; $\mathbf{if} \ n[c_i\[x\]]  = 2t-1$
+			1. &emsp;&emsp;&emsp; $\mathbf{then}$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp; $\mathrm{B\\_TREE\\_SPLIT\\_CHILD}(x,i,c_i\[x\])$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp; $\mathbf{if} \ k > key_i\[x\]$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp; $\mathbf{then}$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; $i \gets i+1$
+			1. &emsp;&emsp;&emsp; $\mathrm{B\\_TREE\\_INSERT\\_NONFULL}(c_i\[x\],k)$
+			> 简单总结：非满叶子节点直接插入即可；非满分支节点，查找合适关键字位置，如果出现满节点，则进行一次分裂（算法保证当前节点非满，分裂一定可以进行），并继续向下遍历子树。
+		- 节点插入：$\mathrm{B\\_TREE\\_INSERT}(T,k)$
+			1. &emsp; $r \gets root[T]$
+			2. &emsp; $\mathbf{if} \ n[r]=2t-1$
+			3. &emsp; $\mathbf{then}$ 
+			4. &emsp;&emsp;&emsp; $s \gets \mathrm{ALLOCATE\\_NODE}()$
+			4. &emsp;&emsp;&emsp; $root[T] \gets s$
+			5. &emsp;&emsp;&emsp; $leaf[s] \gets \mathrm{FALSE}$
+			6. &emsp;&emsp;&emsp; $n[s] \gets 0$
+			7. &emsp;&emsp;&emsp; $c_1\[x\] \gets r$
+			8. &emsp;&emsp;&emsp; $\mathrm{B\\_TREE\\_SPLIT\\_CHILD}(s,1,r)$
+			9. &emsp;&emsp;&emsp; $\mathrm{B\\_TREE\\_INSERT\\_NONFULL}(s,k)$
+			10. &emsp; $\mathbf{else}$
+			12. &emsp;&emsp;&emsp; $\mathrm{B\\_TREE\\_INSERT\\_NONFULL}(r,k)$
+			> B树的操作推崇提高磁盘效率（不要回溯）。因此插入的过程是单程下行遍历树的。这也代表节点的分裂是从根开始的，自顶向下进行。
+	4. 删除：P280
+		> 删除操作与插入类似，但是更为复杂，从插入操作的非满节点插入子程序可以发现，新节点的插入一定是在叶子节点中进行的。但删除操作则不是，删除可以发生在任何位置。
+		1. 
 - 实际应用：MySQL等数据库的存储引擎中，经常使用B树，或者其变种B+树、B-树。
 	- B+树定义：
 	- B-树定义：

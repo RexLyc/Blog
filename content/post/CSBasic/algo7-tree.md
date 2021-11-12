@@ -1122,12 +1122,78 @@ int main(){
 				- 就是各根节点的紧右兄弟的指针
 				- 根表中各根的度数严格递增（和非根节点的$sibling\[x\]$域的特点相反）
 - 操作：
-	1. 创建新堆：$\mathrm{MAKE\\_BINOMAIL\\_HEAP}$
+	1. 创建新堆：$\mathrm{MAKE\\_BINOMAIL\\_HEAP}()$
 	2. 寻找最小关键字：$\mathrm{BINOMAIL\\_HEAP\\_MINIMUM}(H)$
 		- 从$head[H]$开始，沿着根表寻找最少值
 	3. 合并两个二项堆：$\mathrm{BINOMAIL\\_HEAP\\_UNION}(H_1,H_2)$
 		- 两棵$B_{k-1}$树的合并子程序：$\mathrm{BINOMAIL\\_LINK}(y,z)$
-			1. &emsp;
+			1. &emsp; $p[y] \gets z$
+			1. &emsp; $sibling[y] \gets child[z]$
+			1. &emsp; $child[z] \gets y$
+			1. &emsp; $degree[z] \gets degree[z] + 1$
+			> $y$成为了$z$的最左孩子
+		
+		- 根表合并子程序：$\mathrm{BINOMAIL\\_HEAP\\_MERGE}(H_1,H_2)$
+			1. &emsp; $x \gets head[H_1]$
+			1. &emsp; $y \gets head[H_2]$
+			1. &emsp; $root \gets \mathrm{NIL}$
+			1. &emsp; $current \gets \\&root$
+			1. &emsp; $\mathbf{while} \ x \ne \mathrm{NIL \ and} \ y \ne \mathrm{NIL}$
+			1. &emsp; $\mathbf{do}$
+			1. &emsp;&emsp;&emsp; $\mathbf{if} \ degree\[x\] < degree[y]$
+			1. &emsp;&emsp;&emsp; $\mathbf{then}$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp; $sibling[*current] \gets x$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp; $x \gets sibling\[x\]$
+			1. &emsp;&emsp;&emsp; $\mathbf{else}$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp; $sibling[*current] \gets y$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp; $y \gets sibling[y]$
+			1. &emsp;&emsp;&emsp; $current \gets \\&sibling[*current]$
+			1. &emsp; $\mathbf{if} x \ne \mathrm{NIL}$
+			1. &emsp;&emsp;&emsp; $sibling[*current] \gets x$
+			1. &emsp; $\mathbf{else}$
+			1. &emsp;&emsp;&emsp; $sibling[*current] \gets y$
+			1. &emsp; $\mathbf{return} \ root$
+			> 注：1.伪代码中的*和&为C/C++语法中的取地址和解引用运算。2.根表合并只保证根表中的度数单调不递减。
+
+		- 二项堆合并程序：$\mathrm{BINOMAIL\\_HEAP\\_UNION}(H_1,H_2)$
+			1. &emsp; $H \gets \mathrm{MAKE\\_BINOMAIL\\_HEAP}()$
+			1. &emsp; $head[H] \gets \mathrm{BINOMAIL\\_HEAP\\_MERGE}(H_1,H_2)$
+			1. &emsp; $\mathbf{if} \ head[H] = \mathrm{NIL}$
+			1. &emsp; $\mathbf{then}$
+			1. &emsp;&emsp;&emsp; $\mathbf{return} \ H$
+			1. &emsp; $prev\\_x \gets NIL$
+			1. &emsp; $x \gets head[H]$
+			1. &emsp; $next\\_x \gets sibling\[x\]$
+			1. &emsp; $\mathbf{while} \ next\\_x \ne \mathrm{NIL}$
+			1. &emsp; $\mathbf{do}$
+			1. &emsp;&emsp;&emsp; $\mathbf{if} (degree\[x\] \ne degree[next\\_x])$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp; $\mathrm{or} \ (sibling[next\\_x] \ne \mathrm{NIL} \ \mathrm{and}$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp;&emsp; $degree[sibling[next\\_x]]=degree\[x\])$
+			1. &emsp;&emsp;&emsp; $\mathbf{then}$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp; $prev\\_x \gets x$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp; $x \gets next\\_x$
+			1. &emsp;&emsp;&emsp; $\mathbf{else \ if} \ key\[x\] \le key[next\\_x]$
+			1. &emsp;&emsp;&emsp; $\mathbf{then}$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp; $sibling\[x\] \gets sibling[next\\_x]$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp; $\mathrm{BINOMAIL\\_LINK}(next\\_x,x)$
+			1. &emsp;&emsp;&emsp; $\mathbf{else}$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp; $\mathbf{if} \ prev\\_x = \mathrm{NIL}$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;  $head[H] \gets next\\_x$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp; $\mathbf{else}$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; $sibling[prev\\_x] \gets next\\_x$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp; $\mathrm{BINOMAIL\\_LINK}(x,next\\_x)$
+			1. &emsp;&emsp;&emsp;&emsp;&emsp; $x \gets next\\_x$
+			1. &emsp;&emsp;&emsp; $next\\_x \gets sibling\[x\]$
+			1. &emsp; $\mathbf{return} \ H$
+			> 情况说明
+			1. 情况一（第14行）：虽然刚合并的根表不会出现多于2个的重复度数的根，但是在逐渐合并根的过程中，会出现至多3个重复度数的根。此时第一个根被保留，第二个第三个后续进行合并。
+			2. 情况二（第17行）：合并根节点需要满足最小堆性质
+			3. 情况三（第22行）：比较大小后，根据需要更换二项堆的根节点，或者调整前后的兄弟关系，最后合并根节点。
+
+	4. 插入一个节点：$\mathrm{BINOMAIL\\_HEAP\\_INSERT}(H,x)$
+	5. 抽取具有最小关键字的节点：$\mathrm{BINOMAIL\\_HEAP\\_EXTRACT\\_MIN}(H)$
+	6. 减少关键字的值：$\mathrm{BINOMAIL\\_HEAP\\_DECREASE\\_KEY}(H,x,k)$
+	7. 删除一个关键字：$\mathrm{BINOMAIL\\_HEAP\\_DELETE}(H,x)$
 # 斐波那契堆
 # 在写作本章节时记录的博客问题
 1. 在使用mathjax的\\$\\$对儿中，如果直接写\[x\]，则会显示出来一个[x]，如果想要正常显示\[x\]，需要写为\\\\[x\\\\]。

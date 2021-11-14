@@ -1087,15 +1087,27 @@ int main(){
 		2. 将该节点和子节点比较，向下进行左旋或者右旋
 		3. 循环进行步骤2，直到该节点变换到叶子节点，删除
 	3. 查找：和普通二叉搜索树一致
+# 可合并堆
+- 可合并堆：支持如下操作的数据结构：
+	- 创建并返回空的新堆
+	- 向堆中插入关键字
+	- 返回指向堆中最小关键字节点的指针
+	- 将堆中包含最小关键字的节点从堆中删除，返回其指针
+	- 将两个堆合并
+	> 默认的可合并堆都是最小堆
+- 性能对比
+|  操作   | 二叉堆（最坏情况） | 二项堆（最坏情况） | 斐波那契堆（均摊） |
+|  ----  | ----  |  ----  | ----  |  ----  |
+|  建堆 | $\Theta(1)$ | $\Theta(1)$ | $\Theta(1)$ |
+|  插入 | $\Theta(logn)$ | $\Omega(logn)$ | $\Theta(1)$ |
+|  返回最小元素 | $\Theta(1)$ | $\Omega(logn)$ | $\\Theta(1)$ |
+|  抽取最小元素 | $\Theta(logn)$ | $\Theta(logn)$ | $\mathrm{O}(logn)$ |
+|  合并堆 | $\Theta(n)$ | $\Omega(logn)$ | $\Theta(1)$ |
+|  减小关键字 | $\Theta(logn)$ | $\Theta(logn)$ | $\Theta(1)$ |
+|  删除关键字 | $\Theta(logn)$ | $\Theta(logn)$ | $\mathrm{O}(logn)$ |
+
 # 二项堆
 - 定义
-	- 可合并堆：支持如下操作的数据结构：
-		- 创建并返回空的新堆
-		- 向堆中插入关键字
-		- 返回指向堆中最小关键字节点的指针
-		- 将堆中包含最小关键字的节点从堆中删除，返回其指针
-		- 将两个堆合并
-		> 默认的可合并堆都是最小堆
 
 	- 二项树：一种递归定义的有序树
 		- 二项树$B_0$只包含一个节点
@@ -1191,10 +1203,48 @@ int main(){
 			3. 情况三（第22行）：比较大小后，根据需要更换二项堆的根节点，或者调整前后的兄弟关系，最后合并根节点。
 
 	4. 插入一个节点：$\mathrm{BINOMAIL\\_HEAP\\_INSERT}(H,x)$
+		1. &emsp; $H' \gets \mathrm{MAKE\\_BINOMAIL\\_HEAP}()$
+		1. &emsp; $p\[x\] \gets \mathrm{NIL}$
+		1. &emsp; $child\[x\] \gets \mathrm{NIL}$
+		1. &emsp; $sibling\[x\] \gets \mathrm{NIL}$
+		1. &emsp; $degree\[x\] \gets 0$
+		1. &emsp; $head[H'] \gets x$
+		1. &emsp; $H \gets \mathrm{BINOMAIL\\_HEAP\\_UNION}(H,H')$
+		> 插入节点等价于：创建一个新的单点构成的堆，并和已有堆合并
+	
 	5. 抽取具有最小关键字的节点：$\mathrm{BINOMAIL\\_HEAP\\_EXTRACT\\_MIN}(H)$
-	6. 减少关键字的值：$\mathrm{BINOMAIL\\_HEAP\\_DECREASE\\_KEY}(H,x,k)$
+		1. &emsp; 找到最小关键字节点（必在二项堆根表中）$x$
+		1. &emsp; 从根表中移除$x$
+		1. &emsp; $H' \gets \mathrm{MAKE\\_BINOMAIL\\_HEAP}()$
+		1. &emsp; 反转$x$的孩子节点的链表，记为$head\\_child\\_x$
+		1. &emsp; $head[H'] \gets head\\_child\\_x$
+		1. &emsp; $H \gets \mathrm{BINOMAIL\\_HEAP\\_UNION}(H,H')$
+		1. &emsp; $\mathbf{return} \ x$
+		> 其实就是通过反转一次链表，将$x$的孩子们恰好组成一个二项堆，并和已有二项堆合并
+
+	6. 将关键字的值由$x$减小为$k$：$\mathrm{BINOMAIL\\_HEAP\\_DECREASE\\_KEY}(H,x,k)$
+		1. &emsp; $\mathbf{if} \ k > key\[x\]$
+		1. &emsp;&emsp;&emsp; $\mathbf{error}$
+		1. &emsp; $key\[x\] \gets k$
+		1. &emsp; $y \gets x$
+		1. &emsp; $z \gets p[y]$
+		1. &emsp; $\mathbf{while} \ z \ne \mathrm{NIL} \ and \ key[y] < key[z]$
+		1. &emsp; $\mathbf{do}$
+		1. &emsp;&emsp;&emsp; $exchange \ key[y] \leftrightarrow key[z]$
+		1. &emsp;&emsp;&emsp; 如果y、z有卫星数据，一并交换
+		1. &emsp;&emsp;&emsp; $y \gets z$
+		1. &emsp;&emsp;&emsp; $z \gets p[y]$
+		> 关键字减小，只需要自底向上，不断和父节点比较大小并交换即可。
+
 	7. 删除一个关键字：$\mathrm{BINOMAIL\\_HEAP\\_DELETE}(H,x)$
+		1. &emsp; $\mathrm{BINOMAIL\\_HEAP\\_DECREASE\\_KEY}(H,x,-\infty)$
+		1. &emsp; $\mathrm{BINOMAIL\\_HEAP\\_EXTRACT\\_MIN}(H)$
+		> 删除关键字相当于，先把该关键字变为无穷小（称为最小元素），再从二项堆中提取最小元素。
+
 # 斐波那契堆
+- 定义
+- 操作
+
 # 在写作本章节时记录的博客问题
 1. 在使用mathjax的\\$\\$对儿中，如果直接写\[x\]，则会显示出来一个[x]，如果想要正常显示\[x\]，需要写为\\\\[x\\\\]。
     - markdown的转义。。。有的时候真的令人无语。

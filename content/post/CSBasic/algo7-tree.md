@@ -1105,6 +1105,9 @@ int main(){
 |  合并堆 | $\Theta(n)$ | $\Omega(logn)$ | $\Theta(1)$ |
 |  减小关键字 | $\Theta(logn)$ | $\Theta(logn)$ | $\Theta(1)$ |
 |  删除关键字 | $\Theta(logn)$ | $\Theta(logn)$ | $\mathrm{O}(logn)$ |
+- 图例
+![二项堆和斐波那契堆示意图](/images/algoSeries/binomailHeap_fiboHeap.svg)
+<center>二项堆(上)和斐波那契堆(下)示意图。注：红色代表标记</center>
 
 # 二项堆
 - 定义
@@ -1265,8 +1268,414 @@ int main(){
 	- 最大度数的上界：$D(n)$
 		- 当斐波那契堆只需支持可合并堆的操作时：$D(n) \le \lfloor logn \rfloor$
 		- 当斐波那契堆还需要支持减少关键字和删除关键字时：$D(n) = O(logn)$
-- 操作
-	1. 
+- 操作的复杂度分析
+	1. 创建新堆：
+		- 流程：直接创建
+		- 势函数变化：无，均摊代价为$O(1)$
+	1. 插入节点：
+		- 流程：直接将节点插入根表
+		- 势函数变化：$\Delta\Phi(H)=((t(H)+1)+2m(H))-(t(H)+2m(H))=1$，均摊代价仍为$O(1)$
+	1. 寻找最小节点：
+		- 流程：直接返回$min[H]$
+		- 势函数变化：无，均摊代价为$O(1)$
+	1. 合并两个斐波那契堆：
+		- 流程：直接链接两个堆的根表，保留最小的$min[H]$作为新的根
+		- 势函数变化：$\Delta\Phi(H)=\Phi(H)-(\Phi(H_1)+\Phi(H_2))=0$，均摊代价仍为$O(1)$。（本质上两个堆合并，其根表中树的总量、有标记节点的数量都没有变化。）
+	1. 抽取最小节点：
+		- 流程：从跟表中断开$min[H]$，将$min[H]$原子节点层提升到根表内。进行一次consolidate操作（从任意根表结点开始，合并根表节点称为最小堆无序树，最终使新根表中不再有重复度数的根）
+		- 势函数变化：$\Delta\Phi(H) = ((D(n)+1)+2m(H))-(t(H)+2m(H)) = O(t(H))-t(H)$
+			- 均摊代价还要考虑其他操作，至多为$O(D(n)+t(H))+\Delta\Phi(H) = O(D(n))+O(t(H))-t(H)=O(D(n))$
+		- 详细解释：
+			1. 在抽取过程中，首先需要处理$min[H]$的至多$D(n)$个子女，再加上断开根表的$O(1)$，以及consolidate过程$O(?)$，总时间代价为$O(D(n)+?)$。
+			2. 仔细分析consolidate过程，根表大小此时至多为$D(n)+t(H)-1$。虽然是两层循环，但是每一次内层循环被调用时，根表大小都会下降，因此实际仍为单次扫描的时间。总体时间可视为$O(D(n)+t(H))$。
+			3. 综上一次合并的时间代价为$O(D(n)+t(H))$。
+			4. 均摊代价最终结果为$O(D(n))$，而由最大度数的上界的性质可知，该值为$O(logn)$。
+	1. 减小关键字：
+		- 流程：直接修改关键字，如果违反最小堆要求，则和父节点断开链接，当前关键字进入根表，如有需要替换$min[H]$。并对父节点递归向上，检查是否需要级联断开（检查标记）。
+		- 势函数变化：假设整个过程中，有$c$个节点被断开，并因此进入根表。则树的数量至多+c，标记的数量至少下降-(c-1)+1（关键字所在节点原来就没标记，最后一个节点增加标记）。此时变化至多为，$\Delta\Phi(H)=((t(H)+c)+2(m(H)-c+2))-(t(H)+2m(H))=4-c。
+			- 实际代价：修改关键字、断开链接、进入根表$O(1)$。级联删除$O(c)$。
+			- 均摊代价：$O(c)+4-c=O(1)$
+	1. 删除节点：
+		- 流程：和二项堆一样，减少关键字和抽取最小节点相结合
+		- 均摊代价：两者的结合，$O(logn)$
+- 代码
+```cpp
+#include<exception>
+#include<vector>
+#include<cstdlib>
+#include<iostream>
+#include<queue>
+namespace lyc_algorithm {
+	template<typename T>
+	struct fibo_heap_node {
+		fibo_heap_node* left, * right, * parent, * child;
+		size_t degree;
+		bool mark;
+		T value;
+		
+		fibo_heap_node()
+			:left(nullptr), right(nullptr)
+			, parent(nullptr), child(nullptr)
+			, mark(false), degree(0) {}
+
+		fibo_heap_node(const T& value, fibo_heap_node* parent=nullptr)
+			:left(this), right(this), parent(parent)
+			, child(nullptr), value(value)
+			, mark(false), degree(0) {
+
+		}
+	};
+
+	template<typename T>
+	class fibo_heap {
+	private:
+		fibo_heap_node<T>* min_root;
+		size_t n;
+
+
+		void consolidate() {
+			// 临时数组中存储了按度为下标的当前的根表
+			std::vector<fibo_heap_node<T>*> root_degree_list(log2(n)+1,nullptr);
+			std::vector<fibo_heap_node<T>*> root_list;
+			// 由于根表将会变动，因此提前保存
+			root_list.push_back(min_root);
+			for (auto root_node = min_root->right
+				; root_node != min_root
+				; root_node = root_node->right) {
+				root_list.push_back(root_node);
+			}
+			for (auto& root_node : root_list) {
+				auto current_root = root_node;
+				auto degree = current_root->degree;
+				// 处理重复度数的根
+				for (; root_degree_list[degree];) {
+					auto another_root = root_degree_list[degree];
+					if (current_root->value>another_root->value) {
+						// 交换指针
+						std::swap(current_root, another_root);
+					}
+					// 将较小的作为根
+					link(current_root, another_root);
+					// 清空该度数的根，继续查找更大的度数是否有重复的根
+					root_degree_list[degree] = nullptr;
+					degree++;
+				}
+				root_degree_list[current_root->degree] = current_root;
+			}
+			min_root = nullptr;
+			for (size_t i = 0; i != root_degree_list.size(); ++i) {
+				if (root_degree_list[i]){
+					// 重建根表
+					root_degree_list[i]->parent = nullptr;
+					if (!min_root) {
+						min_root = root_degree_list[i];
+						min_root->left = min_root;
+						min_root->right = min_root;
+					}
+					else {
+						auto left = min_root->left;
+						left->right = root_degree_list[i];
+						root_degree_list[i]->left = left;
+						min_root->left = root_degree_list[i];
+						root_degree_list[i]->right = min_root;
+					}
+					// 记录斐波那契堆的根
+					if(root_degree_list[i]->value < min_root->value) {
+						min_root = root_degree_list[i];
+					}
+				}
+			}
+		}
+
+		void link(fibo_heap_node<T>* root, fibo_heap_node<T>* child) {
+ 			// 将child作为root的子节点
+			child->left->right = child->right;
+			child->right->left = child->left;
+			if (root->child) {
+				auto left = root->child->left;
+				left->right = child;
+				child->left = left;
+				child->right = root->child;
+				root->child->left = child;
+			}
+			else {
+				root->child = child;
+				child->left = child;
+				child->right = child;
+			}
+			child->parent = root;
+			child->mark = false;
+			root->degree++;
+		}
+
+		void cut(fibo_heap_node<T>* child, fibo_heap_node<T>* parent) {
+			if (parent->child == child) {
+				parent->child = child->right;
+			}
+			if (parent->child == child) {
+				parent->child = nullptr;
+			}
+			// 调整将删除的子节点的兄弟关系
+			child->left->right = child->right;
+			child->right->left = child->left;
+			// 移动子节点到根表
+			child->parent = nullptr;
+			child->mark = false;
+			auto left = min_root->left;
+			left->right = child;
+			child->left = left;
+			child->right = min_root;
+			min_root->left = child;
+		}
+
+		void cascade_cut(fibo_heap_node<T>* node) {
+			auto parent = node->parent;
+			if (parent) {
+				if (!parent->mark) {
+					parent->mark = true;
+				}
+				else {
+					cut(node, parent);
+					cascade_cut(parent);
+				}
+			}
+		}
+
+	public:
+		fibo_heap()
+			:min_root(nullptr), n(0) {}
+
+		void insert(fibo_heap_node<T>* node) {
+			node->left = node;
+			node->right = node;
+			if (min_root) {
+				auto left = min_root->left;
+				left->right = node;
+				node->left = left;
+				node->right = min_root;
+				min_root->left = node;
+				if (min_root->value > node->value) {
+					min_root = node;
+				}
+			}
+			else {
+				min_root = node;
+			}
+			n++;
+		}
+
+		void insert(const T& key) {
+			auto node = new fibo_heap_node<T>(key);
+			insert(node);
+		}
+
+		T get_minimum() {
+			if (!min_root)
+				throw std::exception("empty fibo heap");
+			return min_root->value;
+		}
+
+		bool empty() {
+			return min_root == nullptr;
+		}
+
+		void merge(fibo_heap& other) {
+			if (other.empty()) {
+				return;
+			}
+			if (!min_root) {
+				min_root = other.min_root;
+			}
+			else {
+				auto left = min_root->left;
+				auto other_left = other.min_root->left;
+				left->right = other.min_root;
+				other.min_root->left = left;
+				min_root->left = other_left;
+				other_left->right = min_root;
+				if (min_root->value > other.min_root->value) {
+					min_root = other.min_root;
+				}
+			}
+			// release 
+			other.min_root = nullptr;
+			n += other.n;
+			other.n = 0;
+		}
+
+		fibo_heap_node<T>* extract_minimun() {
+			auto ret = min_root;
+			if (ret) {
+				// 移动所有子节点到根表
+				auto child = ret->child;
+				if (child) {
+					auto left = ret->left;
+					auto child_left = child->left;
+					left->right = child;
+					child->left = left;
+					ret->left = child_left;
+					child_left->right = ret;
+				}
+				// 从根表中删除最小节点
+				ret->left->right = ret->right;
+				ret->right->left = ret->left;
+				// 根据情况调整
+				if (n == 1) {
+					min_root = nullptr;
+				}
+				else {
+					min_root = ret->left;
+					consolidate();
+				}
+				ret->left = nullptr;
+				ret->right = nullptr;
+				ret->child = nullptr;
+				n--;
+			}
+			return ret;
+		}
+
+		void decrease_value(fibo_heap_node<T>* node, const T& new_value) {
+			if (node->value < new_value) {
+				throw std::exception("new value should smaller than old value");
+			}
+			node->value = new_value;
+			auto parent = node->parent;
+			// 父节点大于当前节点，需要断开、递归向上断开
+			if (parent && parent->value > node->value) {
+				cut(node, parent);
+				cascade_cut(parent);
+			}
+			if (node->value < min_root->value) {
+				min_root = node;
+			}
+		}
+
+		void delete_node(fibo_heap_node<T>* node) {
+			decrease_value(node, min_root->value);
+			extract_minimun();
+		}
+
+		// 实用打印函数
+		std::vector<fibo_heap_node<T>*> get_root_list() {
+			std::vector<fibo_heap_node<T>*> ret;
+			ret.push_back(min_root);
+			for (auto root = min_root->right
+				; root != min_root
+				; root = root->right) {
+				ret.push_back(root);
+			}
+			return ret;
+		}
+
+		// 实用打印函数
+		std::vector<fibo_heap_node<T>*> get_child_list(fibo_heap_node<T>* parent) {
+			std::vector<fibo_heap_node<T>*> ret;
+			if (!parent->child)
+				return ret;
+			ret.push_back(parent->child);
+			for (auto child = parent->child->right
+				; child != parent->child
+				; child = child->right) {
+				ret.push_back(child);
+			}
+			return ret;
+		}
+
+		friend std::ostream& operator<<(std::ostream& o, fibo_heap<T> heap) {
+			o << "<<<<<print fibo heap>>>>>" << std::endl << "nums: " << heap.n << std::endl;
+			auto root_list = heap.get_root_list();
+			std::queue<fibo_heap_node<T>*> node_queue;
+			o << "root list: ";
+			for (auto& t : root_list) {
+				o << t->value << " ";
+				auto childs = heap.get_child_list(t);
+				for (auto& t : childs) {
+					node_queue.push(t);
+				}
+			}
+			o << std::endl;
+			while (!node_queue.empty()) {
+				o << " ===== " << std::endl;
+				for (size_t nums = node_queue.size(); nums != 0; nums--) {
+					auto node = node_queue.front();
+					node_queue.pop();
+					o << "node: " << node->value << " parent is: " 
+						<< node->parent->value << std::endl;
+					auto childs = heap.get_child_list(node);
+					for (auto& t : childs) {
+						node_queue.push(t);
+					}
+				}
+			}
+			o << "<<<<<print over>>>>>" << std::endl << std::endl;
+			return o;
+		}
+	};
+
+}
+
+int main(){
+	using namespace lyc_algorithm;
+	fibo_heap<int> fibo_heap_test;
+	fibo_heap_test.insert(1);
+	fibo_heap_test.insert(2);
+	fibo_heap_test.insert(-2);
+	fibo_heap_test.insert(-4);
+	fibo_heap_test.insert(0);
+	fibo_heap_test.insert(12);
+	auto mini = fibo_heap_test.extract_minimun();
+	std::cout << "extract minimum: " << mini->value << std::endl;
+	delete mini;
+	mini = fibo_heap_test.extract_minimun();
+	std::cout << "extract minimum: " << mini->value << std::endl;
+	delete mini;
+	mini = fibo_heap_test.extract_minimun();
+	std::cout << "extract minimum: " << mini->value << std::endl;
+	delete mini;
+	fibo_heap<int> other;
+	other.insert(233);
+	other.insert(666);
+	other.insert(255);
+	other.insert(-1234);
+	fibo_heap_test.merge(other);
+	mini = fibo_heap_test.extract_minimun();
+	std::cout << "extract minimum: " << mini->value << std::endl;
+	delete mini;
+	mini = fibo_heap_test.extract_minimun();
+	std::cout << "extract minimum: " << mini->value << std::endl;
+	delete mini;
+	mini = fibo_heap_test.extract_minimun();
+	std::cout << "extract minimum: " << mini->value << std::endl;
+	delete mini;
+	mini = fibo_heap_test.extract_minimun();
+	std::cout << "extract minimum: " << mini->value << std::endl;
+	delete mini;
+	mini = fibo_heap_test.extract_minimun();
+	std::cout << "extract minimum: " << mini->value << std::endl;
+	delete mini;
+	mini = fibo_heap_test.extract_minimun();
+	std::cout << "extract minimum: " << mini->value << std::endl;
+	delete mini;
+	mini = fibo_heap_test.extract_minimun();
+	std::cout << "extract minimum: " << mini->value << std::endl;
+	delete mini;
+	auto node = new fibo_heap_node<int>(1);
+	fibo_heap_test.insert(node);
+	fibo_heap_test.insert(0);
+	fibo_heap_test.insert(-7);
+	fibo_heap_test.insert(6);
+	fibo_heap_test.insert(-2);
+	fibo_heap_test.insert(23);
+	std::cout << fibo_heap_test.extract_minimun()->value << std::endl;
+	fibo_heap_test.decrease_value(node, -1);
+	std::cout << fibo_heap_test.get_minimum() << std::endl;
+	return 0;
+}
+```
+# 后记
+- 如果你是按顺序阅读的，那么读完树这一章，你应该会有一个疑问，为什么这部分内容算在了算法里面。是的，虽然这部分内容看起来更像是数据结构，但是其实这些数据结构的本质思想，已经不再是简简单单的链表、队列、动态表这些，而是更高级的思想。比如如何利用二分法、均摊、附加标记等方式或思路，大幅度提高某些场景下的运行效率。
+- 更幸运的是，大部分情况下，我们可以在很多语言中直接找到基于这些数据结构的实用工具。尤其是红黑树、B树，他们俩几乎构成了常用平衡搜索树的绝大部分江山。是我们进入$O(logn)$的最佳帮手。
 # 在写作本章节时记录的博客问题
-1. 在使用mathjax的\\$\\$对儿中，如果直接写\[x\]，则会显示出来一个[x]，如果想要正常显示\[x\]，需要写为\\\\[x\\\\]。
+- 在使用mathjax的\\$\\$对儿中，如果直接写\[x\]，则会显示出来一个[x]，如果想要正常显示\[x\]，需要写为\\\\[x\\\\]。
     - markdown的转义。。。有的时候真的令人无语。

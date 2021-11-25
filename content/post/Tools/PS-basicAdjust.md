@@ -1,5 +1,5 @@
 ---
-title: "Photoshop：调色篇"
+title: "Photoshop：基础调整篇"
 date: 2021-11-21T22:50:33+08:00
 categories:
 - 实用工具
@@ -10,7 +10,7 @@ tags:
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/PS.jpg
 ---
-施工中
+照片入手后，首先对大的方向进行调整，比如整体的颜色曲线、亮度、对比度、饱和度、清晰度、去雾等等。本文主要讲述后期的第一步。
 <!--more-->
 # 曲线
 1. 功能概述：
@@ -19,9 +19,9 @@ thumbnailImage: /images/thumbnail/PS.jpg
     - 依然可以通过按Alt键查看过曝欠曝区域。
 3. RGB分通道调整：
     - 拉起是加对应颜色
-    - 下降是加对应颜色的互补色
+    - 下降是加对应颜色的互补色（红-青，绿-洋红（品红），蓝-黄）
     - 一般的，对单个RGB通道的调整，先调整水平方向，再调整垂直方向
-    <center><img src='/images/Photoshop/color_circle.svg'>互补色对照表（对角为互补色）</center></br>
+    <center><img src='/images/Photoshop/color_circle.svg'>加色模型颜色对照表</br>对角为互补色，两颜色间隔中最中间的颜色为两颜色色加色结果</center></br>
 4. 通过手形工具确定图片中某个点对应的颜色在直方图中的位置
 <center><img src='/images/Photoshop/line_hand.png'>手形工具确定颜色位置</center></br>
 
@@ -36,8 +36,9 @@ thumbnailImage: /images/thumbnail/PS.jpg
     1. 人像中调整应以人为主，优先保证人物的颜色等最优
 1. 亮度上的调整
     1. 根据主题需要，让画面偏亮、偏暗、或保持中性。
+    <center><img src='/images/Photoshop/detail_sharpen_mask.png'>使用带有蒙版功能的锐化</center></br>
     1. 调整过程中，保证主题部分的细节不丢失，可以适当锐化。
-        - 锐化应有节制，对于本应虚化的背景部分，应当使用蒙版，减轻锐化程度。
+        - 锐化应有节制，对于本应虚化的背景部分，应当调整蒙版，减轻锐化程度。
         - 由于Camera Raw（网上也成为ACR，即Adobe Camera Raw）不同版本之间界面差异很大。需要学习新版本中的蒙版使用方式。12.3版本，可以在调整画笔、渐变滤镜、镜像滤镜中，选出需要进行局部调整的部分，并单独调节锐度、颜色、亮度等。范围蒙版是可以在选中的蒙版区域内，再使用颜色、明亮度、深度等方式，进一步精确化蒙版区域
 1. 避免画面发灰：
     1. 去除薄雾：在已经调整过对比度的前提下，使用去除薄雾功能，减少画面的灰蒙感。
@@ -46,6 +47,12 @@ thumbnailImage: /images/thumbnail/PS.jpg
     1. 微调：在经历了上述方法调整后，画面中可能有部分区域，颜色始终无法协调。此时可以使用“色相-饱和度-明亮度”工具，专门调整不协调的颜色，让其恢复正常。
 <center><img src='/images/Photoshop/ACR_Detail_Adjust.png'>细节调整中的蒙版</center></br>
 
+1. 有意的增加灰蒙感
+    1. 由于一般不会全图范围添加这种效果，所以一般使用径向滤镜，或者渐变滤镜，在局部地区，反向去除薄雾（即增加）。
+
+# 细节问题
+1. 污点去除：对于镜头或者其他原因造成的小污点，可以直接使用Camera Raw中的污点去除工具。
+1. 增加噪点：在Camera Raw基础面板的效果子面板中，调整**颗粒**。
 
 # 附注
 1. PS快捷键：

@@ -12,6 +12,7 @@ thumbnailImage: /images/thumbnail/PS.jpg
 ---
 照片入手后，首先对大的方向进行调整，比如整体的颜色曲线、亮度、对比度、饱和度、清晰度、去雾等等。本文主要讲述后期的第一步。
 <!--more-->
+<<<<<<< HEAD
 # 色阶直方图
 - Lab颜色模式：
     - 全称CIELAB，CIE（International Commission on Illumination）国际照明委员会。
@@ -27,6 +28,8 @@ thumbnailImage: /images/thumbnail/PS.jpg
 - 当我们觉得颜色不够正确的时候，还可以对R、G、B三个通道分别进行色阶的调整。
 - 快捷键：Ctrl+L
 
+=======
+>>>>>>> 7a1c461 (update ps)
 # 曲线
 1. 功能概述：
     - 曲线主要调整内容包括：确定黑场、确定白场、确定灰场、RGB分通道处理、

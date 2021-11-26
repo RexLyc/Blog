@@ -60,6 +60,13 @@ thumbnailImage: images/thumbnail/spring.jpg
                     , includeFilters = @Filter(type = FilterType.ANNOTATION
                         , classes = {Controller.class, ControllerAdvice.class}))
         ```
+1. @Component
+    1. 概述：用于声明一个类型，用于后续的实例化。结合@ComponentScan将会自动创建。
+    1. 用法：直接添加在对应类上面
+    1. 注意：@Service等注解其实本质是@Component的别名，为了用于区分。
+1. @Bean
+    1. 概述：用于声明一个Spring框架的Bean。
+    1. 用法：直接添加在对应类上面。使用该注解的类型，需要由其他代码手动创建实例。
 1. @MapperScan
     1. 概述：扫描指定包下的数据库mapper，根据SQL注解（或嵌入SQL的XML文件）对接口进行实例化
     1. 用法：在入口类添加
@@ -91,6 +98,21 @@ thumbnailImage: images/thumbnail/spring.jpg
             List<UserAccount> getDeviceList(String queryUserId);
         }
         ```
+1. @Configuration
+    1. 概述：用于手动创建Bean。内部一般会搭配@Bean使用。
+    1. 示例：
+        ```java
+        @Configuration
+        public class MyServerEndPoint {
+            @Bean
+            public ServerEndpointExporter serverEndpointExporter() {
+                return new ServerEndpointExporter();
+            }
+        }
+        ```
+1. @PostConstruct
+    1. 概述：**Java本身**提供的注解，在构造函数后执行。应用于非静态void函数。
+    1. 顺序：Constructor(构造方法) -> @Autowired(依赖注入) -> @PostConstruct(注释的方法)
 ## Web
 1. @RestController
     1. 概述：http后端的入口，一般和@RequestMapping、@PostMapping等组合使用
@@ -126,3 +148,52 @@ thumbnailImage: images/thumbnail/spring.jpg
               defaultZone: http://your-eureka-server-address # eureka注册中心服务的地址
         ```
     1. 注：在高版本的Spring Boot中，可以省略注册中心注解，只要在pom.xml中正确写出所用的注册中心的依赖，并在配置中进行配置即可。
+1. @ServerEndpoint
+    1. 概述：创建WebSocket服务器端的一种方式。主要需要实现一些固定接口：onOpen、onClose、onMessage、onError.
+    1. 注意本方法创建WebSocket服务器，需要搭配一个@Configuration用于创建ServerEndpointExporter。
+    1. 用法示例：
+        ```java
+        // Configuration.java
+        @Configuration
+        public class WebSocketServerConfig {
+            @Bean
+            public ServerEndpointExporter serverEndpointExporter() {
+                return new ServerEndpointExporter();
+            }
+        }
+        // MyWebSocketServer.java
+        @ServerEndpoint(value = "/your/ws/path/{param}") // 可以添加路径变量
+            private Session session;
+            private String param;
+            // 一般会使用一个静态变量来管理所有连接的信息
+            private static Map<String, Session> sessionPool = new ConcurrentHashMap<>();
+
+            @OnOpen
+            public void onOpen(Session session, @PathParam(value = "param") String param) {
+                this.param = param;
+                sessionPool.put(this.param, session);
+            }
+
+            @OnClose
+            public void onClose() {
+                sessionPool.remove(this.param);
+                session.close();
+            }
+
+            @OnMessage
+            public void onMessage(@PathParam(value = "param") String param, String message, Session session) {
+                // 处理从客户端接收到的消息
+                // ...
+            }
+
+            public void send(String message) {
+                // 发送消息到当前会话的客户端
+                this.session.getAsyncRemote().sendText(message);
+            }
+
+            @OnError
+            public void onError(Session session, Throwable throwable) { // 错误处理
+                onClose();
+            }
+        ```
+## 辅助

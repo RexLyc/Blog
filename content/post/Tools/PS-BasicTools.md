@@ -10,7 +10,11 @@ tags:
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/PS.jpg
 ---
+<<<<<<< HEAD
 本文以Photoshop的实际操作为主，讲解了其中的一些基本概念和工具的使用方式。
+=======
+
+>>>>>>> 935c79f (update)
 <!--more-->
 # 
 # 图层

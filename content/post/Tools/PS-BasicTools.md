@@ -10,11 +10,7 @@ tags:
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/PS.jpg
 ---
-<<<<<<< HEAD
 本文以Photoshop的实际操作为主，讲解了其中的一些基本概念和工具的使用方式。
-=======
-
->>>>>>> 935c79f (update)
 <!--more-->
 # 
 # 图层
@@ -73,7 +69,6 @@ thumbnailImage: /images/thumbnail/PS.jpg
             1. 在选定通道后，点击：图像->计算，选择当前通道，"叠加"模式。获得当前通道一个更明确的颜色指示。
             <center><img src='/images/Photoshop/Channel_LineAdjust.png'>计算-叠加</center></br>
 
-<<<<<<< HEAD
             1. 在新计算出的通道中，调出曲线工具，调整输入滑块，让一些仍然不够亮（未达到颜色分量255）的颜色，输出到255。同理让暗部有一些直接输出到0。(也可以直接用工具来选择黑场白场)
             1. 仍然需要微调一部分选区
         1. 一点经验：
@@ -104,7 +99,3 @@ thumbnailImage: /images/thumbnail/PS.jpg
     1. 自动：人脸识别，眼睛、鼻子、嘴唇、脸部形状调整
     1. 手动：向前变形工具
         - 经验是：大画笔调整体、小画笔调细节
-=======
-            1. 在新计算出的通道中，调出曲线工具，调整输入滑块，让一些仍然不够亮（未达到颜色分量255）的颜色，输出到255。同理让暗部有一些直接输出到0。
-            1. 仍然需要微调一部分选区
->>>>>>> 935c79f (update)

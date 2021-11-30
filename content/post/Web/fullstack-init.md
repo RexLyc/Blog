@@ -7,7 +7,6 @@ categories:
 tags:
 - 系列开坑
 - 全栈
-- 施工中
 thumbnailImagePosition: left
 thumbnailImage: images/thumbnail/fullstack.jpg
 ---

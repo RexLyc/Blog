@@ -95,6 +95,9 @@ thumbnailImage: /images/thumbnail/PS.jpg
 # 液化
 <center><img src='/images/Photoshop/liquid_adjust.png'>滤镜->液化面板</center></br>
 
+# 修补工具
+1. 污点修补工具：用于去除一些污点（如异色斑点）
+
 1. 脸部优化：
     1. 自动：人脸识别，眼睛、鼻子、嘴唇、脸部形状调整
     1. 手动：向前变形工具

@@ -22,6 +22,7 @@ thumbnailImage: /images/thumbnail/PS.jpg
 1. 快捷键：
     - Ctrl + J：在当前图层上复制当前图层。
     - Ctrl + Shift + Alt + E：将当前图层及以下图层的结果叠加并输出一个新图层到当前图层之上。即**盖印图层**。
+1. 调整图层也可以进行复制
 
 # 蒙版
 <center><img src='/images/Photoshop/LayerPanel.png'>图层面板</center></br>
@@ -52,6 +53,10 @@ thumbnailImage: /images/thumbnail/PS.jpg
         - 调整容差：调整反差的计算阈值
         - 加选：按住Shift，继续添加选区
         - 减选：按住Alt，减小选取
+    1. 快速选取工具：
+        - 和魔棒类似，但可以多次操作
+        - 加选：Shift
+        - 减选：Alt
 1. 选区的常用快捷键：
     - 羽化：（Shift + F6）来圆滑边界
     - 反选（Ctrl + Shift + I）来反选选区
@@ -93,6 +98,29 @@ thumbnailImage: /images/thumbnail/PS.jpg
 1. 外话Lightroom
     1. 自动同步：选中多个图片，自动复制第一张图片的调整设置
     1. 用户预设：保存自己喜欢的调整设置，可以和内置预设一样使用
+
+# 一些调色用的工具
+<center><img src='/images/Photoshop/Adjust_Color.jpg'>可选颜色（选取颜色）</center></br>
+
+1. 使用选取颜色调整
+    - 相比于Camera Raw，PS内的调整可以更为精细（控制模板、控制通道等）
+<center><img src='/images/Photoshop/Adjust_GradualMap.png'>渐变映射</center></br>
+
+1. 使用渐变映射调整
+    - 可以分高光、阴影部分映射颜色
+    - 每个部分可以单独控制映射后的颜色、不透明度等。还可以在轴上继续添加映射关键点。
+    - 再搭配图层的不透明度，将渐变映射层叠加到现有图层上
+
+# 防抖
+1. 滤镜->锐化->防抖
+    - 并不推荐使用，拍摄期应该做好的事情，就应该放到拍摄期保证做好
+
+# 变形
+1. 步骤：
+    1. 通过各种方式选到需要形变的选取
+    1. 复制图层
+    1. 右键->变形
+1. 目的，对于一些形状不够好，或者更典型的，衣服形状不佳不雅的情况，做变形调整
 
 # 液化
 <center><img src='/images/Photoshop/liquid_adjust.png'>滤镜->液化面板</center></br>

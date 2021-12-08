@@ -57,6 +57,8 @@ thumbnailImage: /images/thumbnail/PS.jpg
         - 和魔棒类似，但可以多次操作
         - 加选：Shift
         - 减选：Alt
+    1. 钢笔工具：
+        - 没学呢，但是很重要
 1. 选区的常用快捷键：
     - 羽化：（Shift + F6）来圆滑边界
     - 反选（Ctrl + Shift + I）来反选选区

@@ -16,6 +16,10 @@ thumbnailImage: /images/thumbnail/java.jpg
 1. 代码更加易于阅读，并且拥有了编译期类型检查的能力。
 1. 可以用于控制编译期代码的生成。
 > 总之，一旦你的代码中出现了重复性的工作，你就可以考虑使用注解来简化、自动化该过程。
+# 核心原理
+1. 运行期注解：利用Java的反射机制，在运行期对注解进行解析。
+1. 编译期注解
+1. 字节码工程
 # 内置注解
 1. 标准注解：
     1. @Override：表示当前方法将覆盖父类中的方法。
@@ -25,6 +29,7 @@ thumbnailImage: /images/thumbnail/java.jpg
     1. @Target：说明注解的作用对象，可选ElementType.CONSTRUCTOR / FIELD / LOCAL_VARIABLE / METHOD / PACKAGE / PARAMETER / TYPE
         - 可以使用逗号分隔，添加多个
         - 不使用@Target则可作用于任何目标
+        - 可以用于作用对象出现的任何位置，比如作为TYPE注解，则可以出现在泛型类的类型参数中，如:public class Cache<@Immutable V>
     1. @Retention：说明注解的作用级别，可选RetentionPolicy.SOURCE/CLASS/RUNTIME
     1. @Documented：用于生成说明文档
     1. @Inherited：允许子类继承父类的注解
@@ -77,50 +82,128 @@ public class ExampleTracker {
     }
 }
 ```
-# 示例代码
+# 运行时注解示例代码
 ## 一种创建SQL数据表的注解写法
+1. 注解部分
 ```java
 // 以下注解定义分散在各自的源文件中
 
+// 类注解，声明一个数据表
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DBTable {
-    String name();
+    // 表名
+    String name() default "";
 }
 
+// 约束注解，声明该列的约束条件
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Constraints {
+    // 默认非主键
     boolean primaryKey() default false;
-
+    // 默认允许空
     boolean allowNull() default true;
-
+    // 默认非唯一
     boolean unique() default false;
 }
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SQLString {
+    // 列名
     String name() default "";
-
-     value() default 0;
+    // 列占用存储大小
+    int value() default 0;
 
     Constraints constraints() default @Constraints;
 }
 
+// 本例子仅用于展示对于注解类型默认值中的成员的修改方式
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Uniqueness {
     Constraints constraints() default @Constraints(unique = true);
 }
 
+// 定义一个实际的数据表
 @DBTable(name = "TESTDB")
 public class TestDB {
+    // 设定某一列
     @SQLString(name = "first", value = 30)
     String firstCol;
+    // 设定主键
     @SQLString(name = "second", value = 50, constraints = @Constraints(primaryKey = true))
     String key;
+    // 用于统计行数
     static int rowCount;
 }
 ```
-## 
+> 反思：在注解中配置注解并不是一个很好的办法。虽然看起来炫酷，但其实写起来很别扭。更普遍的做法是，让一个域拥有多个不同的注解。比如本例中的@SQLString中的@Constraints域独立出来，在使用的时候，二者平级同时使用。
+2. 注解处理器部分
+```java
+public class SQLAnnotationProcessor {
+    // 输入待处理的含数据表注解的类型名称数组
+    public static void createTable(String[] classes) throws Exception {
+        for (String className : classes) {
+            // 反射获取实际类型
+            Class<?> cl = Class.forName(className);
+            DBTable dbTable = cl.getAnnotation(DBTable.class);
+            if (dbTable == null) {
+                System.out.println("No DBTable annotations in class: " + className);
+                continue;
+            }
+            String tableName = dbTable.name();
+            if (tableName.isEmpty()) {
+                // 未设定表名，默认使用类型名代替
+                tableName = cl.getName().toUpperCase();
+            }
+            List<String> columnDefs = new ArrayList<>();
+            for (Field field : cl.getDeclaredFields()) {
+                String columnName = null;
+                Annotation[] anns = field.getDeclaredAnnotations();
+                if (anns.length < 1) {
+                    // 非数据表列定义字段
+                    continue;
+                }
+                for (Annotation ann : anns) {
+                    if (ann instanceof SQLString) {
+                        SQLString sqlString = (SQLString) ann;
+                        if (sqlString.name().isEmpty()) {
+                            columnName = field.getName().toUpperCase();
+                        } else {
+                            columnName = sqlString.name();
+                        }
+                        columnDefs.add(columnName
+                            + " VARCHAR("
+                            + sqlString.value()
+                            + ")"
+                            + getConstraintsString(sqlString));
+                    }
+                }
+                StringBuilder createCommandBuilder = new StringBuilder("CREATE TABLE "
+                    + tableName + "(");
+                for (String column : columnDefs) {
+                    createCommandBuilder.append("\n " + column + ",");
+                }
+                String createCommand = createCommandBuilder.substring(0
+                    , createCommandBuilder.length() - 1) + ");";
+                System.out.println("SQL: " + createCommand);
+                // do create stuff
+                // ...
+            }
+        }
+    }
+}
+```
+> 逐个处理类型，逐个处理类型中的域，对于每个域，逐个处理其注解
+## 事件监听器
+
+# 编译时注解处理
+1. 英文名称Annotation Processing Tool（APT）
+
+# AMS
+
+进度
+核心技术 P397（但要把事件监听器补上）
+编程思想 P662

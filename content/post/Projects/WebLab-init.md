@@ -8,8 +8,8 @@ tags:
 - 系列开坑
 - 网站建设
 - 实验室
-# thumbnailImagePosition: left
-# thumbnailImage: /images/thumbnail/PS.jpg
+thumbnailImagePosition: left
+thumbnailImage: /images/thumbnail/weblab.jpg
 # 画一个齿轮 + 网络 + 101010的图标
 ---
 本系列将会以搭建项目为导向，从实战角度出发学习网络相关技术。

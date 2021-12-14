@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.87.0 with theme Tranquilpeak 0.4.8-BETA">
+<meta name="author" content="李奕成">
+<meta name="keywords" content="">
+<meta name="description" content="本系列是纯新手的学习笔记，仅追求特定拍摄素材和场景的处理技巧。本篇介绍色彩和图片格式等最最基本的概念。">
+
+
+<meta property="og:description" content="本系列是纯新手的学习笔记，仅追求特定拍摄素材和场景的处理技巧。本篇介绍色彩和图片格式等最最基本的概念。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Photoshop：基础概念篇">
+<meta name="twitter:title" content="Photoshop：基础概念篇">
+<meta property="og:url" content="https://www.lyclife.com/2021/11/photoshop%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E7%AF%87/">
+<meta property="twitter:url" content="https://www.lyclife.com/2021/11/photoshop%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E7%AF%87/">
+<meta property="og:site_name" content="奕成的个人空间">
+<meta property="og:description" content="本系列是纯新手的学习笔记，仅追求特定拍摄素材和场景的处理技巧。本篇介绍色彩和图片格式等最最基本的概念。">
+<meta name="twitter:description" content="本系列是纯新手的学习笔记，仅追求特定拍摄素材和场景的处理技巧。本篇介绍色彩和图片格式等最最基本的概念。">
+<meta property="og:locale" content="zh-cn">
+
+  
+    <meta property="article:published_time" content="2021-11-05T20:43:52">
+  
+  
+    <meta property="article:modified_time" content="2021-11-05T20:43:52">
+  
+  
+  
+    
+      <meta property="article:section" content="实用工具">
+    
+      <meta property="article:section" content="平面后期">
+    
+  
+  
+    
+      <meta property="article:tag" content="实用工具">
+    
+      <meta property="article:tag" content="摄影">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+
+
+
+
+
+
+  <meta property="og:image" content="https://www.lyclife.com/images/thumbnail/PS.jpg">
+  <meta property="twitter:image" content="https://www.lyclife.com/images/thumbnail/PS.jpg">
+
+
+
+
+
+  <meta property="og:image" content="https://www.lyclife.com/images/author.jpg">
+  <meta property="twitter:image" content="https://www.lyclife.com/images/author.jpg">
+
+
+    
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [["$", "$"]],
+    },
+    displayMath: [
+      ["$$", "$$"],
+      ["\[\[", "\]\]"],
+    ],
+    svg: {
+      fontCache: "global",
+    },
+  };
+</script>
+<script src="https://www.lyclife.com/scripts/polyfill.min.js"></script>
+<script
+  id="MathJax-script"
+  async
+  src="https://www.lyclife.com/scripts/MathJax-3.2.0/es5/tex-mml-chtml.js"
+></script>
+
+    <title>Photoshop：基础概念篇</title>
+
+    <link rel="icon" href="https://www.lyclife.com/images/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="https://www.lyclife.com/2021/11/photoshop%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E7%AF%87/">
+
+    
+    <link href="https://www.lyclife.com/scripts/Font-Awesome-4.7.0/css/font-awesome.css" rel="stylesheet">
+    
+    
+    <link href="https://www.lyclife.com/scripts/fancybox-2.1.7/source/jquery.fancybox.css" rel="stylesheet">
+    <link href="https://www.lyclife.com/scripts/fancybox-2.1.7/source/helpers/jquery.fancybox-thumbs.css" rel="stylesheet">
+    
+    
+    <link rel="stylesheet" href="https://www.lyclife.com/css/style-twzjdbqhmnnacqs0pwwdzcdbt8yhv8giawvjqjmyfoqnvazl0dalmnhdkvp7.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="https://www.lyclife.com/">奕成的个人空间</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="https://www.lyclife.com/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="https://www.lyclife.com/#about">
+          <img class="sidebar-profile-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+        </a>
+        <h4 class="sidebar-profile-name">李奕成</h4>
+        
+          <h5 class="sidebar-profile-bio">每天都是最好的一天</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">首页</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">分类</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">标签</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">归档</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">关于</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://github.com/RexLyc" target="_blank" rel="noopener">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/images/wechat.jpg">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-wechat"></i>
+      
+      <span class="sidebar-button-desc">微信</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="4"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
+  
+    <h1 class="post-title" itemprop="headline">
+      Photoshop：基础概念篇
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2021-11-05T20:43:52&#43;08:00">
+        
+  十一月 5, 2021
+
+      </time>
+    
+    
+  
+  
+    <span>发布在</span>
+    
+      <a class="category-link" href="https://www.lyclife.com/categories/%e5%ae%9e%e7%94%a8%e5%b7%a5%e5%85%b7">实用工具</a>, 
+    
+      <a class="category-link" href="https://www.lyclife.com/categories/%e5%b9%b3%e9%9d%a2%e5%90%8e%e6%9c%9f">平面后期</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              <p>本系列是纯新手的学习笔记，仅追求特定拍摄素材和场景的处理技巧。本篇介绍色彩和图片格式等最最基本的概念。</p>
+<h1 id="色彩">色彩</h1>
+<p>从红到紫，可见光范围内有无限多种色彩，其中最重要的三要素就是色调（色相）、饱和度、明度。人眼看到的任一彩色光都是这三个特性的综合效果，其中色调与光波的频率有直接关系，亮度和饱和度与光波的幅度有关。</p>
+<h2 id="色彩空间概述">色彩空间概述</h2>
+<ol>
+<li>sRGB
+<ul>
+<li>目标是让显示器、打印机拥有通用颜色标准</li>
+</ul>
+</li>
+<li>Adobe RGB
+<ul>
+<li>目标是让显示器显示更多颜色</li>
+</ul>
+</li>
+<li>CMYK：C(青)、M(品红)、Y(黄)、K(黑)
+<ul>
+<li>彩色印刷时使用的颜色模型</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p>Adobe RGB $\supset$ sRGB, Adobe RGB $\supset$ CMYK</p>
+<p>sRGB-CMYK $\ne \varnothing$ 且 CMYK-sRGB $\ne \varnothing$。</p>
+</blockquote>
+<h2 id="色彩空间选择">色彩空间选择</h2>
+<ol>
+<li>一般来说拍摄时无脑选Adobe RGB就好啦。</li>
+<li>在Photoshop中，有如下区域涉及到色彩空间
+<ul>
+<li>视图 -&gt; 校样设置
+<ol>
+<li>CMYK：如果未来需要印刷，则应当选择工作中的CMYK（观感上主要是绿色将不在鲜艳）
+<ul>
+<li>此时会出现色域警告，指示部分颜色可能无法正确印刷</li>
+</ul>
+</li>
+<li>显示器RGB &amp; sRGB：如果仅在网络中使用，则使用这两种均可</li>
+</ol>
+</li>
+<li>编辑 -&gt; 颜色设置-&gt; RGB模式
+<ol>
+<li>Adobe RGB：用于需要打印的情况</li>
+<li>sRGB：用于在网络传输的情况</li>
+</ol>
+</li>
+<li>编辑 -&gt; 配置文件 &amp; 转换成配置文件
+<ol>
+<li>Adobe RGB：用于需要打印的情况</li>
+<li>sRGB：用于在网络传输的情况</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>无脑的选择方式：
+<ul>
+<li>网络：视图中选择显示器RGB，其他位置全部Adobe RGB</li>
+<li>打印：视图中使用CMYK，其他位置全部Adobe RGB</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p>加色模型（RGB）和减色模型（CMYK）其实是同一个原理的不同表现。加色模型适用于所有自发光物体，减色模型适用于所有的反射光线的物体（因为吸收了其他颜色，所以展示出当前的颜色）</p>
+</blockquote>
+<h1 id="图片格式">图片格式</h1>
+<ol>
+<li>RAW：相机拍摄的原始存储格式，不同厂商可能后缀名不同。</li>
+<li>JPEG：最常用的格式之一，<strong>有损压缩</strong>，颜色为8位/通道。</li>
+<li>TIFF：无损压缩甚至不压缩，占用空间很大，可以保留RAW过来的16位色彩空间。</li>
+<li>RAW：存储原始的底片信息，拥有16位的色彩空间。</li>
+</ol>
+<h1 id="camera-raw插件">Camera Raw插件</h1>
+<ul>
+<li>Camera Raw插件可以说是后期的第一步，对RAW文件进行整体的处理。因此也放在这里进行讲解。</li>
+</ul>
+<h2 id="概述">概述</h2>
+<ul>
+<li>这个插件是将RAW格式导入Photoshop的必经之路，注意需要在这里的存储选项中，选择好对应的转换格式和色彩空间。
+<img src="https://www.lyclife.com/images/Photoshop/CameraRawSaveOption.jpg" alt="不同版本的Camera RawUI可能有所不同"></li>
+<li>本身也有非常实用的调色工具、校准工具等，不需要很重的调色的话，在这里就能完成相关的调整。</li>
+</ul>
+<h2 id="颜色矫正">颜色矫正</h2>
+<ul>
+<li>
+<p>白平衡：以无色相（R=G=B）的颜色为参考，恢复照片原本颜色的过程。核心标准是50%的灰度。实际操作过程中，应当根据审美调整。</p>
+</li>
+<li>
+<p>分离色调处理：</p>
+<ul>
+<li>普通的白平衡无法处理，明暗部亮度差距过大时可能的颜色误差：比如暗部偏蓝、亮部偏黄</li>
+</ul>
+  <center><img src = "/images/Photoshop/CameraRawSaveColorFix1.jpg"></center>
+<ul>
+<li>此时需要将亮部暗部，本应是无色相的颜色尽量调整到无色相的状态，再进行白平衡。</li>
+</ul>
+</li>
+<li>
+<p>目标调整工具：</p>
+<ul>
+<li>可以在图片中直观的调整特定颜色所代表的颜色段的特性</li>
+</ul>
+  <center><img src = "/images/Photoshop/CameraRawTargetAdjustTool.png"></center>
+<ul>
+<li>除了曲线工具，<strong>混色器等工具</strong>中也存在目标调整工具。CameraRaw中提供的目标调整工具主要针对：参数曲线、点曲线、色相、饱和度、明亮度进行调整。可以在图片上点击右键进行快速切换。</li>
+</ul>
+</li>
+</ul>
+<h2 id="曝光和对比度">曝光和对比度</h2>
+<ul>
+<li>曝光：整体向暗、亮变动</li>
+<li>对比度：亮部更亮、暗部更暗；或者相反</li>
+<li>高光、白色：都是让亮部变化，后者影响的颜色范围更广
+<ul>
+<li>因此如果想要突出高光（或者保护高光细节），应当调整高光模块。如果想让画面亮部整体都变亮，才需要调整白色。</li>
+<li>实践体验一下：调高高光并不会造成过多的过曝，但是调高白色，会造成大量过曝。</li>
+<li>进一步的，在希望保证不出现过曝的情况下，可能有两种调整方式：一种是拉低高光，但是保持较高的白色（画面整体偏亮，无高光点）；一种是拉高高光，但是保持较低的白色（画面整体偏安，但是会有个别高光区域）</li>
+</ul>
+</li>
+<li>阴影、黑色：都是让暗部变化，后者影响的颜色范围更广
+<ul>
+<li>同样的，阴影更多的用于保护阴影部分细节。如果希望暗部整体变化，应当调整黑色。</li>
+</ul>
+</li>
+</ul>
+<center><img src = '/images/Photoshop/rectWarn.png'/>开启曝光警告</br></center></br>
+<ul>
+<li>白场：按住Alt按键点击高光、白色滑块，可以看到过曝区域（高光和白色模块显示的区域并不完全相同）</li>
+<li>黑场：按住Alt按键点击阴影、黑色滑块，可以看到欠曝区域（同理，两者区域并不相同）</li>
+<li>一般目的：让直方图的大部落入中部区域，对比度合适，并且画面中没有过曝和欠曝区域。
+<ul>
+<li>但是，最终的目标是契合画面表达主题。</li>
+</ul>
+</li>
+</ul>
+<h1 id="总结">总结</h1>
+<ul>
+<li>后期的最基础的要求，是正确的调整白平衡、曝光、色彩，并进行正确且合适的导出。</li>
+<li>一定要多练、多看别人的作品。</li>
+</ul>
+<h1 id="参考资料">参考资料</h1>
+<ul>
+<li><a href="https://www.bilibili.com/video/BV1gb4y167Sh?from=search&amp;seid=10473265529199477631&amp;spm_id_from=333.337.0.0">摄影后期拍摄技巧与后期调色，PS人像风景摄影后期教程</a></li>
+<li></li>
+</ul>
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">标签</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/%E5%AE%9E%E7%94%A8%E5%B7%A5%E5%85%B7/">实用工具</a>
+
+  <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/%E6%91%84%E5%BD%B1/">摄影</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/11/photoshop%E5%9F%BA%E7%A1%80%E8%B0%83%E6%95%B4%E7%AF%87/" data-tooltip="Photoshop：基础调整篇">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/11/%E8%BE%B9%E5%AD%A6%E8%BE%B9%E7%94%A8linux-ssh%E7%AF%87/" data-tooltip="边学边用linux-SSH篇">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+      
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2021 李奕成. All Rights Reserved 
+  </span>
+  <a href="https://beian.miit.gov.cn/#/Integrated/index" target="blank">吉ICP备2021004867</a>
+  
+  <div>
+    <img src="https://www.lyclife.com/images/beian.png">
+    <a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010502045148" target="blank">京公网安备11010502045148</a>
+  </div>
+  
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/11/photoshop%E5%9F%BA%E7%A1%80%E8%B0%83%E6%95%B4%E7%AF%87/" data-tooltip="Photoshop：基础调整篇">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/11/%E8%BE%B9%E5%AD%A6%E8%BE%B9%E7%94%A8linux-ssh%E7%AF%87/" data-tooltip="边学边用linux-SSH篇">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+      
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+    
+    <h4 id="about-card-name">李奕成</h4>
+    
+      <div id="about-card-bio">每天都是最好的一天</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        京投 软件研发
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        北京·朝阳
+      </div>
+    
+  </div>
+</div>
+
+    
+
+    
+  
+    
+      <div id="cover" style="background-image:url('https://www.lyclife.com/images/background/bridge_linjiangmen.jpg');"></div>
+    
+  
+
+
+    
+<script src="https://www.lyclife.com/scripts/jquery360/jquery.min.js"></script>
+
+<script src="https://www.lyclife.com/scripts/highlight.min.js"></script>
+
+
+<script src="https://www.lyclife.com/scripts/fancybox-2.1.7/jquery.fancybox.min.js"></script>
+
+
+<script src="https://www.lyclife.com/js/script-pcw6v3xilnxydl1vddzazdverrnn9ctynvnxgwho987mfyqkuylcb1nlt.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+  
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      CommonHTML: { linebreaks: { automatic: true } },
+      tex2jax: { inlineMath: [ ['$', '$'], ['\\(','\\)'] ], displayMath: [ ['$$','$$'], ['\\[', '\\]'] ], processEscapes: false },
+      messageStyle: 'none'
+    });
+  </script>
+
+
+
+    
+  </body>
+</html>
+

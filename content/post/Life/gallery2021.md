@@ -9,6 +9,21 @@ tags:
 autoThumbnailImage : true
 thumbnailImagePosition: left
 gallery:
+- /images/gallery2021/10-12/_DSF7926.jpg
+- /images/gallery2021/10-12/_DSF7927.jpg
+- /images/gallery2021/10-12/_DSF7933.jpg
+- /images/gallery2021/10-12/_DSF7961.jpg
+- /images/gallery2021/10-12/_DSF7981.jpg
+- /images/gallery2021/10-12/_DSF8973.jpg
+- /images/gallery2021/10-12/_DSF9005.jpg
+- /images/gallery2021/10-12/_DSF9024.jpg
+- /images/gallery2021/10-12/_DSF9063.jpg
+- /images/gallery2021/10-12/_DSF9126.jpg
+- /images/gallery2021/10-12/_DSF9170.jpg
+- /images/gallery2021/10-12/_DSF9220.jpg
+- /images/gallery2021/10-12/_DSF9280.jpg
+- /images/gallery2021/10-12/_DSF9299.jpg
+- /images/gallery2021/10-12/_DSF9328.jpg
 - /images/gallery2021/8/_DSF7791.jpg
 - /images/gallery2021/3-4/_DSF6529.jpg
 - /images/gallery2021/3-4/_DSF6968.jpg
@@ -96,3 +111,7 @@ gallery:
     - 颐和园
     - 很多月亮
     - 很多日落
+    - 培训
+    - 地坛和奥森的秋景
+    - 国子监
+    - 景山

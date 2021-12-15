@@ -275,14 +275,31 @@ public class ActionListenerInstaller {
     1. 继承AbstractProcessor类，并实现处理器processor函数。
         - 通常需要声明支持处理的注解，如某个包下面（com.xxx.xxx)，或者全部（*）
 1. 调用编译：javac -processor ProcessorClassName1,ProcessorClassName2, ... sourceFiles
+    - 注意这里需要先生成处理类的字节码，因此实际上的使用例如
+        ```bash
+        javac MyProcessor.java
+        javac -processor MyProcessor MainClass.java TestClass.java
+        ```
+    - 如果不使用原生javac编译，而使用maven或gradle时都应当注意，且编译时注解的处理器存在于当前项目中，则需要先编译处理器。**你得先有一只组装鸡，才能有蛋。**
+    - 和maven搭配使用，需要配置的编译内容（但是目前还没编写一个有效的例子）
+        ```xml
+            
+        ```
+    - gradle还没用过，不过据说比maven快很多
+    - 和spring boot搭配使用的时候还是有问题
 1. 编译期和运行期的一些处理区别：
     1. 编译期处理只能使用语言模型API来分析源码级的注解。即编译器产生的源码树结构。
-    1. 
 1. 示例代码
 ```java
 
 ```
 # AMS
+
+
+# 参考内容
+[cnblogs编译期生成](https://www.cnblogs.com/LQBlog/p/14208046.html)
+[csdn编译期生成](https://blog.csdn.net/kaifa1321/article/details/79683246)
+[javac选项](https://www.cnblogs.com/itxiaok/p/10356513.html)
 
 进度
 核心技术 P397（但要把事件监听器补上）

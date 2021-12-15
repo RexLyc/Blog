@@ -18,7 +18,7 @@ thumbnailImage: /images/thumbnail/java.jpg
 > 总之，一旦你的代码中出现了重复性的工作，你就可以考虑使用注解来简化、自动化该过程。
 # 核心原理
 1. 运行期注解：利用Java的反射机制，在运行期对注解进行解析。
-1. 编译期注解
+1. 编译期注解：逐轮次处理注解，生成新的源文件
 1. 字节码工程
 # 内置注解
 1. 标准注解：
@@ -198,10 +198,90 @@ public class SQLAnnotationProcessor {
 ```
 > 逐个处理类型，逐个处理类型中的域，对于每个域，逐个处理其注解
 ## 事件监听器
+1. 注解和使用部分
+```java
+// 监听器注解，只需要提供监听信号源名称
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ActionListenerFor {
+    String source();
+}
 
+// 业务代码
+public class ControlPanel {
+    private JPanel panel;
+    private JButton setPanelRedButton;
+
+    public ControlPanel() {
+        panel = new JPanel();
+        setPanelRedButton = new JButton("Red");
+        // some other gui setting
+        // ...
+        // 在构造函数中对监听事件进行关联
+        try {
+            ActionListenerInstaller.processAnnotations(this);
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 事件监听回调
+    @ActionListenerFor(source = "setPanelRedButton")
+    public void redPanel() {
+        panel.setBackground(Color.RED);
+    }
+}
+```
+2. 注解处理器部分
+```java
+// 安装监听回调
+public class ActionListenerInstaller {
+    // 和swing框架相关的特定关联方法
+    public static void addListener(Object source, final Object param, final Method m)
+            throws ReflectiveOperationException {
+        InvocationHandler handler = new InvocationHandler() {
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                return m.invoke(param);
+            }
+        };
+        Object listener = Proxy.newProxyInstance(null
+                , new Class[]{java.awt.event.ActionListener.class}, handler);
+        Method adder = source.getClass().getMethod("addActionListener", ActionListener.class);
+        adder.invoke(source, listener);
+    }
+
+    public static void processAnnotations(Object obj) throws ReflectiveOperationException {
+        // 获取当前obj的所属类型
+        Class<?> cl = obj.getClass();
+        for (Method m : cl.getDeclaredMethods()) {
+            // 获取包含的监听注解
+            ActionListenerFor listener = m.getAnnotation(ActionListenerFor.class);
+            if (listener != null) {
+                // 查找监听来源，这里要求监听源必须同在当前类型
+                Field f = cl.getDeclaredField(listener.source());
+                f.setAccessible(true);
+                addListener(f.get(obj), obj, m);
+            }
+        }
+    }
+}
+```
 # 编译时注解处理
-1. 英文名称Annotation Processing Tool（APT）
+1. 原有工具的英文名称为Annotation Processing Tool（APT），目标是直接处理源文件。java8之后该部分已经直接迁移到javac内部。
+1. 处理原理：注解处理器将会从最初的源文件开始，逐轮次处理注解，并产生新的源文件，直到不再有新的源文件产生。然后再进行传统的java源文件编译。
+1. 使用方法
+    1. 选择RetentionPolicy.SOURCE
+    1. 继承AbstractProcessor类，并实现处理器processor函数。
+        - 通常需要声明支持处理的注解，如某个包下面（com.xxx.xxx)，或者全部（*）
+1. 调用编译：javac -processor ProcessorClassName1,ProcessorClassName2, ... sourceFiles
+1. 编译期和运行期的一些处理区别：
+    1. 编译期处理只能使用语言模型API来分析源码级的注解。即编译器产生的源码树结构。
+    1. 
+1. 示例代码
+```java
 
+```
 # AMS
 
 进度

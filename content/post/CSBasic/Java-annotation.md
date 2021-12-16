@@ -287,16 +287,123 @@ public class ActionListenerInstaller {
     - 如果不使用原生javac编译，而使用maven或gradle时都应当注意，且编译时注解的处理器存在于当前项目中，则需要先编译处理器。**你得先有一只组装鸡，才能有蛋。**
     - 和maven搭配使用，需要配置的编译内容（但是目前还没编写一个有效的例子）
         ```xml
-            
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.8.1</version>
+                        <configuration>
+                            <proc>only</proc>
+                            <annotationProcessors>
+                                <annotationProcessor>
+                                    ToStringAnnotationProcessor
+                                </annotationProcessor>
+                            </annotationProcessors>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         ```
+        - 问题：
+            1. IDEA内置的Setting中的Annotation Processor仍然不会用（没有效果）。
+            1. 使用pom.xml控制时，需要先注释annotationProcessor的部分，生成一份注解处理器的字节码
+            1. 然后解开注释，继续编译（不要clean），使得处理器可以作用于当前项目
+            1. 建议再看几个Youtube视频，里面可能有详细步骤。博客什么的，没有可行的。
     - gradle还没用过，不过据说比maven快很多
     - 和spring boot搭配使用的时候还是有问题
 1. 编译期和运行期的一些处理区别：
     1. 编译期处理只能使用语言模型API来分析源码级的注解。即编译器产生的源码树结构。
 1. 示例代码
 ```java
+// 用于标记需要生成ToString方法
+@Retention(RetentionPolicy.SOURCE)
+public @interface ToString {
+}
+
+// 测试用的类型
+@ToString
+public class TestClass {
+    @ToString
+    private String myName = "233";
+
+}
+
+// 注解处理器
+@SupportedAnnotationTypes("ToString")
+@SupportedSourceVersion(SourceVersion.RELEASE_8)
+public class ToStringAnnotationProcessor extends AbstractProcessor {
+    @Override
+    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        // 打印信息，但是在idea中并未输出
+        Messager messager = processingEnv.getMessager();
+        for (TypeElement te:annotations){
+            for(Element e : roundEnv.getElementsAnnotatedWith(te)){
+                messager.printMessage(Diagnostic.Kind.NOTE,"Print" + e.toString());
+                JavaFileObject builderClass = null;
+                BufferedWriter bufferedWriter = null;
+                // 对类型做整体生成
+                if(e instanceof TypeElement){
+                    try {
+                        // 创建一个源代码文件，不需要添加后缀
+                        builderClass = processingEnv.getFiler().createSourceFile(e.getSimpleName().toString());
+                        bufferedWriter = new BufferedWriter(builderClass.openWriter());
+                        
+                        // 补充必要的包头
+                        if(!e.getEnclosingElement().getSimpleName().toString().isEmpty()){
+                            bufferedWriter.append("package ");
+                            bufferedWriter.append(e.getEnclosingElement().getSimpleName());
+                            bufferedWriter.append(";");
+                        }
+
+                        // 类头
+                        bufferedWriter.newLine();
+                        bufferedWriter.append("public class ");
+                        bufferedWriter.append(e.getSimpleName());
+                        bufferedWriter.append("Builder");
+                        bufferedWriter.append("{");
+                        bufferedWriter.newLine();
+
+                        // 获取子元素，并填充各个域
+                        for(Element child:e.getEnclosedElements()){
+                            if(child instanceof VariableElement){
+                                bufferedWriter.append(child.asType().toString());
+                                bufferedWriter.append(" ");
+                                bufferedWriter.append(child.toString());
+                                bufferedWriter.append(";");
+                                bufferedWriter.newLine();
+                            }
+                        }
+
+                        // 编写需要生成的toString函数
+                        bufferedWriter.append("public String toString() {");
+                        bufferedWriter.newLine();
+                        bufferedWriter.append("return ");
+                        for(Element child:e.getEnclosedElements()){
+                            if(child instanceof VariableElement){
+                                bufferedWriter.append(child.getSimpleName());
+                                bufferedWriter.append(".toString()+");
+                            }
+                        }
+                        bufferedWriter.append("\"\";");
+                        bufferedWriter.newLine();
+                        bufferedWriter.append("}");
+                        bufferedWriter.append("}");
+                        bufferedWriter.close();
+                    } catch (IOException ioException) {
+                        messager.printMessage(Diagnostic.Kind.ERROR,"exception: "+ioException.getMessage());
+                    }
+                }
+            }
+        }
+        return true;
+    }
+}
 
 ```
+7. 问题：
+    1. 生成的内容仍然无法实际使用。如果更换类名，则在编译期，使用者会报警，说找不到。如果不更换，会发生类名重复。
+    2. 生成过程很麻烦，仍然需要研究如何在idea中使用maven生成。
 # AMS
 
 
@@ -305,6 +412,7 @@ public class ActionListenerInstaller {
 [csdn编译期生成](https://blog.csdn.net/kaifa1321/article/details/79683246)
 [javac选项](https://www.cnblogs.com/itxiaok/p/10356513.html)
 [idea和编译期生成注解](https://zhuanlan.zhihu.com/p/95015043)
+[Adavanced Java-Annotation Processing](https://www.youtube.com/watch?v=HaCXOYptHqE)
 
 进度
 核心技术 P397（但要把事件监听器补上）

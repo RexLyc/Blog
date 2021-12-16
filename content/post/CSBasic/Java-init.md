@@ -23,6 +23,17 @@ thumbnailImage: /images/thumbnail/java.jpg
 1. 内部类
 1. 反射
 1. 泛型
+# 配置时需要注意的内容
+1. 环境变量
+    - 由于部分环境会对空格敏感，因此在windows上建议安装至无空格，无特殊字符的目录。
+    - 也可以通过创建链接的方式，将JAVA_HOME设置为链接目录，如
+    ```bash
+    # cmd（而非Powershell）
+    mklink /J yourJavaLink "C:\Program File\Java\Jdk8\"
+    set JAVA_HOME=X:\Path\To\yourJavaLink
+    CLASSPATH=...
+    PATH=...;%JAVA_HOME%\bin
+    ```
 # 参考文献
 1. 《Java编程思想（第四版）》
 1. 《Java核心技术》

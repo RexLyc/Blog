@@ -277,8 +277,12 @@ public class ActionListenerInstaller {
 1. 调用编译：javac -processor ProcessorClassName1,ProcessorClassName2, ... sourceFiles
     - 注意这里需要先生成处理类的字节码，因此实际上的使用例如
         ```bash
-        javac MyProcessor.java
-        javac -processor MyProcessor MainClass.java TestClass.java
+        # 从包起始目录执行
+        javac ./your/package/name/MyProcessor.java
+        javac -processor your.package.name.MyProcessor \
+            ./your/package/name/MainClass.java \
+            ./your/package/name/TestClass.java \
+            ...
         ```
     - 如果不使用原生javac编译，而使用maven或gradle时都应当注意，且编译时注解的处理器存在于当前项目中，则需要先编译处理器。**你得先有一只组装鸡，才能有蛋。**
     - 和maven搭配使用，需要配置的编译内容（但是目前还没编写一个有效的例子）
@@ -300,6 +304,7 @@ public class ActionListenerInstaller {
 [cnblogs编译期生成](https://www.cnblogs.com/LQBlog/p/14208046.html)
 [csdn编译期生成](https://blog.csdn.net/kaifa1321/article/details/79683246)
 [javac选项](https://www.cnblogs.com/itxiaok/p/10356513.html)
+[idea和编译期生成注解](https://zhuanlan.zhihu.com/p/95015043)
 
 进度
 核心技术 P397（但要把事件监听器补上）

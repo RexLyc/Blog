@@ -404,7 +404,12 @@ public class ToStringAnnotationProcessor extends AbstractProcessor {
 7. 问题：
     1. 生成的内容仍然无法实际使用。如果更换类名，则在编译期，使用者会报警，说找不到。如果不更换，会发生类名重复。
     2. 生成过程很麻烦，仍然需要研究如何在idea中使用maven生成。
-# AMS
+# 字节码工程
+1. 在字节码级别上进行处理，是在源码和运行时之外的第三种处理情况。处理字节码文件是相当复杂的事情，一般需要借助一些特殊类库，如AMS。
+1. 
+1. 注意点
+    1. 使用Idea的话，待处理的工程必须Rebuild，即必须删除原有class。毕竟字节码处理之后，源代码build不会刷新字节码文件。
+    1. AnnotationVisitor不会visit使用默认值的注解元素。
 
 
 # 参考内容
@@ -413,6 +418,8 @@ public class ToStringAnnotationProcessor extends AbstractProcessor {
 [javac选项](https://www.cnblogs.com/itxiaok/p/10356513.html)
 [idea和编译期生成注解](https://zhuanlan.zhihu.com/p/95015043)
 [Adavanced Java-Annotation Processing](https://www.youtube.com/watch?v=HaCXOYptHqE)
+[JavaSE8手册](https://docs.oracle.com/javase/8/docs/api/)
+[ASM手册](https://asm.ow2.io/javadoc/index.html)
 
 进度
 核心技术 P397（但要把事件监听器补上）

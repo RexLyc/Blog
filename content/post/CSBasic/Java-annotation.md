@@ -406,7 +406,45 @@ public class ToStringAnnotationProcessor extends AbstractProcessor {
     2. 生成过程很麻烦，仍然需要研究如何在idea中使用maven生成。
 # 字节码工程
 1. 在字节码级别上进行处理，是在源码和运行时之外的第三种处理情况。处理字节码文件是相当复杂的事情，一般需要借助一些特殊类库，如AMS。
-1. 
+1. 字节码速学：
+    1. 字节码以类为单位。
+    1. 阅读可使用javap -verbose xxx.class，但更建议使用Idea的JClasslib插件阅读。
+    1. 文件内容依次为：
+        | 类型 | 名称 | 数量 |
+        | --- | --- | --- |
+        | u4 | magic | 1 |
+        | u2 | minor_version | 1 |
+        | u2 | major_version | 1 |
+        | u2 | constant_pool_count | 1 |
+        | cp_info | constant_pool | constant_pool_count - 1 |
+        | u2 | access_flags | 1 |
+        | u2 | this_class | 1 |
+        | u2 | super_class | 1 |
+        | u2 | interfaces_count | 1 |
+        | u2 | interfaces | interfaces_count |
+        | u2  | fields_count | 1 |
+        | field_info | fields | fields_count |
+        | u2 | methods_count | 1 |
+        | method_info | methods | methods_count |
+        | u2 | attributes_count | 1 |
+        | attribute_info | attributes | attributes_count |
+
+    1. 其中：
+        - cp_info将包含方法名、字段名等等各类常量。而this_class/super_class的值实际是对cp_info的索引。
+        - method_info字段中将会包含代码。实际上很多字段都是常量池的索引。
+    1. 描述符标识字符（用于描述方法和字段的类型信息）
+        | 标识字符 | 含义 | 标识字符 | 含义 |
+        | --- | --- | --- | --- | --- |
+        | B | byte | J | long | 
+        | C | char | S | short |
+        | D | double | Z | boolean |
+        | F | float | V | void |
+        | I | int | L | 类类型 |
+        | 前置[ | 一层数组 | 前置() | 代表方法的参数列表 |
+    1. Code属性
+        - 包含属性长度、操作数栈最大深度、局部变量所需存储空间、字节码长度、指令字节流、异常表、其他属性等
+    1. 字节码指令简介
+    1. 从字节码定义中也可以看出，Java天生就存在一些限制，比如：单文件的常量数上限一定是小于65535的。
 1. 注意点
     1. 使用Idea的话，待处理的工程必须Rebuild，即必须删除原有class。毕竟字节码处理之后，源代码build不会刷新字节码文件。
     1. AnnotationVisitor不会visit使用默认值的注解元素。
@@ -420,6 +458,8 @@ public class ToStringAnnotationProcessor extends AbstractProcessor {
 [Adavanced Java-Annotation Processing](https://www.youtube.com/watch?v=HaCXOYptHqE)
 [JavaSE8手册](https://docs.oracle.com/javase/8/docs/api/)
 [ASM手册](https://asm.ow2.io/javadoc/index.html)
+[字节码查看方式](https://www.cnblogs.com/javaguide/p/13810777.html)
+《深入理解Java虚拟机（JVM高级特性与最佳实践）》
 
 进度
 核心技术 P397（但要把事件监听器补上）

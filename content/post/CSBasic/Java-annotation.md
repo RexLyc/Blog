@@ -275,44 +275,77 @@ public class ActionListenerInstaller {
     1. 继承AbstractProcessor类，并实现处理器processor函数。
         - 通常需要声明支持处理的注解，如某个包下面（com.xxx.xxx)，或者全部（*）
 1. 调用编译：javac -processor ProcessorClassName1,ProcessorClassName2, ... sourceFiles
-    - 注意这里需要先生成处理类的字节码，因此实际上的使用例如
+    - 注意这里需要先生成处理类的字节码，无论实用原生javac，还是maven、gradle，都需要先编译处理器。**你得先有一只组装鸡，才能有蛋**。因此实际上的使用例如
         ```bash
+        # 方法一，纯手动
         # 从包起始目录执行
         javac ./your/package/name/MyProcessor.java
-        javac -processor your.package.name.MyProcessor \
+        javac -verbose -processor your.package.name.MyProcessor \
             ./your/package/name/MainClass.java \
             ./your/package/name/TestClass.java \
             ...
+        
+        # 方法二（推荐），打jar包并使用META-INF/services/
+        # 先编译打包
+        javac ./your/package/name/MyProcessor.java
+        echo "your.package.name.MyProcessor" > \
+            META-INF/services/javax.annotation.processing.Processor
+        # 将META-INF一并打包（注意META-INF和包顶层目录同级）
+        jar -cvf MyProcessor.jar ./your/package/name/MyProcessor.class META-INF/
+        # 使用
+        javac -verbose -cp MyProcessor.jar ./your/path/to/ToBeProcessed.java
         ```
-    - 无论实用原生javac，还是maven、gradle，都需要先编译处理器。**你得先有一只组装鸡，才能有蛋。**
-    - 推荐是先使用任何工具，将程序打包为jar包。
     - 和maven搭配使用，需要配置的编译内容（但是目前还没编写一个有效的例子）
         ```xml
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>3.8.1</version>
-                        <configuration>
-                            <proc>only</proc>
-                            <annotationProcessors>
-                                <annotationProcessor>
-                                    ToStringAnnotationProcessor
-                                </annotationProcessor>
-                            </annotationProcessors>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
+        <!-- pom.xml -->
+        <!-- 暂时不使用IDEA内置的Setting中的Annotation Processor，使用pom.xml就可以了 -->
+        <!-- 注解处理器项目配置 -->
+        <build>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.1</version>
+                    <configuration>
+                        <!-- 必加，处理器项目不应进行注解处理 -->
+                        <proc>none</proc>
+                        <annotationProcessors>
+                            <annotationProcessor>
+                                ToStringAnnotationProcessor
+                            </annotationProcessor>
+                        </annotationProcessors>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </build>
+
+        <!-- pom.xml -->
+        <!-- 需要使用注解处理器的项目配置 -->
+        <!-- 把你的处理器项目列为依赖 -->
+        <dependencies>
+            <dependency>
+                <groupId>org.lyclab</groupId>
+                <artifactId>lyc-annotation-processor</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+        </dependencies>
+        <build>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.1</version>
+                    <configuration>
+                        <annotationProcessors>
+                            <annotationProcessor>
+                                ToStringAnnotationProcessor
+                            </annotationProcessor>
+                        </annotationProcessors>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </build>
         ```
-        - 问题：
-            1. IDEA内置的Setting中的Annotation Processor仍然不会用（没有效果）。
-            1. 使用pom.xml控制时，需要先注释annotationProcessor的部分，生成一份注解处理器的字节码
-            1. 然后解开注释，继续编译（不要clean），使得处理器可以作用于当前项目
-            1. 建议再看几个Youtube视频，里面可能有详细步骤。博客什么的，没有可行的。
-    - gradle还没用过，不过据说比maven快很多
-    - 和spring boot搭配使用的时候还是有问题
 1. 编译期和运行期的一些处理区别：
     1. 编译期处理只能使用语言模型API来分析源码级的注解。即编译器产生的源码树结构。
 1. java的SPI思想（待完善）
@@ -411,7 +444,11 @@ public class ToStringAnnotationProcessor extends AbstractProcessor {
 ```
 7. 问题：
     1. 生成的内容仍然无法实际使用。如果更换类名，则在编译期，使用者会报警，说找不到。如果不更换，会发生类名重复。
-    2. 生成过程很麻烦，仍然需要研究如何在idea中使用maven生成。
+    1. 生成过程很麻烦，仍然需要研究如何在idea中使用maven生成。
+    1. 无法在生成过程中打印日志，System.out，和messager都无效。
+    1. gradle还没用过，不过据说比maven快很多
+    1. 和spring boot搭配使用的时候还是有问题
+    1. 建议再看几个Youtube视频，里面可能有详细步骤。博客什么的，没有可行的。
 
 # 字节码工程
 1. 在字节码级别上进行处理，是在源码和运行时之外的第三种处理情况。处理字节码文件是相当复杂的事情，一般需要借助一些特殊类库，如AMS。

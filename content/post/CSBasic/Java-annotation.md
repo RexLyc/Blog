@@ -284,7 +284,8 @@ public class ActionListenerInstaller {
             ./your/package/name/TestClass.java \
             ...
         ```
-    - 如果不使用原生javac编译，而使用maven或gradle时都应当注意，且编译时注解的处理器存在于当前项目中，则需要先编译处理器。**你得先有一只组装鸡，才能有蛋。**
+    - 无论实用原生javac，还是maven、gradle，都需要先编译处理器。**你得先有一只组装鸡，才能有蛋。**
+    - 推荐是先使用任何工具，将程序打包为jar包。
     - 和maven搭配使用，需要配置的编译内容（但是目前还没编写一个有效的例子）
         ```xml
             <build>

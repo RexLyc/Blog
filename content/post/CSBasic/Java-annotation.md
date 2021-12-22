@@ -28,9 +28,9 @@ thumbnailImage: /images/thumbnail/java.jpg
 1. 元注解：
     1. @Target：说明注解的作用对象，可选ElementType.CONSTRUCTOR / FIELD / LOCAL_VARIABLE / METHOD / PACKAGE / PARAMETER / TYPE
         - 可以使用逗号分隔，添加多个
-        - 不使用@Target则可作用于任何目标
+        - 不使用@Target则可默认作用于任何目标
         - 可以用于作用对象出现的任何位置，比如作为TYPE注解，则可以出现在泛型类的类型参数中，如:public class Cache<@Immutable V>
-    1. @Retention：说明注解的作用级别，可选RetentionPolicy.SOURCE/CLASS/RUNTIME
+    1. @Retention：说明注解的作用级别，可选RetentionPolicy.SOURCE/CLASS(默认)/RUNTIME
     1. @Documented：用于生成说明文档
     1. @Inherited：允许子类继承父类的注解
 # 注解的定义
@@ -269,7 +269,7 @@ public class ActionListenerInstaller {
 ```
 # 编译时注解处理
 1. 原有工具的英文名称为Annotation Processing Tool（APT），目标是直接处理源文件。java8之后该部分已经直接迁移到javac内部。
-1. 处理原理：注解处理器将会从最初的源文件开始，逐轮次处理注解，并产生新的源文件，直到不再有新的源文件产生。然后再进行传统的java源文件编译。
+1. 处理原理：注解处理器将会从最初的源文件开始，逐轮次处理注解，并**产生新的源文件**，直到不再有新的源文件产生。然后再进行传统的java源文件编译。
 1. 使用方法
     1. 选择RetentionPolicy.SOURCE
     1. 继承AbstractProcessor类，并实现处理器processor函数。
@@ -314,6 +314,13 @@ public class ActionListenerInstaller {
     - 和spring boot搭配使用的时候还是有问题
 1. 编译期和运行期的一些处理区别：
     1. 编译期处理只能使用语言模型API来分析源码级的注解。即编译器产生的源码树结构。
+1. java的SPI思想（待完善）
+    - SPI风格：客户代码继承并实现接口，服务方负责调用）
+        - 接口和使用者位于同侧
+        - 天然适合插件开发
+        - 使用META-INF/resources/services/javax.****对AnnotationProcessor进行配置时，就是在使用SPI了
+    - API风格：服务方负责继承并实现接口，客户代码进行调用
+        - 接口和实现位于同侧
 1. 示例代码
 ```java
 // 用于标记需要生成ToString方法
@@ -404,6 +411,7 @@ public class ToStringAnnotationProcessor extends AbstractProcessor {
 7. 问题：
     1. 生成的内容仍然无法实际使用。如果更换类名，则在编译期，使用者会报警，说找不到。如果不更换，会发生类名重复。
     2. 生成过程很麻烦，仍然需要研究如何在idea中使用maven生成。
+
 # 字节码工程
 1. 在字节码级别上进行处理，是在源码和运行时之外的第三种处理情况。处理字节码文件是相当复杂的事情，一般需要借助一些特殊类库，如AMS。
 1. 字节码速学：
@@ -459,17 +467,149 @@ public class ToStringAnnotationProcessor extends AbstractProcessor {
 1. 注意点
     1. 使用Idea的话，待处理的工程必须Rebuild，即必须删除原有class。毕竟字节码处理之后，源代码build不会刷新字节码文件。
     1. AnnotationVisitor不会visit使用默认值的注解元素。
+    1. 修改字节码需要对JVM和字节码有较深入理解。其水平相当于你可以跳过Java而直接编写字节码程序。
+    1. 需要确保注解将会出现在字节码处理阶段。
+1. 独立处理示例：
+```java
+// 注解
+public @interface LogEntry {
+    String logger();
+}
 
+
+// 字节码工程，注解处理器
+public class EntryLogger extends ClassVisitor {
+    private String className;
+
+    public EntryLogger(ClassWriter writer, String className) {
+        // 字节码处理和输出初始化
+        super(Opcodes.ASM5, writer);
+        this.className = className;
+    }
+
+    // 本注解处理只针对函数进行
+    @Override
+    public MethodVisitor visitMethod(int access, String methodName
+            , String desc, String signature, String[] exceptions) {
+        
+        System.out.println("visitMethod: " + methodName + ", desc: "
+                + desc + ", signature: " + signature + ", access: " + access);
+        // 根据父类classvisitor，创建methodVisitor
+        MethodVisitor mv = cv.visitMethod(access, methodName, desc, signature, exceptions);
+        
+        // 返回MethodVisitor包装类，内部实现处理逻辑
+        return new AdviceAdapter(Opcodes.ASM5, mv, access, methodName, desc) {
+            private String loggerName;
+
+            // 注解处理（获取注解信息部分）
+            @Override
+            public AnnotationVisitor visitAnnotation(String annotation, boolean b) {
+                System.out.println("visitAnnotation: " + annotation);
+
+                // 按照键值对儿，获取注解信息
+                return new AnnotationVisitor(Opcodes.ASM5) {
+                    @Override
+                    public void visit(String key, Object value) {
+                        System.out.println("AnnotationVisitor: " + key + ", object " + value);
+                        // 当前注解仅处理LogEntry，此处获取注解中配置的logger名称
+                        if (annotation.equals("Lannotation/bytecode/LogEntry;")
+                                && key.equals("logger")) {
+                            loggerName = value.toString();
+                        }
+                    }
+                };
+            }
+
+            // 进入该函数的字节码段，并操纵字节码
+            @Override
+            protected void onMethodEnter() {
+                System.out.println("Enter Method, loggerName: " + loggerName);
+                // 仅当能获取到loggerName时，才代表该函数有此注解，需要处理
+                if (loggerName != null) {
+                    // 增加字节码：将loggerName压栈
+                    visitLdcInsn(loggerName);
+                    // 增加字节码：调用静态函数java.util.logging.Logger.getLogger
+                    //            后续参数代表了函数信息（参数类型和返回值）
+                    visitMethodInsn(INVOKESTATIC, "java/util/logging/Logger", "getLogger",
+                            "(Ljava/lang/String;)Ljava/util/logging/Logger;", false);
+                    // 增加字节码：压入日志信息
+                    visitLdcInsn("from entry logger annotation");
+                    // 增加字节码：调用虚函数info，打印日志
+                    visitMethodInsn(INVOKEVIRTUAL, "java/util/logging/Logger", "info",
+                            "(Ljava/lang/String;)V", false);
+                    // 清空loggerName
+                    loggerName = null;
+                }
+            }
+        };
+    }
+}
+
+// 测试类
+public class TestClass {
+    @LogEntry(logger = "global",)
+    public static void helloWorld(){
+        System.out.println("hello world");
+    }
+}
+
+// 主类，启动入口
+public class Application {
+
+    public static void main(String[] args) {
+        TestClass myTest = new TestClass();
+        myTest.helloWorld();
+        // 用法，给定需要处理的class文件
+        if (args.length == 0) {
+            System.out.println("USAGE: java annotation.bytecode.EntryLogger classfile");
+            exit(1);
+        }
+        Path path = Paths.get(args[0]);
+        try {
+            // 打开该字节码、处理并输出
+            ClassReader reader = new ClassReader(Files.newInputStream(path));
+            ClassWriter writer = new ClassWriter(
+                    ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES
+            );
+            // 必要的路径处理
+            EntryLogger entryLogger = new EntryLogger(writer,
+                    path.toString().replace(".class","")
+                            .replaceAll("[/\\\\]","."));
+            System.out.println("origin path: " + path.toString());
+            System.out.println("path change to : " + path.toString().replace(".class","")
+                    .replaceAll("[/\\\\]","."));
+            reader.accept(entryLogger,ClassReader.EXPAND_FRAMES);
+            Files.write(Paths.get(args[0]),writer.toByteArray());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+```
+5. 在加载时处理
+    1. 字节码工程可以延期到加载时进行，这样更自然，不会修改原有class文件，不过也确实会降低加载性能。
+    1. java 1.5引入了java agent。通过加载时调用额外的代理来完成加载时的处理。
+    1. 基本步骤
+        - 编写一个实现了注解处理和代理的java程序，填写代理信息到清单文件中
+        - 编译生成jar包。
+        - 运行时调用方式为：java -javaagent:XXX.jar=xxx -classpath xxx
+    1. 代码暂略
+    
 
 # 参考内容
 [cnblogs编译期生成](https://www.cnblogs.com/LQBlog/p/14208046.html)
 [csdn编译期生成](https://blog.csdn.net/kaifa1321/article/details/79683246)
 [javac选项](https://www.cnblogs.com/itxiaok/p/10356513.html)
 [idea和编译期生成注解](https://zhuanlan.zhihu.com/p/95015043)
+[编译期生成注解：jar和maven](https://segmentfault.com/a/1190000020122395)
+[编译期生成注解：以工厂模式为例](https://blog.csdn.net/qq_20521573/article/details/82321755)
 [Adavanced Java-Annotation Processing](https://www.youtube.com/watch?v=HaCXOYptHqE)
 [JavaSE8手册](https://docs.oracle.com/javase/8/docs/api/)
 [ASM手册](https://asm.ow2.io/javadoc/index.html)
 [字节码查看方式](https://www.cnblogs.com/javaguide/p/13810777.html)
+[Java Agent Premain](https://www.jianshu.com/p/0bbd79661080)
 《深入理解Java虚拟机（JVM高级特性与最佳实践）》
 
 进度

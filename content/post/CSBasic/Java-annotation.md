@@ -348,8 +348,10 @@ public class ActionListenerInstaller {
         </build>
         ```
 1. 编译期和运行期的一些处理区别：
-    1. 编译期处理只能使用语言模型API来分析源码级的注解。即编译器产生的源码树结构。
+    1. 编译期处理只能使用语言模型API，即mirror API来分析源码级的注解。即编译器产生的源码树结构。
+        - 起这个名字是因为，镜子能够起到反射的作用。
     1. getAnnotation受限，很多场景需要使用getAnnotationMirror。
+        - **尚不清楚具体限制场景**
 1. java的SPI思想（待完善）
     - SPI风格：客户代码继承并实现接口，服务方负责调用）
         - 接口和使用者位于同侧
@@ -643,6 +645,8 @@ public class Application {
 [idea和编译期生成注解](https://zhuanlan.zhihu.com/p/95015043)
 [编译期生成注解：jar和maven](https://segmentfault.com/a/1190000020122395)
 [编译期生成注解：以工厂模式为例](https://blog.csdn.net/qq_20521573/article/details/82321755)
+[Java Element.getAnnotationMirrors方法代码示例](https://vimsky.com/examples/detail/java-method-javax.lang.model.element.Element.getAnnotationMirrors.html)
+[深入理解JVM（七）——插件化注解处理器](https://www.sukaidev.top/2021/06/25/19e6281/)
 [Adavanced Java-Annotation Processing](https://www.youtube.com/watch?v=HaCXOYptHqE)
 [JavaSE8手册](https://docs.oracle.com/javase/8/docs/api/)
 [ASM手册](https://asm.ow2.io/javadoc/index.html)

@@ -274,6 +274,7 @@ public class ActionListenerInstaller {
     1. 选择RetentionPolicy.SOURCE
     1. 继承AbstractProcessor类，并实现处理器processor函数。
         - 通常需要声明支持处理的注解，如某个包下面（com.xxx.xxx)，或者全部（*）
+    1. 通过Messager来打印信息，该信息将会输出于IDEA的build窗口中，一定要使用rebuild。
 1. 调用编译：javac -processor ProcessorClassName1,ProcessorClassName2, ... sourceFiles
     - 注意这里需要先生成处理类的字节码，无论实用原生javac，还是maven、gradle，都需要先编译处理器。**你得先有一只组装鸡，才能有蛋**。因此实际上的使用例如
         ```bash
@@ -348,6 +349,7 @@ public class ActionListenerInstaller {
         ```
 1. 编译期和运行期的一些处理区别：
     1. 编译期处理只能使用语言模型API来分析源码级的注解。即编译器产生的源码树结构。
+    1. getAnnotation受限，很多场景需要使用getAnnotationMirror。
 1. java的SPI思想（待完善）
     - SPI风格：客户代码继承并实现接口，服务方负责调用）
         - 接口和使用者位于同侧
@@ -444,8 +446,6 @@ public class ToStringAnnotationProcessor extends AbstractProcessor {
 ```
 7. 问题：
     1. 生成的内容仍然无法实际使用。如果更换类名，则在编译期，使用者会报警，说找不到。如果不更换，会发生类名重复。
-    1. 生成过程很麻烦，仍然需要研究如何在idea中使用maven生成。
-    1. 无法在生成过程中打印日志，System.out，和messager都无效。
     1. gradle还没用过，不过据说比maven快很多
     1. 和spring boot搭配使用的时候还是有问题
     1. 建议再看几个Youtube视频，里面可能有详细步骤。博客什么的，没有可行的。

@@ -275,6 +275,7 @@ public class ActionListenerInstaller {
     1. 继承AbstractProcessor类，并实现处理器processor函数。
         - 通常需要声明支持处理的注解，如某个包下面（com.xxx.xxx)，或者全部（*）
     1. 通过Messager来打印信息，该信息将会输出于IDEA的build窗口中，一定要使用rebuild。
+    1. 返回true代表处理过，返回false则还会交给其他处理器尝试处理。
 1. 调用编译：javac -processor ProcessorClassName1,ProcessorClassName2, ... sourceFiles
     - 注意这里需要先生成处理类的字节码，无论实用原生javac，还是maven、gradle，都需要先编译处理器。**你得先有一只组装鸡，才能有蛋**。因此实际上的使用例如
         ```bash
@@ -357,99 +358,208 @@ public class ActionListenerInstaller {
         - 使用META-INF/resources/services/javax.****对AnnotationProcessor进行配置时，就是在使用SPI了
     - API风格：服务方负责继承并实现接口，客户代码进行调用
         - 接口和实现位于同侧
-1. 示例代码
+1. 示例代码（为若干同父类的类型自动创建工厂方法）
 ```java
-// 用于标记需要生成ToString方法
+// 注解
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
-public @interface ToString {
+public @interface Factory {
+    // 填写父类
+    Class type();
+    // 填写子类
+    String id();
 }
 
-// 测试用的类型
-@ToString
-public class TestClass {
-    @ToString
-    private String myName = "233";
-
-}
-
-// 注解处理器
-@SupportedAnnotationTypes("ToString")
+// 处理器
+@SupportedAnnotationTypes("lyc.annotation.Factory")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-public class ToStringAnnotationProcessor extends AbstractProcessor {
+public class FactoryAnnotationProcessor extends AbstractProcessor {
+
+    Messager messager;
+    Filer filer;
+    Elements elementUtil;
+    Types typeUtil;
+
+
     @Override
-    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        // 打印信息，但是在idea中并未输出
-        Messager messager = processingEnv.getMessager();
-        for (TypeElement te:annotations){
-            for(Element e : roundEnv.getElementsAnnotatedWith(te)){
-                messager.printMessage(Diagnostic.Kind.NOTE,"Print" + e.toString());
-                JavaFileObject builderClass = null;
-                BufferedWriter bufferedWriter = null;
-                // 对类型做整体生成
-                if(e instanceof TypeElement){
-                    try {
-                        // 创建一个源代码文件，不需要添加后缀
-                        builderClass = processingEnv.getFiler().createSourceFile(e.getSimpleName().toString());
-                        bufferedWriter = new BufferedWriter(builderClass.openWriter());
-                        
-                        // 补充必要的包头
-                        if(!e.getEnclosingElement().getSimpleName().toString().isEmpty()){
-                            bufferedWriter.append("package ");
-                            bufferedWriter.append(e.getEnclosingElement().getSimpleName());
-                            bufferedWriter.append(";");
-                        }
+    public synchronized void init(ProcessingEnvironment processingEnv) {
+        super.init(processingEnv);
+        messager = processingEnv.getMessager();
+        filer = processingEnv.getFiler();
+        // 可以使用utils简化很多步骤
+        elementUtil = processingEnv.getElementUtils();
+        typeUtil = processingEnv.getTypeUtils();
+    }
 
-                        // 类头
-                        bufferedWriter.newLine();
-                        bufferedWriter.append("public class ");
-                        bufferedWriter.append(e.getSimpleName());
-                        bufferedWriter.append("Builder");
-                        bufferedWriter.append("{");
-                        bufferedWriter.newLine();
-
-                        // 获取子元素，并填充各个域
-                        for(Element child:e.getEnclosedElements()){
-                            if(child instanceof VariableElement){
-                                bufferedWriter.append(child.asType().toString());
-                                bufferedWriter.append(" ");
-                                bufferedWriter.append(child.toString());
-                                bufferedWriter.append(";");
-                                bufferedWriter.newLine();
+    @Override
+    public boolean process(Set<? extends TypeElement> annotations
+            , RoundEnvironment roundEnv) {
+        try {
+            messager.printMessage(Diagnostic.Kind.NOTE, "Begin Annotation " +
+                    "Process");
+            // 存储处理过的类型，用于统一生成
+            Map<String, TypeElement> factoryElements = new HashMap<>();
+            String qualifiedName = null;
+            // 如果没有需要处理的类型，直接退出
+            if (roundEnv.getElementsAnnotatedWith(Factory.class).isEmpty())
+                return true;
+            for (Element element :
+                    roundEnv.getElementsAnnotatedWith(Factory.class)) {
+                messager.printMessage(Diagnostic.Kind.NOTE,
+                        "element: " + element.toString());
+                // 一些必要的检查：处理目标必须是类型
+                if (element.getKind() != ElementKind.CLASS) {
+                    messager.printMessage(Diagnostic.Kind.NOTE, "Factory " +
+                            "Annotation should only describe class.");
+                    return false;
+                }
+                // 一些必要的检查：处理目标不能是抽象类
+                if (element.getModifiers().contains(Modifier.ABSTRACT)) {
+                    messager.printMessage(Diagnostic.Kind.NOTE, "Factory " +
+                            "Annotation should describe a non abstract class.");
+                    return false;
+                }
+                // // 一些必要的检查：id 应当为 type子类
+                // 这里就需要对java的一些惯性思维，父类只能由一个，而接口可以有多个，都需要检查
+                // 使用mirror api，获取注解信息
+                List<? extends AnnotationMirror> anns =
+                        element.getAnnotationMirrors();
+                // 提取注解中的type字段，并转为TypeMirror
+                // 这一段实际可以用elementUtil代替
+                TypeMirror superClassType = null;
+                for (AnnotationMirror annotationMirror : anns) {
+                    if (annotationMirror.getAnnotationType()
+                        .toString().equals(Factory.class.getName())) {
+                        for (Map.Entry<? extends ExecutableElement, ?
+                                extends AnnotationValue> entry
+                                : annotationMirror.getElementValues().entrySet()) {
+                            // 一定要记得添加toString
+                            if (entry.getKey().getSimpleName().toString().equals("type")) {
+                                superClassType =
+                                        (TypeMirror) entry.getValue().getValue();
                             }
                         }
-
-                        // 编写需要生成的toString函数
-                        bufferedWriter.append("public String toString() {");
-                        bufferedWriter.newLine();
-                        bufferedWriter.append("return ");
-                        for(Element child:e.getEnclosedElements()){
-                            if(child instanceof VariableElement){
-                                bufferedWriter.append(child.getSimpleName());
-                                bufferedWriter.append(".toString()+");
-                            }
-                        }
-                        bufferedWriter.append("\"\";");
-                        bufferedWriter.newLine();
-                        bufferedWriter.append("}");
-                        bufferedWriter.append("}");
-                        bufferedWriter.close();
-                    } catch (IOException ioException) {
-                        messager.printMessage(Diagnostic.Kind.ERROR,"exception: "+ioException.getMessage());
                     }
                 }
+                TypeElement typeElement = (TypeElement) element;
+                if (superClassType instanceof DeclaredType) {
+                    qualifiedName =
+                            ((TypeElement) ((DeclaredType) superClassType).asElement()).
+                            getQualifiedName().toString();
+                    messager.printMessage(Diagnostic.Kind.NOTE,
+                            "qualifiedName: " + qualifiedName);
+                    if (((DeclaredType) superClassType).asElement().getKind()
+                            == ElementKind.INTERFACE) {
+                        messager.printMessage(Diagnostic.Kind.NOTE, "Super is" +
+                                " Interface");
+                        if (!typeElement.getInterfaces()
+                            .contains(((DeclaredType) superClassType)
+                                .asElement().asType())) {
+                            // 使用ERROR输出会直接判定失败
+                            messager.printMessage(Diagnostic.Kind.ERROR
+                                , "Super Interface not match");
+                            return false;
+                        }
+                    } else {
+                        messager.printMessage(Diagnostic.Kind.NOTE, "Super is Class")
+                        TypeMirror superClassMirror = ((TypeElement) element).getSuperclass();
+                        while (superClassMirror.getKind() != TypeKind.NONE) {
+                            if (superClassMirror.toString()
+                                .equals(superClassType.toString())) {
+                                break;
+                            }
+                        }
+                        if (superClassMirror.getKind() == TypeKind.NONE) {
+                            messager.printMessage(Diagnostic.Kind.ERROR
+                                , "Super class not match");
+                            return false;
+                        }
+                    }
+                } else {
+                    messager.printMessage(Diagnostic.Kind.ERROR
+                        , "super class should be class | interface.");
+                }
+                messager.printMessage(Diagnostic.Kind.NOTE, "super check pass");
+                factoryElements.put(element.getSimpleName().toString(), (TypeElement) element);
             }
+            messager.printMessage(Diagnostic.Kind.NOTE, "Generating");
+            generateClassCode(factoryElements, qualifiedName);
+            messager.printMessage(Diagnostic.Kind.NOTE, "Finish Annotation Process");
+        } catch (Exception e) {
+            // 有时会有空消息
+            if (e.getMessage() != null)
+                messager.printMessage(Diagnostic.Kind.NOTE,
+                        "my output: " + e.getMessage());
+            StringBuilder builder = new StringBuilder();
+            // 有时会有空stacktrace
+            if (e.getStackTrace() != null) {
+                for (StackTraceElement element : e.getStackTrace()) {
+                    builder.append("my output: " + element.toString());
+                }
+            }
+            String output = builder.toString();
+            if (output.isEmpty())
+                output = "Exceptions without any message";
+            messager.printMessage(Diagnostic.Kind.ERROR, output);
+        } finally {
+            messager.printMessage(Diagnostic.Kind.NOTE, "finish!!");
         }
         return true;
+    }
+
+    private void generateClassCode(Map<String, TypeElement> elements, String qualifiedName)
+     throws IOException {
+        String suffix = "Factory";
+        TypeElement superClassName = elementUtil.getTypeElement(qualifiedName);
+        String factoryClassName = superClassName.getSimpleName() + suffix;
+        String qualifiedFactoryName = qualifiedName + suffix;
+        PackageElement pkg = elementUtil.getPackageOf(superClassName);
+        String packageName = pkg.isUnnamed() ? null :
+                pkg.getQualifiedName().toString();
+        MethodSpec.Builder method = MethodSpec.methodBuilder("create")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String.class, "id")
+                .returns(TypeName.get(superClassName.asType()));
+        method.beginControlFlow("if(id==null)")
+                .addStatement("throw new IllegalArgumentException($S)", "id " +
+                        "is null")
+                .endControlFlow();
+        for (Map.Entry<String, TypeElement> entry : elements.entrySet()) {
+            method.beginControlFlow("if(id.equals($S))", entry.getKey())
+                    .addStatement("return new $L()",
+                            entry.getValue().getQualifiedName())
+                    .endControlFlow();
+        }
+        method.addStatement("throw new IllegalArgumentException($S+id)",
+                "unknown id = ");
+        TypeSpec typeSpec = TypeSpec
+                .classBuilder(factoryClassName)
+                .addModifiers(Modifier.PUBLIC)
+                .addMethod(method.build())
+                .build();
+        JavaFile.builder(packageName, typeSpec).build().writeTo(filer);
     }
 }
 
 ```
-7. 问题：
-    1. 生成的内容仍然无法实际使用。如果更换类名，则在编译期，使用者会报警，说找不到。如果不更换，会发生类名重复。
-    1. gradle还没用过，不过据说比maven快很多
-    1. 和spring boot搭配使用的时候还是有问题
-    1. 建议再看几个Youtube视频，里面可能有详细步骤。博客什么的，没有可行的。
-
+8. 问题与解决：
+    1. 生成的内容不一定能正确在代码编辑器中作为普通类型使用。
+        - 出现Java File outsize of the source root。需要手动给出生成代码的根目录
+        <center><img src="/images/JavaSeries/APTDebug_MarkGenRoot.png"></center>
+9. Debug:
+    1. 对注解处理器的Debug设置非常重要，在这里简述一下配置方式（IDEA）
+        1. 为注解处理器项目添加远程Debug配置
+        <center><img src="/images/JavaSeries/APTDebug_Configuration.png">配置APTDebug</center>
+        1. 为IDEA配置VM选项
+        <center><img src="/images/JavaSeries/APTDebug_VMOptions.png"></br>-Dcompiler.process.debug.port=8000</center>
+        1. 重启IDEA，使VM选项生效
+        1. 开启Build Debug Process
+        <center><img src="/images/JavaSeries/APTDebug_EnableDebugBuild.png"></center>
+        1. 使用方式：
+            1. clean来一套
+            1. 先rebuild待处理程序，此时build过程会持续等待远程Debug端口
+            1. 以Debug方式运行APTDebug
+            1. 开始调试吧
 # 字节码工程
 1. 在字节码级别上进行处理，是在源码和运行时之外的第三种处理情况。处理字节码文件是相当复杂的事情，一般需要借助一些特殊类库，如AMS。
 1. 字节码速学：

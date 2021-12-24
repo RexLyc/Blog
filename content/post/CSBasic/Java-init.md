@@ -37,3 +37,4 @@ thumbnailImage: /images/thumbnail/java.jpg
 # 参考文献
 1. 《Java编程思想（第四版）》
 1. 《Java核心技术》
+1. [Awesome Java](https://github.com/akullpp/awesome-java)

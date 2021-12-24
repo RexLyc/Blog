@@ -443,6 +443,7 @@ public class FactoryAnnotationProcessor extends AbstractProcessor {
                         }
                     }
                 }
+                // 检查id是否是type的子类
                 TypeElement typeElement = (TypeElement) element;
                 if (superClassType instanceof DeclaredType) {
                     qualifiedName =
@@ -450,6 +451,7 @@ public class FactoryAnnotationProcessor extends AbstractProcessor {
                             getQualifiedName().toString();
                     messager.printMessage(Diagnostic.Kind.NOTE,
                             "qualifiedName: " + qualifiedName);
+                    // 分接口和类型分别处理
                     if (((DeclaredType) superClassType).asElement().getKind()
                             == ElementKind.INTERFACE) {
                         messager.printMessage(Diagnostic.Kind.NOTE, "Super is" +
@@ -465,6 +467,7 @@ public class FactoryAnnotationProcessor extends AbstractProcessor {
                     } else {
                         messager.printMessage(Diagnostic.Kind.NOTE, "Super is Class")
                         TypeMirror superClassMirror = ((TypeElement) element).getSuperclass();
+                        // 循环向上检查父类
                         while (superClassMirror.getKind() != TypeKind.NONE) {
                             if (superClassMirror.toString()
                                 .equals(superClassType.toString())) {
@@ -482,6 +485,7 @@ public class FactoryAnnotationProcessor extends AbstractProcessor {
                         , "super class should be class | interface.");
                 }
                 messager.printMessage(Diagnostic.Kind.NOTE, "super check pass");
+                // 添加到待生成
                 factoryElements.put(element.getSimpleName().toString(), (TypeElement) element);
             }
             messager.printMessage(Diagnostic.Kind.NOTE, "Generating");
@@ -512,12 +516,17 @@ public class FactoryAnnotationProcessor extends AbstractProcessor {
     private void generateClassCode(Map<String, TypeElement> elements, String qualifiedName)
      throws IOException {
         String suffix = "Factory";
+        // 获取父类名称
         TypeElement superClassName = elementUtil.getTypeElement(qualifiedName);
+        // 生成工厂名称
         String factoryClassName = superClassName.getSimpleName() + suffix;
+        // 工厂名称（全名）
         String qualifiedFactoryName = qualifiedName + suffix;
+        // 创建package
         PackageElement pkg = elementUtil.getPackageOf(superClassName);
         String packageName = pkg.isUnnamed() ? null :
                 pkg.getQualifiedName().toString();
+        // JavaPoet库，先创建函数
         MethodSpec.Builder method = MethodSpec.methodBuilder("create")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(String.class, "id")
@@ -534,11 +543,13 @@ public class FactoryAnnotationProcessor extends AbstractProcessor {
         }
         method.addStatement("throw new IllegalArgumentException($S+id)",
                 "unknown id = ");
+        // 再创建类型
         TypeSpec typeSpec = TypeSpec
                 .classBuilder(factoryClassName)
                 .addModifiers(Modifier.PUBLIC)
                 .addMethod(method.build())
                 .build();
+        // 写入文件
         JavaFile.builder(packageName, typeSpec).build().writeTo(filer);
     }
 }
@@ -551,12 +562,15 @@ public class FactoryAnnotationProcessor extends AbstractProcessor {
 9. Debug:
     1. 对注解处理器的Debug设置非常重要，在这里简述一下配置方式（IDEA）
         1. 为注解处理器项目添加远程Debug配置
-        <center><img src="/images/JavaSeries/APTDebug_Configuration.png">配置APTDebug</center>
+            <center><img src="/images/JavaSeries/APTDebug_Configuration.png">配置APTDebug</center>
+
         1. 为IDEA配置VM选项
-        <center><img src="/images/JavaSeries/APTDebug_VMOptions.png"></br>-Dcompiler.process.debug.port=8000</center>
+            <center><img src="/images/JavaSeries/APTDebug_VMOptions.png">-Dcompiler.process.debug.port=8000</center>
+        
         1. 重启IDEA，使VM选项生效
         1. 开启Build Debug Process
-        <center><img src="/images/JavaSeries/APTDebug_EnableDebugBuild.png"></center>
+            <center><img src="/images/JavaSeries/APTDebug_EnableDebugBuild.png"></center>
+
         1. 使用方式：
             1. clean来一套
             1. 先rebuild待处理程序，此时build过程会持续等待远程Debug端口
@@ -749,21 +763,17 @@ public class Application {
     
 
 # 参考内容
-[cnblogs编译期生成](https://www.cnblogs.com/LQBlog/p/14208046.html)
-[csdn编译期生成](https://blog.csdn.net/kaifa1321/article/details/79683246)
-[javac选项](https://www.cnblogs.com/itxiaok/p/10356513.html)
-[idea和编译期生成注解](https://zhuanlan.zhihu.com/p/95015043)
-[编译期生成注解：jar和maven](https://segmentfault.com/a/1190000020122395)
-[编译期生成注解：以工厂模式为例](https://blog.csdn.net/qq_20521573/article/details/82321755)
-[Java Element.getAnnotationMirrors方法代码示例](https://vimsky.com/examples/detail/java-method-javax.lang.model.element.Element.getAnnotationMirrors.html)
-[深入理解JVM（七）——插件化注解处理器](https://www.sukaidev.top/2021/06/25/19e6281/)
-[Adavanced Java-Annotation Processing](https://www.youtube.com/watch?v=HaCXOYptHqE)
-[JavaSE8手册](https://docs.oracle.com/javase/8/docs/api/)
-[ASM手册](https://asm.ow2.io/javadoc/index.html)
-[字节码查看方式](https://www.cnblogs.com/javaguide/p/13810777.html)
-[Java Agent Premain](https://www.jianshu.com/p/0bbd79661080)
-《深入理解Java虚拟机（JVM高级特性与最佳实践）》
-
-进度
-核心技术 P397（但要把事件监听器补上）
-编程思想 P662
+- [cnblogs编译期生成](https://www.cnblogs.com/LQBlog/p/14208046.html)
+- [csdn编译期生成](https://blog.csdn.net/kaifa1321/article/details/79683246)
+- [javac选项](https://www.cnblogs.com/itxiaok/p/10356513.html)
+- [idea和编译期生成注解](https://zhuanlan.zhihu.com/p/95015043)
+- [编译期生成注解：jar和maven](https://segmentfault.com/a/1190000020122395)
+- [编译期生成注解：以工厂模式为例](https://blog.csdn.net/qq_20521573/article/details/82321755)
+- [Java Element.getAnnotationMirrors方法代码示例](https://vimsky.com/examples/detail/java-method-javax.lang.model.element.Element.getAnnotationMirrors.html)
+- [深入理解JVM（七）——插件化注解处理器](https://www.sukaidev.top/2021/06/25/19e6281/)
+- [Adavanced Java-Annotation Processing](https://www.youtube.com/watch?v=HaCXOYptHqE)
+- [JavaSE8手册](https://docs.oracle.com/javase/8/docs/api/)
+- [ASM手册](https://asm.ow2.io/javadoc/index.html)
+- [字节码查看方式](https://www.cnblogs.com/javaguide/p/13810777.html)
+- [Java Agent Premain](https://www.jianshu.com/p/0bbd79661080)
+- 《深入理解Java虚拟机（JVM高级特性与最佳实践）》

@@ -74,6 +74,9 @@ thumbnailImage: images/thumbnail/spring.jpg
 1. @Autowired
     1. 概述：变量自动注入的常用写法。
     1. 用法：可直接对变量、方法和构造方法使用，完成对其中内容自动装配。按照类型匹配。
+1. @Qualifier
+    1. 概述：和@Autowired搭配使用，描述bean的名称
+    1. 用法：对于同时存在多个可用bean的情况，可以使用名称以指定特定bean。
 1. @Configuration
     1. 概述：用于手动创建Bean。内部一般会搭配@Bean使用。
     1. 示例：
@@ -176,6 +179,18 @@ thumbnailImage: images/thumbnail/spring.jpg
         ```
 1. 字段校验：
     - @NotEmpty、@NotBlank、@Null、@NotNull、@AssertTrue、@AssertFalse、@Pattern、@Email、@Min、@Max、@DecimalMin、@DecimalMax、@Size、@Digits、@Past、@Future...
+1. @Cookievalue
+    1. 概述：用于获取指定的Cookie值
+    1. 用法
+        ```java
+            @PostMapping("test")
+            public void getCookieValue(@CookieValue("testId") String cookie){
+                // ...
+            }
+        ```
+1. @CrossOrigin
+    1. 概述：用于支持跨域请求。
+    1. 用法：施加于类或方法上。
 # 数据库
 1. @MapperScan
     1. 概述：扫描指定包下的数据库mapper，根据SQL注解（或嵌入SQL的XML文件）对接口进行实例化
@@ -209,10 +224,19 @@ thumbnailImage: images/thumbnail/spring.jpg
         }
         ```
 1. @Transactional
+    1. 概述：用于进行事务管理。
+    1. 用法：对函数或类型使用。
 
 ## 切面（AOP）
 1. @Aspect
+    1. 概述：将当前类标识为一个切面供容器读取
 1. @PointCut
+    1. 概述：植入
+1. @Around
+1. @AfterReturning
+1. @Before
+1. @AfterThrowing
+1. @After
 
 ## 异步
 1. @Async

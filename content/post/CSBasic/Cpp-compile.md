@@ -18,6 +18,30 @@ thumbnailImage: /images/thumbnail/cpp.png
     1. 编译单元：一个可以被编译的文件，如.c和.cpp。而.h文件不算。
         - .hpp也是一个编译单元。
 # CMakeLists
+1. 概述：CMake是一个跨平台的C/C++构建文件生成工具，也支持一些其他语言。但是最主要的功能还是给C/C++语言项目使用。其在Windows上一般生成Visual Studio工程，在Linux下一般生成Makefile。
+1. 用法：
+    1. 编写CMakeLists.txt
+    2. 编写对应的工程
+    3. 惯用方式
+    ```bash
+    mkdir build
+    cd build
+    cmake ../
+    make
+    ```
+1. 以一个典型的CMakeLists.txt为例
+```bash
+cmake_minimum_required(VERSION 3.10)
+
+# set the project name
+project(Tutorial)
+
+# add the executable
+add_executable(Tutorial tutorial.cxx)
+```
+1. 参考资料
+    - [官方文档](https://cmake.org/cmake/help/latest/index.html)
+    - [CMake入门实战](https://www.hahack.com/codes/cmake/)
 # Makefile
 # 其他构建工具
 # 散点

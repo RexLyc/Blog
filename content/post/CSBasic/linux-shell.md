@@ -15,6 +15,14 @@ thumbnailImage: /images/thumbnail/linux.jpg
 # 核心指令
 # 常用指令
 # Shell编程
+1. 基本语法
+1. 经典例子
+1. Shell环境
+    - .bashrc
+    - .bash_profile
+1. 启动环境
+    - init.d
+    - rcX.d
 # 其他指令收集
 - 查看系统发行版：
 ```bash

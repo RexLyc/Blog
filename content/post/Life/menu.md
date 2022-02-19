@@ -34,6 +34,19 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
 <!-- 改用本地目录必须以/开头 -->
 <center><img src="/images/food/guobaorou-1-finished.jpg" width="256" height="256" ></center>
 
+## 糖醋鲑鱼
+- 当前水平：还算好吃
+- 菜谱：
+    1. 小米辣切段，姜丝，葱段。准备大量糖醋碗汁（因为后续要炖，会被稀释）
+    1. 准备一条鲑鱼，让老板宰完清理好。自己还要再尽量检查下，保证没有内脏残留。
+    1. 侧面各来几刀，倒料酒、足量姜片、少量盐（也可以不加），腌制并去腥
+    1. 加足量油煎鱼。怕崩的话，可以提前控干或擦干。多翻面，煎至鱼肉略微金黄即可。捞出备用。
+    1. 倒出大量油，留底油。加葱姜小米辣炝锅，把鱼加回去。锅边淋入糖醋碗汁。
+    1. 加水开炖。过程中加适量盐。可以尝着弄。
+- 改进：
+    1. 糖醋味道还是稍淡了些。
+<center><img src="/images/food/SweetSourMFish.jpg" width="256" height="256" ></center>
+
 ## 炒包菜
 - 当前水平：一般
 - 菜谱：
@@ -47,13 +60,14 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
 <center><img src="/images/food/FriedCabbage.jpg" width="256" height="256" ></center>
 
 ## 蒜蓉西兰花
-- 当前水平：不太行
+- 当前水平：还行（第三次更新）
 - 菜谱：
     1. 西兰花切段、泡盐水5分钟控干，备好蒜
-    2. 西兰花短暂焯水，开水1分钟内
-    3. 热油（不宜过热）下蒜末、出香味后加入西兰花，翻炒两下即可调味
+    2. 西兰花短暂焯水，开水半分钟。这一步很关键，一定不能超时间。菜色变为油绿，并稍微闻到有熟菜味道即可。捞出控干。
+    3. 热油（不宜过热）下蒜末、出香味后加入西兰花。
+    4. 一头西兰花大概一勺盐。加小半勺十三香。
 - 上次的问题：
-    - 一言难尽，反正就是不太好吃啊。细节上不太对。
+    - ~~一言难尽，反正就是不太好吃啊。细节上不太对。~~
     - [多找几个教程试试](https://www.bilibili.com/video/BV1RE411o76o?from=search&seid=12289287111077673266)
 <center><img src="/images/food/GarlicBroccoli.jpg" width="256" height="256" ></center>
 
@@ -61,7 +75,7 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
 - 当前水平：还算好吃
 - 菜谱：
     1. 粉丝温热水泡20分钟，秋葵焯至变绿（就是比原来绿了就行），备大量蒜、少量小米辣
-    2. 炒蒜蓉、小米辣，油量宜略多，盐和酱油调味调色
+    2. 别忘了**炒蒜蓉**、小米辣，油量宜略多，盐和酱油调味调色
     3. 粉丝，秋葵切好摆盘，淋上蒜蓉，蒸锅开锅后5分钟即可。
 <center><img src="/images/food/GarlicChineseVermicelliOkra.jpg" width="256" height="256" ></center>
 
@@ -75,7 +89,7 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
 <center><img src="/images/food/PotatoFriedEgg.jpg" width="256" height="256" ></center>
 
 ## 炒豇豆
-- 当前水平：还行
+- 当前水平：很行（第二次更新）
 - 菜谱：
     1. 一把豇豆、葱姜蒜、肉丝、尖椒段
     2. 炒肉丝至变色，加少许盐去腥，加入葱姜炒出香味
@@ -83,7 +97,21 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
     4. 反复翻炒至豇豆变为暗绿色
     5. 加盐（一把豇豆差不多半勺盐）、加酱油（一汤勺的量），翻炒至上色
     6. 加入蒜末，翻炒出蒜香味
+- 关键在于一定要稍微多加一些姜，姜的甜味可以让肉和菜味道更好。
+- 豇豆即使生一些也是无毒的。
 <center><img src="/images/food/Cowpea.jpg" width="256" height="256" ></center>
+
+## 炒豆角
+- 当前水平：还行
+- 菜谱：
+    1. 豆角去丝，姜片、肉片切好备用。
+    1. 需要稍微多一些油。炒肉至略变色，加入姜片。稍微翻炒。
+    1. 加入豆角，翻炒。略断生后，锅边淋入酱油，加盐，十三香。加少量糖。
+    1. 继续炒至豆角完全上色。加少量水焖一会儿。
+- 警告：豆角未完全熟则有毒，为了您的安全着想，请尽量多炒一会儿。
+- 问题：
+    1. 肉和菜一起炒，则肉到最后会几乎完全脱水。是否可以尝试分开炒。
+<center><img src="/images/food/FriedBeans.jpg" width="256" height="256" ></center>
 
 ## 地三鲜
 - 当前水平：不太行
@@ -98,13 +126,25 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
 
 # 主食
 ## 酸甜炒面
-- 当前水平：不太行
+- 当前水平：还行（第二次更新）
 - 菜谱：
     1. 准备油菜、西红柿、干辣椒、少量蒜，洗净。糖醋碗汁和锅包肉类似。
     2. 煮好面条，过凉水。
-    3. 热油下蒜，下西红柿，下油菜，断生后下入面条，锅边淋入糖醋碗汁。
-- 上一次失误：太酸了，糖的量少了，而且米醋确实味道不太对，应当用白醋。
+    3. 热油下蒜，下油菜，下西红柿，断生后锅边淋入糖醋碗汁，下入面条，大火翻炒。
+- ~~上一次失误：太酸了，糖的量少了，而且米醋确实味道不太对，应当用白醋。~~
+- 糖醋碗汁：2勺米醋、2大勺白砂糖、半勺酱油、小半勺盐、加少量水溶解。
 <center><img src="/images/food/FriedNoodles-SourSweet.jpg" width="256" height="256" ></center>
+
+## 饺子
+- 当前水平：还行
+- 菜谱：
+    1. 唯一指定牛肉芹菜，准备牛肉切成馅、芹菜切成小丁
+    1. 牛肉加盐、加酱油、加十三香、加足量葱末姜末，略微腌制（10分钟）
+    1. 芹菜焯水、攥干（也别太干）。加入到牛肉馅中。加熟豆油。按一个方向搅拌，直到馅可以缠绕包裹住筷子。
+    1. 和面。软面饺子、硬面汤，加水到面粉均成絮状，开始揉。和好后醒面20分钟。
+    1. 擀饺子皮、开包！
+    1. 煮水，可略加盐（据说能让面更筋道），下饺子直到饺子飘起，肚子鼓起来。
+<center><img src="/images/food/dumplings.jpg" width="256" height="256" ></center>
 
 # 汤
 ## 蘑菇葱花汤
@@ -113,6 +153,16 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
     1. 准备口蘑、葱花
     2. 口蘑去杆，口朝下稍微煎一下，马上翻过来，煎至出水
     3. 加水，加葱花，开锅5分钟，加足量盐，少少十三香
+
+## 白菜豆腐汤
+- 当前水平：没味儿
+- 菜谱：
+    1. 准备葱花、小白菜、冻豆腐（水豆腐也行）
+    1. 炝下葱花出香味，加白菜稍微翻炒
+    1. 倒水、加豆腐开炖
+    1. 加适量盐、十三香
+    1. 出国前再来把葱花
+<center><img src="/images/food/CabbageTofu.jpg" width="256" height="256" ></center>
 
 # 凉菜
 ## 酱牛肉拍黄瓜
@@ -130,7 +180,7 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
     - 酱牛肉
     - 麻辣小龙虾
     - 宫保鸡丁
-    - 糖醋 & 清蒸鱼
+    - ~~糖醋~~ & 清蒸鱼
     - 大盘鸡
     - 水煮牛肉
     - 锅塌胸口
@@ -138,7 +188,7 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
     - 青椒肉丝
     - 爆炒底筋
 - 素菜类：
-    - 炖豆角
+    - ~~炖豆角~~
     - 麻辣豆腐
     - 海带土豆
     - 酸辣土豆丝
@@ -149,10 +199,10 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
 - 主食类
     - 肉夹馍
     - 海鲜粥
-    - 饺子
+    - ~~饺子~~
     - 馅饼
     - 炸酱面
-    - 炒面
+    - ~~炒面~~
     - 拉条子
 - 喝的
     - 银耳雪梨汤

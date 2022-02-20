@@ -8,18 +8,18 @@
 <meta name="generator" content="Hugo 0.87.0 with theme Tranquilpeak 0.4.8-BETA">
 <meta name="author" content="李奕成">
 <meta name="keywords" content="">
-<meta name="description" content="框架中有一些特别重要，通用的注解，在这里进行一定的讲解。本文尚未完成。">
+<meta name="description" content="框架中有一些特别重要，或者基础而通用的注解，在这里进行一定的讲解。本文尚未完成。">
 
 
-<meta property="og:description" content="框架中有一些特别重要，通用的注解，在这里进行一定的讲解。本文尚未完成。">
+<meta property="og:description" content="框架中有一些特别重要，或者基础而通用的注解，在这里进行一定的讲解。本文尚未完成。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Spring框架-关键注解大全">
 <meta name="twitter:title" content="Spring框架-关键注解大全">
 <meta property="og:url" content="https://www.lyclife.com/2021/07/spring%E6%A1%86%E6%9E%B6-%E5%85%B3%E9%94%AE%E6%B3%A8%E8%A7%A3%E5%A4%A7%E5%85%A8/">
 <meta property="twitter:url" content="https://www.lyclife.com/2021/07/spring%E6%A1%86%E6%9E%B6-%E5%85%B3%E9%94%AE%E6%B3%A8%E8%A7%A3%E5%A4%A7%E5%85%A8/">
 <meta property="og:site_name" content="奕成的个人空间">
-<meta property="og:description" content="框架中有一些特别重要，通用的注解，在这里进行一定的讲解。本文尚未完成。">
-<meta name="twitter:description" content="框架中有一些特别重要，通用的注解，在这里进行一定的讲解。本文尚未完成。">
+<meta property="og:description" content="框架中有一些特别重要，或者基础而通用的注解，在这里进行一定的讲解。本文尚未完成。">
+<meta name="twitter:description" content="框架中有一些特别重要，或者基础而通用的注解，在这里进行一定的讲解。本文尚未完成。">
 <meta property="og:locale" content="zh-cn">
 
   
@@ -255,7 +255,330 @@
           
           <div class="post-content markdown" itemprop="articleBody">
             <div class="main-content-wrap">
-              <p>框架中有一些特别重要，通用的注解，在这里进行一定的讲解。本文尚未完成。</p>
+              <p>框架中有一些特别重要，或者基础而通用的注解，在这里进行一定的讲解。本文尚未完成。</p>
+<h1 id="注解的原理">注解的原理</h1>
+<ul>
+<li>请移步至Java系列阅读。</li>
+</ul>
+<h1 id="常用注解">常用注解</h1>
+<ul>
+<li>在此并不直接区分Spring、SpringCloud等，如有必要会单独列出。</li>
+</ul>
+<h2 id="配置篇">配置篇</h2>
+<ol>
+<li>基础类型数据结构的配置注入步骤：Integer、String等
+<ol>
+<li>main类中添加注解：@EnableConfigurationProperties</li>
+<li>需要注入的地方添加注解形如：@Value(&quot;${file-storage.path}&quot;)，花括号内为完整的配置路径</li>
+</ol>
+</li>
+<li>一种Map类型配置注入步骤：
+<ol>
+<li>入口类仍然添加注解：@EnableConfigurationProperties</li>
+<li>注入位置所在类型添加注解：
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Data</span>
+<span style="color:#a6e22e">@ConfigurationProperties</span><span style="color:#f92672">(</span>prefix<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;ibmmq-rocketmq&#34;</span><span style="color:#f92672">)</span> <span style="color:#75715e">// 指定Map在配置中的路径前缀
+</span></code></pre></div></li>
+<li>注入位置不需要注解，代码形如：
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// 注意topicMap为配置中的Map名称
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">private</span> Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span>String<span style="color:#f92672">&gt;</span> topicMap <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;()</span> 
+</code></pre></div></li>
+<li>此时的配置文件形如：
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#f92672">ibmmq-rocketmq</span>:
+    <span style="color:#f92672">topicmap</span>:
+        <span style="color:#f92672">A</span>: <span style="color:#ae81ff">1</span>
+        <span style="color:#f92672">C</span>: <span style="color:#ae81ff">2</span>
+        <span style="color:#f92672">E</span>: <span style="color:#ae81ff">3</span>
+</code></pre></div></li>
+<li>支持多级Map，例如Map&lt;String,Map&lt;String,String&raquo;。</li>
+</ol>
+</li>
+<li>一种Set类型配置的注入方式：
+<ol>
+<li>其他内容和Map注入方式相同</li>
+<li>配置文件中写法：
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#f92672">YourSetName</span>:
+    - <span style="color:#ae81ff">a</span>
+    - <span style="color:#ae81ff">b</span>
+    - <span style="color:#ae81ff">c</span>
+</code></pre></div></li>
+</ol>
+</li>
+</ol>
+<h2 id="核心">核心</h2>
+<ol>
+<li>@ComponentScan
+<ol>
+<li>概述：扫描指定包下的的组件，并进行实例化</li>
+<li>用法：
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// 扫描Controller类型组件的示例
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@ComponentScan</span><span style="color:#f92672">(</span>basePackage <span style="color:#f92672">=</span> <span style="color:#f92672">{</span><span style="color:#e6db74">&#34;the.root.package.path.to.your.components&#34;</span><span style="color:#f92672">}</span>
+            <span style="color:#f92672">,</span> includeFilters <span style="color:#f92672">=</span> <span style="color:#a6e22e">@Filter</span><span style="color:#f92672">(</span>type <span style="color:#f92672">=</span> FilterType<span style="color:#f92672">.</span><span style="color:#a6e22e">ANNOTATION</span>
+                <span style="color:#f92672">,</span> classes <span style="color:#f92672">=</span> <span style="color:#f92672">{</span>Controller<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">,</span> ControllerAdvice<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">}))</span>
+</code></pre></div></li>
+</ol>
+</li>
+<li>@Component
+<ol>
+<li>概述：用于声明一个类型，用于后续的实例化。结合@ComponentScan将会自动创建。</li>
+<li>用法：直接添加在对应类上面</li>
+<li>注意：@Service注解其实本质是@Component的别名，为了更好的区分业务。</li>
+</ol>
+</li>
+<li>@Bean
+<ol>
+<li>概述：用于声明一个Spring框架的Bean。</li>
+<li>用法：直接添加在对应类上面。使用该注解的类型，需要由其他代码手动创建实例。</li>
+</ol>
+</li>
+<li>@Resource
+<ol>
+<li>概述：自动注入</li>
+<li>用法：和Autowired的区别在于，Resource是按照名称匹配</li>
+</ol>
+</li>
+<li>@Autowired
+<ol>
+<li>概述：变量自动注入的常用写法。</li>
+<li>用法：可直接对变量、方法和构造方法使用，完成对其中内容自动装配。按照类型匹配。</li>
+</ol>
+</li>
+<li>@Qualifier
+<ol>
+<li>概述：和@Autowired搭配使用，描述bean的名称</li>
+<li>用法：对于同时存在多个可用bean的情况，可以使用名称以指定特定bean。</li>
+</ol>
+</li>
+<li>@Configuration
+<ol>
+<li>概述：用于手动创建Bean。内部一般会搭配@Bean使用。</li>
+<li>示例：
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Configuration</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyServerEndPoint</span> <span style="color:#f92672">{</span>
+    <span style="color:#a6e22e">@Bean</span>
+    <span style="color:#66d9ef">public</span> ServerEndpointExporter <span style="color:#a6e22e">serverEndpointExporter</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> ServerEndpointExporter<span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div></li>
+</ol>
+</li>
+<li>@PostConstruct
+<ol>
+<li>概述：<strong>Java本身</strong>提供的注解，在构造函数后执行。应用于非静态void函数。</li>
+<li>顺序：Constructor(构造方法) -&gt; @Autowired(依赖注入) -&gt; @PostConstruct(构造后)</li>
+</ol>
+</li>
+<li>@PreDestroy
+<ol>
+<li>概述：在销毁之前执行</li>
+</ol>
+</li>
+</ol>
+<h2 id="web">Web</h2>
+<ol>
+<li>@RestController
+<ol>
+<li>概述：http后端的入口，一般和@RequestMapping、@PostMapping等组合使用</li>
+<li>写法：
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#a6e22e">@RestController</span>
+    <span style="color:#a6e22e">@RequestMapping</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/path/to/your/service&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">YourController</span> <span style="color:#f92672">{</span>
+        <span style="color:#a6e22e">@Autowired</span>
+        YourService yourService<span style="color:#f92672">;</span>
+
+        <span style="color:#a6e22e">@PostMapping</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/your-service-suffix&#34;</span><span style="color:#f92672">)</span>
+        <span style="color:#66d9ef">public</span> ResultType <span style="color:#a6e22e">SendCmdCode</span><span style="color:#f92672">(</span><span style="color:#a6e22e">@RequestBody</span> ParamType param<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">// write your code
+</span><span style="color:#75715e"></span>            <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div></li>
+</ol>
+</li>
+<li>@EnableDiscoveryClient / @EnableEurekaClient
+<ol>
+<li>概述：对于采用微服务架构的系统，该注解用于将本服务注册到注册中心。</li>
+<li>区别：@EnableDiscoveryClient可以使用不同的注册中心(如Consul)，Eureka则只能使用Eureka注册</li>
+<li>使用：在入口类中添加该注解，并在配置文件中添加（以使用eureka为例）
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#f92672">spring</span>:
+  <span style="color:#f92672">application</span>:
+    <span style="color:#f92672">name</span>: <span style="color:#ae81ff">your-service-name</span> <span style="color:#75715e"># 你的服务名字</span>
+
+<span style="color:#f92672">eureka</span>:
+  <span style="color:#f92672">instance</span>:
+    <span style="color:#f92672">prefer-ip-address</span>: <span style="color:#66d9ef">true</span> <span style="color:#75715e"># 将本机ip注册到eureka</span>
+  <span style="color:#f92672">client</span>:
+    <span style="color:#f92672">service-url</span>: 
+      <span style="color:#f92672">defaultZone</span>: <span style="color:#ae81ff">http://your-eureka-server-address</span> <span style="color:#75715e"># eureka注册中心服务的地址</span>
+</code></pre></div></li>
+<li>注：在高版本的Spring Boot中，可以省略注册中心注解，只要在pom.xml中正确写出所用的注册中心的依赖，并在配置中进行配置即可。</li>
+</ol>
+</li>
+<li>@ServerEndpoint
+<ol>
+<li>概述：创建WebSocket服务器端的一种方式。主要需要实现一些固定接口：onOpen、onClose、onMessage、onError.</li>
+<li>注意本方法创建WebSocket服务器，需要搭配一个@Configuration用于创建ServerEndpointExporter。</li>
+<li>用法示例：
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// Configuration.java
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@Configuration</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">WebSocketServerConfig</span> <span style="color:#f92672">{</span>
+    <span style="color:#a6e22e">@Bean</span>
+    <span style="color:#66d9ef">public</span> ServerEndpointExporter <span style="color:#a6e22e">serverEndpointExporter</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> ServerEndpointExporter<span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+<span style="color:#75715e">// MyWebSocketServer.java
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@ServerEndpoint</span><span style="color:#f92672">(</span>value <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/your/ws/path/{param}&#34;</span><span style="color:#f92672">)</span> <span style="color:#75715e">// 可以添加路径变量
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> Session session<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> String param<span style="color:#f92672">;</span>
+    <span style="color:#75715e">// 一般会使用一个静态变量来管理所有连接的信息
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Session<span style="color:#f92672">&gt;</span> sessionPool <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ConcurrentHashMap<span style="color:#f92672">&lt;&gt;();</span>
+
+    <span style="color:#a6e22e">@OnOpen</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onOpen</span><span style="color:#f92672">(</span>Session session<span style="color:#f92672">,</span> <span style="color:#a6e22e">@PathParam</span><span style="color:#f92672">(</span>value <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;param&#34;</span><span style="color:#f92672">)</span> String param<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">param</span> <span style="color:#f92672">=</span> param<span style="color:#f92672">;</span>
+        sessionPool<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">param</span><span style="color:#f92672">,</span> session<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#a6e22e">@OnClose</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onClose</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        sessionPool<span style="color:#f92672">.</span><span style="color:#a6e22e">remove</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">param</span><span style="color:#f92672">);</span>
+        session<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#a6e22e">@OnMessage</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onMessage</span><span style="color:#f92672">(</span><span style="color:#a6e22e">@PathParam</span><span style="color:#f92672">(</span>value <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;param&#34;</span><span style="color:#f92672">)</span> String param<span style="color:#f92672">,</span> String message<span style="color:#f92672">,</span> Session session<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// 处理从客户端接收到的消息
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">send</span><span style="color:#f92672">(</span>String message<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// 发送消息到当前会话的客户端
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">session</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getAsyncRemote</span><span style="color:#f92672">().</span><span style="color:#a6e22e">sendText</span><span style="color:#f92672">(</span>message<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#a6e22e">@OnError</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onError</span><span style="color:#f92672">(</span>Session session<span style="color:#f92672">,</span> Throwable throwable<span style="color:#f92672">)</span> <span style="color:#f92672">{</span> <span style="color:#75715e">// 错误处理
+</span><span style="color:#75715e"></span>        onClose<span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div></li>
+</ol>
+</li>
+<li>字段校验：
+<ul>
+<li>@NotEmpty、@NotBlank、@Null、@NotNull、@AssertTrue、@AssertFalse、@Pattern、@Email、@Min、@Max、@DecimalMin、@DecimalMax、@Size、@Digits、@Past、@Future&hellip;</li>
+</ul>
+</li>
+<li>@Cookievalue
+<ol>
+<li>概述：用于获取指定的Cookie值</li>
+<li>用法
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#a6e22e">@PostMapping</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;test&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">getCookieValue</span><span style="color:#f92672">(</span><span style="color:#a6e22e">@CookieValue</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;testId&#34;</span><span style="color:#f92672">)</span> String cookie<span style="color:#f92672">){</span>
+        <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>    <span style="color:#f92672">}</span>
+</code></pre></div></li>
+</ol>
+</li>
+<li>@CrossOrigin
+<ol>
+<li>概述：用于支持跨域请求。</li>
+<li>用法：施加于类或方法上。</li>
+</ol>
+</li>
+</ol>
+<h1 id="数据库">数据库</h1>
+<ol>
+<li>@MapperScan
+<ol>
+<li>概述：扫描指定包下的数据库mapper，根据SQL注解（或嵌入SQL的XML文件）对接口进行实例化</li>
+<li>用法：在入口类添加
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@MapperScan</span><span style="color:#f92672">({</span><span style="color:#e6db74">&#34;your.mapper.package.path&#34;</span><span style="color:#f92672">})</span>
+</code></pre></div></li>
+<li>注，此时的Mapper形如：
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// entity.java
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@Data</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UserAccount</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// @Result中的property指返回值中的java数据类型的成员名称
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> String userName<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> String userId<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> Integer userAge<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#75715e">// mapper.java
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@CacheNamespace</span><span style="color:#f92672">(</span>blocking <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">)</span> <span style="color:#75715e">// 支持SQL本地查询缓存
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">StationDeviceAccountMapper</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// column指数据库中的列名称
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">@Results</span><span style="color:#f92672">(</span>value <span style="color:#f92672">=</span> <span style="color:#f92672">{</span>
+        <span style="color:#a6e22e">@Result</span><span style="color:#f92672">(</span>property <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;userName&#34;</span><span style="color:#f92672">,</span> column <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;user_name&#34;</span><span style="color:#f92672">),</span>
+        <span style="color:#a6e22e">@Result</span><span style="color:#f92672">(</span>property <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;userId&#34;</span><span style="color:#f92672">,</span> column <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;user_id&#34;</span><span style="color:#f92672">),</span>
+        <span style="color:#a6e22e">@Result</span><span style="color:#f92672">(</span>property <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;userAge&#34;</span><span style="color:#f92672">,</span> column <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;user_age&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#f92672">})</span>
+    <span style="color:#a6e22e">@Select</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;select user_name, user_id&#34;</span>
+            <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;from user_account where user_id = #{queryUserId}&#34;</span><span style="color:#f92672">)</span>
+    List<span style="color:#f92672">&lt;</span>UserAccount<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">getDeviceList</span><span style="color:#f92672">(</span>String queryUserId<span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+</code></pre></div></li>
+</ol>
+</li>
+<li>@Transactional
+<ol>
+<li>概述：用于进行事务管理。</li>
+<li>用法：对函数或类型使用。</li>
+</ol>
+</li>
+</ol>
+<h2 id="切面aop">切面（AOP）</h2>
+<ol>
+<li>@Aspect
+<ol>
+<li>概述：将当前类标识为一个切面供容器读取</li>
+</ol>
+</li>
+<li>@PointCut
+<ol>
+<li>概述：植入</li>
+</ol>
+</li>
+<li>@Around</li>
+<li>@AfterReturning</li>
+<li>@Before</li>
+<li>@AfterThrowing</li>
+<li>@After</li>
+</ol>
+<h2 id="异步">异步</h2>
+<ol>
+<li>@Async</li>
+</ol>
+<h2 id="环境">环境</h2>
+<ol>
+<li>@Profile</li>
+<li>@Conditional</li>
+</ol>
+<h2 id="定时">定时</h2>
+<ol>
+<li>@Scheduled</li>
+</ol>
+<h2 id="开关">开关</h2>
+<ol>
+<li>@EnableAsync</li>
+<li>@EnableScheduling</li>
+<li>@EnableConfigurationProperties</li>
+<li>@EnableTransactionManagement</li>
+<li>@EnableCaching</li>
+</ol>
+<h2 id="测试">测试</h2>
+<ol>
+<li>@RunWith</li>
+<li>@ContextConfiguration</li>
+<li>@Test</li>
+<li>@ActiveProfiles</li>
+</ol>
+<h1 id="参考资料">参考资料</h1>
+<ul>
+<li><a href="https://blog.csdn.net/lixiaolian123/article/details/108090499">Spring常见注解大全</a></li>
+</ul>
               
             </div>
           </div>

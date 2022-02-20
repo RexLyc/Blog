@@ -17,6 +17,24 @@
     </item>
     
     <item>
+      <title>Java系列：注解篇</title>
+      <link>https://www.lyclife.com/2021/12/java%E7%B3%BB%E5%88%97%E6%B3%A8%E8%A7%A3%E7%AF%87/</link>
+      <pubDate>Mon, 13 Dec 2021 14:44:54 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/12/java%E7%B3%BB%E5%88%97%E6%B3%A8%E8%A7%A3%E7%AF%87/</guid>
+      <description>&lt;p&gt;注解是Java所提供的一种特别的编程方式。从Java5被引入，在Spring框架中应用尤为广泛。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Java系列：开坑篇</title>
+      <link>https://www.lyclife.com/2021/12/java%E7%B3%BB%E5%88%97%E5%BC%80%E5%9D%91%E7%AF%87/</link>
+      <pubDate>Mon, 13 Dec 2021 14:21:41 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/12/java%E7%B3%BB%E5%88%97%E5%BC%80%E5%9D%91%E7%AF%87/</guid>
+      <description>&lt;p&gt;本系列主要提供Java相关开发的一些难点的讲解。基础的语法尚需使用其他资料学习。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
       <title>边学边用linux-SSH篇</title>
       <link>https://www.lyclife.com/2021/11/%E8%BE%B9%E5%AD%A6%E8%BE%B9%E7%94%A8linux-ssh%E7%AF%87/</link>
       <pubDate>Wed, 03 Nov 2021 11:17:33 +0800</pubDate>

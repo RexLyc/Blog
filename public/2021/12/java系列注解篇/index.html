@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.87.0 with theme Tranquilpeak 0.4.8-BETA">
+<meta name="author" content="李奕成">
+<meta name="keywords" content="">
+<meta name="description" content="注解是Java所提供的一种特别的编程方式。从Java5被引入，在Spring框架中应用尤为广泛。">
+
+
+<meta property="og:description" content="注解是Java所提供的一种特别的编程方式。从Java5被引入，在Spring框架中应用尤为广泛。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java系列：注解篇">
+<meta name="twitter:title" content="Java系列：注解篇">
+<meta property="og:url" content="https://www.lyclife.com/2021/12/java%E7%B3%BB%E5%88%97%E6%B3%A8%E8%A7%A3%E7%AF%87/">
+<meta property="twitter:url" content="https://www.lyclife.com/2021/12/java%E7%B3%BB%E5%88%97%E6%B3%A8%E8%A7%A3%E7%AF%87/">
+<meta property="og:site_name" content="奕成的个人空间">
+<meta property="og:description" content="注解是Java所提供的一种特别的编程方式。从Java5被引入，在Spring框架中应用尤为广泛。">
+<meta name="twitter:description" content="注解是Java所提供的一种特别的编程方式。从Java5被引入，在Spring框架中应用尤为广泛。">
+<meta property="og:locale" content="zh-cn">
+
+  
+    <meta property="article:published_time" content="2021-12-13T14:44:54">
+  
+  
+    <meta property="article:modified_time" content="2021-12-13T14:44:54">
+  
+  
+  
+    
+      <meta property="article:section" content="计算机科学与技术">
+    
+      <meta property="article:section" content="编程语言">
+    
+  
+  
+    
+      <meta property="article:tag" content="Java系列">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+
+
+
+
+
+
+  <meta property="og:image" content="https://www.lyclife.com/images/thumbnail/java.jpg">
+  <meta property="twitter:image" content="https://www.lyclife.com/images/thumbnail/java.jpg">
+
+
+
+
+
+  <meta property="og:image" content="https://www.lyclife.com/images/author.jpg">
+  <meta property="twitter:image" content="https://www.lyclife.com/images/author.jpg">
+
+
+    
+    <title>Java系列：注解篇</title>
+
+    <link rel="icon" href="https://www.lyclife.com/images/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="https://www.lyclife.com/2021/12/java%E7%B3%BB%E5%88%97%E6%B3%A8%E8%A7%A3%E7%AF%87/">
+
+    
+    <link href="https://www.lyclife.com/scripts/Font-Awesome-4.7.0/css/font-awesome.css" rel="stylesheet">
+    
+    
+    <link href="https://www.lyclife.com/scripts/fancybox-2.1.7/source/jquery.fancybox.css" rel="stylesheet">
+    <link href="https://www.lyclife.com/scripts/fancybox-2.1.7/source/helpers/jquery.fancybox-thumbs.css" rel="stylesheet">
+    
+    
+    <link rel="stylesheet" href="https://www.lyclife.com/css/style-twzjdbqhmnnacqs0pwwdzcdbt8yhv8giawvjqjmyfoqnvazl0dalmnhdkvp7.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="https://www.lyclife.com/">奕成的个人空间</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="https://www.lyclife.com/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="https://www.lyclife.com/#about">
+          <img class="sidebar-profile-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+        </a>
+        <h4 class="sidebar-profile-name">李奕成</h4>
+        
+          <h5 class="sidebar-profile-bio">每天都是最好的一天</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">首页</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">分类</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">标签</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">归档</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">关于</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://github.com/RexLyc" target="_blank" rel="noopener">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/images/wechat.jpg">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-wechat"></i>
+      
+      <span class="sidebar-button-desc">微信</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="4"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
+  
+    <h1 class="post-title" itemprop="headline">
+      Java系列：注解篇
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2021-12-13T14:44:54&#43;08:00">
+        
+  十二月 13, 2021
+
+      </time>
+    
+    
+  
+  
+    <span>发布在</span>
+    
+      <a class="category-link" href="https://www.lyclife.com/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba%e7%a7%91%e5%ad%a6%e4%b8%8e%e6%8a%80%e6%9c%af">计算机科学与技术</a>, 
+    
+      <a class="category-link" href="https://www.lyclife.com/categories/%e7%bc%96%e7%a8%8b%e8%af%ad%e8%a8%80">编程语言</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              <p>注解是Java所提供的一种特别的编程方式。从Java5被引入，在Spring框架中应用尤为广泛。</p>
+<h1 id="为什么要使用注解">为什么要使用注解</h1>
+<ol>
+<li>注解能够将一些元数据直接写入代码当中。而不需要另写文档。</li>
+<li>代码更加易于阅读，并且拥有了编译期类型检查的能力。</li>
+<li>可以用于控制编译期代码的生成。</li>
+</ol>
+<blockquote>
+<p>总之，一旦你的代码中出现了重复性的工作，你就可以考虑使用注解来简化、自动化该过程。</p>
+</blockquote>
+<h1 id="核心原理">核心原理</h1>
+<ol>
+<li>运行期注解：利用Java的反射机制，在运行期对注解进行解析。</li>
+<li>编译期注解：逐轮次处理注解，生成新的源文件</li>
+<li>字节码工程</li>
+</ol>
+<h1 id="内置注解">内置注解</h1>
+<ol>
+<li>标准注解：
+<ol>
+<li>@Override：表示当前方法将覆盖父类中的方法。</li>
+<li>@Deprecated：表示当前方法已被废弃，如果被使用，编译器会发出警告。</li>
+<li>@SuppressWarnings：关闭不恰当的编译器警告信息</li>
+</ol>
+</li>
+<li>元注解：
+<ol>
+<li>@Target：说明注解的作用对象，可选ElementType.CONSTRUCTOR / FIELD / LOCAL_VARIABLE / METHOD / PACKAGE / PARAMETER / TYPE
+<ul>
+<li>可以使用逗号分隔，添加多个</li>
+<li>不使用@Target则可默认作用于任何目标</li>
+<li>可以用于作用对象出现的任何位置，比如作为TYPE注解，则可以出现在泛型类的类型参数中，如:public class Cache&lt;@Immutable V&gt;</li>
+</ul>
+</li>
+<li>@Retention：说明注解的作用级别，可选RetentionPolicy.SOURCE/CLASS(默认)/RUNTIME</li>
+<li>@Documented：用于生成说明文档</li>
+<li>@Inherited：允许子类继承父类的注解</li>
+</ol>
+</li>
+</ol>
+<h1 id="注解的定义">注解的定义</h1>
+<ol>
+<li>注解的定义很像接口的定义。事实上，注解也确实会一样被编译成class文件。例如@Test注解</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Target</span><span style="color:#f92672">(</span>ElementType<span style="color:#f92672">.</span><span style="color:#a6e22e">METHOD</span><span style="color:#f92672">)</span>
+<span style="color:#a6e22e">@Retention</span><span style="color:#f92672">(</span>RetentionPolicy<span style="color:#f92672">.</span><span style="color:#a6e22e">RUNTIME</span><span style="color:#f92672">)</span>
+<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">@interface</span> Test <span style="color:#f92672">{}</span>
+</code></pre></div><ol start="2">
+<li>组成部分
+<ol>
+<li>元注解：定义注解时所需要给出的一些基本信息</li>
+<li>注解的成员：在处理注解时可以使用，可指定默认值，使用时需要提供无默认值的所有其他值
+<ul>
+<li>支持的成员类型包括：所有基本类型（int，float，boolean等），String，Class，enum，Annotation，以上类型的数组</li>
+<li>不允许以null作为默认值。如果想要表现默认无效的状态，需要自行约定，如使用数值使用-1，串使用空字符串等。</li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">@interface</span> Example <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">();</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">name</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> <span style="color:#e6db74">&#34;Example Name&#34;</span><span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><ol start="3">
+<li>编写注解处理器
+<ol>
+<li>注解处理器需要使用反射，通过反射来获取施加给类型、函数等的注解。只有编写了注解处理器，注解才能够被正确的使用。例如对于@Test来说，如果不使用测试工具，则该注解并没有意义。而有些工具则可能会删除带有该注解的函数，以生成纯净的代码。</li>
+</ol>
+</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleTracker</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExampleCases</span> <span style="color:#f92672">{</span>
+        <span style="color:#a6e22e">@Example</span><span style="color:#f92672">(</span>id <span style="color:#f92672">=</span> 233<span style="color:#f92672">,</span> name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;233?&#34;</span><span style="color:#f92672">)</span>
+        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">sayHello</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;hello&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+
+        <span style="color:#a6e22e">@Example</span><span style="color:#f92672">(</span>id <span style="color:#f92672">=</span> 666<span style="color:#f92672">)</span>
+        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">isOk</span><span style="color:#f92672">(</span>String name<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> name<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;ok&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">ExampleTest</span><span style="color:#f92672">(</span>class<span style="color:#f92672">&lt;?&gt;</span> cl<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span>Method m<span style="color:#f92672">:</span> cl<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaredMethods</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+            Example ex <span style="color:#f92672">=</span> m<span style="color:#f92672">.</span><span style="color:#a6e22e">getAnnotation</span><span style="color:#f92672">(</span>Example<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>ex <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;found example: &#34;</span> <span style="color:#f92672">+</span> ex<span style="color:#f92672">.</span><span style="color:#a6e22e">id</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; &#34;</span> <span style="color:#f92672">+</span> ex<span style="color:#f92672">.</span><span style="color:#a6e22e">name</span><span style="color:#f92672">());</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String args<span style="color:#f92672">[])</span> <span style="color:#f92672">{</span>
+        ExampleTest<span style="color:#f92672">(</span>ExampleCases<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">return</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h1 id="运行时注解示例代码">运行时注解示例代码</h1>
+<h2 id="一种创建sql数据表的注解写法">一种创建SQL数据表的注解写法</h2>
+<ol>
+<li>注解部分</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// 以下注解定义分散在各自的源文件中
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">// 类注解，声明一个数据表
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@Target</span><span style="color:#f92672">(</span>ElementType<span style="color:#f92672">.</span><span style="color:#a6e22e">TYPE</span><span style="color:#f92672">)</span>
+<span style="color:#a6e22e">@Retention</span><span style="color:#f92672">(</span>RetentionPolicy<span style="color:#f92672">.</span><span style="color:#a6e22e">RUNTIME</span><span style="color:#f92672">)</span>
+<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">@interface</span> DBTable <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// 表名
+</span><span style="color:#75715e"></span>    String <span style="color:#a6e22e">name</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> <span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#75715e">// 约束注解，声明该列的约束条件
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@Target</span><span style="color:#f92672">(</span>ElementType<span style="color:#f92672">.</span><span style="color:#a6e22e">FIELD</span><span style="color:#f92672">)</span>
+<span style="color:#a6e22e">@Retention</span><span style="color:#f92672">(</span>RetentionPolicy<span style="color:#f92672">.</span><span style="color:#a6e22e">RUNTIME</span><span style="color:#f92672">)</span>
+<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">@interface</span> Constraints <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// 默认非主键
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">primaryKey</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+    <span style="color:#75715e">// 默认允许空
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">allowNull</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+    <span style="color:#75715e">// 默认非唯一
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">unique</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#a6e22e">@Target</span><span style="color:#f92672">(</span>ElementType<span style="color:#f92672">.</span><span style="color:#a6e22e">FIELD</span><span style="color:#f92672">)</span>
+<span style="color:#a6e22e">@Retention</span><span style="color:#f92672">(</span>RetentionPolicy<span style="color:#f92672">.</span><span style="color:#a6e22e">RUNTIME</span><span style="color:#f92672">)</span>
+<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">@interface</span> SQLString <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// 列名
+</span><span style="color:#75715e"></span>    String <span style="color:#a6e22e">name</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> <span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">;</span>
+    <span style="color:#75715e">// 列占用存储大小
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">value</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> 0<span style="color:#f92672">;</span>
+
+    Constraints <span style="color:#a6e22e">constraints</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> <span style="color:#a6e22e">@Constraints</span><span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#75715e">// 本例子仅用于展示对于注解类型默认值中的成员的修改方式
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@Target</span><span style="color:#f92672">(</span>ElementType<span style="color:#f92672">.</span><span style="color:#a6e22e">FIELD</span><span style="color:#f92672">)</span>
+<span style="color:#a6e22e">@Retention</span><span style="color:#f92672">(</span>RetentionPolicy<span style="color:#f92672">.</span><span style="color:#a6e22e">RUNTIME</span><span style="color:#f92672">)</span>
+<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">@interface</span> Uniqueness <span style="color:#f92672">{</span>
+    Constraints <span style="color:#a6e22e">constraints</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">default</span> <span style="color:#a6e22e">@Constraints</span><span style="color:#f92672">(</span>unique <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#75715e">// 定义一个实际的数据表
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@DBTable</span><span style="color:#f92672">(</span>name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;TESTDB&#34;</span><span style="color:#f92672">)</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TestDB</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// 设定某一列
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">@SQLString</span><span style="color:#f92672">(</span>name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;first&#34;</span><span style="color:#f92672">,</span> value <span style="color:#f92672">=</span> 30<span style="color:#f92672">)</span>
+    String firstCol<span style="color:#f92672">;</span>
+    <span style="color:#75715e">// 设定主键
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">@SQLString</span><span style="color:#f92672">(</span>name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;second&#34;</span><span style="color:#f92672">,</span> value <span style="color:#f92672">=</span> 50<span style="color:#f92672">,</span> constraints <span style="color:#f92672">=</span> <span style="color:#a6e22e">@Constraints</span><span style="color:#f92672">(</span>primaryKey <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">))</span>
+    String key<span style="color:#f92672">;</span>
+    <span style="color:#75715e">// 用于统计行数
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> rowCount<span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><blockquote>
+<p>反思：在注解中配置注解并不是一个很好的办法。虽然看起来炫酷，但其实写起来很别扭。更普遍的做法是，让一个域拥有多个不同的注解。比如本例中的@SQLString中的@Constraints域独立出来，在使用的时候，二者平级同时使用。</p>
+</blockquote>
+<ol start="2">
+<li>注解处理器部分</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SQLAnnotationProcessor</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// 输入待处理的含数据表注解的类型名称数组
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">createTable</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> classes<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>String className <span style="color:#f92672">:</span> classes<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">// 反射获取实际类型
+</span><span style="color:#75715e"></span>            Class<span style="color:#f92672">&lt;?&gt;</span> cl <span style="color:#f92672">=</span> Class<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span>className<span style="color:#f92672">);</span>
+            DBTable dbTable <span style="color:#f92672">=</span> cl<span style="color:#f92672">.</span><span style="color:#a6e22e">getAnnotation</span><span style="color:#f92672">(</span>DBTable<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>dbTable <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;No DBTable annotations in class: &#34;</span> <span style="color:#f92672">+</span> className<span style="color:#f92672">);</span>
+                <span style="color:#66d9ef">continue</span><span style="color:#f92672">;</span>
+            <span style="color:#f92672">}</span>
+            String tableName <span style="color:#f92672">=</span> dbTable<span style="color:#f92672">.</span><span style="color:#a6e22e">name</span><span style="color:#f92672">();</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>tableName<span style="color:#f92672">.</span><span style="color:#a6e22e">isEmpty</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+                <span style="color:#75715e">// 未设定表名，默认使用类型名代替
+</span><span style="color:#75715e"></span>                tableName <span style="color:#f92672">=</span> cl<span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">toUpperCase</span><span style="color:#f92672">();</span>
+            <span style="color:#f92672">}</span>
+            List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> columnDefs <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;();</span>
+            <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>Field field <span style="color:#f92672">:</span> cl<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaredFields</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+                String columnName <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+                Annotation<span style="color:#f92672">[]</span> anns <span style="color:#f92672">=</span> field<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaredAnnotations</span><span style="color:#f92672">();</span>
+                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>anns<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span> <span style="color:#f92672">&lt;</span> 1<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    <span style="color:#75715e">// 非数据表列定义字段
+</span><span style="color:#75715e"></span>                    <span style="color:#66d9ef">continue</span><span style="color:#f92672">;</span>
+                <span style="color:#f92672">}</span>
+                <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>Annotation ann <span style="color:#f92672">:</span> anns<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>ann <span style="color:#66d9ef">instanceof</span> SQLString<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                        SQLString sqlString <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>SQLString<span style="color:#f92672">)</span> ann<span style="color:#f92672">;</span>
+                        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>sqlString<span style="color:#f92672">.</span><span style="color:#a6e22e">name</span><span style="color:#f92672">().</span><span style="color:#a6e22e">isEmpty</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+                            columnName <span style="color:#f92672">=</span> field<span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">toUpperCase</span><span style="color:#f92672">();</span>
+                        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+                            columnName <span style="color:#f92672">=</span> sqlString<span style="color:#f92672">.</span><span style="color:#a6e22e">name</span><span style="color:#f92672">();</span>
+                        <span style="color:#f92672">}</span>
+                        columnDefs<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>columnName
+                            <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; VARCHAR(&#34;</span>
+                            <span style="color:#f92672">+</span> sqlString<span style="color:#f92672">.</span><span style="color:#a6e22e">value</span><span style="color:#f92672">()</span>
+                            <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;)&#34;</span>
+                            <span style="color:#f92672">+</span> getConstraintsString<span style="color:#f92672">(</span>sqlString<span style="color:#f92672">));</span>
+                    <span style="color:#f92672">}</span>
+                <span style="color:#f92672">}</span>
+                StringBuilder createCommandBuilder <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> StringBuilder<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;CREATE TABLE &#34;</span>
+                    <span style="color:#f92672">+</span> tableName <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;(&#34;</span><span style="color:#f92672">);</span>
+                <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>String column <span style="color:#f92672">:</span> columnDefs<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    createCommandBuilder<span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;\n &#34;</span> <span style="color:#f92672">+</span> column <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;,&#34;</span><span style="color:#f92672">);</span>
+                <span style="color:#f92672">}</span>
+                String createCommand <span style="color:#f92672">=</span> createCommandBuilder<span style="color:#f92672">.</span><span style="color:#a6e22e">substring</span><span style="color:#f92672">(</span>0
+                    <span style="color:#f92672">,</span> createCommandBuilder<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">()</span> <span style="color:#f92672">-</span> 1<span style="color:#f92672">)</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;);&#34;</span><span style="color:#f92672">;</span>
+                System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;SQL: &#34;</span> <span style="color:#f92672">+</span> createCommand<span style="color:#f92672">);</span>
+                <span style="color:#75715e">// do create stuff
+</span><span style="color:#75715e"></span>                <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><blockquote>
+<p>逐个处理类型，逐个处理类型中的域，对于每个域，逐个处理其注解</p>
+</blockquote>
+<h2 id="事件监听器">事件监听器</h2>
+<ol>
+<li>注解和使用部分</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// 监听器注解，只需要提供监听信号源名称
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@Target</span><span style="color:#f92672">(</span>ElementType<span style="color:#f92672">.</span><span style="color:#a6e22e">METHOD</span><span style="color:#f92672">)</span>
+<span style="color:#a6e22e">@Retention</span><span style="color:#f92672">(</span>RetentionPolicy<span style="color:#f92672">.</span><span style="color:#a6e22e">RUNTIME</span><span style="color:#f92672">)</span>
+<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">@interface</span> ActionListenerFor <span style="color:#f92672">{</span>
+    String <span style="color:#a6e22e">source</span><span style="color:#f92672">();</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#75715e">// 业务代码
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ControlPanel</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> JPanel panel<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> JButton setPanelRedButton<span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ControlPanel</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        panel <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> JPanel<span style="color:#f92672">();</span>
+        setPanelRedButton <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> JButton<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Red&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#75715e">// some other gui setting
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// 在构造函数中对监听事件进行关联
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            ActionListenerInstaller<span style="color:#f92672">.</span><span style="color:#a6e22e">processAnnotations</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>ReflectiveOperationException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">// 事件监听回调
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">@ActionListenerFor</span><span style="color:#f92672">(</span>source <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;setPanelRedButton&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">redPanel</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        panel<span style="color:#f92672">.</span><span style="color:#a6e22e">setBackground</span><span style="color:#f92672">(</span>Color<span style="color:#f92672">.</span><span style="color:#a6e22e">RED</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><ol start="2">
+<li>注解处理器部分</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// 安装监听回调
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ActionListenerInstaller</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// 和swing框架相关的特定关联方法
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addListener</span><span style="color:#f92672">(</span>Object source<span style="color:#f92672">,</span> <span style="color:#66d9ef">final</span> Object param<span style="color:#f92672">,</span> <span style="color:#66d9ef">final</span> Method m<span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">throws</span> ReflectiveOperationException <span style="color:#f92672">{</span>
+        InvocationHandler handler <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> InvocationHandler<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+            <span style="color:#a6e22e">@Override</span>
+            <span style="color:#66d9ef">public</span> Object <span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span>Object proxy<span style="color:#f92672">,</span> Method method<span style="color:#f92672">,</span> Object<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Throwable <span style="color:#f92672">{</span>
+                <span style="color:#66d9ef">return</span> m<span style="color:#f92672">.</span><span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span>param<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">};</span>
+        Object listener <span style="color:#f92672">=</span> Proxy<span style="color:#f92672">.</span><span style="color:#a6e22e">newProxyInstance</span><span style="color:#f92672">(</span><span style="color:#66d9ef">null</span>
+                <span style="color:#f92672">,</span> <span style="color:#66d9ef">new</span> Class<span style="color:#f92672">[]{</span>java<span style="color:#f92672">.</span><span style="color:#a6e22e">awt</span><span style="color:#f92672">.</span><span style="color:#a6e22e">event</span><span style="color:#f92672">.</span><span style="color:#a6e22e">ActionListener</span><span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">},</span> handler<span style="color:#f92672">);</span>
+        Method adder <span style="color:#f92672">=</span> source<span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getMethod</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;addActionListener&#34;</span><span style="color:#f92672">,</span> ActionListener<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        adder<span style="color:#f92672">.</span><span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span>source<span style="color:#f92672">,</span> listener<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">processAnnotations</span><span style="color:#f92672">(</span>Object obj<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> ReflectiveOperationException <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// 获取当前obj的所属类型
+</span><span style="color:#75715e"></span>        Class<span style="color:#f92672">&lt;?&gt;</span> cl <span style="color:#f92672">=</span> obj<span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>Method m <span style="color:#f92672">:</span> cl<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaredMethods</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">// 获取包含的监听注解
+</span><span style="color:#75715e"></span>            ActionListenerFor listener <span style="color:#f92672">=</span> m<span style="color:#f92672">.</span><span style="color:#a6e22e">getAnnotation</span><span style="color:#f92672">(</span>ActionListenerFor<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>listener <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                <span style="color:#75715e">// 查找监听来源，这里要求监听源必须同在当前类型
+</span><span style="color:#75715e"></span>                Field f <span style="color:#f92672">=</span> cl<span style="color:#f92672">.</span><span style="color:#a6e22e">getDeclaredField</span><span style="color:#f92672">(</span>listener<span style="color:#f92672">.</span><span style="color:#a6e22e">source</span><span style="color:#f92672">());</span>
+                f<span style="color:#f92672">.</span><span style="color:#a6e22e">setAccessible</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
+                addListener<span style="color:#f92672">(</span>f<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>obj<span style="color:#f92672">),</span> obj<span style="color:#f92672">,</span> m<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h1 id="编译时注解处理">编译时注解处理</h1>
+<ol>
+<li>原有工具的英文名称为Annotation Processing Tool（APT），目标是直接处理源文件。java8之后该部分已经直接迁移到javac内部。</li>
+<li>处理原理：注解处理器将会从最初的源文件开始，逐轮次处理注解，并<strong>产生新的源文件</strong>，直到不再有新的源文件产生。然后再进行传统的java源文件编译。</li>
+<li>使用方法
+<ol>
+<li>选择RetentionPolicy.SOURCE</li>
+<li>继承AbstractProcessor类，并实现处理器processor函数。
+<ul>
+<li>通常需要声明支持处理的注解，如某个包下面（com.xxx.xxx)，或者全部（*）</li>
+</ul>
+</li>
+<li>通过Messager来打印信息，该信息将会输出于IDEA的build窗口中，一定要使用rebuild。</li>
+<li>返回true代表处理过，返回false则还会交给其他处理器尝试处理。</li>
+</ol>
+</li>
+<li>调用编译：javac -processor ProcessorClassName1,ProcessorClassName2, &hellip; sourceFiles
+<ul>
+<li>注意这里需要先生成处理类的字节码，无论实用原生javac，还是maven、gradle，都需要先编译处理器。<strong>你得先有一只组装鸡，才能有蛋</strong>。因此实际上的使用例如
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># 方法一，纯手动</span>
+<span style="color:#75715e"># 从包起始目录执行</span>
+javac ./your/package/name/MyProcessor.java
+javac -verbose -processor your.package.name.MyProcessor <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    ./your/package/name/MainClass.java <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    ./your/package/name/TestClass.java <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    ...
+
+<span style="color:#75715e"># 方法二（推荐），打jar包并使用META-INF/services/</span>
+<span style="color:#75715e"># 先编译打包</span>
+javac ./your/package/name/MyProcessor.java
+echo <span style="color:#e6db74">&#34;your.package.name.MyProcessor&#34;</span> &gt; <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    META-INF/services/javax.annotation.processing.Processor
+<span style="color:#75715e"># 将META-INF一并打包（注意META-INF和包顶层目录同级）</span>
+jar -cvf MyProcessor.jar ./your/package/name/MyProcessor.class META-INF/
+<span style="color:#75715e"># 使用</span>
+javac -verbose -cp MyProcessor.jar ./your/path/to/ToBeProcessed.java
+</code></pre></div></li>
+<li>和maven搭配使用，需要配置的编译内容（但是目前还没编写一个有效的例子）
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#75715e">&lt;!-- pom.xml --&gt;</span>
+<span style="color:#75715e">&lt;!-- 暂时不使用IDEA内置的Setting中的Annotation Processor，使用pom.xml就可以了 --&gt;</span>
+<span style="color:#75715e">&lt;!-- 注解处理器项目配置 --&gt;</span>
+<span style="color:#f92672">&lt;build&gt;</span>
+    <span style="color:#f92672">&lt;plugins&gt;</span>
+        <span style="color:#f92672">&lt;plugin&gt;</span>
+            <span style="color:#f92672">&lt;groupId&gt;</span>org.apache.maven.plugins<span style="color:#f92672">&lt;/groupId&gt;</span>
+            <span style="color:#f92672">&lt;artifactId&gt;</span>maven-compiler-plugin<span style="color:#f92672">&lt;/artifactId&gt;</span>
+            <span style="color:#f92672">&lt;version&gt;</span>3.8.1<span style="color:#f92672">&lt;/version&gt;</span>
+            <span style="color:#f92672">&lt;configuration&gt;</span>
+                <span style="color:#75715e">&lt;!-- 必加，处理器项目不应进行注解处理 --&gt;</span>
+                <span style="color:#f92672">&lt;proc&gt;</span>none<span style="color:#f92672">&lt;/proc&gt;</span>
+                <span style="color:#f92672">&lt;annotationProcessors&gt;</span>
+                    <span style="color:#f92672">&lt;annotationProcessor&gt;</span>
+                        ToStringAnnotationProcessor
+                    <span style="color:#f92672">&lt;/annotationProcessor&gt;</span>
+                <span style="color:#f92672">&lt;/annotationProcessors&gt;</span>
+            <span style="color:#f92672">&lt;/configuration&gt;</span>
+        <span style="color:#f92672">&lt;/plugin&gt;</span>
+    <span style="color:#f92672">&lt;/plugins&gt;</span>
+<span style="color:#f92672">&lt;/build&gt;</span>
+
+<span style="color:#75715e">&lt;!-- pom.xml --&gt;</span>
+<span style="color:#75715e">&lt;!-- 需要使用注解处理器的项目配置 --&gt;</span>
+<span style="color:#75715e">&lt;!-- 把你的处理器项目列为依赖 --&gt;</span>
+<span style="color:#f92672">&lt;dependencies&gt;</span>
+    <span style="color:#f92672">&lt;dependency&gt;</span>
+        <span style="color:#f92672">&lt;groupId&gt;</span>org.lyclab<span style="color:#f92672">&lt;/groupId&gt;</span>
+        <span style="color:#f92672">&lt;artifactId&gt;</span>lyc-annotation-processor<span style="color:#f92672">&lt;/artifactId&gt;</span>
+        <span style="color:#f92672">&lt;version&gt;</span>1.0-SNAPSHOT<span style="color:#f92672">&lt;/version&gt;</span>
+    <span style="color:#f92672">&lt;/dependency&gt;</span>
+<span style="color:#f92672">&lt;/dependencies&gt;</span>
+<span style="color:#f92672">&lt;build&gt;</span>
+    <span style="color:#f92672">&lt;plugins&gt;</span>
+        <span style="color:#f92672">&lt;plugin&gt;</span>
+            <span style="color:#f92672">&lt;groupId&gt;</span>org.apache.maven.plugins<span style="color:#f92672">&lt;/groupId&gt;</span>
+            <span style="color:#f92672">&lt;artifactId&gt;</span>maven-compiler-plugin<span style="color:#f92672">&lt;/artifactId&gt;</span>
+            <span style="color:#f92672">&lt;version&gt;</span>3.8.1<span style="color:#f92672">&lt;/version&gt;</span>
+            <span style="color:#f92672">&lt;configuration&gt;</span>
+                <span style="color:#f92672">&lt;annotationProcessors&gt;</span>
+                    <span style="color:#f92672">&lt;annotationProcessor&gt;</span>
+                        ToStringAnnotationProcessor
+                    <span style="color:#f92672">&lt;/annotationProcessor&gt;</span>
+                <span style="color:#f92672">&lt;/annotationProcessors&gt;</span>
+            <span style="color:#f92672">&lt;/configuration&gt;</span>
+        <span style="color:#f92672">&lt;/plugin&gt;</span>
+    <span style="color:#f92672">&lt;/plugins&gt;</span>
+<span style="color:#f92672">&lt;/build&gt;</span>
+</code></pre></div></li>
+</ul>
+</li>
+<li>编译期和运行期的一些处理区别：
+<ol>
+<li>编译期处理只能使用语言模型API，即mirror API来分析源码级的注解。即编译器产生的源码树结构。
+<ul>
+<li>起这个名字是因为，镜子能够起到反射的作用。</li>
+</ul>
+</li>
+<li>getAnnotation受限，很多场景需要使用getAnnotationMirror。
+<ul>
+<li><strong>尚不清楚具体限制场景</strong></li>
+</ul>
+</li>
+</ol>
+</li>
+<li>java的SPI思想（待完善）
+<ul>
+<li>SPI风格：客户代码继承并实现接口，服务方负责调用）
+<ul>
+<li>接口和使用者位于同侧</li>
+<li>天然适合插件开发</li>
+<li>使用META-INF/resources/services/javax.****对AnnotationProcessor进行配置时，就是在使用SPI了</li>
+</ul>
+</li>
+<li>API风格：服务方负责继承并实现接口，客户代码进行调用
+<ul>
+<li>接口和实现位于同侧</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>示例代码（为若干同父类的类型自动创建工厂方法）</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// 注解
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@Target</span><span style="color:#f92672">(</span>ElementType<span style="color:#f92672">.</span><span style="color:#a6e22e">TYPE</span><span style="color:#f92672">)</span>
+<span style="color:#a6e22e">@Retention</span><span style="color:#f92672">(</span>RetentionPolicy<span style="color:#f92672">.</span><span style="color:#a6e22e">SOURCE</span><span style="color:#f92672">)</span>
+<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">@interface</span> Factory <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// 填写父类
+</span><span style="color:#75715e"></span>    Class <span style="color:#a6e22e">type</span><span style="color:#f92672">();</span>
+    <span style="color:#75715e">// 填写子类
+</span><span style="color:#75715e"></span>    String <span style="color:#a6e22e">id</span><span style="color:#f92672">();</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#75715e">// 处理器
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">@SupportedAnnotationTypes</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;lyc.annotation.Factory&#34;</span><span style="color:#f92672">)</span>
+<span style="color:#a6e22e">@SupportedSourceVersion</span><span style="color:#f92672">(</span>SourceVersion<span style="color:#f92672">.</span><span style="color:#a6e22e">RELEASE_8</span><span style="color:#f92672">)</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FactoryAnnotationProcessor</span> <span style="color:#66d9ef">extends</span> AbstractProcessor <span style="color:#f92672">{</span>
+
+    Messager messager<span style="color:#f92672">;</span>
+    Filer filer<span style="color:#f92672">;</span>
+    Elements elementUtil<span style="color:#f92672">;</span>
+    Types typeUtil<span style="color:#f92672">;</span>
+
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">init</span><span style="color:#f92672">(</span>ProcessingEnvironment processingEnv<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">super</span><span style="color:#f92672">.</span><span style="color:#a6e22e">init</span><span style="color:#f92672">(</span>processingEnv<span style="color:#f92672">);</span>
+        messager <span style="color:#f92672">=</span> processingEnv<span style="color:#f92672">.</span><span style="color:#a6e22e">getMessager</span><span style="color:#f92672">();</span>
+        filer <span style="color:#f92672">=</span> processingEnv<span style="color:#f92672">.</span><span style="color:#a6e22e">getFiler</span><span style="color:#f92672">();</span>
+        <span style="color:#75715e">// 可以使用utils简化很多步骤
+</span><span style="color:#75715e"></span>        elementUtil <span style="color:#f92672">=</span> processingEnv<span style="color:#f92672">.</span><span style="color:#a6e22e">getElementUtils</span><span style="color:#f92672">();</span>
+        typeUtil <span style="color:#f92672">=</span> processingEnv<span style="color:#f92672">.</span><span style="color:#a6e22e">getTypeUtils</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">process</span><span style="color:#f92672">(</span>Set<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> TypeElement<span style="color:#f92672">&gt;</span> annotations
+            <span style="color:#f92672">,</span> RoundEnvironment roundEnv<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            messager<span style="color:#f92672">.</span><span style="color:#a6e22e">printMessage</span><span style="color:#f92672">(</span>Diagnostic<span style="color:#f92672">.</span><span style="color:#a6e22e">Kind</span><span style="color:#f92672">.</span><span style="color:#a6e22e">NOTE</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Begin Annotation &#34;</span> <span style="color:#f92672">+</span>
+                    <span style="color:#e6db74">&#34;Process&#34;</span><span style="color:#f92672">);</span>
+            <span style="color:#75715e">// 存储处理过的类型，用于统一生成
+</span><span style="color:#75715e"></span>            Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> TypeElement<span style="color:#f92672">&gt;</span> factoryElements <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;();</span>
+            String qualifiedName <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+            <span style="color:#75715e">// 如果没有需要处理的类型，直接退出
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>roundEnv<span style="color:#f92672">.</span><span style="color:#a6e22e">getElementsAnnotatedWith</span><span style="color:#f92672">(</span>Factory<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">).</span><span style="color:#a6e22e">isEmpty</span><span style="color:#f92672">())</span>
+                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+            <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>Element element <span style="color:#f92672">:</span>
+                    roundEnv<span style="color:#f92672">.</span><span style="color:#a6e22e">getElementsAnnotatedWith</span><span style="color:#f92672">(</span>Factory<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                messager<span style="color:#f92672">.</span><span style="color:#a6e22e">printMessage</span><span style="color:#f92672">(</span>Diagnostic<span style="color:#f92672">.</span><span style="color:#a6e22e">Kind</span><span style="color:#f92672">.</span><span style="color:#a6e22e">NOTE</span><span style="color:#f92672">,</span>
+                        <span style="color:#e6db74">&#34;element: &#34;</span> <span style="color:#f92672">+</span> element<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">());</span>
+                <span style="color:#75715e">// 一些必要的检查：处理目标必须是类型
+</span><span style="color:#75715e"></span>                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>element<span style="color:#f92672">.</span><span style="color:#a6e22e">getKind</span><span style="color:#f92672">()</span> <span style="color:#f92672">!=</span> ElementKind<span style="color:#f92672">.</span><span style="color:#a6e22e">CLASS</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    messager<span style="color:#f92672">.</span><span style="color:#a6e22e">printMessage</span><span style="color:#f92672">(</span>Diagnostic<span style="color:#f92672">.</span><span style="color:#a6e22e">Kind</span><span style="color:#f92672">.</span><span style="color:#a6e22e">NOTE</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Factory &#34;</span> <span style="color:#f92672">+</span>
+                            <span style="color:#e6db74">&#34;Annotation should only describe class.&#34;</span><span style="color:#f92672">);</span>
+                    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+                <span style="color:#f92672">}</span>
+                <span style="color:#75715e">// 一些必要的检查：处理目标不能是抽象类
+</span><span style="color:#75715e"></span>                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>element<span style="color:#f92672">.</span><span style="color:#a6e22e">getModifiers</span><span style="color:#f92672">().</span><span style="color:#a6e22e">contains</span><span style="color:#f92672">(</span>Modifier<span style="color:#f92672">.</span><span style="color:#a6e22e">ABSTRACT</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                    messager<span style="color:#f92672">.</span><span style="color:#a6e22e">printMessage</span><span style="color:#f92672">(</span>Diagnostic<span style="color:#f92672">.</span><span style="color:#a6e22e">Kind</span><span style="color:#f92672">.</span><span style="color:#a6e22e">NOTE</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Factory &#34;</span> <span style="color:#f92672">+</span>
+                            <span style="color:#e6db74">&#34;Annotation should describe a non abstract class.&#34;</span><span style="color:#f92672">);</span>
+                    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+                <span style="color:#f92672">}</span>
+                <span style="color:#75715e">// // 一些必要的检查：id 应当为 type子类
+</span><span style="color:#75715e"></span>                <span style="color:#75715e">// 这里就需要对java的一些惯性思维，父类只能由一个，而接口可以有多个，都需要检查
+</span><span style="color:#75715e"></span>                <span style="color:#75715e">// 使用mirror api，获取注解信息
+</span><span style="color:#75715e"></span>                List<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> AnnotationMirror<span style="color:#f92672">&gt;</span> anns <span style="color:#f92672">=</span>
+                        element<span style="color:#f92672">.</span><span style="color:#a6e22e">getAnnotationMirrors</span><span style="color:#f92672">();</span>
+                <span style="color:#75715e">// 提取注解中的type字段，并转为TypeMirror
+</span><span style="color:#75715e"></span>                <span style="color:#75715e">// 这一段实际可以用elementUtil代替
+</span><span style="color:#75715e"></span>                TypeMirror superClassType <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+                <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>AnnotationMirror annotationMirror <span style="color:#f92672">:</span> anns<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>annotationMirror<span style="color:#f92672">.</span><span style="color:#a6e22e">getAnnotationType</span><span style="color:#f92672">()</span>
+                        <span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">().</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>Factory<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">()))</span> <span style="color:#f92672">{</span>
+                        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>Map<span style="color:#f92672">.</span><span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> ExecutableElement<span style="color:#f92672">,</span> <span style="color:#f92672">?</span>
+                                <span style="color:#66d9ef">extends</span> AnnotationValue<span style="color:#f92672">&gt;</span> entry
+                                <span style="color:#f92672">:</span> annotationMirror<span style="color:#f92672">.</span><span style="color:#a6e22e">getElementValues</span><span style="color:#f92672">().</span><span style="color:#a6e22e">entrySet</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+                            <span style="color:#75715e">// 一定要记得添加toString
+</span><span style="color:#75715e"></span>                            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>entry<span style="color:#f92672">.</span><span style="color:#a6e22e">getKey</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getSimpleName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">().</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;type&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                                superClassType <span style="color:#f92672">=</span>
+                                        <span style="color:#f92672">(</span>TypeMirror<span style="color:#f92672">)</span> entry<span style="color:#f92672">.</span><span style="color:#a6e22e">getValue</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getValue</span><span style="color:#f92672">();</span>
+                            <span style="color:#f92672">}</span>
+                        <span style="color:#f92672">}</span>
+                    <span style="color:#f92672">}</span>
+                <span style="color:#f92672">}</span>
+                <span style="color:#75715e">// 检查id是否是type的子类
+</span><span style="color:#75715e"></span>                TypeElement typeElement <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>TypeElement<span style="color:#f92672">)</span> element<span style="color:#f92672">;</span>
+                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>superClassType <span style="color:#66d9ef">instanceof</span> DeclaredType<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    qualifiedName <span style="color:#f92672">=</span>
+                            <span style="color:#f92672">((</span>TypeElement<span style="color:#f92672">)</span> <span style="color:#f92672">((</span>DeclaredType<span style="color:#f92672">)</span> superClassType<span style="color:#f92672">).</span><span style="color:#a6e22e">asElement</span><span style="color:#f92672">()).</span>
+                            getQualifiedName<span style="color:#f92672">().</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">();</span>
+                    messager<span style="color:#f92672">.</span><span style="color:#a6e22e">printMessage</span><span style="color:#f92672">(</span>Diagnostic<span style="color:#f92672">.</span><span style="color:#a6e22e">Kind</span><span style="color:#f92672">.</span><span style="color:#a6e22e">NOTE</span><span style="color:#f92672">,</span>
+                            <span style="color:#e6db74">&#34;qualifiedName: &#34;</span> <span style="color:#f92672">+</span> qualifiedName<span style="color:#f92672">);</span>
+                    <span style="color:#75715e">// 分接口和类型分别处理
+</span><span style="color:#75715e"></span>                    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(((</span>DeclaredType<span style="color:#f92672">)</span> superClassType<span style="color:#f92672">).</span><span style="color:#a6e22e">asElement</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getKind</span><span style="color:#f92672">()</span>
+                            <span style="color:#f92672">==</span> ElementKind<span style="color:#f92672">.</span><span style="color:#a6e22e">INTERFACE</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                        messager<span style="color:#f92672">.</span><span style="color:#a6e22e">printMessage</span><span style="color:#f92672">(</span>Diagnostic<span style="color:#f92672">.</span><span style="color:#a6e22e">Kind</span><span style="color:#f92672">.</span><span style="color:#a6e22e">NOTE</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Super is&#34;</span> <span style="color:#f92672">+</span>
+                                <span style="color:#e6db74">&#34; Interface&#34;</span><span style="color:#f92672">);</span>
+                        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>typeElement<span style="color:#f92672">.</span><span style="color:#a6e22e">getInterfaces</span><span style="color:#f92672">()</span>
+                            <span style="color:#f92672">.</span><span style="color:#a6e22e">contains</span><span style="color:#f92672">(((</span>DeclaredType<span style="color:#f92672">)</span> superClassType<span style="color:#f92672">)</span>
+                                <span style="color:#f92672">.</span><span style="color:#a6e22e">asElement</span><span style="color:#f92672">().</span><span style="color:#a6e22e">asType</span><span style="color:#f92672">()))</span> <span style="color:#f92672">{</span>
+                            <span style="color:#75715e">// 使用ERROR输出会直接判定失败
+</span><span style="color:#75715e"></span>                            messager<span style="color:#f92672">.</span><span style="color:#a6e22e">printMessage</span><span style="color:#f92672">(</span>Diagnostic<span style="color:#f92672">.</span><span style="color:#a6e22e">Kind</span><span style="color:#f92672">.</span><span style="color:#a6e22e">ERROR</span>
+                                <span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Super Interface not match&#34;</span><span style="color:#f92672">);</span>
+                            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+                        <span style="color:#f92672">}</span>
+                    <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+                        messager<span style="color:#f92672">.</span><span style="color:#a6e22e">printMessage</span><span style="color:#f92672">(</span>Diagnostic<span style="color:#f92672">.</span><span style="color:#a6e22e">Kind</span><span style="color:#f92672">.</span><span style="color:#a6e22e">NOTE</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Super is Class&#34;</span><span style="color:#f92672">)</span>
+                        TypeMirror superClassMirror <span style="color:#f92672">=</span> <span style="color:#f92672">((</span>TypeElement<span style="color:#f92672">)</span> element<span style="color:#f92672">).</span><span style="color:#a6e22e">getSuperclass</span><span style="color:#f92672">();</span>
+                        <span style="color:#75715e">// 循环向上检查父类
+</span><span style="color:#75715e"></span>                        <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span>superClassMirror<span style="color:#f92672">.</span><span style="color:#a6e22e">getKind</span><span style="color:#f92672">()</span> <span style="color:#f92672">!=</span> TypeKind<span style="color:#f92672">.</span><span style="color:#a6e22e">NONE</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>superClassMirror<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">()</span>
+                                <span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>superClassType<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">()))</span> <span style="color:#f92672">{</span>
+                                <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+                            <span style="color:#f92672">}</span>
+                        <span style="color:#f92672">}</span>
+                        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>superClassMirror<span style="color:#f92672">.</span><span style="color:#a6e22e">getKind</span><span style="color:#f92672">()</span> <span style="color:#f92672">==</span> TypeKind<span style="color:#f92672">.</span><span style="color:#a6e22e">NONE</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                            messager<span style="color:#f92672">.</span><span style="color:#a6e22e">printMessage</span><span style="color:#f92672">(</span>Diagnostic<span style="color:#f92672">.</span><span style="color:#a6e22e">Kind</span><span style="color:#f92672">.</span><span style="color:#a6e22e">ERROR</span>
+                                <span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Super class not match&#34;</span><span style="color:#f92672">);</span>
+                            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+                        <span style="color:#f92672">}</span>
+                    <span style="color:#f92672">}</span>
+                <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+                    messager<span style="color:#f92672">.</span><span style="color:#a6e22e">printMessage</span><span style="color:#f92672">(</span>Diagnostic<span style="color:#f92672">.</span><span style="color:#a6e22e">Kind</span><span style="color:#f92672">.</span><span style="color:#a6e22e">ERROR</span>
+                        <span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;super class should be class | interface.&#34;</span><span style="color:#f92672">);</span>
+                <span style="color:#f92672">}</span>
+                messager<span style="color:#f92672">.</span><span style="color:#a6e22e">printMessage</span><span style="color:#f92672">(</span>Diagnostic<span style="color:#f92672">.</span><span style="color:#a6e22e">Kind</span><span style="color:#f92672">.</span><span style="color:#a6e22e">NOTE</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;super check pass&#34;</span><span style="color:#f92672">);</span>
+                <span style="color:#75715e">// 添加到待生成
+</span><span style="color:#75715e"></span>                factoryElements<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>element<span style="color:#f92672">.</span><span style="color:#a6e22e">getSimpleName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">(),</span> <span style="color:#f92672">(</span>TypeElement<span style="color:#f92672">)</span> element<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+            messager<span style="color:#f92672">.</span><span style="color:#a6e22e">printMessage</span><span style="color:#f92672">(</span>Diagnostic<span style="color:#f92672">.</span><span style="color:#a6e22e">Kind</span><span style="color:#f92672">.</span><span style="color:#a6e22e">NOTE</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Generating&#34;</span><span style="color:#f92672">);</span>
+            generateClassCode<span style="color:#f92672">(</span>factoryElements<span style="color:#f92672">,</span> qualifiedName<span style="color:#f92672">);</span>
+            messager<span style="color:#f92672">.</span><span style="color:#a6e22e">printMessage</span><span style="color:#f92672">(</span>Diagnostic<span style="color:#f92672">.</span><span style="color:#a6e22e">Kind</span><span style="color:#f92672">.</span><span style="color:#a6e22e">NOTE</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Finish Annotation Process&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Exception e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">// 有时会有空消息
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>e<span style="color:#f92672">.</span><span style="color:#a6e22e">getMessage</span><span style="color:#f92672">()</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span>
+                messager<span style="color:#f92672">.</span><span style="color:#a6e22e">printMessage</span><span style="color:#f92672">(</span>Diagnostic<span style="color:#f92672">.</span><span style="color:#a6e22e">Kind</span><span style="color:#f92672">.</span><span style="color:#a6e22e">NOTE</span><span style="color:#f92672">,</span>
+                        <span style="color:#e6db74">&#34;my output: &#34;</span> <span style="color:#f92672">+</span> e<span style="color:#f92672">.</span><span style="color:#a6e22e">getMessage</span><span style="color:#f92672">());</span>
+            StringBuilder builder <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> StringBuilder<span style="color:#f92672">();</span>
+            <span style="color:#75715e">// 有时会有空stacktrace
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>e<span style="color:#f92672">.</span><span style="color:#a6e22e">getStackTrace</span><span style="color:#f92672">()</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>StackTraceElement element <span style="color:#f92672">:</span> e<span style="color:#f92672">.</span><span style="color:#a6e22e">getStackTrace</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+                    builder<span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;my output: &#34;</span> <span style="color:#f92672">+</span> element<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">());</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span>
+            String output <span style="color:#f92672">=</span> builder<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">();</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>output<span style="color:#f92672">.</span><span style="color:#a6e22e">isEmpty</span><span style="color:#f92672">())</span>
+                output <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Exceptions without any message&#34;</span><span style="color:#f92672">;</span>
+            messager<span style="color:#f92672">.</span><span style="color:#a6e22e">printMessage</span><span style="color:#f92672">(</span>Diagnostic<span style="color:#f92672">.</span><span style="color:#a6e22e">Kind</span><span style="color:#f92672">.</span><span style="color:#a6e22e">ERROR</span><span style="color:#f92672">,</span> output<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
+            messager<span style="color:#f92672">.</span><span style="color:#a6e22e">printMessage</span><span style="color:#f92672">(</span>Diagnostic<span style="color:#f92672">.</span><span style="color:#a6e22e">Kind</span><span style="color:#f92672">.</span><span style="color:#a6e22e">NOTE</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;finish!!&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">generateClassCode</span><span style="color:#f92672">(</span>Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> TypeElement<span style="color:#f92672">&gt;</span> elements<span style="color:#f92672">,</span> String qualifiedName<span style="color:#f92672">)</span>
+     <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+        String suffix <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Factory&#34;</span><span style="color:#f92672">;</span>
+        <span style="color:#75715e">// 获取父类名称
+</span><span style="color:#75715e"></span>        TypeElement superClassName <span style="color:#f92672">=</span> elementUtil<span style="color:#f92672">.</span><span style="color:#a6e22e">getTypeElement</span><span style="color:#f92672">(</span>qualifiedName<span style="color:#f92672">);</span>
+        <span style="color:#75715e">// 生成工厂名称
+</span><span style="color:#75715e"></span>        String factoryClassName <span style="color:#f92672">=</span> superClassName<span style="color:#f92672">.</span><span style="color:#a6e22e">getSimpleName</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> suffix<span style="color:#f92672">;</span>
+        <span style="color:#75715e">// 工厂名称（全名）
+</span><span style="color:#75715e"></span>        String qualifiedFactoryName <span style="color:#f92672">=</span> qualifiedName <span style="color:#f92672">+</span> suffix<span style="color:#f92672">;</span>
+        <span style="color:#75715e">// 创建package
+</span><span style="color:#75715e"></span>        PackageElement pkg <span style="color:#f92672">=</span> elementUtil<span style="color:#f92672">.</span><span style="color:#a6e22e">getPackageOf</span><span style="color:#f92672">(</span>superClassName<span style="color:#f92672">);</span>
+        String packageName <span style="color:#f92672">=</span> pkg<span style="color:#f92672">.</span><span style="color:#a6e22e">isUnnamed</span><span style="color:#f92672">()</span> <span style="color:#f92672">?</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">:</span>
+                pkg<span style="color:#f92672">.</span><span style="color:#a6e22e">getQualifiedName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">();</span>
+        <span style="color:#75715e">// JavaPoet库，先创建函数
+</span><span style="color:#75715e"></span>        MethodSpec<span style="color:#f92672">.</span><span style="color:#a6e22e">Builder</span> method <span style="color:#f92672">=</span> MethodSpec<span style="color:#f92672">.</span><span style="color:#a6e22e">methodBuilder</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;create&#34;</span><span style="color:#f92672">)</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">addModifiers</span><span style="color:#f92672">(</span>Modifier<span style="color:#f92672">.</span><span style="color:#a6e22e">PUBLIC</span><span style="color:#f92672">)</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">addParameter</span><span style="color:#f92672">(</span>String<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;id&#34;</span><span style="color:#f92672">)</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">returns</span><span style="color:#f92672">(</span>TypeName<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>superClassName<span style="color:#f92672">.</span><span style="color:#a6e22e">asType</span><span style="color:#f92672">()));</span>
+        method<span style="color:#f92672">.</span><span style="color:#a6e22e">beginControlFlow</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;if(id==null)&#34;</span><span style="color:#f92672">)</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">addStatement</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;throw new IllegalArgumentException($S)&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;id &#34;</span> <span style="color:#f92672">+</span>
+                        <span style="color:#e6db74">&#34;is null&#34;</span><span style="color:#f92672">)</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">endControlFlow</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>Map<span style="color:#f92672">.</span><span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> TypeElement<span style="color:#f92672">&gt;</span> entry <span style="color:#f92672">:</span> elements<span style="color:#f92672">.</span><span style="color:#a6e22e">entrySet</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+            method<span style="color:#f92672">.</span><span style="color:#a6e22e">beginControlFlow</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;if(id.equals($S))&#34;</span><span style="color:#f92672">,</span> entry<span style="color:#f92672">.</span><span style="color:#a6e22e">getKey</span><span style="color:#f92672">())</span>
+                    <span style="color:#f92672">.</span><span style="color:#a6e22e">addStatement</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;return new $L()&#34;</span><span style="color:#f92672">,</span>
+                            entry<span style="color:#f92672">.</span><span style="color:#a6e22e">getValue</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getQualifiedName</span><span style="color:#f92672">())</span>
+                    <span style="color:#f92672">.</span><span style="color:#a6e22e">endControlFlow</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+        method<span style="color:#f92672">.</span><span style="color:#a6e22e">addStatement</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;throw new IllegalArgumentException($S+id)&#34;</span><span style="color:#f92672">,</span>
+                <span style="color:#e6db74">&#34;unknown id = &#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#75715e">// 再创建类型
+</span><span style="color:#75715e"></span>        TypeSpec typeSpec <span style="color:#f92672">=</span> TypeSpec
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">classBuilder</span><span style="color:#f92672">(</span>factoryClassName<span style="color:#f92672">)</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">addModifiers</span><span style="color:#f92672">(</span>Modifier<span style="color:#f92672">.</span><span style="color:#a6e22e">PUBLIC</span><span style="color:#f92672">)</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">addMethod</span><span style="color:#f92672">(</span>method<span style="color:#f92672">.</span><span style="color:#a6e22e">build</span><span style="color:#f92672">())</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">build</span><span style="color:#f92672">();</span>
+        <span style="color:#75715e">// 写入文件
+</span><span style="color:#75715e"></span>        JavaFile<span style="color:#f92672">.</span><span style="color:#a6e22e">builder</span><span style="color:#f92672">(</span>packageName<span style="color:#f92672">,</span> typeSpec<span style="color:#f92672">).</span><span style="color:#a6e22e">build</span><span style="color:#f92672">().</span><span style="color:#a6e22e">writeTo</span><span style="color:#f92672">(</span>filer<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+</code></pre></div><ol start="8">
+<li>问题与解决：
+<ol>
+<li>生成的内容不一定能正确在代码编辑器中作为普通类型使用。
+<ul>
+<li>出现Java File outsize of the source root。需要手动给出生成代码的根目录</li>
+</ul>
+ <center><img src="https://www.lyclife.com/images/JavaSeries/APTDebug_MarkGenRoot.png"></center>
+</li>
+</ol>
+</li>
+<li>Debug:
+<ol>
+<li>对注解处理器的Debug设置非常重要，在这里简述一下配置方式（IDEA）
+<ol>
+<li>
+<p>为注解处理器项目添加远程Debug配置</p>
+ <center><img src="https://www.lyclife.com/images/JavaSeries/APTDebug_Configuration.png">配置APTDebug</center>
+</li>
+<li>
+<p>为IDEA配置VM选项</p>
+ <center><img src="https://www.lyclife.com/images/JavaSeries/APTDebug_VMOptions.png">-Dcompiler.process.debug.port=8000</center>
+</li>
+<li>
+<p>重启IDEA，使VM选项生效</p>
+</li>
+<li>
+<p>开启Build Debug Process</p>
+ <center><img src="https://www.lyclife.com/images/JavaSeries/APTDebug_EnableDebugBuild.png"></center>
+</li>
+<li>
+<p>使用方式：</p>
+<ol>
+<li>clean来一套</li>
+<li>先rebuild待处理程序，此时build过程会持续等待远程Debug端口</li>
+<li>以Debug方式运行APTDebug</li>
+<li>开始调试吧</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h1 id="字节码工程">字节码工程</h1>
+<ol>
+<li>在字节码级别上进行处理，是在源码和运行时之外的第三种处理情况。处理字节码文件是相当复杂的事情，一般需要借助一些特殊类库，如AMS。</li>
+<li>字节码速学：
+<ol>
+<li>
+<p>字节码以类为单位。</p>
+</li>
+<li>
+<p>阅读可使用javap -verbose xxx.class，但更建议使用Idea的JClasslib插件阅读。</p>
+</li>
+<li>
+<p>文件内容依次为：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>名称</th>
+<th>数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>u4</td>
+<td>magic</td>
+<td>1</td>
+</tr>
+<tr>
+<td>u2</td>
+<td>minor_version</td>
+<td>1</td>
+</tr>
+<tr>
+<td>u2</td>
+<td>major_version</td>
+<td>1</td>
+</tr>
+<tr>
+<td>u2</td>
+<td>constant_pool_count</td>
+<td>1</td>
+</tr>
+<tr>
+<td>cp_info</td>
+<td>constant_pool</td>
+<td>constant_pool_count - 1</td>
+</tr>
+<tr>
+<td>u2</td>
+<td>access_flags</td>
+<td>1</td>
+</tr>
+<tr>
+<td>u2</td>
+<td>this_class</td>
+<td>1</td>
+</tr>
+<tr>
+<td>u2</td>
+<td>super_class</td>
+<td>1</td>
+</tr>
+<tr>
+<td>u2</td>
+<td>interfaces_count</td>
+<td>1</td>
+</tr>
+<tr>
+<td>u2</td>
+<td>interfaces</td>
+<td>interfaces_count</td>
+</tr>
+<tr>
+<td>u2</td>
+<td>fields_count</td>
+<td>1</td>
+</tr>
+<tr>
+<td>field_info</td>
+<td>fields</td>
+<td>fields_count</td>
+</tr>
+<tr>
+<td>u2</td>
+<td>methods_count</td>
+<td>1</td>
+</tr>
+<tr>
+<td>method_info</td>
+<td>methods</td>
+<td>methods_count</td>
+</tr>
+<tr>
+<td>u2</td>
+<td>attributes_count</td>
+<td>1</td>
+</tr>
+<tr>
+<td>attribute_info</td>
+<td>attributes</td>
+<td>attributes_count</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>其中：</p>
+<ul>
+<li>cp_info将包含方法名、字段名等等各类常量。而this_class/super_class的值实际是对cp_info的索引。</li>
+<li>method_info字段中将会包含代码。实际上很多字段都是常量池的索引。</li>
+</ul>
+</li>
+<li>
+<p>描述符标识字符（用于描述方法和字段的类型信息）</p>
+<table>
+<thead>
+<tr>
+<th>标识字符</th>
+<th>含义</th>
+<th>标识字符</th>
+<th>含义</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B</td>
+<td>byte</td>
+<td>J</td>
+<td>long</td>
+<td></td>
+</tr>
+<tr>
+<td>C</td>
+<td>char</td>
+<td>S</td>
+<td>short</td>
+<td></td>
+</tr>
+<tr>
+<td>D</td>
+<td>double</td>
+<td>Z</td>
+<td>boolean</td>
+<td></td>
+</tr>
+<tr>
+<td>F</td>
+<td>float</td>
+<td>V</td>
+<td>void</td>
+<td></td>
+</tr>
+<tr>
+<td>I</td>
+<td>int</td>
+<td>L</td>
+<td>类类型</td>
+<td></td>
+</tr>
+<tr>
+<td>前置[</td>
+<td>一层数组</td>
+<td>前置()</td>
+<td>代表方法的参数列表</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Code属性</p>
+<ul>
+<li>包含属性长度、操作数栈最大深度、局部变量所需存储空间、字节码长度、指令字节流、异常表、其他属性等</li>
+</ul>
+</li>
+<li>
+<p>字节码指令简介（T替换为各种类型）</p>
+<ul>
+<li>加载型(Tload)：如iload、fload、dload、aload、iload_&lt;n&gt;&hellip;
+<ul>
+<li>常量加载型：bipush、sipush、ldc、aconst_null、Tconst&hellip;</li>
+</ul>
+</li>
+<li>存储型(Tstore)：如istore、fstore、dstore、astore、istore_&lt;n&gt;&hellip;</li>
+<li>运算型：Tadd、Tmul、Tdiv、Trem、Tneg、Tshl、Tor、Tand、Tinc、dcmpg&hellip;</li>
+<li>类型转换型（宽化自动，窄化是有指令的）：i2b、i2c、i2s&hellip;</li>
+<li>对象创建和访问型：new、newarray、get/putfield、get/putstatic、Taload、Tastore、arraylength、instanceof、checkcast&hellip;</li>
+<li>操作数栈管理型：pop、pop2、dup、dup2、swap&hellip;</li>
+<li>控制型：ifeq、iflt、tableswitch、lookupswitch、goto&hellip;</li>
+<li>方法调用和返回指令：invokevirtual、invokeinterface、invokespecial、invokestatic、invokedynamic、Treturn、return</li>
+<li>异常处理：athrow</li>
+<li>同步指令：monitorenter（以栈顶元素作为锁）、monitorexit、方法级的同步则是隐式的（ACC_SYNCHRONIZED标识）</li>
+</ul>
+</li>
+<li>
+<p>从字节码定义中也可以看出，Java天生就存在一些限制，比如：单文件的常量数上限一定是小于65535的。还有设计上取巧的地方，比如大部分byte、short都没有单独指令，都是和int一起做的，类型自动转换。</p>
+</li>
+</ol>
+</li>
+<li>注意点
+<ol>
+<li>使用Idea的话，待处理的工程必须Rebuild，即必须删除原有class。毕竟字节码处理之后，源代码build不会刷新字节码文件。</li>
+<li>AnnotationVisitor不会visit使用默认值的注解元素。</li>
+<li>修改字节码需要对JVM和字节码有较深入理解。其水平相当于你可以跳过Java而直接编写字节码程序。</li>
+<li>需要确保注解将会出现在字节码处理阶段。</li>
+</ol>
+</li>
+<li>独立处理示例：</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">// 注解
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">@interface</span> LogEntry <span style="color:#f92672">{</span>
+    String <span style="color:#a6e22e">logger</span><span style="color:#f92672">();</span>
+<span style="color:#f92672">}</span>
+
+
+<span style="color:#75715e">// 字节码工程，注解处理器
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EntryLogger</span> <span style="color:#66d9ef">extends</span> ClassVisitor <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> String className<span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">EntryLogger</span><span style="color:#f92672">(</span>ClassWriter writer<span style="color:#f92672">,</span> String className<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// 字节码处理和输出初始化
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">super</span><span style="color:#f92672">(</span>Opcodes<span style="color:#f92672">.</span><span style="color:#a6e22e">ASM5</span><span style="color:#f92672">,</span> writer<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">className</span> <span style="color:#f92672">=</span> className<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#75715e">// 本注解处理只针对函数进行
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> MethodVisitor <span style="color:#a6e22e">visitMethod</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> access<span style="color:#f92672">,</span> String methodName
+            <span style="color:#f92672">,</span> String desc<span style="color:#f92672">,</span> String signature<span style="color:#f92672">,</span> String<span style="color:#f92672">[]</span> exceptions<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;visitMethod: &#34;</span> <span style="color:#f92672">+</span> methodName <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;, desc: &#34;</span>
+                <span style="color:#f92672">+</span> desc <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;, signature: &#34;</span> <span style="color:#f92672">+</span> signature <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;, access: &#34;</span> <span style="color:#f92672">+</span> access<span style="color:#f92672">);</span>
+        <span style="color:#75715e">// 根据父类classvisitor，创建methodVisitor
+</span><span style="color:#75715e"></span>        MethodVisitor mv <span style="color:#f92672">=</span> cv<span style="color:#f92672">.</span><span style="color:#a6e22e">visitMethod</span><span style="color:#f92672">(</span>access<span style="color:#f92672">,</span> methodName<span style="color:#f92672">,</span> desc<span style="color:#f92672">,</span> signature<span style="color:#f92672">,</span> exceptions<span style="color:#f92672">);</span>
+        
+        <span style="color:#75715e">// 返回MethodVisitor包装类，内部实现处理逻辑
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> AdviceAdapter<span style="color:#f92672">(</span>Opcodes<span style="color:#f92672">.</span><span style="color:#a6e22e">ASM5</span><span style="color:#f92672">,</span> mv<span style="color:#f92672">,</span> access<span style="color:#f92672">,</span> methodName<span style="color:#f92672">,</span> desc<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">private</span> String loggerName<span style="color:#f92672">;</span>
+
+            <span style="color:#75715e">// 注解处理（获取注解信息部分）
+</span><span style="color:#75715e"></span>            <span style="color:#a6e22e">@Override</span>
+            <span style="color:#66d9ef">public</span> AnnotationVisitor <span style="color:#a6e22e">visitAnnotation</span><span style="color:#f92672">(</span>String annotation<span style="color:#f92672">,</span> <span style="color:#66d9ef">boolean</span> b<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;visitAnnotation: &#34;</span> <span style="color:#f92672">+</span> annotation<span style="color:#f92672">);</span>
+
+                <span style="color:#75715e">// 按照键值对儿，获取注解信息
+</span><span style="color:#75715e"></span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> AnnotationVisitor<span style="color:#f92672">(</span>Opcodes<span style="color:#f92672">.</span><span style="color:#a6e22e">ASM5</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    <span style="color:#a6e22e">@Override</span>
+                    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">visit</span><span style="color:#f92672">(</span>String key<span style="color:#f92672">,</span> Object value<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;AnnotationVisitor: &#34;</span> <span style="color:#f92672">+</span> key <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;, object &#34;</span> <span style="color:#f92672">+</span> value<span style="color:#f92672">);</span>
+                        <span style="color:#75715e">// 当前注解仅处理LogEntry，此处获取注解中配置的logger名称
+</span><span style="color:#75715e"></span>                        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>annotation<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Lannotation/bytecode/LogEntry;&#34;</span><span style="color:#f92672">)</span>
+                                <span style="color:#f92672">&amp;&amp;</span> key<span style="color:#f92672">.</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;logger&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+                            loggerName <span style="color:#f92672">=</span> value<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">();</span>
+                        <span style="color:#f92672">}</span>
+                    <span style="color:#f92672">}</span>
+                <span style="color:#f92672">};</span>
+            <span style="color:#f92672">}</span>
+
+            <span style="color:#75715e">// 进入该函数的字节码段，并操纵字节码
+</span><span style="color:#75715e"></span>            <span style="color:#a6e22e">@Override</span>
+            <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onMethodEnter</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+                System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Enter Method, loggerName: &#34;</span> <span style="color:#f92672">+</span> loggerName<span style="color:#f92672">);</span>
+                <span style="color:#75715e">// 仅当能获取到loggerName时，才代表该函数有此注解，需要处理
+</span><span style="color:#75715e"></span>                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>loggerName <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                    <span style="color:#75715e">// 增加字节码：将loggerName压栈
+</span><span style="color:#75715e"></span>                    visitLdcInsn<span style="color:#f92672">(</span>loggerName<span style="color:#f92672">);</span>
+                    <span style="color:#75715e">// 增加字节码：调用静态函数java.util.logging.Logger.getLogger
+</span><span style="color:#75715e"></span>                    <span style="color:#75715e">//            后续参数代表了函数信息（参数类型和返回值）
+</span><span style="color:#75715e"></span>                    visitMethodInsn<span style="color:#f92672">(</span>INVOKESTATIC<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;java/util/logging/Logger&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;getLogger&#34;</span><span style="color:#f92672">,</span>
+                            <span style="color:#e6db74">&#34;(Ljava/lang/String;)Ljava/util/logging/Logger;&#34;</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">);</span>
+                    <span style="color:#75715e">// 增加字节码：压入日志信息
+</span><span style="color:#75715e"></span>                    visitLdcInsn<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;from entry logger annotation&#34;</span><span style="color:#f92672">);</span>
+                    <span style="color:#75715e">// 增加字节码：调用虚函数info，打印日志
+</span><span style="color:#75715e"></span>                    visitMethodInsn<span style="color:#f92672">(</span>INVOKEVIRTUAL<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;java/util/logging/Logger&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;info&#34;</span><span style="color:#f92672">,</span>
+                            <span style="color:#e6db74">&#34;(Ljava/lang/String;)V&#34;</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">);</span>
+                    <span style="color:#75715e">// 清空loggerName
+</span><span style="color:#75715e"></span>                    loggerName <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+                <span style="color:#f92672">}</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">};</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#75715e">// 测试类
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TestClass</span> <span style="color:#f92672">{</span>
+    <span style="color:#a6e22e">@LogEntry</span><span style="color:#f92672">(</span>logger <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;global&#34;</span><span style="color:#f92672">,)</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">helloWorld</span><span style="color:#f92672">(){</span>
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;hello world&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#75715e">// 主类，启动入口
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Application</span> <span style="color:#f92672">{</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        TestClass myTest <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> TestClass<span style="color:#f92672">();</span>
+        myTest<span style="color:#f92672">.</span><span style="color:#a6e22e">helloWorld</span><span style="color:#f92672">();</span>
+        <span style="color:#75715e">// 用法，给定需要处理的class文件
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>args<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span> <span style="color:#f92672">==</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;USAGE: java annotation.bytecode.EntryLogger classfile&#34;</span><span style="color:#f92672">);</span>
+            exit<span style="color:#f92672">(</span>1<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+        Path path <span style="color:#f92672">=</span> Paths<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>args<span style="color:#f92672">[</span>0<span style="color:#f92672">]);</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            <span style="color:#75715e">// 打开该字节码、处理并输出
+</span><span style="color:#75715e"></span>            ClassReader reader <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ClassReader<span style="color:#f92672">(</span>Files<span style="color:#f92672">.</span><span style="color:#a6e22e">newInputStream</span><span style="color:#f92672">(</span>path<span style="color:#f92672">));</span>
+            ClassWriter writer <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ClassWriter<span style="color:#f92672">(</span>
+                    ClassWriter<span style="color:#f92672">.</span><span style="color:#a6e22e">COMPUTE_MAXS</span> <span style="color:#f92672">|</span> ClassWriter<span style="color:#f92672">.</span><span style="color:#a6e22e">COMPUTE_FRAMES</span>
+            <span style="color:#f92672">);</span>
+            <span style="color:#75715e">// 必要的路径处理
+</span><span style="color:#75715e"></span>            EntryLogger entryLogger <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EntryLogger<span style="color:#f92672">(</span>writer<span style="color:#f92672">,</span>
+                    path<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">().</span><span style="color:#a6e22e">replace</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;.class&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">)</span>
+                            <span style="color:#f92672">.</span><span style="color:#a6e22e">replaceAll</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;[/\\\\]&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;.&#34;</span><span style="color:#f92672">));</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;origin path: &#34;</span> <span style="color:#f92672">+</span> path<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">());</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;path change to : &#34;</span> <span style="color:#f92672">+</span> path<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">().</span><span style="color:#a6e22e">replace</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;.class&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">)</span>
+                    <span style="color:#f92672">.</span><span style="color:#a6e22e">replaceAll</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;[/\\\\]&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;.&#34;</span><span style="color:#f92672">));</span>
+            reader<span style="color:#f92672">.</span><span style="color:#a6e22e">accept</span><span style="color:#f92672">(</span>entryLogger<span style="color:#f92672">,</span>ClassReader<span style="color:#f92672">.</span><span style="color:#a6e22e">EXPAND_FRAMES</span><span style="color:#f92672">);</span>
+            Files<span style="color:#f92672">.</span><span style="color:#a6e22e">write</span><span style="color:#f92672">(</span>Paths<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>args<span style="color:#f92672">[</span>0<span style="color:#f92672">]),</span>writer<span style="color:#f92672">.</span><span style="color:#a6e22e">toByteArray</span><span style="color:#f92672">());</span>
+
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>IOException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+
+</code></pre></div><ol start="5">
+<li>在加载时处理
+<ol>
+<li>字节码工程可以延期到加载时进行，这样更自然，不会修改原有class文件，不过也确实会降低加载性能。</li>
+<li>java 1.5引入了java agent。通过加载时调用额外的代理来完成加载时的处理。</li>
+<li>基本步骤
+<ul>
+<li>编写一个实现了注解处理和代理的java程序，填写代理信息到清单文件中</li>
+<li>编译生成jar包。</li>
+<li>运行时调用方式为：java -javaagent:XXX.jar=xxx -classpath xxx</li>
+</ul>
+</li>
+<li>代码暂略</li>
+</ol>
+</li>
+</ol>
+<h1 id="参考内容">参考内容</h1>
+<ul>
+<li><a href="https://www.cnblogs.com/LQBlog/p/14208046.html">cnblogs编译期生成</a></li>
+<li><a href="https://blog.csdn.net/kaifa1321/article/details/79683246">csdn编译期生成</a></li>
+<li><a href="https://www.cnblogs.com/itxiaok/p/10356513.html">javac选项</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/95015043">idea和编译期生成注解</a></li>
+<li><a href="https://segmentfault.com/a/1190000020122395">编译期生成注解：jar和maven</a></li>
+<li><a href="https://blog.csdn.net/qq_20521573/article/details/82321755">编译期生成注解：以工厂模式为例</a></li>
+<li><a href="https://vimsky.com/examples/detail/java-method-javax.lang.model.element.Element.getAnnotationMirrors.html">Java Element.getAnnotationMirrors方法代码示例</a></li>
+<li><a href="https://www.sukaidev.top/2021/06/25/19e6281/">深入理解JVM（七）——插件化注解处理器</a></li>
+<li><a href="https://www.youtube.com/watch?v=HaCXOYptHqE">Adavanced Java-Annotation Processing</a></li>
+<li><a href="https://docs.oracle.com/javase/8/docs/api/">JavaSE8手册</a></li>
+<li><a href="https://asm.ow2.io/javadoc/index.html">ASM手册</a></li>
+<li><a href="https://www.cnblogs.com/javaguide/p/13810777.html">字节码查看方式</a></li>
+<li><a href="https://www.jianshu.com/p/0bbd79661080">Java Agent Premain</a></li>
+<li>《深入理解Java虚拟机（JVM高级特性与最佳实践）》</li>
+</ul>
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">标签</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/java%E7%B3%BB%E5%88%97/">Java系列</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/12/weblab%E5%BC%80%E5%9D%91%E7%AF%87/" data-tooltip="WebLab：开坑篇">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/12/java%E7%B3%BB%E5%88%97%E5%BC%80%E5%9D%91%E7%AF%87/" data-tooltip="Java系列：开坑篇">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+      
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2022 李奕成. All Rights Reserved 
+  </span>
+  <a href="https://beian.miit.gov.cn/#/Integrated/index" target="blank">吉ICP备2021004867</a>
+  
+  <div>
+    <img src="https://www.lyclife.com/images/beian.png">
+    <a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010502045148" target="blank">京公网安备11010502045148</a>
+  </div>
+  
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/12/weblab%E5%BC%80%E5%9D%91%E7%AF%87/" data-tooltip="WebLab：开坑篇">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/12/java%E7%B3%BB%E5%88%97%E5%BC%80%E5%9D%91%E7%AF%87/" data-tooltip="Java系列：开坑篇">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+      
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+    
+    <h4 id="about-card-name">李奕成</h4>
+    
+      <div id="about-card-bio">每天都是最好的一天</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        京投 软件研发
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        北京·朝阳
+      </div>
+    
+  </div>
+</div>
+
+    
+
+    
+  
+    
+      <div id="cover" style="background-image:url('https://www.lyclife.com/images/background/bridge_linjiangmen.jpg');"></div>
+    
+  
+
+
+    
+<script src="https://www.lyclife.com/scripts/jquery360/jquery.min.js"></script>
+
+<script src="https://www.lyclife.com/scripts/highlight.min.js"></script>
+
+
+<script src="https://www.lyclife.com/scripts/fancybox-2.1.7/jquery.fancybox.min.js"></script>
+
+
+<script src="https://www.lyclife.com/js/script-pcw6v3xilnxydl1vddzazdverrnn9ctynvnxgwho987mfyqkuylcb1nlt.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+  
+
+
+
+
+    
+  </body>
+</html>
+

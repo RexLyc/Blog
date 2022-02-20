@@ -6,6 +6,8 @@ categories:
 - 随笔
 tags:
 - 随笔
+thumbnailImagePosition: left
+thumbnailImage: images/thumbnail/diary.jpg
 ---
 21世纪的程序员是一个经常游走在舆论场里的职业。看了一些事情，听了一些事情，自然有一些事情想要写下来。
 <!--more-->

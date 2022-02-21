@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>后端 on 奕成的个人空间</title>
+    <link>https://www.lyclife.com/tags/%E5%90%8E%E7%AB%AF/</link>
+    <description>Recent content in 后端 on 奕成的个人空间</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Thu, 06 Jan 2022 16:01:53 +0800</lastBuildDate><atom:link href="https://www.lyclife.com/tags/%E5%90%8E%E7%AB%AF/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>JMeter压测工具</title>
+      <link>https://www.lyclife.com/2022/01/jmeter%E5%8E%8B%E6%B5%8B%E5%B7%A5%E5%85%B7/</link>
+      <pubDate>Thu, 06 Jan 2022 16:01:53 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2022/01/jmeter%E5%8E%8B%E6%B5%8B%E5%B7%A5%E5%85%B7/</guid>
+      <description>&lt;p&gt;JMeter是Apache托管的一款用于进行接口测试的工具。功能比较丰富，还有插件可以进行拓展。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -6,7 +6,34 @@
     <description>Recent content on 奕成的个人空间</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Mon, 13 Dec 2021 23:53:16 +0800</lastBuildDate><atom:link href="https://www.lyclife.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 22 Jan 2022 14:17:41 +0800</lastBuildDate><atom:link href="https://www.lyclife.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>设计模式-术语</title>
+      <link>https://www.lyclife.com/2022/01/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%9C%AF%E8%AF%AD/</link>
+      <pubDate>Sat, 22 Jan 2022 14:17:41 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2022/01/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%9C%AF%E8%AF%AD/</guid>
+      <description>&lt;p&gt;软件工程中常有和设计模式相关的一些额外的术语，在这里进行一个整理。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>JMeter压测工具</title>
+      <link>https://www.lyclife.com/2022/01/jmeter%E5%8E%8B%E6%B5%8B%E5%B7%A5%E5%85%B7/</link>
+      <pubDate>Thu, 06 Jan 2022 16:01:53 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2022/01/jmeter%E5%8E%8B%E6%B5%8B%E5%B7%A5%E5%85%B7/</guid>
+      <description>&lt;p&gt;JMeter是Apache托管的一款用于进行接口测试的工具。功能比较丰富，还有插件可以进行拓展。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>编程题笔记</title>
+      <link>https://www.lyclife.com/2021/12/%E7%BC%96%E7%A8%8B%E9%A2%98%E7%AC%94%E8%AE%B0/</link>
+      <pubDate>Thu, 30 Dec 2021 16:29:39 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/12/%E7%BC%96%E7%A8%8B%E9%A2%98%E7%AC%94%E8%AE%B0/</guid>
+      <description>&lt;p&gt;题目内容来自leetcode、牛客等平台，偶有面试笔试真题。&lt;/p&gt;</description>
+    </item>
+    
     <item>
       <title>WebLab：开坑篇</title>
       <link>https://www.lyclife.com/2021/12/weblab%E5%BC%80%E5%9D%91%E7%AF%87/</link>
@@ -14,6 +41,24 @@
       
       <guid>https://www.lyclife.com/2021/12/weblab%E5%BC%80%E5%9D%91%E7%AF%87/</guid>
       <description>&lt;p&gt;本系列将会以搭建项目为导向，从实战角度出发学习网络相关技术。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Java系列：注解篇</title>
+      <link>https://www.lyclife.com/2021/12/java%E7%B3%BB%E5%88%97%E6%B3%A8%E8%A7%A3%E7%AF%87/</link>
+      <pubDate>Mon, 13 Dec 2021 14:44:54 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/12/java%E7%B3%BB%E5%88%97%E6%B3%A8%E8%A7%A3%E7%AF%87/</guid>
+      <description>&lt;p&gt;注解是Java所提供的一种特别的编程方式。从Java5被引入，在Spring框架中应用尤为广泛。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Java系列：开坑篇</title>
+      <link>https://www.lyclife.com/2021/12/java%E7%B3%BB%E5%88%97%E5%BC%80%E5%9D%91%E7%AF%87/</link>
+      <pubDate>Mon, 13 Dec 2021 14:21:41 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/12/java%E7%B3%BB%E5%88%97%E5%BC%80%E5%9D%91%E7%AF%87/</guid>
+      <description>&lt;p&gt;本系列主要提供Java相关开发的一些难点的讲解。基础的语法尚需使用其他资料学习。&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -80,12 +125,30 @@
     </item>
     
     <item>
+      <title>Among Us私服教程</title>
+      <link>https://www.lyclife.com/2021/11/among-us%E7%A7%81%E6%9C%8D%E6%95%99%E7%A8%8B/</link>
+      <pubDate>Sat, 13 Nov 2021 20:12:25 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/11/among-us%E7%A7%81%E6%9C%8D%E6%95%99%E7%A8%8B/</guid>
+      <description>&lt;p&gt;among us是一个非常好玩的，多人在线扯皮、互演游戏。但是他的服务器实在是太差了。本文的目标就是解决这个问题。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
       <title>Photoshop：基础概念篇</title>
       <link>https://www.lyclife.com/2021/11/photoshop%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E7%AF%87/</link>
       <pubDate>Fri, 05 Nov 2021 20:43:52 +0800</pubDate>
       
       <guid>https://www.lyclife.com/2021/11/photoshop%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E7%AF%87/</guid>
       <description>&lt;p&gt;本系列是纯新手的学习笔记，仅追求特定拍摄素材和场景的处理技巧。本篇介绍色彩和图片格式等最最基本的概念。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>看看写写：闲话程序员职业</title>
+      <link>https://www.lyclife.com/2021/11/%E7%9C%8B%E7%9C%8B%E5%86%99%E5%86%99%E9%97%B2%E8%AF%9D%E7%A8%8B%E5%BA%8F%E5%91%98%E8%81%8C%E4%B8%9A/</link>
+      <pubDate>Thu, 04 Nov 2021 23:10:01 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/11/%E7%9C%8B%E7%9C%8B%E5%86%99%E5%86%99%E9%97%B2%E8%AF%9D%E7%A8%8B%E5%BA%8F%E5%91%98%E8%81%8C%E4%B8%9A/</guid>
+      <description>&lt;p&gt;21世纪的程序员是一个经常游走在舆论场里的职业。看了一些事情，听了一些事情，自然有一些事情想要写下来。&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -220,7 +283,7 @@
       <pubDate>Mon, 26 Jul 2021 23:59:42 +0800</pubDate>
       
       <guid>https://www.lyclife.com/2021/07/spring%E6%A1%86%E6%9E%B6-%E5%85%B3%E9%94%AE%E6%B3%A8%E8%A7%A3%E5%A4%A7%E5%85%A8/</guid>
-      <description>&lt;p&gt;框架中有一些特别重要，通用的注解，在这里进行一定的讲解。本文尚未完成。&lt;/p&gt;</description>
+      <description>&lt;p&gt;框架中有一些特别重要，或者基础而通用的注解，在这里进行一定的讲解。本文尚未完成。&lt;/p&gt;</description>
     </item>
     
     <item>

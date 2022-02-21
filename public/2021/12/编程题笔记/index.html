@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.87.0 with theme Tranquilpeak 0.4.8-BETA">
+<meta name="author" content="李奕成">
+<meta name="keywords" content="">
+<meta name="description" content="题目内容来自leetcode、牛客等平台，偶有面试笔试真题。">
+
+
+<meta property="og:description" content="题目内容来自leetcode、牛客等平台，偶有面试笔试真题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="编程题笔记">
+<meta name="twitter:title" content="编程题笔记">
+<meta property="og:url" content="https://www.lyclife.com/2021/12/%E7%BC%96%E7%A8%8B%E9%A2%98%E7%AC%94%E8%AE%B0/">
+<meta property="twitter:url" content="https://www.lyclife.com/2021/12/%E7%BC%96%E7%A8%8B%E9%A2%98%E7%AC%94%E8%AE%B0/">
+<meta property="og:site_name" content="奕成的个人空间">
+<meta property="og:description" content="题目内容来自leetcode、牛客等平台，偶有面试笔试真题。">
+<meta name="twitter:description" content="题目内容来自leetcode、牛客等平台，偶有面试笔试真题。">
+<meta property="og:locale" content="zh-cn">
+
+  
+    <meta property="article:published_time" content="2021-12-30T16:29:39">
+  
+  
+    <meta property="article:modified_time" content="2021-12-30T16:29:39">
+  
+  
+  
+    
+      <meta property="article:section" content="求职">
+    
+      <meta property="article:section" content="习题">
+    
+  
+  
+    
+      <meta property="article:tag" content="持续施工">
+    
+      <meta property="article:tag" content="习题">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+
+
+
+
+
+
+
+
+
+
+  <meta property="og:image" content="https://www.lyclife.com/images/author.jpg">
+  <meta property="twitter:image" content="https://www.lyclife.com/images/author.jpg">
+
+
+    
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [["$", "$"]],
+    },
+    displayMath: [
+      ["$$", "$$"],
+      ["\[\[", "\]\]"],
+    ],
+    svg: {
+      fontCache: "global",
+    },
+  };
+</script>
+<script src="https://www.lyclife.com/scripts/polyfill.min.js"></script>
+<script
+  id="MathJax-script"
+  async
+  src="https://www.lyclife.com/scripts/MathJax-3.2.0/es5/tex-mml-chtml.js"
+></script>
+
+    <title>编程题笔记</title>
+
+    <link rel="icon" href="https://www.lyclife.com/images/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="https://www.lyclife.com/2021/12/%E7%BC%96%E7%A8%8B%E9%A2%98%E7%AC%94%E8%AE%B0/">
+
+    
+    <link href="https://www.lyclife.com/scripts/Font-Awesome-4.7.0/css/font-awesome.css" rel="stylesheet">
+    
+    
+    <link href="https://www.lyclife.com/scripts/fancybox-2.1.7/source/jquery.fancybox.css" rel="stylesheet">
+    <link href="https://www.lyclife.com/scripts/fancybox-2.1.7/source/helpers/jquery.fancybox-thumbs.css" rel="stylesheet">
+    
+    
+    <link rel="stylesheet" href="https://www.lyclife.com/css/style-twzjdbqhmnnacqs0pwwdzcdbt8yhv8giawvjqjmyfoqnvazl0dalmnhdkvp7.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="https://www.lyclife.com/">奕成的个人空间</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="https://www.lyclife.com/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="https://www.lyclife.com/#about">
+          <img class="sidebar-profile-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+        </a>
+        <h4 class="sidebar-profile-name">李奕成</h4>
+        
+          <h5 class="sidebar-profile-bio">每天都是最好的一天</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">首页</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">分类</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">标签</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">归档</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">关于</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://github.com/RexLyc" target="_blank" rel="noopener">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/images/wechat.jpg">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-wechat"></i>
+      
+      <span class="sidebar-button-desc">微信</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="4"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
+  
+    <h1 class="post-title" itemprop="headline">
+      编程题笔记
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2021-12-30T16:29:39&#43;08:00">
+        
+  十二月 30, 2021
+
+      </time>
+    
+    
+  
+  
+    <span>发布在</span>
+    
+      <a class="category-link" href="https://www.lyclife.com/categories/%e6%b1%82%e8%81%8c">求职</a>, 
+    
+      <a class="category-link" href="https://www.lyclife.com/categories/%e4%b9%a0%e9%a2%98">习题</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              <p>题目内容来自leetcode、牛客等平台，偶有面试笔试真题。</p>
+<h1 id="总结">总结</h1>
+<ol>
+<li>惯用语言为C++，偶尔会使用Java、Python。</li>
+<li>由于牛客等平台在面试时，不一定会提供头文件，需要自己牢记使用的标准库函数位于哪个头文件中。</li>
+<li>简单：中等：困难 = 2：4：1。</li>
+<li>算法分类：
+<ol>
+<li>搜索（BFS、DFS）：单目标搜索、多目标搜索，搭配数据结构优化，单调性优化
+<ul>
+<li>搜索从思路上可以分为：生成法、判别法两种。前者生成的一定是一个解，后者生成所有，并进行判定。</li>
+</ul>
+</li>
+<li>动态规划：记忆化的搜索。
+<ol>
+<li>单状态dp[][][]，多状态dp1[]、dp2[]</li>
+<li>多种决策可能</li>
+<li>递推形式</li>
+<li>区间dp，最优化区间</li>
+<li>背包问题</li>
+<li>空间优化，<a href="https://www.cnblogs.com/flipped/p/9669202.html">时间优化参考</a></li>
+</ol>
+</li>
+<li>贪心</li>
+<li>分治：可分性、合并时的复杂度</li>
+<li>排序：排序后是否可贪心</li>
+<li>数据结构
+<ol>
+<li>单调栈、单调队列</li>
+<li>双堆</li>
+<li>数组：双指针、预处理、和递归结合</li>
+<li>树：前中后序的递归&amp;非递归写法，层次遍历</li>
+</ol>
+</li>
+<li>图算法：并查集、拓扑排序、欧拉图、最短路、网络流</li>
+<li>模拟</li>
+<li>数学推导</li>
+<li>字符串：匹配算法、正则匹配、通配符匹配、转为图算法</li>
+<li>滑动窗口</li>
+<li>哈希</li>
+</ol>
+</li>
+<li>一些建议：
+<ol>
+<li>从时间空间约束上寻找提示</li>
+<li>从暴力法入手，观察搜索树结构，逐渐优化</li>
+</ol>
+</li>
+</ol>
+<h1 id="力扣">力扣</h1>
+<h1 id="牛客">牛客</h1>
+<h1 id="面试题">面试题</h1>
+<h1 id="笔试题">笔试题</h1>
+<h1 id="经典书籍">经典书籍</h1>
+<ol>
+<li>《程序员面试经典》
+<ul>
+<li>08.07，全排列的生成：可以去看C++的next_permutation的实现</li>
+<li>16.01，无临时变量交换数字：异或</li>
+<li>08.04，幂集：使用二进制位运算</li>
+<li>08.05，递归乘法：不用*做乘法，用递归</li>
+<li>16.20，键盘T9：字符串题目，可以学学前缀树</li>
+<li>04.08，首个共同祖先</li>
+<li>16.03，数学题：求线段交点</li>
+<li>08.11，硬币：实际上是无限背包问题</li>
+</ul>
+</li>
+<li>《剑指Offer》
+<ul>
+<li>题4，二维有序数组：背一下C++的<a href="https://zh.cppreference.com/w/cpp/algorithm/upper_bound">二分查找实现</a></li>
+<li>题7，重建二叉树</li>
+<li>题10，fibo数列：常规矩阵快速幂</li>
+<li>题11，旋转数组的最小数字。</li>
+<li></li>
+</ul>
+</li>
+</ol>
+<h1 id="语言相关要点">语言相关要点</h1>
+<ol>
+<li>C++</li>
+</ol>
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">标签</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/%E6%8C%81%E7%BB%AD%E6%96%BD%E5%B7%A5/">持续施工</a>
+
+  <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/%E4%B9%A0%E9%A2%98/">习题</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2022/01/jmeter%E5%8E%8B%E6%B5%8B%E5%B7%A5%E5%85%B7/" data-tooltip="JMeter压测工具">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/12/weblab%E5%BC%80%E5%9D%91%E7%AF%87/" data-tooltip="WebLab：开坑篇">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+      
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2022 李奕成. All Rights Reserved 
+  </span>
+  <a href="https://beian.miit.gov.cn/#/Integrated/index" target="blank">吉ICP备2021004867</a>
+  
+  <div>
+    <img src="https://www.lyclife.com/images/beian.png">
+    <a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010502045148" target="blank">京公网安备11010502045148</a>
+  </div>
+  
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2022/01/jmeter%E5%8E%8B%E6%B5%8B%E5%B7%A5%E5%85%B7/" data-tooltip="JMeter压测工具">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2021/12/weblab%E5%BC%80%E5%9D%91%E7%AF%87/" data-tooltip="WebLab：开坑篇">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+      
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+    
+    <h4 id="about-card-name">李奕成</h4>
+    
+      <div id="about-card-bio">每天都是最好的一天</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        京投 软件研发
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        北京·朝阳
+      </div>
+    
+  </div>
+</div>
+
+    
+
+    
+  
+    
+      <div id="cover" style="background-image:url('https://www.lyclife.com/images/background/bridge_linjiangmen.jpg');"></div>
+    
+  
+
+
+    
+<script src="https://www.lyclife.com/scripts/jquery360/jquery.min.js"></script>
+
+<script src="https://www.lyclife.com/scripts/highlight.min.js"></script>
+
+
+<script src="https://www.lyclife.com/scripts/fancybox-2.1.7/jquery.fancybox.min.js"></script>
+
+
+<script src="https://www.lyclife.com/js/script-pcw6v3xilnxydl1vddzazdverrnn9ctynvnxgwho987mfyqkuylcb1nlt.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+  
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      CommonHTML: { linebreaks: { automatic: true } },
+      tex2jax: { inlineMath: [ ['$', '$'], ['\\(','\\)'] ], displayMath: [ ['$$','$$'], ['\\[', '\\]'] ], processEscapes: false },
+      messageStyle: 'none'
+    });
+  </script>
+
+
+
+    
+  </body>
+</html>
+

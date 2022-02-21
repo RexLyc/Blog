@@ -39,6 +39,13 @@ tags:
         ```
     - 参考:[精灵加载去缓存](https://segmentfault.com/a/1190000022280843)
 
+1. WebSocket并发问题
+    - 当并发量较大时，调用session.getAsyncRemote/getBasicRemote.send()，均会报错误“TEXT_FULL_WRITING”。
+    - [一个解决方案，尚未确认](https://blog.csdn.net/wy_xing/article/details/82744559)
+
+1. MyBatis，使用缓存时需要将所有查询结果实体类进行可序列化声明
+    - 为什么不是仅声明需要缓存的实体为可序列化的类型？
+
 # 树莓派
 ## 网络配置
 - 树莓派还是推荐使用Raspbian系统，而且最好选择无桌面版，功耗低

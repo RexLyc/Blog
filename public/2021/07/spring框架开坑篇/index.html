@@ -282,6 +282,18 @@
 <ul>
 <li>允许把遍布应用各处的功能分离出来形成可重用的组件。能够促进软件系统中各个组件实现关注点分离，即每个组件只关注自己的核心功能。例如日志、事务管理、安全这样的服务组件常常融入其他业务组件，最适合分离出来。</li>
 <li>通过切面编程，业务代码中可以完全不用编写无关功能的代码。业务类型也完全不知道有附属组件的存在。</li>
+<li>面向对象编程是将一整套业务逻辑进行封装（包含所有的附属代码），而AOP则是将一整套业务逻辑按步骤进行封装，单独抽取出其中的某一个统一的步骤，如打开连接，关闭连接，事务提交和回滚。</li>
+<li>几个术语：
+<ol>
+<li>aspect：切面，如日志</li>
+<li>jointpoint：连接点，是切面插入应用程序的地方</li>
+<li>advice：处理逻辑，实现切面功能的代码</li>
+<li>pointcut：切点，控制处理逻辑作用于哪部分的连接点</li>
+<li>target：目标类，指将会使用切面处理逻辑的类</li>
+<li>proxy：代理类，使用代理模式将目标类和切面进行结合</li>
+<li>weaving：插入，指创建代理类，将切面应用到目标类的过程</li>
+</ol>
+</li>
 </ul>
 <h1 id="其他概念">其他概念</h1>
 <ol>
@@ -377,7 +389,7 @@
         </article>
         <footer id="footer" class="main-content-wrap">
   <span class="copyrights">
-    &copy; 2021 李奕成. All Rights Reserved 
+    &copy; 2022 李奕成. All Rights Reserved 
   </span>
   <a href="https://beian.miit.gov.cn/#/Integrated/index" target="blank">吉ICP备2021004867</a>
   

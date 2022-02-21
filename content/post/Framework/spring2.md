@@ -14,8 +14,9 @@ thumbnailImage: images/thumbnail/spring.jpg
 框架中有一些特别重要，或者基础而通用的注解，在这里进行一定的讲解。本文尚未完成。
 <!--more-->
 # 注解的原理
-# 自定义注解方法
+- 请移步至Java系列阅读。
 # 常用注解
+- 在此并不直接区分Spring、SpringCloud等，如有必要会单独列出。
 ## 配置篇
 1. 基础类型数据结构的配置注入步骤：Integer、String等
     1. main类中添加注解：@EnableConfigurationProperties
@@ -63,41 +64,19 @@ thumbnailImage: images/thumbnail/spring.jpg
 1. @Component
     1. 概述：用于声明一个类型，用于后续的实例化。结合@ComponentScan将会自动创建。
     1. 用法：直接添加在对应类上面
-    1. 注意：@Service等注解其实本质是@Component的别名，为了用于区分。
+    1. 注意：@Service注解其实本质是@Component的别名，为了更好的区分业务。
 1. @Bean
     1. 概述：用于声明一个Spring框架的Bean。
     1. 用法：直接添加在对应类上面。使用该注解的类型，需要由其他代码手动创建实例。
-1. @MapperScan
-    1. 概述：扫描指定包下的数据库mapper，根据SQL注解（或嵌入SQL的XML文件）对接口进行实例化
-    1. 用法：在入口类添加
-        ```java
-        @MapperScan({"your.mapper.package.path"})
-        ```
-    1. 注，此时的Mapper形如：
-        ```java
-        // entity.java
-        @Data
-        public class UserAccount {
-            // @Result中的property指返回值中的java数据类型的成员名称
-            private String userName;
-            private String userId;
-            private Integer userAge;
-        }
-
-        // mapper.java
-        @CacheNamespace(blocking = true) // 支持SQL本地查询缓存
-        public interface StationDeviceAccountMapper {
-            // column指数据库中的列名称
-            @Results(value = {
-                @Result(property = "userName", column = "user_name"),
-                @Result(property = "userId", column = "user_id"),
-                @Result(property = "userAge", column = "user_age")
-            })
-            @Select("select user_name, user_id"
-                    + "from user_account where user_id = #{queryUserId}")
-            List<UserAccount> getDeviceList(String queryUserId);
-        }
-        ```
+1. @Resource
+    1. 概述：自动注入
+    1. 用法：和Autowired的区别在于，Resource是按照名称匹配
+1. @Autowired
+    1. 概述：变量自动注入的常用写法。
+    1. 用法：可直接对变量、方法和构造方法使用，完成对其中内容自动装配。按照类型匹配。
+1. @Qualifier
+    1. 概述：和@Autowired搭配使用，描述bean的名称
+    1. 用法：对于同时存在多个可用bean的情况，可以使用名称以指定特定bean。
 1. @Configuration
     1. 概述：用于手动创建Bean。内部一般会搭配@Bean使用。
     1. 示例：
@@ -112,7 +91,9 @@ thumbnailImage: images/thumbnail/spring.jpg
         ```
 1. @PostConstruct
     1. 概述：**Java本身**提供的注解，在构造函数后执行。应用于非静态void函数。
-    1. 顺序：Constructor(构造方法) -> @Autowired(依赖注入) -> @PostConstruct(注释的方法)
+    1. 顺序：Constructor(构造方法) -> @Autowired(依赖注入) -> @PostConstruct(构造后)
+1. @PreDestroy
+    1. 概述：在销毁之前执行
 ## Web
 1. @RestController
     1. 概述：http后端的入口，一般和@RequestMapping、@PostMapping等组合使用
@@ -196,4 +177,89 @@ thumbnailImage: images/thumbnail/spring.jpg
                 onClose();
             }
         ```
-## 辅助
+1. 字段校验：
+    - @NotEmpty、@NotBlank、@Null、@NotNull、@AssertTrue、@AssertFalse、@Pattern、@Email、@Min、@Max、@DecimalMin、@DecimalMax、@Size、@Digits、@Past、@Future...
+1. @Cookievalue
+    1. 概述：用于获取指定的Cookie值
+    1. 用法
+        ```java
+            @PostMapping("test")
+            public void getCookieValue(@CookieValue("testId") String cookie){
+                // ...
+            }
+        ```
+1. @CrossOrigin
+    1. 概述：用于支持跨域请求。
+    1. 用法：施加于类或方法上。
+# 数据库
+1. @MapperScan
+    1. 概述：扫描指定包下的数据库mapper，根据SQL注解（或嵌入SQL的XML文件）对接口进行实例化
+    1. 用法：在入口类添加
+        ```java
+        @MapperScan({"your.mapper.package.path"})
+        ```
+    1. 注，此时的Mapper形如：
+        ```java
+        // entity.java
+        @Data
+        public class UserAccount {
+            // @Result中的property指返回值中的java数据类型的成员名称
+            private String userName;
+            private String userId;
+            private Integer userAge;
+        }
+
+        // mapper.java
+        @CacheNamespace(blocking = true) // 支持SQL本地查询缓存
+        public interface StationDeviceAccountMapper {
+            // column指数据库中的列名称
+            @Results(value = {
+                @Result(property = "userName", column = "user_name"),
+                @Result(property = "userId", column = "user_id"),
+                @Result(property = "userAge", column = "user_age")
+            })
+            @Select("select user_name, user_id"
+                    + "from user_account where user_id = #{queryUserId}")
+            List<UserAccount> getDeviceList(String queryUserId);
+        }
+        ```
+1. @Transactional
+    1. 概述：用于进行事务管理。
+    1. 用法：对函数或类型使用。
+
+## 切面（AOP）
+1. @Aspect
+    1. 概述：将当前类标识为一个切面供容器读取
+1. @PointCut
+    1. 概述：植入
+1. @Around
+1. @AfterReturning
+1. @Before
+1. @AfterThrowing
+1. @After
+
+## 异步
+1. @Async
+
+## 环境
+1. @Profile
+1. @Conditional
+
+## 定时
+1. @Scheduled
+
+## 开关
+1. @EnableAsync
+1. @EnableScheduling
+1. @EnableConfigurationProperties
+1. @EnableTransactionManagement
+1. @EnableCaching
+
+## 测试
+1. @RunWith
+1. @ContextConfiguration
+1. @Test
+1. @ActiveProfiles
+
+# 参考资料
+- [Spring常见注解大全](https://blog.csdn.net/lixiaolian123/article/details/108090499)

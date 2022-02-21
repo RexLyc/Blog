@@ -7,8 +7,6 @@ categories:
 tags:
 - 电子游戏
 - 教程
-keywords:
-- tech
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/dst.jpg
 ---

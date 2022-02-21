@@ -7,7 +7,6 @@ categories:
 tags:
 - Spring
 - 施工中
-- 滚动更新
 thumbnailImagePosition: left
 thumbnailImage: images/thumbnail/spring.jpg
 ---

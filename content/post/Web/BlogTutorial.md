@@ -63,6 +63,7 @@ thumbnailImage: images/thumbnail/lycStamp.png
 <!-- 贴一下自己的配置，尤其是回源那里 -->
 
 # 参考资料
+1. [emoji编码查询网站](https://www.webfx.com/tools/emoji-cheat-sheet/)
 <!-- hugo原理 -->
 <!-- nginx原理 -->
 <!-- dns解析原理 -->

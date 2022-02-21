@@ -7,6 +7,8 @@ categories:
 tags:
 - 杂项
 - 滚动更新
+thumbnailImagePosition: left
+thumbnailImage: /images/thumbnail/misc.jpg
 ---
 一些尚未形成体系，但是可能很有用的技术杂项整理。
 <!--more-->

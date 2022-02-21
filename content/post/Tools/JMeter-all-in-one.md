@@ -7,6 +7,9 @@ categories:
 tags:
 - 实用工具
 - 后端
+- 施工中
+thumbnailImagePosition: left
+thumbnailImage: /images/thumbnail/jmeter.jpg
 ---
 JMeter是Apache托管的一款用于进行接口测试的工具。功能比较丰富，还有插件可以进行拓展。
 <!--more-->

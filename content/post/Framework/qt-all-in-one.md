@@ -5,7 +5,7 @@ categories:
 - 计算机科学与技术
 - Qt
 tags:
-- 持续更新
+- 持续施工
 - Qt
 thumbnailImagePosition: left
 thumbnailImage: images/thumbnail/qt-logo.svg

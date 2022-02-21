@@ -5,6 +5,7 @@ categories:
 - 摄影
 - 视频
 tags:
+- 持续施工
 - 摄影
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/bilibili.jpg

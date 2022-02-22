@@ -6,7 +6,25 @@
     <description>Recent content in 全栈 on 奕成的个人空间</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Mon, 19 Jul 2021 11:15:05 +0800</lastBuildDate><atom:link href="https://www.lyclife.com/tags/%E5%85%A8%E6%A0%88/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 30 Nov 2021 16:56:35 +0800</lastBuildDate><atom:link href="https://www.lyclife.com/tags/%E5%85%A8%E6%A0%88/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>全栈学习：JsTs难点篇</title>
+      <link>https://www.lyclife.com/2021/11/%E5%85%A8%E6%A0%88%E5%AD%A6%E4%B9%A0jsts%E9%9A%BE%E7%82%B9%E7%AF%87/</link>
+      <pubDate>Tue, 30 Nov 2021 16:56:35 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/11/%E5%85%A8%E6%A0%88%E5%AD%A6%E4%B9%A0jsts%E9%9A%BE%E7%82%B9%E7%AF%87/</guid>
+      <description>&lt;p&gt;本文讲解的是JavaScript和TypeScript在使用中容易犯错的点，以及一些特别重要的其他要点。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>全栈学习：JsTs基础篇</title>
+      <link>https://www.lyclife.com/2021/11/%E5%85%A8%E6%A0%88%E5%AD%A6%E4%B9%A0jsts%E5%9F%BA%E7%A1%80%E7%AF%87/</link>
+      <pubDate>Tue, 30 Nov 2021 16:48:25 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/11/%E5%85%A8%E6%A0%88%E5%AD%A6%E4%B9%A0jsts%E5%9F%BA%E7%A1%80%E7%AF%87/</guid>
+      <description>&lt;p&gt;本文讲解Javascript和Typescript的基础概念和基本语法。&lt;/p&gt;</description>
+    </item>
+    
     <item>
       <title>全栈学习开坑篇</title>
       <link>https://www.lyclife.com/2021/07/%E5%85%A8%E6%A0%88%E5%AD%A6%E4%B9%A0%E5%BC%80%E5%9D%91%E7%AF%87/</link>

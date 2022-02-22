@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.87.0 with theme Tranquilpeak 0.4.8-BETA">
+<meta name="author" content="李奕成">
+<meta name="keywords" content="">
+<meta name="description" content="C/C&#43;&#43;中有一些经常会出现的难点，也是考研功底的要点。本文致力于总结这一部分。">
+
+
+<meta property="og:description" content="C/C&#43;&#43;中有一些经常会出现的难点，也是考研功底的要点。本文致力于总结这一部分。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C/C&#43;&#43;：难点总篇">
+<meta name="twitter:title" content="C/C&#43;&#43;：难点总篇">
+<meta property="og:url" content="https://www.lyclife.com/2022/02/c/c-%E9%9A%BE%E7%82%B9%E6%80%BB%E7%AF%87/">
+<meta property="twitter:url" content="https://www.lyclife.com/2022/02/c/c-%E9%9A%BE%E7%82%B9%E6%80%BB%E7%AF%87/">
+<meta property="og:site_name" content="奕成的个人空间">
+<meta property="og:description" content="C/C&#43;&#43;中有一些经常会出现的难点，也是考研功底的要点。本文致力于总结这一部分。">
+<meta name="twitter:description" content="C/C&#43;&#43;中有一些经常会出现的难点，也是考研功底的要点。本文致力于总结这一部分。">
+<meta property="og:locale" content="zh-cn">
+
+  
+    <meta property="article:published_time" content="2022-02-22T20:22:20">
+  
+  
+    <meta property="article:modified_time" content="2022-02-22T20:22:20">
+  
+  
+  
+    
+      <meta property="article:section" content="计算机科学与技术">
+    
+      <meta property="article:section" content="编程语言">
+    
+  
+  
+    
+      <meta property="article:tag" content="C/C&#43;&#43;系列">
+    
+      <meta property="article:tag" content="开坑篇">
+    
+      <meta property="article:tag" content="施工中">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+
+
+
+
+
+
+  <meta property="og:image" content="https://www.lyclife.com/images/thumbnail/cpp.png">
+  <meta property="twitter:image" content="https://www.lyclife.com/images/thumbnail/cpp.png">
+
+
+
+
+
+  <meta property="og:image" content="https://www.lyclife.com/images/author.jpg">
+  <meta property="twitter:image" content="https://www.lyclife.com/images/author.jpg">
+
+
+    
+    <title>C/C&#43;&#43;：难点总篇</title>
+
+    <link rel="icon" href="https://www.lyclife.com/images/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="https://www.lyclife.com/2022/02/c/c-%E9%9A%BE%E7%82%B9%E6%80%BB%E7%AF%87/">
+
+    
+    <link href="https://www.lyclife.com/scripts/Font-Awesome-4.7.0/css/font-awesome.css" rel="stylesheet">
+    
+    
+    <link href="https://www.lyclife.com/scripts/fancybox-2.1.7/source/jquery.fancybox.css" rel="stylesheet">
+    <link href="https://www.lyclife.com/scripts/fancybox-2.1.7/source/helpers/jquery.fancybox-thumbs.css" rel="stylesheet">
+    
+    
+    <link rel="stylesheet" href="https://www.lyclife.com/css/style-twzjdbqhmnnacqs0pwwdzcdbt8yhv8giawvjqjmyfoqnvazl0dalmnhdkvp7.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="https://www.lyclife.com/">奕成的个人空间</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="https://www.lyclife.com/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="https://www.lyclife.com/#about">
+          <img class="sidebar-profile-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+        </a>
+        <h4 class="sidebar-profile-name">李奕成</h4>
+        
+          <h5 class="sidebar-profile-bio">每天都是最好的一天</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">首页</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">分类</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">标签</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">归档</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">关于</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://github.com/RexLyc" target="_blank" rel="noopener">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.lyclife.com/images/wechat.jpg">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-wechat"></i>
+      
+      <span class="sidebar-button-desc">微信</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="4"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
+  
+    <h1 class="post-title" itemprop="headline">
+      C/C&#43;&#43;：难点总篇
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2022-02-22T20:22:20&#43;08:00">
+        
+  二月 22, 2022
+
+      </time>
+    
+    
+  
+  
+    <span>发布在</span>
+    
+      <a class="category-link" href="https://www.lyclife.com/categories/%e8%ae%a1%e7%ae%97%e6%9c%ba%e7%a7%91%e5%ad%a6%e4%b8%8e%e6%8a%80%e6%9c%af">计算机科学与技术</a>, 
+    
+      <a class="category-link" href="https://www.lyclife.com/categories/%e7%bc%96%e7%a8%8b%e8%af%ad%e8%a8%80">编程语言</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              <p>C/C++中有一些经常会出现的难点，也是考研功底的要点。本文致力于总结这一部分。</p>
+<h1 id="指针篇">指针篇</h1>
+<ol>
+<li>函数指针
+<ol>
+<li>C：
+<ol>
+<li>函数签名：即函数的类型，由返回类型+参数类型列表构成。
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// 函数签名为int(int,int)
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">add</span>(<span style="color:#66d9ef">int</span> a,<span style="color:#66d9ef">int</span> b);
+</code></pre></div></li>
+<li>创建一个函数指针，需要指明指向的函数的类型。pf附近的括号必须存在，否则变为声明一个返回指针的函数。
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// 局部 &amp; 全局变量
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> (<span style="color:#f92672">*</span>pf) (<span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span>);
+pf <span style="color:#f92672">=</span> add;
+pf(<span style="color:#ae81ff">100</span>,<span style="color:#ae81ff">100</span>); <span style="color:#75715e">// 使用方式1
+</span><span style="color:#75715e"></span>(<span style="color:#f92672">*</span>pf)(<span style="color:#ae81ff">100</span>,<span style="color:#ae81ff">100</span>); <span style="color:#75715e">// 使用方式2
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">// 形参定义
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">func1</span>(<span style="color:#66d9ef">int</span> pf(<span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span>)); <span style="color:#75715e">// 写法1
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">func2</span>(<span style="color:#66d9ef">int</span> (<span style="color:#f92672">*</span>pf)(<span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span>)); <span style="color:#75715e">// 写法2
+</span></code></pre></div></li>
+<li>创建别名
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">typedef</span> <span style="color:#a6e22e">int</span> (<span style="color:#f92672">*</span>PF) (<span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span>);
+PF pf_2 <span style="color:#f92672">=</span> add; <span style="color:#75715e">// PF定义了一个类型，和类型用法相同
+</span></code></pre></div></li>
+<li>函数指针作为函数返回值
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// 阅读方式从自定义名称向外，func是一个函数，形参为(int)
+</span><span style="color:#75715e">// 返回一个int(int, int)类型的函数指针
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> (<span style="color:#f92672">*</span>func1(<span style="color:#66d9ef">int</span>))(<span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span>);
+
+<span style="color:#75715e">// 当然并不建议以上写法，过于隐晦
+</span><span style="color:#75715e"></span>PF <span style="color:#a6e22e">func2</span>(<span style="color:#66d9ef">int</span>);
+</code></pre></div></li>
+</ol>
+</li>
+<li>C++：
+<ol>
+<li>auto特性
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">add</span>(<span style="color:#66d9ef">int</span>,<span style="color:#66d9ef">int</span>);
+<span style="color:#66d9ef">auto</span> pf1 <span style="color:#f92672">=</span> add; <span style="color:#75715e">// auto将会自动解析类型为函数指针
+</span><span style="color:#75715e">// auto *pf1 = add; // 等价写法
+</span><span style="color:#75715e"></span>pf1(<span style="color:#ae81ff">100</span>,<span style="color:#ae81ff">100</span>); <span style="color:#75715e">// 可以
+</span><span style="color:#75715e"></span>(<span style="color:#f92672">*</span>pf1)(<span style="color:#ae81ff">100</span>,<span style="color:#ae81ff">100</span>); <span style="color:#75715e">// 可以
+</span></code></pre></div></li>
+<li>函数类型和函数指针类型。decltype仅解析到函数签名。
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">decltype</span>(add)<span style="color:#f92672">*</span> pf2 <span style="color:#f92672">=</span> add; <span style="color:#75715e">// 正确
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">decltype</span>(add) pf1 <span style="color:#f92672">=</span> add; <span style="color:#75715e">// 错误，类型不对
+</span></code></pre></div></li>
+<li>形参
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">typedef</span> <span style="color:#a6e22e">decltype</span>(add) func_add;
+<span style="color:#66d9ef">typedef</span> <span style="color:#a6e22e">decltype</span>(add)<span style="color:#f92672">*</span> funcP_add;
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">func1</span>(func_add a);
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">func2</span>(funcP_add a); <span style="color:#75715e">// 错误，已有定义
+</span></code></pre></div></li>
+<li>成员函数指针
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">typedef</span> <span style="color:#a6e22e">void</span>(A<span style="color:#f92672">::*</span>PF1)(); <span style="color:#75715e">// 必须指定类型别名PF1所属的类
+</span><span style="color:#75715e"></span>PF1 pf1 <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>A<span style="color:#f92672">::</span>func; <span style="color:#75715e">// 必须有&amp;
+</span><span style="color:#75715e"></span>A a;
+(a.<span style="color:#f92672">*</span>pf1)(); <span style="color:#75715e">// 使用成员函数指针，需要和类型实例关联
+</span></code></pre></div><blockquote>
+<blockquote>
+<p>由于成员函数指针需要获取类成员函数，因此没有多态性。取到哪个类，就是其对应的实现。即使关联了其子类的实例。</p>
+</blockquote>
+</blockquote>
+</li>
+</ol>
+</li>
+<li>参考
+<ul>
+<li><a href="https://www.cnblogs.com/lvchaoshun/p/7806248.html">函数指针使用总结</a>似乎并不完全正确，<strong>等待确认</strong>。</li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+<h1 id="模板编程">模板编程</h1>
+<ol>
+<li>类型萃取
+<ol>
+<li>参考
+<ul>
+<li><a href="https://www.cnblogs.com/gtarcoder/p/4807670.html">type_traits类型萃取</a></li>
+</ul>
+</li>
+</ol>
+</li>
+<li>类型擦除
+<ol>
+<li>参考
+<ul>
+<li><a href="https://www.codercto.com/a/57707.html">C++类型擦除和std::function性能测试</a></li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+<h1 id="高性能io">高性能IO</h1>
+<ol>
+<li>流
+<ol>
+<li>参考：
+<ul>
+<li><a href="https://izualzhy.cn/stream-buffer">std::streambuf从示例到应用</a></li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">标签</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/c/c&#43;&#43;%E7%B3%BB%E5%88%97/">C/C&#43;&#43;系列</a>
+
+  <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/%E5%BC%80%E5%9D%91%E7%AF%87/">开坑篇</a>
+
+  <a class="tag tag--primary tag--small" href="https://www.lyclife.com/tags/%E6%96%BD%E5%B7%A5%E4%B8%AD/">施工中</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2022/02/%E8%BE%B9%E5%AD%A6%E8%BE%B9%E7%94%A8linux-%E7%B3%BB%E7%BB%9F%E8%BF%90%E8%A1%8C%E7%AF%87/" data-tooltip="边学边用linux-系统运行篇">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2022/02/mysqlsql%E6%8C%87%E4%BB%A4%E7%AF%87/" data-tooltip="Mysql：SQL指令篇">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+      
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2022 李奕成. All Rights Reserved 
+  </span>
+  <a href="https://beian.miit.gov.cn/#/Integrated/index" target="blank">吉ICP备2021004867</a>
+  
+  <div>
+    <img src="https://www.lyclife.com/images/beian.png">
+    <a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010502045148" target="blank">京公网安备11010502045148</a>
+  </div>
+  
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2022/02/%E8%BE%B9%E5%AD%A6%E8%BE%B9%E7%94%A8linux-%E7%B3%BB%E7%BB%9F%E8%BF%90%E8%A1%8C%E7%AF%87/" data-tooltip="边学边用linux-系统运行篇">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://www.lyclife.com/2022/02/mysqlsql%E6%8C%87%E4%BB%A4%E7%AF%87/" data-tooltip="Mysql：SQL指令篇">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+      
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://www.lyclife.com/images/author.jpg" alt="作者的图片" />
+    
+    <h4 id="about-card-name">李奕成</h4>
+    
+      <div id="about-card-bio">每天都是最好的一天</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        京投 软件研发
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        北京·朝阳
+      </div>
+    
+  </div>
+</div>
+
+    
+
+    
+  
+    
+      <div id="cover" style="background-image:url('https://www.lyclife.com/images/background/bridge_linjiangmen.jpg');"></div>
+    
+  
+
+
+    
+<script src="https://www.lyclife.com/scripts/jquery360/jquery.min.js"></script>
+
+<script src="https://www.lyclife.com/scripts/highlight.min.js"></script>
+
+
+<script src="https://www.lyclife.com/scripts/fancybox-2.1.7/jquery.fancybox.min.js"></script>
+
+
+<script src="https://www.lyclife.com/js/script-pcw6v3xilnxydl1vddzazdverrnn9ctynvnxgwho987mfyqkuylcb1nlt.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+  
+
+
+
+
+    
+  </body>
+</html>
+

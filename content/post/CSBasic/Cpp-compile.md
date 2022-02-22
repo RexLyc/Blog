@@ -13,6 +13,11 @@ thumbnailImage: /images/thumbnail/cpp.png
 ---
 本文讲解编译构建过程中的一些进阶内容
 <!--more-->
+# 编译器版本
+1. MSVC：微软的C++版本。
+1. GNU/GCC：GNU系列的版本，在Linux系列操作系统中广泛使用
+1. Clang：C系语言的LLVM前端。
+    - LLVM：开源编译器后端。[官方网站](https://llvm.org/docs/tutorial/index.html)。
 # 编译、链接、装载
 1. 编译：
     1. 编译单元：一个可以被编译的文件，如.c和.cpp。而.h文件不算。
@@ -47,6 +52,10 @@ add_executable(Tutorial tutorial.cxx)
     - [CMake入门实战](https://www.hahack.com/codes/cmake/)
 # Makefile
 # 其他构建工具
+## 测试工具
+1. Google Test
+    - 一个Google开源C++单元测试框架
+    - 参考：[玩转GoogleTest](https://www.cnblogs.com/coderzh/archive/2009/04/06/1426755.html)
 # 散点
 1. 内部链接对象、外部链接对象
     1. 内部链接对象：不同编译单元引用同名同类型的内容，但其实是不同的实例，则是内部链接对象

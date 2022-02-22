@@ -55,35 +55,35 @@ math: true
 1. :green_circl: 914：卡牌分组。简单的gcd（最大公约数）题目。[欧几里得gcd、扩展欧几里得](https://zhuanlan.zhihu.com/p/58241990)
 
 ## 字符串
-1. :green_circle: 28：实现strstr。[平均意义上又好写又快的Sunday算法](https://blog.csdn.net/q547550831/article/details/51860017)。其实就是两条策略：失配后对比主串中此次参加匹配的子串后的下一个字符，如果在模式串中没有，则大跳，否则对齐到模式串从右数第一次出现的位置。
-1. :green_circle: 1071：字符串的最大公因子。有个**题解非常精妙**，比较str1+str2==str2+str1，如果相等，返回gcd(str1.size(),str2.size())，否则返回0。
+1. :green_circle: 28：[实现strstr](https://leetcode-cn.com/problems/implement-strstr/)。平均意义上又好写又快的[Sunday算法](https://blog.csdn.net/q547550831/article/details/51860017)。其实就是两条策略：失配后对比主串中此次参加匹配的子串后的下一个字符，如果在模式串中没有，则大跳，否则对齐到模式串从右数第一次出现的位置。
+1. :green_circle: 1071：[字符串的最大公因子](https://leetcode-cn.com/problems/greatest-common-divisor-of-strings/)。有个**题解非常精妙**，比较str1+str2==str2+str1，如果相等，返回gcd(str1.size(),str2.size())，否则返回0。
 
 ## 动态规划
-1. :green_circle: 121、122：买卖股票的最佳时机I/II。有通用DP模板。
+1. :green_circle: 121、122：买卖股票的最佳时机[I](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock/)/[II](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-ii/)。有通用DP模板。
 
 ## 哈希表
-1. :green_circle: 219：存在重复元素II。滑动窗口+哈希表。
+1. :green_circle: 219：[存在重复元素II](https://leetcode-cn.com/problems/contains-duplicate-ii/)。滑动窗口+哈希表。
 
 ## 多指针
-1. :green_circle: 26：删除数组重复项。输入已经有序，单向双指针扫描。
-1. :green_circle: 141：环形链表。快慢指针。如果链表中存在循环，一定会相遇。
-1. :green_circle: 27：移除元素。从左右两侧分别开始，将需要移除的元素覆盖。
+1. :green_circle: 26：[删除数组重复项](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-array/)。输入已经有序，单向双指针扫描。
+1. :green_circle: 141：[环形链表](https://leetcode-cn.com/problems/linked-list-cycle/)。快慢指针。如果链表中存在循环，一定会相遇。
+1. :green_circle: 27：[移除元素](https://leetcode-cn.com/problems/remove-element/)。从左右两侧分别开始，将需要移除的元素覆盖。
 
 ## 分治
-1. :green_circle: 70：经典斐波那契问题。矩阵快速幂。
+1. :green_circle: 70：[爬楼梯](https://leetcode-cn.com/problems/climbing-stairs/)。经典斐波那契问题。矩阵快速幂。
 
 ## 位运算
-1. :green_circle: 231：判断是否是2的幂。直接用n&n-1。
+1. :green_circle: 231：[2的幂](https://leetcode-cn.com/problems/power-of-two/solution/)。直接用n&n-1。
 
 ## 并发
-1. :green_circle: 1114：按序打印。条件变量、锁。
+1. :green_circle: 1114：[按序打印](https://leetcode-cn.com/problems/print-in-order/solution/)。条件变量、锁。
 
 ## 数据结构
 1. :red_circle: 5999：[统计数组中好三元组数目](https://leetcode-cn.com/problems/count-good-triplets-in-an-array/)。核心题解思路是，以变量y遍历第一个列表，视作三元组的中间元素，并统计第二个列表中，位于y前面的变量中，有多少也在第一个列表中y位置之前出现过。这个统计的信息，恰好可以用[树状数组](https://zhuanlan.zhihu.com/p/93795692)来进行维护。由此达到$O(nlogn)$。
-1. :green_circle: 496：下一个更大元素I。自己写的是$O(n^2)$，题解中推荐使用单调栈。
+1. :green_circle: 496：[下一个更大元素I](https://leetcode-cn.com/problems/next-greater-element-i/)。自己写的是$O(n^2)$，题解中推荐使用单调栈。
 
 ## 其他
-1. :green_circle: 665：非递减数列。不简单的简单题，**值得二刷**。考虑情况要完整。
+1. :green_circle: 665：[非递减数列](https://leetcode-cn.com/problems/non-decreasing-array/)。不简单的简单题，**值得二刷**。考虑情况要完整。
 
 # 经典书籍
 1. 《程序员面试经典》

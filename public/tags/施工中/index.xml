@@ -6,23 +6,122 @@
     <description>Recent content in 施工中 on 奕成的个人空间</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Fri, 27 Aug 2021 10:31:04 +0800</lastBuildDate><atom:link href="https://www.lyclife.com/tags/%E6%96%BD%E5%B7%A5%E4%B8%AD/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 22 Feb 2022 21:47:16 +0800</lastBuildDate><atom:link href="https://www.lyclife.com/tags/%E6%96%BD%E5%B7%A5%E4%B8%AD/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>算法导论其八：动态规划和贪心算法</title>
-      <link>https://www.lyclife.com/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E5%85%AB%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E5%92%8C%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95/</link>
-      <pubDate>Fri, 27 Aug 2021 10:31:04 +0800</pubDate>
+      <title>边学边用linux-系统运行篇</title>
+      <link>https://www.lyclife.com/2022/02/%E8%BE%B9%E5%AD%A6%E8%BE%B9%E7%94%A8linux-%E7%B3%BB%E7%BB%9F%E8%BF%90%E8%A1%8C%E7%AF%87/</link>
+      <pubDate>Tue, 22 Feb 2022 21:47:16 +0800</pubDate>
       
-      <guid>https://www.lyclife.com/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E5%85%AB%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E5%92%8C%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95/</guid>
-      <description>&lt;p&gt;动态规划可以简单的理解为带备忘录的搜索。相较于搜索，动态规划通过列出状态转移方程和边界条件，通常能够非常简明的计算出结果。贪心算法也在本章。&lt;/p&gt;</description>
+      <guid>https://www.lyclife.com/2022/02/%E8%BE%B9%E5%AD%A6%E8%BE%B9%E7%94%A8linux-%E7%B3%BB%E7%BB%9F%E8%BF%90%E8%A1%8C%E7%AF%87/</guid>
+      <description>&lt;p&gt;了解系统运行是更好的使用Linux的基础。本文讲述Linux的系统运行原理。&lt;/p&gt;</description>
     </item>
     
     <item>
-      <title>算法导论其七：树</title>
-      <link>https://www.lyclife.com/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E4%B8%83%E6%A0%91/</link>
-      <pubDate>Fri, 27 Aug 2021 10:30:52 +0800</pubDate>
+      <title>C/C&#43;&#43;：难点总篇</title>
+      <link>https://www.lyclife.com/2022/02/c/c-%E9%9A%BE%E7%82%B9%E6%80%BB%E7%AF%87/</link>
+      <pubDate>Tue, 22 Feb 2022 20:22:20 +0800</pubDate>
       
-      <guid>https://www.lyclife.com/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E4%B8%83%E6%A0%91/</guid>
-      <description>&lt;p&gt;树是一类特殊的图，但和图不一样的是，树作为数据结构的应用十分广泛。还有各种各样的变种用于加速一些特定领域的算法。性能是相当的妙啦~&lt;/p&gt;</description>
+      <guid>https://www.lyclife.com/2022/02/c/c-%E9%9A%BE%E7%82%B9%E6%80%BB%E7%AF%87/</guid>
+      <description>&lt;p&gt;C/C++中有一些经常会出现的难点，也是考研功底的要点。本文致力于总结这一部分。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Mysql：SQL指令篇</title>
+      <link>https://www.lyclife.com/2022/02/mysqlsql%E6%8C%87%E4%BB%A4%E7%AF%87/</link>
+      <pubDate>Tue, 22 Feb 2022 13:22:21 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2022/02/mysqlsql%E6%8C%87%E4%BB%A4%E7%AF%87/</guid>
+      <description>&lt;p&gt;本章以MySQL的SQL指令为主，也会结合其他的DBMS。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Redis：数据结构和用法</title>
+      <link>https://www.lyclife.com/2022/02/redis%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%94%A8%E6%B3%95/</link>
+      <pubDate>Fri, 18 Feb 2022 20:16:44 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2022/02/redis%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%94%A8%E6%B3%95/</guid>
+      <description>&lt;p&gt;redis提供广泛的数据结构种类，用于在不同业务场景中使用。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>边学边用linux-命令行篇</title>
+      <link>https://www.lyclife.com/2022/02/%E8%BE%B9%E5%AD%A6%E8%BE%B9%E7%94%A8linux-%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%AF%87/</link>
+      <pubDate>Thu, 10 Feb 2022 14:54:43 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2022/02/%E8%BE%B9%E5%AD%A6%E8%BE%B9%E7%94%A8linux-%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%AF%87/</guid>
+      <description>&lt;p&gt;需要熟练掌握命令行是Linux系列系统最大的特点之一。本文从实用角度出发编写。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>MySQL：底层篇</title>
+      <link>https://www.lyclife.com/2022/01/mysql%E5%BA%95%E5%B1%82%E7%AF%87/</link>
+      <pubDate>Mon, 24 Jan 2022 19:22:42 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2022/01/mysql%E5%BA%95%E5%B1%82%E7%AF%87/</guid>
+      <description>&lt;p&gt;想要良好的使用MySQL，对底层原理一定要有一定的掌握。本文致力于讲解实用的底层技术。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>MySQL：开坑篇</title>
+      <link>https://www.lyclife.com/2022/01/mysql%E5%BC%80%E5%9D%91%E7%AF%87/</link>
+      <pubDate>Mon, 24 Jan 2022 19:22:25 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2022/01/mysql%E5%BC%80%E5%9D%91%E7%AF%87/</guid>
+      <description>&lt;p&gt;MySQL是当前一种主流的关系型数据库，本系列从原理和高性能方面入手进行学习&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>C/C&#43;&#43;：编译篇</title>
+      <link>https://www.lyclife.com/2022/01/c/c-%E7%BC%96%E8%AF%91%E7%AF%87/</link>
+      <pubDate>Mon, 24 Jan 2022 15:00:17 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2022/01/c/c-%E7%BC%96%E8%AF%91%E7%AF%87/</guid>
+      <description>&lt;p&gt;本文讲解编译构建过程中的一些进阶内容&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>设计模式-术语</title>
+      <link>https://www.lyclife.com/2022/01/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%9C%AF%E8%AF%AD/</link>
+      <pubDate>Sat, 22 Jan 2022 14:17:41 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2022/01/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%9C%AF%E8%AF%AD/</guid>
+      <description>&lt;p&gt;软件工程中常有和设计模式相关的一些额外的术语，在这里进行一个整理。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>JMeter压测工具</title>
+      <link>https://www.lyclife.com/2022/01/jmeter%E5%8E%8B%E6%B5%8B%E5%B7%A5%E5%85%B7/</link>
+      <pubDate>Thu, 06 Jan 2022 16:01:53 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2022/01/jmeter%E5%8E%8B%E6%B5%8B%E5%B7%A5%E5%85%B7/</guid>
+      <description>&lt;p&gt;JMeter是Apache托管的一款用于进行接口测试的工具。功能比较丰富，还有插件可以进行拓展。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>全栈学习：JsTs难点篇</title>
+      <link>https://www.lyclife.com/2021/11/%E5%85%A8%E6%A0%88%E5%AD%A6%E4%B9%A0jsts%E9%9A%BE%E7%82%B9%E7%AF%87/</link>
+      <pubDate>Tue, 30 Nov 2021 16:56:35 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/11/%E5%85%A8%E6%A0%88%E5%AD%A6%E4%B9%A0jsts%E9%9A%BE%E7%82%B9%E7%AF%87/</guid>
+      <description>&lt;p&gt;本文讲解的是JavaScript和TypeScript在使用中容易犯错的点，以及一些特别重要的其他要点。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>全栈学习：JsTs基础篇</title>
+      <link>https://www.lyclife.com/2021/11/%E5%85%A8%E6%A0%88%E5%AD%A6%E4%B9%A0jsts%E5%9F%BA%E7%A1%80%E7%AF%87/</link>
+      <pubDate>Tue, 30 Nov 2021 16:48:25 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/11/%E5%85%A8%E6%A0%88%E5%AD%A6%E4%B9%A0jsts%E5%9F%BA%E7%A1%80%E7%AF%87/</guid>
+      <description>&lt;p&gt;本文讲解Javascript和Typescript的基础概念和基本语法。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>边学边用linux-开坑篇</title>
+      <link>https://www.lyclife.com/2021/11/%E8%BE%B9%E5%AD%A6%E8%BE%B9%E7%94%A8linux-%E5%BC%80%E5%9D%91%E7%AF%87/</link>
+      <pubDate>Mon, 01 Nov 2021 17:24:49 +0800</pubDate>
+      
+      <guid>https://www.lyclife.com/2021/11/%E8%BE%B9%E5%AD%A6%E8%BE%B9%E7%94%A8linux-%E5%BC%80%E5%9D%91%E7%AF%87/</guid>
+      <description>&lt;p&gt;Linux系统是目前世界上最流行的操作系统。操作系统的学习内容很多，本系列主要目标是完成对原理的理解，并以此为基础支持在实践中的良好体验。&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -68,16 +167,6 @@
       
       <guid>https://www.lyclife.com/2021/07/spring%E6%A1%86%E6%9E%B6-bean%E8%AF%A6%E8%A7%A3/</guid>
       <description>&lt;p&gt;Bean作为Spring程序构成的基础之一，其行为奠定软件的基础功能。本章主要介绍Bean的部分原理和实用操作。&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>全栈学习开坑篇</title>
-      <link>https://www.lyclife.com/2021/07/%E5%85%A8%E6%A0%88%E5%AD%A6%E4%B9%A0%E5%BC%80%E5%9D%91%E7%AF%87/</link>
-      <pubDate>Mon, 19 Jul 2021 11:15:05 +0800</pubDate>
-      
-      <guid>https://www.lyclife.com/2021/07/%E5%85%A8%E6%A0%88%E5%AD%A6%E4%B9%A0%E5%BC%80%E5%9D%91%E7%AF%87/</guid>
-      <description>&lt;p&gt;虽然技多不压身，但是也要注意不要让自己所学过杂。一定要有自己最精通的领域。
-本文另外还会记录一些特别有趣和有用的依赖库。&lt;/p&gt;</description>
     </item>
     
     <item>

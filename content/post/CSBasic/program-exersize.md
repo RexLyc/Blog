@@ -91,6 +91,16 @@ math: true
 1. :red_circle: 5999：[统计数组中好三元组数目](https://leetcode-cn.com/problems/count-good-triplets-in-an-array/)。核心题解思路是，以变量y遍历第一个列表，视作三元组的中间元素，并统计第二个列表中，位于y前面的变量中，有多少也在第一个列表中y位置之前出现过。这个统计的信息，恰好可以用[树状数组](https://zhuanlan.zhihu.com/p/93795692)来进行维护。由此达到$O(nlogn)$。
 1. :green_circle: 496：[下一个更大元素I](https://leetcode-cn.com/problems/next-greater-element-i/)。自己写的是$O(n^2)$，题解中推荐使用单调栈。
 
+## 待整理算法博客链接
+1. [后缀树详解及其具体应用](https://blog.csdn.net/Yuzhiyuxia/article/details/24305683)、[后缀树Ukkonen构造法](https://blog.csdn.net/smbroe/article/details/42362347)、[后缀树系列一:概念以及Ukk实现原理](https://blog.csdn.net/fjsd155/article/details/80211145)
+1. [后缀数组解析及应用](https://blog.csdn.net/yxuanwkeith/article/details/50636898?_=_)
+1. [二叉树最近公共祖先（LCA）详解](https://www.hrwhisper.me/algorithm-lowest-common-ancestor-of-a-binary-tree/)
+1. [July《十五个经典算法研究与总结》索引](https://blog.csdn.net/sailinglt/article/details/79323509)
+1. 字符串匹配[BF、KMP、BM、Sunday详解](https://www.cnblogs.com/Syhawk/p/4077295.html)、[从头到尾彻底理解KMP](https://blog.csdn.net/v_july_v/article/details/7041827)、[BF、RK、BM、KMP、Trie树、AC自动机](https://blog.csdn.net/weixin_40805537/article/details/89044710)
+1. [SGI版本STL源码中的hashtable（上）](https://blog.csdn.net/Move_now/article/details/78022963)
+1. [大数乘法高效算法](https://blog.csdn.net/u010983881/article/details/77503519)
+1. [线段树详解](https://www.cnblogs.com/AC-King/p/7789013.html)
+
 ## 其他
 1. :green_circle: 665：[非递减数列](https://leetcode-cn.com/problems/non-decreasing-array/)。不简单的简单题，**值得二刷**。考虑情况要完整。
 1. :yellow_circle: 78：[求全部子集](https://leetcode-cn.com/problems/subsets)。使用vector一定减少内存重分配。
@@ -130,4 +140,9 @@ math: true
     - 除2，等价于右移>>1
     - 乘2，等价于左移<<1
     - %2，等价于&1
-1. 
+
+
+# 参考
+1. 《编程之法：面试和算法心得》：尤其里面的海量数据处理一章值得一读。
+1. 《算法导论》：经典中的基础
+1. [知乎：有哪些学习算法的网站推荐](https://www.zhihu.com/question/20368410/answer/954418248)

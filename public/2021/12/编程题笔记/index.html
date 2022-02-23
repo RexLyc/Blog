@@ -53,6 +53,9 @@
 
 
 
+  <meta property="og:image" content="https://www.lyclife.com/images/thumbnail/algo-exercises.jpg">
+  <meta property="twitter:image" content="https://www.lyclife.com/images/thumbnail/algo-exercises.jpg">
+
 
 
 
@@ -276,7 +279,7 @@
 <ol>
 <li>惯用语言为C++，偶尔会使用Java、Python。</li>
 <li>由于牛客等平台在面试时，不一定会提供头文件，需要自己牢记使用的标准库函数位于哪个头文件中。</li>
-<li>简单：中等：困难 = 2：4：1。</li>
+<li>会给出一些我觉得非常好看的题解、总结博客的链接。</li>
 <li>算法分类：
 <ol>
 <li>搜索（BFS、DFS）：单目标搜索、多目标搜索，搭配数据结构优化，单调性优化
@@ -305,12 +308,17 @@
 <li>树：前中后序的递归&amp;非递归写法，层次遍历</li>
 </ol>
 </li>
-<li>图算法：并查集、拓扑排序、欧拉图、最短路、网络流</li>
+<li>图算法：并查集、拓扑排序、欧拉图、最短路、网络流
+<ul>
+<li>偶尔会有字符串等其他类型题目转换为图论。</li>
+</ul>
+</li>
 <li>模拟</li>
 <li>数学推导</li>
 <li>字符串：匹配算法、正则匹配、通配符匹配、转为图算法</li>
 <li>滑动窗口</li>
 <li>哈希</li>
+<li>高级数据结构</li>
 </ol>
 </li>
 <li>一些建议：
@@ -320,15 +328,72 @@
 </ol>
 </li>
 </ol>
-<h1 id="力扣">力扣</h1>
-<h1 id="牛客">牛客</h1>
-<h1 id="面试题">面试题</h1>
-<h1 id="笔试题">笔试题</h1>
+<h1 id="题型分类">题型分类</h1>
+<ul>
+<li>🟢 简单</li>
+<li>🟡 中等</li>
+<li>🔴 困难</li>
+</ul>
+<h2 id="数学">数学</h2>
+<ol>
+<li>:green_circl: 914：卡牌分组。简单的gcd（最大公约数）题目。<a href="https://zhuanlan.zhihu.com/p/58241990">欧几里得gcd、扩展欧几里得</a></li>
+</ol>
+<h2 id="字符串">字符串</h2>
+<ol>
+<li>🟢 28：<a href="https://leetcode-cn.com/problems/implement-strstr/">实现strstr</a>。平均意义上又好写又快的<a href="https://blog.csdn.net/q547550831/article/details/51860017">Sunday算法</a>。其实就是两条策略：失配后对比主串中此次参加匹配的子串后的下一个字符，如果在模式串中没有，则大跳，否则对齐到模式串从右数第一次出现的位置。</li>
+<li>🟢 1071：<a href="https://leetcode-cn.com/problems/greatest-common-divisor-of-strings/">字符串的最大公因子</a>。有个<strong>题解非常精妙</strong>，比较str1+str2==str2+str1，如果相等，返回gcd(str1.size(),str2.size())，否则返回0。</li>
+</ol>
+<h2 id="动态规划">动态规划</h2>
+<ol>
+<li>🟢 121、122：买卖股票的最佳时机<a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock/">I</a>/<a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-ii/">II</a>。有通用DP模板。</li>
+</ol>
+<h2 id="哈希表">哈希表</h2>
+<ol>
+<li>🟢 219：<a href="https://leetcode-cn.com/problems/contains-duplicate-ii/">存在重复元素II</a>。滑动窗口+哈希表。</li>
+</ol>
+<h2 id="多指针">多指针</h2>
+<ol>
+<li>🟢 26：<a href="https://leetcode-cn.com/problems/remove-duplicates-from-sorted-array/">删除数组重复项</a>。输入已经有序，单向双指针扫描。</li>
+<li>🟢 141：<a href="https://leetcode-cn.com/problems/linked-list-cycle/">环形链表</a>。快慢指针。如果链表中存在循环，一定会相遇。</li>
+<li>🟢 27：<a href="https://leetcode-cn.com/problems/remove-element/">移除元素</a>。从左右两侧分别开始，将需要移除的元素覆盖。</li>
+</ol>
+<h2 id="分治">分治</h2>
+<ol>
+<li>🟢 70：<a href="https://leetcode-cn.com/problems/climbing-stairs/">爬楼梯</a>。经典斐波那契问题。矩阵快速幂。</li>
+</ol>
+<h2 id="位运算">位运算</h2>
+<ol>
+<li>🟢 231：<a href="https://leetcode-cn.com/problems/power-of-two/solution/">2的幂</a>。直接用n&amp;n-1。</li>
+</ol>
+<h2 id="并发">并发</h2>
+<ol>
+<li>🟢 1114：<a href="https://leetcode-cn.com/problems/print-in-order/solution/">按序打印</a>。条件变量、锁。</li>
+</ol>
+<h2 id="数据结构">数据结构</h2>
+<ol>
+<li>🔴 5999：<a href="https://leetcode-cn.com/problems/count-good-triplets-in-an-array/">统计数组中好三元组数目</a>。核心题解思路是，以变量y遍历第一个列表，视作三元组的中间元素，并统计第二个列表中，位于y前面的变量中，有多少也在第一个列表中y位置之前出现过。这个统计的信息，恰好可以用<a href="https://zhuanlan.zhihu.com/p/93795692">树状数组</a>来进行维护。由此达到$O(nlogn)$。</li>
+<li>🟢 496：<a href="https://leetcode-cn.com/problems/next-greater-element-i/">下一个更大元素I</a>。自己写的是$O(n^2)$，题解中推荐使用单调栈。</li>
+</ol>
+<h2 id="待整理算法博客链接">待整理算法博客链接</h2>
+<ol>
+<li><a href="https://blog.csdn.net/Yuzhiyuxia/article/details/24305683">后缀树详解及其具体应用</a>、<a href="https://blog.csdn.net/smbroe/article/details/42362347">后缀树Ukkonen构造法</a>、<a href="https://blog.csdn.net/fjsd155/article/details/80211145">后缀树系列一:概念以及Ukk实现原理</a></li>
+<li><a href="https://blog.csdn.net/yxuanwkeith/article/details/50636898?_=_">后缀数组解析及应用</a></li>
+<li><a href="https://www.hrwhisper.me/algorithm-lowest-common-ancestor-of-a-binary-tree/">二叉树最近公共祖先（LCA）详解</a></li>
+<li><a href="https://blog.csdn.net/sailinglt/article/details/79323509">July《十五个经典算法研究与总结》索引</a></li>
+<li>字符串匹配<a href="https://www.cnblogs.com/Syhawk/p/4077295.html">BF、KMP、BM、Sunday详解</a>、<a href="https://blog.csdn.net/v_july_v/article/details/7041827">从头到尾彻底理解KMP</a>、<a href="https://blog.csdn.net/weixin_40805537/article/details/89044710">BF、RK、BM、KMP、Trie树、AC自动机</a></li>
+<li><a href="https://blog.csdn.net/Move_now/article/details/78022963">SGI版本STL源码中的hashtable（上）</a></li>
+<li><a href="https://blog.csdn.net/u010983881/article/details/77503519">大数乘法高效算法</a></li>
+<li><a href="https://www.cnblogs.com/AC-King/p/7789013.html">线段树详解</a></li>
+</ol>
+<h2 id="其他">其他</h2>
+<ol>
+<li>🟢 665：<a href="https://leetcode-cn.com/problems/non-decreasing-array/">非递减数列</a>。不简单的简单题，<strong>值得二刷</strong>。考虑情况要完整。</li>
+</ol>
 <h1 id="经典书籍">经典书籍</h1>
 <ol>
 <li>《程序员面试经典》
 <ul>
-<li>08.07，全排列的生成：可以去看C++的next_permutation的实现</li>
+<li>08.07，全排列的生成：可以去看<a href="https://zh.cppreference.com/w/cpp/algorithm/next_permutation">C++的next_permutation的实现</a></li>
 <li>16.01，无临时变量交换数字：异或</li>
 <li>08.04，幂集：使用二进制位运算</li>
 <li>08.05，递归乘法：不用*做乘法，用递归</li>
@@ -344,13 +409,43 @@
 <li>题7，重建二叉树</li>
 <li>题10，fibo数列：常规矩阵快速幂</li>
 <li>题11，旋转数组的最小数字。</li>
-<li></li>
+<li>题18：删除链表的节点，使用**指针。</li>
+<li>题64：求1+2+&hellip;+n，不让用各类控制语句。要结合递归和短路判断来完成。</li>
+<li>题56-2：数组中数字出现次数II。位运算和状态转移。<strong>很好的题目，值得二刷</strong>。</li>
+<li>题19：正则表达式的匹配，经典dp。</li>
+<li>题49：丑数，经典递推题目。</li>
+<li>题44、43：数字序列中的某一位；1~n整数中1出现的次数。都是观察数字规律类型的题目。</li>
+<li>题41：数据流中的中位数。经典的双堆的使用。</li>
+<li>题59-2：O(1)时间实现队列，并能返回当前最大值。用一个单调队列（双端）+普通队列实现。<strong>很好的题目，值得二刷。</strong></li>
+<li>题62：约瑟夫环问题。找映射关系。可以看一个<a href="https://leetcode-cn.com/problems/yuan-quan-zhong-zui-hou-sheng-xia-de-shu-zi-lcof/solution/yuan-quan-zhong-zui-hou-sheng-xia-de-shu-zi-by-lee/">相关leet-code题解</a>。</li>
 </ul>
 </li>
 </ol>
 <h1 id="语言相关要点">语言相关要点</h1>
 <ol>
-<li>C++</li>
+<li>C++：
+<ol>
+<li>IEEE754数字标准在C++的实现：<a href="https://zh.cppreference.com/w/cpp/language/types">传送门</a></li>
+</ol>
+</li>
+</ol>
+<h1 id="一些优化思路">一些优化思路</h1>
+<ol>
+<li>用计算代替分支：分支跳转的代价较高。</li>
+<li>尽量将变量定义放在循环外。</li>
+<li>多使用位运算。
+<ul>
+<li>除2，等价于右移&raquo;1</li>
+<li>乘2，等价于左移&laquo;1</li>
+<li>%2，等价于&amp;1</li>
+</ul>
+</li>
+</ol>
+<h1 id="参考">参考</h1>
+<ol>
+<li>《编程之法：面试和算法心得》：尤其里面的海量数据处理一章值得一读。</li>
+<li>《算法导论》：经典中的基础</li>
+<li><a href="https://www.zhihu.com/question/20368410/answer/954418248">知乎：有哪些学习算法的网站推荐</a></li>
 </ol>
               
             </div>

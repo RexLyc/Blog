@@ -56,6 +56,7 @@ math: true
 
 ## 二分
 1. :yellow_circle: 33：[搜索旋转排序数组](https://leetcode-cn.com/problems/search-in-rotated-sorted-array)。自己写了很久总有问题。[精选题解](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/solution/ji-jian-solution-by-lukelee/)。很考虑分类讨论能力和对二分查找的理解。**值得二刷**。
+1. :yellow_circle: 540：[有序数组中的单一元素](https://leetcode-cn.com/problems/single-element-in-a-sorted-array)。利用有序性。
 
 ## 字符串
 1. :green_circle: 28：[实现strstr](https://leetcode-cn.com/problems/implement-strstr/)。平均意义上又好写又快的[Sunday算法](https://blog.csdn.net/q547550831/article/details/51860017)。其实就是两条策略：失配后对比主串中此次参加匹配的子串后的下一个字符，如果在模式串中没有，则大跳，否则对齐到模式串从右数第一次出现的位置。
@@ -64,7 +65,7 @@ math: true
 
 ## 动态规划
 1. :green_circle: 121、122：买卖股票的最佳时机[I](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock/)/[II](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-ii/)。有通用DP模板。
-1. :yellow_circle: 877：[石子游戏](https://leetcode-cn.com/problems/stone-game)。博弈类问题的DP。2人博弈通用DP。但实际上，本题先手必胜。
+1. :yellow_circle: 877：[石子游戏](https://leetcode-cn.com/problems/stone-game)。博弈类问题的DP。但实际上，本题先手必胜。**值得二刷**。
 
 ## 哈希表
 1. :green_circle: 219：[存在重复元素II](https://leetcode-cn.com/problems/contains-duplicate-ii/)。滑动窗口+哈希表。
@@ -76,7 +77,7 @@ math: true
 1. :yellow_circle: 3：[无重复字符的最长子串](https://leetcode-cn.com/problems/longest-substring-without-repeating-characters/)。
 1. :yellow_circle: 15：[三数之和](https://leetcode-cn.com/problems/3sum)。排序加对撞指针（双指针相向运动，一般只有输入有序时这样用）。**值得二刷**
 1. :yellow_circle: 16：[最接近的三数之和](https://leetcode-cn.com/problems/3sum-closest)。依然是排序加对撞。
-1. 
+1. :yellow_circle: 238：[除自身外的乘积](https://leetcode-cn.com/problems/product-of-array-except-self)。有的时候可以从复杂度要求思考方法。
 
 ## 分治
 1. :green_circle: 70：[爬楼梯](https://leetcode-cn.com/problems/climbing-stairs/)。经典斐波那契问题。矩阵快速幂。
@@ -91,7 +92,12 @@ math: true
 1. :red_circle: 5999：[统计数组中好三元组数目](https://leetcode-cn.com/problems/count-good-triplets-in-an-array/)。核心题解思路是，以变量y遍历第一个列表，视作三元组的中间元素，并统计第二个列表中，位于y前面的变量中，有多少也在第一个列表中y位置之前出现过。这个统计的信息，恰好可以用[树状数组](https://zhuanlan.zhihu.com/p/93795692)来进行维护。由此达到$O(nlogn)$。
 1. :green_circle: 496：[下一个更大元素I](https://leetcode-cn.com/problems/next-greater-element-i/)。自己写的是$O(n^2)$，题解中推荐使用单调栈。
 
-## 待整理算法博客链接
+## 其他
+1. :green_circle: 665：[非递减数列](https://leetcode-cn.com/problems/non-decreasing-array/)。不简单的简单题，**值得二刷**。考虑情况要完整。
+1. :yellow_circle: 78：[求全部子集](https://leetcode-cn.com/problems/subsets)。使用vector一定减少内存重分配。
+1. :yellow_circle: 169：[找众数](https://leetcode-cn.com/problems/majority-element)。Boyer-Moore投票算法。维护当前众数和计数器。相等+1，否则-1。变为0则更换数字。
+
+# 待整理算法博客链接
 1. [后缀树详解及其具体应用](https://blog.csdn.net/Yuzhiyuxia/article/details/24305683)、[后缀树Ukkonen构造法](https://blog.csdn.net/smbroe/article/details/42362347)、[后缀树系列一:概念以及Ukk实现原理](https://blog.csdn.net/fjsd155/article/details/80211145)
 1. [后缀数组解析及应用](https://blog.csdn.net/yxuanwkeith/article/details/50636898?_=_)
 1. [二叉树最近公共祖先（LCA）详解](https://www.hrwhisper.me/algorithm-lowest-common-ancestor-of-a-binary-tree/)
@@ -100,10 +106,6 @@ math: true
 1. [SGI版本STL源码中的hashtable（上）](https://blog.csdn.net/Move_now/article/details/78022963)
 1. [大数乘法高效算法](https://blog.csdn.net/u010983881/article/details/77503519)
 1. [线段树详解](https://www.cnblogs.com/AC-King/p/7789013.html)
-
-## 其他
-1. :green_circle: 665：[非递减数列](https://leetcode-cn.com/problems/non-decreasing-array/)。不简单的简单题，**值得二刷**。考虑情况要完整。
-1. :yellow_circle: 78：[求全部子集](https://leetcode-cn.com/problems/subsets)。使用vector一定减少内存重分配。
 
 # 经典书籍
 1. 《程序员面试经典》

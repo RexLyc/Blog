@@ -20,5 +20,25 @@ Qt是一个非常好用的C++框架，最主要的用途是用来开发跨平台
 1. UIC
 1. QMake
 1. 国际化
+# 32位编译
+1. 由于高版本后Qt仅提供64位的安装程序，32位需要自行编译。在此记录Linux(Debian 11.2 i386)下编译的流程和注意实现。
+1. 基本流程
+```bash
+sudo apt install git
+git clone git://code.qt.io/qt/qt5.git
+cd qt5
+# 以5.13.0版本为例
+git checkout 5.13.0
+perl init-repository
+# 必要前置
+sudo apt install build-essential libgl1-mesa-dev
+sudo apt install python # >2.7.5
+cd ../
+mkdir qt5130build
+cd qt5130build
+# 可以根据选项自行选择
+../qt5/configure –nomake examples –nomake tests
+```
+1. 更多配置内容参考[官方网站](https://doc.qt.io/qt-5/configure-options.html)
 # 参考资料
 [Qt5官方文档](https://doc.qt.io/qt-5/classes.html)

@@ -63,6 +63,9 @@ math: true
 1. :yellow_circle: 94：[二叉树的中序遍历](https://leetcode-cn.com/problems/binary-tree-inorder-traversal/)。普通写法没什么。迭代写法就需要一点东西了，可参考[Morris遍历](https://www.freesion.com/article/2475651348/)。另一篇[更通用的写法](https://blog.csdn.net/softwarex4/article/details/95986102)参考。
 1. :yellow_circle: 22：[括号生成](https://leetcode-cn.com/problems/generate-parentheses/)。虽然是搜索题，但是想要写一个高效的剪枝版并不是很容易。
 1. :yellow_circle: 133：[克隆图](https://leetcode-cn.com/problems/clone-graph/)。BFS，需要注意的是图的各种特殊情况，自环，重复边等。
+1. :yellow_circle: 491：[递增子序列](https://leetcode-cn.com/problems/increasing-subsequences/)。DFS+少量优化。通过添加当前层使用的数字的记录来避免生成重复的记录。**值得二刷**
+1. :yellow_circle: 638：[大礼包](https://leetcode-cn.com/problems/shopping-offers/)。经典的记忆化DFS。开辟一个类似于状态数组，记录指定状态下的最优解，避免重复搜索。**值得二刷**。
+1. :yellow_circle: 863：[二叉树中所有距离为K的节点](https://leetcode-cn.com/problems/all-nodes-distance-k-in-binary-tree/)。经典的多次搜索的题目，[题解](https://leetcode-cn.com/problems/all-nodes-distance-k-in-binary-tree/solution/er-cha-shu-zhong-suo-you-ju-chi-wei-k-de-qbla/)把问题分段处理。
 
 ## 数学
 1. :green_circle: 914：[卡牌分组](https://leetcode-cn.com/problems/x-of-a-kind-in-a-deck-of-cards)。简单的gcd（最大公约数）题目。[欧几里得gcd、扩展欧几里得](https://zhuanlan.zhihu.com/p/58241990)
@@ -89,6 +92,7 @@ math: true
 1. :yellow_circle: 96：[不同的二叉搜索树](https://leetcode-cn.com/problems/unique-binary-search-trees/)。dp就可以。也了解一下[卡塔兰数](https://leetcode-cn.com/problems/unique-binary-search-trees/solution/bu-tong-de-er-cha-sou-suo-shu-by-leetcode-solution/)。
 1. :yellow_circle: 95：[不同的二叉搜索树II](https://leetcode-cn.com/problems/unique-binary-search-trees-ii/)。本题需要直接返回所有的树，需要快速且不重复的生成。[题解](https://leetcode-cn.com/problems/unique-binary-search-trees-ii/solution/xiang-xi-tong-su-de-si-lu-fen-xi-duo-jie-fa-by-2-7/)中提到了树的同构问题。**值得二刷**
 1. :yellow_circle: 918：[环形子数组的最大和](https://leetcode-cn.com/problems/maximum-sum-circular-subarray/)。注意子数组（必连续）和子序列（不必连续）的区别。[题解](https://leetcode-cn.com/problems/maximum-sum-circular-subarray/solution/huan-xing-zi-shu-zu-de-zui-da-he-by-leetcode/)为kadane算法及其变种。**值得二刷**。
+1. :yellow_circle: 337：[打家劫舍III](https://leetcode-cn.com/problems/house-robber-iii/)。不太常见的树形DP。$curNode=f(leftSon,leftSonSon,rightSon,rightSonSon)$。
 
 ## 哈希表
 1. :green_circle: 219：[存在重复元素II](https://leetcode-cn.com/problems/contains-duplicate-ii/)。滑动窗口+哈希表。

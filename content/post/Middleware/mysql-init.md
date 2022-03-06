@@ -35,6 +35,17 @@ mysql>> # 开始数据库操作
 ```
 - 可能出现的问题
     1. 安全配置之后无法登录，提示ERROR 1698
-        ?重启服务?
+        - 目前发现，使用如下写法，是可以通过的
+        ```bash
+        # 即添加sudo
+        sudo mysql_secure_installlation
+        sudo mysql -u root -p
+        ```
+        - ***未知原因？***
+    1. 无法远程访问，可参考[MySQL远程连接失败(错误码:2003)](https://blog.csdn.net/weixin_43025071/article/details/88603053)。
+        - 检查端口、防火墙
+        - 检查mysql库，user表，host & user字段：host应当是符号“%”才允许任意ip访问。
+        - ***仍然失败？***
+- 推荐一个命令行工具mycli
 # 参考资料
 1. [MySQL数据库的发展历史](https://www.cnblogs.com/joyfulcode/p/12683009.html)

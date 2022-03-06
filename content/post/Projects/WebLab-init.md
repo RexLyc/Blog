@@ -16,11 +16,12 @@ thumbnailImage: /images/thumbnail/weblab.jpg
 <!--more-->
 # 远程启动项目
 1. 技术内容
-    1. 支持OAuth2.0验证，基于RBAC的控制
+    1. 支持身份验证，基于RBAC的控制
     1. 前端Vue3 + Typescript
     1. 后端Java + Spring
     1. 终端设备Python
     1. 必要时使用WebSocket长连接
+    1. 其他中间件MySQL + Nginx
 1. 项目需求
     1. 支持从外网登陆，并控制对应的终端设备开机。
     1. 终端设备和后端服务器保持长连接通信，前端和后端保持长连接通信。实时显示设备状态。

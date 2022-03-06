@@ -15,6 +15,13 @@ thumbnailImage: /images/thumbnail/linux.jpg
 <!--more-->
 # 核心指令
 # 常用指令
+1. 网络工具
+    ```bash
+    # 嗅探指定端口
+    nmap ip -p port
+    # 嗅探全部端口
+    nmap ip
+    ```
 # Shell编程
 1. 基本语法
 1. 经典例子

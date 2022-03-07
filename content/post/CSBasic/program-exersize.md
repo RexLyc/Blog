@@ -66,6 +66,7 @@ math: true
 1. :yellow_circle: 491：[递增子序列](https://leetcode-cn.com/problems/increasing-subsequences/)。DFS+少量优化。通过添加当前层使用的数字的记录来避免生成重复的记录。**值得二刷**
 1. :yellow_circle: 638：[大礼包](https://leetcode-cn.com/problems/shopping-offers/)。经典的记忆化DFS。开辟一个类似于状态数组，记录指定状态下的最优解，避免重复搜索。**值得二刷**。
 1. :yellow_circle: 863：[二叉树中所有距离为K的节点](https://leetcode-cn.com/problems/all-nodes-distance-k-in-binary-tree/)。经典的多次搜索的题目，[题解](https://leetcode-cn.com/problems/all-nodes-distance-k-in-binary-tree/solution/er-cha-shu-zhong-suo-you-ju-chi-wei-k-de-qbla/)把问题分段处理。
+1. :yellow_circle: 417：[太平洋大西洋水流问题](https://leetcode-cn.com/problems/pacific-atlantic-water-flow/)。这一款[题解](https://leetcode-cn.com/problems/pacific-atlantic-water-flow/solution/shui-wang-gao-chu-liu-by-xiaohu9527-xxsx/)是经典的变换问题，逆向DFS。地图类搜索题目的搜索起点、终点都可以尝试进行对调。有时能降低复杂度或实现难度。
 
 ## 数学
 1. :green_circle: 914：[卡牌分组](https://leetcode-cn.com/problems/x-of-a-kind-in-a-deck-of-cards)。简单的gcd（最大公约数）题目。[欧几里得gcd、扩展欧几里得](https://zhuanlan.zhihu.com/p/58241990)
@@ -93,6 +94,8 @@ math: true
 1. :yellow_circle: 95：[不同的二叉搜索树II](https://leetcode-cn.com/problems/unique-binary-search-trees-ii/)。本题需要直接返回所有的树，需要快速且不重复的生成。[题解](https://leetcode-cn.com/problems/unique-binary-search-trees-ii/solution/xiang-xi-tong-su-de-si-lu-fen-xi-duo-jie-fa-by-2-7/)中提到了树的同构问题。**值得二刷**
 1. :yellow_circle: 918：[环形子数组的最大和](https://leetcode-cn.com/problems/maximum-sum-circular-subarray/)。注意子数组（必连续）和子序列（不必连续）的区别。[题解](https://leetcode-cn.com/problems/maximum-sum-circular-subarray/solution/huan-xing-zi-shu-zu-de-zui-da-he-by-leetcode/)为kadane算法及其变种。**值得二刷**。
 1. :yellow_circle: 337：[打家劫舍III](https://leetcode-cn.com/problems/house-robber-iii/)。不太常见的树形DP。$curNode=f(leftSon,leftSonSon,rightSon,rightSonSon)$。
+1. :yellow_circle: 494：[目标和](https://leetcode-cn.com/problems/target-sum/)。[题解](https://leetcode-cn.com/problems/target-sum/solution/mu-biao-he-by-leetcode-solution-o0cp/)经过一定的数学变换，变为0/1背包。$\sum(A)+\sum(B)=\sum(Nums), \sum(A)-\sum(B)=S, \sum(A)=(\sum(Nums)+S)/2$。如此目标就变为了求容量为$(\sum(Nums)+S)/2$的背包中集合$a$的问题。
+1. :yellow_circle: 221：[最大正方形](https://leetcode-cn.com/problems/maximal-square/)。二维问题（及以上）设计状态方程的经典例子。[题解](https://leetcode-cn.com/problems/maximal-square/solution/zui-da-zheng-fang-xing-by-leetcode-solution/)按照右下角坐标设置状态。$dp[i][j]$代表右下角坐标为$(i,j)$的矩形的最大面积。则状态转移类似$dp[i][j]=f(dp[i-1][j-1],dp[i][j-1],dp[i-1][j])$
 
 ## 哈希表
 1. :green_circle: 219：[存在重复元素II](https://leetcode-cn.com/problems/contains-duplicate-ii/)。滑动窗口+哈希表。

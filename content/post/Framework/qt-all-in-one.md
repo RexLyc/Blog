@@ -38,7 +38,11 @@ mkdir qt5130build
 cd qt5130build
 # 可以根据选项自行选择
 ../qt5/configure –nomake examples –nomake tests
+# 可以跳过一些用不到的模块
+../qt5/configure -skip qtlocation
+# 指定安装路径
+../qt5/configure --prefix=/path/to/your/install/directory
 ```
-1. 更多配置内容参考[官方网站](https://doc.qt.io/qt-5/configure-options.html)
+1. 更多配置内容参考[官方网站-ConfigOption](https://doc.qt.io/qt-5/configure-options.html),[官方网站-编译总结篇](https://wiki.qt.io/Building_Qt_5_from_Git#Getting_the_source_code)。
 # 参考资料
 [Qt5官方文档](https://doc.qt.io/qt-5/classes.html)

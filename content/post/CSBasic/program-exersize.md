@@ -67,11 +67,13 @@ math: true
 1. :yellow_circle: 638：[大礼包](https://leetcode-cn.com/problems/shopping-offers/)。经典的记忆化DFS。开辟一个类似于状态数组，记录指定状态下的最优解，避免重复搜索。**值得二刷**。
 1. :yellow_circle: 863：[二叉树中所有距离为K的节点](https://leetcode-cn.com/problems/all-nodes-distance-k-in-binary-tree/)。经典的多次搜索的题目，[题解](https://leetcode-cn.com/problems/all-nodes-distance-k-in-binary-tree/solution/er-cha-shu-zhong-suo-you-ju-chi-wei-k-de-qbla/)把问题分段处理。
 1. :yellow_circle: 417：[太平洋大西洋水流问题](https://leetcode-cn.com/problems/pacific-atlantic-water-flow/)。这一款[题解](https://leetcode-cn.com/problems/pacific-atlantic-water-flow/solution/shui-wang-gao-chu-liu-by-xiaohu9527-xxsx/)是经典的变换问题，逆向DFS。地图类搜索题目的搜索起点、终点都可以尝试进行对调。有时能降低复杂度或实现难度。
+1. :red_circle: 127：[单词接龙](https://leetcode-cn.com/problems/word-ladder/)。经典双向BFS优化。
 
 ## 数学
 1. :green_circle: 914：[卡牌分组](https://leetcode-cn.com/problems/x-of-a-kind-in-a-deck-of-cards)。简单的gcd（最大公约数）题目。[欧几里得gcd、扩展欧几里得](https://zhuanlan.zhihu.com/p/58241990)
 1. :yellow_circle: 343：[整数拆分](https://leetcode-cn.com/problems/integer-break/)。从数字分析入手，发现所有的拆分方式中，拆出最多的3是最优解。
 1. :yellow_circle: 365：[水壶问题](https://leetcode-cn.com/problems/water-and-jug-problem/)。基础款可以写个BFS。但由于是判定问题，其实可以直接参考**扩展欧几里得**、**裴蜀定理**。
+1. :yellow_circle: [完全平方数](https://leetcode-cn.com/problems/perfect-squares/)。可以按照无穷背包进行处理。但[题解](https://leetcode-cn.com/problems/perfect-squares/solution/wan-quan-ping-fang-shu-by-leetcode-solut-t99c/)提供了一个数学解法。四平方和定理。只需要记住一点，若数字可表示为$4^k(8m+7)$，其中$k,m \in \mathbb{N}$，则必定只能用4个平方数求和，否则可以用至多3个平方数求和得出。
 
 ## 二分
 1. :yellow_circle: 33：[搜索旋转排序数组](https://leetcode-cn.com/problems/search-in-rotated-sorted-array)。自己写了很久总有问题。[精选题解](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/solution/ji-jian-solution-by-lukelee/)。很考虑分类讨论能力和对二分查找的理解。**值得二刷**。
@@ -96,10 +98,12 @@ math: true
 1. :yellow_circle: 337：[打家劫舍III](https://leetcode-cn.com/problems/house-robber-iii/)。不太常见的树形DP。$curNode=f(leftSon,leftSonSon,rightSon,rightSonSon)$。
 1. :yellow_circle: 494：[目标和](https://leetcode-cn.com/problems/target-sum/)。[题解](https://leetcode-cn.com/problems/target-sum/solution/mu-biao-he-by-leetcode-solution-o0cp/)经过一定的数学变换，变为0/1背包。$\sum(A)+\sum(B)=\sum(Nums), \sum(A)-\sum(B)=S, \sum(A)=(\sum(Nums)+S)/2$。如此目标就变为了求容量为$(\sum(Nums)+S)/2$的背包中集合$a$的问题。
 1. :yellow_circle: 221：[最大正方形](https://leetcode-cn.com/problems/maximal-square/)。二维问题（及以上）设计状态方程的经典例子。[题解](https://leetcode-cn.com/problems/maximal-square/solution/zui-da-zheng-fang-xing-by-leetcode-solution/)按照右下角坐标设置状态。$dp[i][j]$代表右下角坐标为$(i,j)$的矩形的最大面积。则状态转移类似$dp[i][j]=f(dp[i-1][j-1],dp[i][j-1],dp[i-1][j])$
+1. :yellow_circle: 473：[火柴拼正方形](https://leetcode-cn.com/problems/matchsticks-to-square/)。基本解法是多次DFS。但[题解](https://leetcode-cn.com/problems/matchsticks-to-square/solution/huo-chai-pin-zheng-fang-xing-by-leetcode/)给出了更好的状态压缩的动态规划。即标记每一个火柴是否被使用，作为状态。而且规定任意状态下至多有1个边尚未填满。动态规划的一个典型思路就是，并不需要计算所有状态，只需要证明，所计算的状态链必定包含最优解即可。**值得二刷**。
 
 ## 哈希表
 1. :green_circle: 219：[存在重复元素II](https://leetcode-cn.com/problems/contains-duplicate-ii/)。滑动窗口+哈希表。
 1. :yellow_circle: 945：[使数组唯一的最小增量值](https://leetcode-cn.com/problems/minimum-increment-to-make-array-unique/)。把哈希表的线性探测思路应用到算法题目中。[题解](https://leetcode-cn.com/problems/minimum-increment-to-make-array-unique/solution/ji-shu-onxian-xing-tan-ce-fa-onpai-xu-onlogn-yi-ya/)还结合了路径压缩。
+1. :yellow_circle: [不同岛屿的数量](https://leetcode-cn.com/problems/number-of-distinct-islands/)。[非会员链接](https://www.jianshu.com/p/492db10d4159)。本题提供了一个散列化思路，网格散列（岛屿轮廓形状）、路径散列（DFS路径）。如果形状一样，则DFS路径必定相等。可以直接用相对坐标写为字符串，作为散列值。
 
 ## 多指针 & 滑动窗口
 1. :green_circle: 26：[删除数组重复项](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-array/)。输入已经有序，单向双指针扫描。
@@ -135,6 +139,7 @@ math: true
 1. :red_circle: 332：[重新安排行程](https://leetcode-cn.com/problems/reconstruct-itinerary/)。学习图论概念：[欧拉图&半欧拉图&欧拉回路&半欧通路](https://oi-wiki.org/graph/euler/)。[Hierholzer算法题解](https://leetcode-cn.com/problems/reconstruct-itinerary/solution/zhong-xin-an-pai-xing-cheng-by-leetcode-solution/)。**值得二刷**。
 1. :yellow_circle: 310：[最小高度树](https://leetcode-cn.com/problems/minimum-height-trees/)。自己写的是普通的BFS。[题解]()中揭示了本题实际上是逐步删除度为1的节点，即拓扑排序。或者说这是一类，两端烧香求中点的题目。
 1. :yellow_circle: 743：[网络延迟时间](https://leetcode-cn.com/problems/network-delay-time/)。基础款单源有向最短路。邻接表+djikstra+堆优化。
+1. :yellow_circle: 787：[K站中转内最便宜的航班](https://leetcode-cn.com/problems/cheapest-flights-within-k-stops)。K轮[Bellman-Ford算法](http://localhost:1313/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E5%85%AD%E5%9B%BE%E7%AE%97%E6%B3%95/)。
 
 ## 数据结构
 1. :red_circle: 2179：[统计数组中好三元组数目](https://leetcode-cn.com/problems/count-good-triplets-in-an-array/)。核心题解思路是，以变量y遍历第一个列表，视作三元组的中间元素，并统计第二个列表中，位于y前面的变量中，有多少也在第一个列表中y位置之前出现过。这个统计的信息，恰好可以用[树状数组](https://zhuanlan.zhihu.com/p/93795692)来进行维护。由此达到$O(nlogn)$。

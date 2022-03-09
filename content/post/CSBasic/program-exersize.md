@@ -70,6 +70,7 @@ math: true
 1. :red_circle: 127：[单词接龙](https://leetcode-cn.com/problems/word-ladder/)。经典双向BFS优化。
 1. :yellow_circle: 254：[因子的组合](https://leetcode-cn.com/problems/factor-combinations/)。[非会员链接](https://www.cnblogs.com/grandyang/p/5332722.html)。搜索，但是搜索的因子保持单调，以避免重复。
 1. :yellow_circle: 351：[安卓系统手势解锁](https://leetcode-cn.com/problems/android-unlock-patterns)。**暴力生成并判别**是否满足要求即可。不用费力的进行正确生成。
+1. :yellow_circle: 465：[我能赢吗](https://leetcode-cn.com/problems/can-i-win/)。不可多得的博弈类型DFS，这类题目基本的思路就是记忆化的DFS。本题DFS的返回值代表是否有必胜策略。可以看看[题解](https://leetcode-cn.com/problems/can-i-win/solution/464-wo-neng-ying-ma-dai-bei-wang-lu-de-d-qu1t/)。
 
 ## 数学
 1. :green_circle: 914：[卡牌分组](https://leetcode-cn.com/problems/x-of-a-kind-in-a-deck-of-cards)。简单的gcd（最大公约数）题目。[欧几里得gcd、扩展欧几里得](https://zhuanlan.zhihu.com/p/58241990)
@@ -88,6 +89,7 @@ math: true
 1. :构建回文串检测: 1177：[构建回文串检测](https://leetcode-cn.com/problems/can-make-palindrome-from-substring/)。计算各个奇偶性并进行判断即可。
 1. :yellow_circle: 820：[单词的压缩编码](https://leetcode-cn.com/problems/short-encoding-of-words/)。使用Trie树(前缀树、字典树)[题解](https://leetcode-cn.com/problems/short-encoding-of-words/solution/dan-ci-de-ya-suo-bian-ma-by-leetcode-solution/)。
 1. :yellow_circle: 151：[反转字符串里的单词](https://leetcode-cn.com/problems/reverse-words-in-a-string/)。小技巧，先翻转小单词，再翻转整体，等价于把单词位置进行对调。
+1. :yellow_circle: 647：[回文子串](https://leetcode-cn.com/problems/palindromic-substrings/)。先使用[Manacher算法](https://www.jianshu.com/p/116aa58b7d81)求出全部回文子串，结果显然。**值得二刷**。
 
 ## 动态规划
 1. :green_circle: 121、122：买卖股票的最佳时机[I](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock/)/[II](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-ii/)。有通用DP模板。
@@ -105,6 +107,8 @@ math: true
 1. :yellow_circle: 139：[单词拆分](https://leetcode-cn.com/problems/word-break/)。自己写了个回溯+前缀树，经典TLE（Time Limit Exceeded）。其实这道题是个DP，字符串的DP其实挺多的。以$dp[i]$记录目标字符串$s$的子串$substr(0,i)$能否被成功过拆分。状态转移类似背包问题。
 1. :yellow_circle: 131：[分割回文串](https://leetcode-cn.com/problems/palindrome-partitioning/)。先**预处理**回文位置，再做动态规划。$dp[i]=f(dp[0...i])$。
 1. :yellow_circle: 698：[划分为k个相等的子集](https://leetcode-cn.com/problems/partition-to-k-equal-sum-subsets/)。自顶向下是搜索，自底向上是DP。[题解](https://leetcode-cn.com/problems/partition-to-k-equal-sum-subsets/solution/hua-fen-wei-kge-xiang-deng-de-zi-ji-by-leetcode/)又是状态压缩的动态规划，和473题火柴拼正方形类似。**值得二刷**。
+1. :yellow_circle: 516：[最长回文子序列](https://leetcode-cn.com/problems/longest-palindromic-subsequence/)。自己写了一个求字符串s和s逆的最长公共子序列的方法，转化为了已知的问题。[题解](https://leetcode-cn.com/problems/longest-palindromic-subsequence/solution/zui-chang-hui-wen-zi-xu-lie-by-leetcode-hcjqp/)还提到了另外的动态规划方法。$dp[i][j]$代表从$i$到$j$的最长回文子序列，然后比较$s[i-1]$和$s[j+1]$。
+1. :yellow_circle: 375：[猜数字大小II](https://leetcode-cn.com/problems/guess-number-higher-or-lower-ii/)。**不是贪心**。一种经典的求解最优化的动态规划问题，还有一道扔鸡蛋的题目。[题解](https://leetcode-cn.com/problems/guess-number-higher-or-lower-ii/solution/cai-shu-zi-da-xiao-ii-by-leetcode-soluti-a7vg/)中讲明了此题需要进行区间上的动态规划并求出极值。主要的状态转移方程为：$dp[i][j]=min(k+max(dp[i][k],dp[k][j]))，k \in [i,j]$。
 
 ## 哈希表
 1. :green_circle: 219：[存在重复元素II](https://leetcode-cn.com/problems/contains-duplicate-ii/)。滑动窗口+哈希表。

@@ -68,6 +68,8 @@ math: true
 1. :yellow_circle: 863：[二叉树中所有距离为K的节点](https://leetcode-cn.com/problems/all-nodes-distance-k-in-binary-tree/)。经典的多次搜索的题目，[题解](https://leetcode-cn.com/problems/all-nodes-distance-k-in-binary-tree/solution/er-cha-shu-zhong-suo-you-ju-chi-wei-k-de-qbla/)把问题分段处理。
 1. :yellow_circle: 417：[太平洋大西洋水流问题](https://leetcode-cn.com/problems/pacific-atlantic-water-flow/)。这一款[题解](https://leetcode-cn.com/problems/pacific-atlantic-water-flow/solution/shui-wang-gao-chu-liu-by-xiaohu9527-xxsx/)是经典的变换问题，逆向DFS。地图类搜索题目的搜索起点、终点都可以尝试进行对调。有时能降低复杂度或实现难度。
 1. :red_circle: 127：[单词接龙](https://leetcode-cn.com/problems/word-ladder/)。经典双向BFS优化。
+1. :yellow_circle: 254：[因子的组合](https://leetcode-cn.com/problems/factor-combinations/)。[非会员链接](https://www.cnblogs.com/grandyang/p/5332722.html)。搜索，但是搜索的因子保持单调，以避免重复。
+1. :yellow_circle: 351：[安卓系统手势解锁](https://leetcode-cn.com/problems/android-unlock-patterns)。**暴力生成并判别**是否满足要求即可。不用费力的进行正确生成。
 
 ## 数学
 1. :green_circle: 914：[卡牌分组](https://leetcode-cn.com/problems/x-of-a-kind-in-a-deck-of-cards)。简单的gcd（最大公约数）题目。[欧几里得gcd、扩展欧几里得](https://zhuanlan.zhihu.com/p/58241990)
@@ -89,6 +91,7 @@ math: true
 
 ## 动态规划
 1. :green_circle: 121、122：买卖股票的最佳时机[I](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock/)/[II](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-ii/)。有通用DP模板。
+1. :yellow_circle: 309：[最佳买卖股票时机含冷冻期](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/)。$dp[i][j]$代表第i天结束，手中有j支股票的最大收益。
 1. :yellow_circle: 877：[石子游戏](https://leetcode-cn.com/problems/stone-game)。博弈类问题的DP。但实际上，本题先手必胜。**值得二刷**。
 1. :yellow_circle: 241：[为运算表达式设计优先级](https://leetcode-cn.com/problems/different-ways-to-add-parentheses/)。感觉可以dp。**好像没自己写？**
 1. :yellow_circle: 300：[最长递增子序列](https://leetcode-cn.com/problems/longest-increasing-subsequence/)。$O(n^2)$的好写。思考一下$O(nlogn)$的。[题解](https://leetcode-cn.com/problems/longest-increasing-subsequence/solution/zui-chang-shang-sheng-zi-xu-lie-by-leetcode-soluti/)精妙之处在于状态的设计。dp的优化方向之一，让状态具备单调性。
@@ -99,6 +102,9 @@ math: true
 1. :yellow_circle: 494：[目标和](https://leetcode-cn.com/problems/target-sum/)。[题解](https://leetcode-cn.com/problems/target-sum/solution/mu-biao-he-by-leetcode-solution-o0cp/)经过一定的数学变换，变为0/1背包。$\sum(A)+\sum(B)=\sum(Nums), \sum(A)-\sum(B)=S, \sum(A)=(\sum(Nums)+S)/2$。如此目标就变为了求容量为$(\sum(Nums)+S)/2$的背包中集合$a$的问题。
 1. :yellow_circle: 221：[最大正方形](https://leetcode-cn.com/problems/maximal-square/)。二维问题（及以上）设计状态方程的经典例子。[题解](https://leetcode-cn.com/problems/maximal-square/solution/zui-da-zheng-fang-xing-by-leetcode-solution/)按照右下角坐标设置状态。$dp[i][j]$代表右下角坐标为$(i,j)$的矩形的最大面积。则状态转移类似$dp[i][j]=f(dp[i-1][j-1],dp[i][j-1],dp[i-1][j])$
 1. :yellow_circle: 473：[火柴拼正方形](https://leetcode-cn.com/problems/matchsticks-to-square/)。基本解法是多次DFS。但[题解](https://leetcode-cn.com/problems/matchsticks-to-square/solution/huo-chai-pin-zheng-fang-xing-by-leetcode/)给出了更好的状态压缩的动态规划。即标记每一个火柴是否被使用，作为状态。而且规定任意状态下至多有1个边尚未填满。动态规划的一个典型思路就是，并不需要计算所有状态，只需要证明，所计算的状态链必定包含最优解即可。**值得二刷**。
+1. :yellow_circle: 139：[单词拆分](https://leetcode-cn.com/problems/word-break/)。自己写了个回溯+前缀树，经典TLE（Time Limit Exceeded）。其实这道题是个DP，字符串的DP其实挺多的。以$dp[i]$记录目标字符串$s$的子串$substr(0,i)$能否被成功过拆分。状态转移类似背包问题。
+1. :yellow_circle: 131：[分割回文串](https://leetcode-cn.com/problems/palindrome-partitioning/)。先**预处理**回文位置，再做动态规划。$dp[i]=f(dp[0...i])$。
+1. :yellow_circle: 698：[划分为k个相等的子集](https://leetcode-cn.com/problems/partition-to-k-equal-sum-subsets/)。自顶向下是搜索，自底向上是DP。[题解](https://leetcode-cn.com/problems/partition-to-k-equal-sum-subsets/solution/hua-fen-wei-kge-xiang-deng-de-zi-ji-by-leetcode/)又是状态压缩的动态规划，和473题火柴拼正方形类似。**值得二刷**。
 
 ## 哈希表
 1. :green_circle: 219：[存在重复元素II](https://leetcode-cn.com/problems/contains-duplicate-ii/)。滑动窗口+哈希表。
@@ -128,6 +134,7 @@ math: true
 ## 位运算
 1. :green_circle: 231：[2的幂](https://leetcode-cn.com/problems/power-of-two/solution/)。直接用n&n-1。
 1. :yellow_circle: 201：[数字范围按位与](https://leetcode-cn.com/problems/bitwise-and-of-numbers-range/)。纯暴力遍历不可取。题解即求两个数字的[二进制下的公共前缀](https://leetcode-cn.com/problems/bitwise-and-of-numbers-range/)，里面提到了用于去除二进制串最右侧1的，Brian Kernighan算法。
+1. :yellow_circle: 320：[列举单词的全部缩写](https://leetcode-cn.com/problems/generalized-abbreviation/)。[非会员链接](https://blog.csdn.net/qq_21201267/article/details/107859696)。可以用**二进制运算**，每个bit位代表是否用数字进行缩写，并最终输出。实现上比回溯的效率高很多。当然本质上还是$O(2^n)$。
 
 ## 并发
 1. :green_circle: 1114：[按序打印](https://leetcode-cn.com/problems/print-in-order/solution/)。条件变量、锁。
@@ -148,6 +155,7 @@ math: true
 1. :yellow_circle: 654：[最大二叉树](https://leetcode-cn.com/problems/maximum-binary-tree/)。单调栈。
 1. :yellow_circle: 1395：[统计作战单位数](https://leetcode-cn.com/problems/count-number-of-teams/)。暴力枚举中间值能过。学习以下[题解](https://leetcode-cn.com/problems/count-number-of-teams/solution/tong-ji-zuo-zhan-dan-wei-shu-by-leetcode-solution/)使用离散化+树状数组高效解决。这里用的离散化方法是通过排序，确定其序号作为关键字。
 1. :yellow_circle: 109：[从有序链表转换二叉搜索树](https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/)。锻炼基础能力，熟悉前中后序遍历。**值得二刷**。
+1. :yellow_circle: 146：[LRU缓存](https://leetcode-cn.com/problems/lru-cache/)。LRU缓存是最近最少使用，按照使用时间戳排序。用一个链表，加一个哈希表即可。
 
 ## 其他
 1. :green_circle: 665：[非递减数列](https://leetcode-cn.com/problems/non-decreasing-array/)。不简单的简单题，**值得二刷**。考虑情况要完整。

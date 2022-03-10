@@ -71,6 +71,7 @@ math: true
 1. :yellow_circle: 254：[因子的组合](https://leetcode-cn.com/problems/factor-combinations/)。[非会员链接](https://www.cnblogs.com/grandyang/p/5332722.html)。搜索，但是搜索的因子保持单调，以避免重复。
 1. :yellow_circle: 351：[安卓系统手势解锁](https://leetcode-cn.com/problems/android-unlock-patterns)。**暴力生成并判别**是否满足要求即可。不用费力的进行正确生成。
 1. :yellow_circle: 465：[我能赢吗](https://leetcode-cn.com/problems/can-i-win/)。不可多得的博弈类型DFS，这类题目基本的思路就是记忆化的DFS。本题DFS的返回值代表是否有必胜策略。可以看看[题解](https://leetcode-cn.com/problems/can-i-win/solution/464-wo-neng-ying-ma-dai-bei-wang-lu-de-d-qu1t/)。
+1. :yellow_circle: 1530：[好叶子节点对的数量](https://leetcode-cn.com/problems/number-of-good-leaf-nodes-pairs/)。DFS时选择一个好的返回值真的很重要。本题可以考虑返回当前节点各深度的子孙节点列表。
 
 ## 数学
 1. :green_circle: 914：[卡牌分组](https://leetcode-cn.com/problems/x-of-a-kind-in-a-deck-of-cards)。简单的gcd（最大公约数）题目。[欧几里得gcd、扩展欧几里得](https://zhuanlan.zhihu.com/p/58241990)
@@ -81,6 +82,7 @@ math: true
 ## 二分
 1. :yellow_circle: 33：[搜索旋转排序数组](https://leetcode-cn.com/problems/search-in-rotated-sorted-array)。自己写了很久总有问题。[精选题解](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/solution/ji-jian-solution-by-lukelee/)。很考虑分类讨论能力和对二分查找的理解。**值得二刷**。
 1. :yellow_circle: 540：[有序数组中的单一元素](https://leetcode-cn.com/problems/single-element-in-a-sorted-array)。利用有序性。
+1. :red_circle: 4：[寻找两个正序数组的中位数](https://leetcode-cn.com/problems/median-of-two-sorted-arrays/)。经典的二分查找题目。**值得二刷。**
 
 ## 字符串
 1. :green_circle: 28：[实现strstr](https://leetcode-cn.com/problems/implement-strstr/)。平均意义上又好写又快的[Sunday算法](https://blog.csdn.net/q547550831/article/details/51860017)。其实就是两条策略：失配后对比主串中此次参加匹配的子串后的下一个字符，如果在模式串中没有，则大跳，否则对齐到模式串从右数第一次出现的位置。
@@ -90,6 +92,7 @@ math: true
 1. :yellow_circle: 820：[单词的压缩编码](https://leetcode-cn.com/problems/short-encoding-of-words/)。使用Trie树(前缀树、字典树)[题解](https://leetcode-cn.com/problems/short-encoding-of-words/solution/dan-ci-de-ya-suo-bian-ma-by-leetcode-solution/)。
 1. :yellow_circle: 151：[反转字符串里的单词](https://leetcode-cn.com/problems/reverse-words-in-a-string/)。小技巧，先翻转小单词，再翻转整体，等价于把单词位置进行对调。
 1. :yellow_circle: 647：[回文子串](https://leetcode-cn.com/problems/palindromic-substrings/)。先使用[Manacher算法](https://www.jianshu.com/p/116aa58b7d81)求出全部回文子串，结果显然。**值得二刷**。
+1. :red_circle: 1044：[最长重复子串](https://leetcode-cn.com/problems/longest-duplicate-substring/)。二分法+Rabin-Karp算法（实现不好就超时）。后缀数组+最长公共子串。***没做完***
 
 ## 动态规划
 1. :green_circle: 121、122：买卖股票的最佳时机[I](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock/)/[II](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-ii/)。有通用DP模板。
@@ -109,6 +112,7 @@ math: true
 1. :yellow_circle: 698：[划分为k个相等的子集](https://leetcode-cn.com/problems/partition-to-k-equal-sum-subsets/)。自顶向下是搜索，自底向上是DP。[题解](https://leetcode-cn.com/problems/partition-to-k-equal-sum-subsets/solution/hua-fen-wei-kge-xiang-deng-de-zi-ji-by-leetcode/)又是状态压缩的动态规划，和473题火柴拼正方形类似。**值得二刷**。
 1. :yellow_circle: 516：[最长回文子序列](https://leetcode-cn.com/problems/longest-palindromic-subsequence/)。自己写了一个求字符串s和s逆的最长公共子序列的方法，转化为了已知的问题。[题解](https://leetcode-cn.com/problems/longest-palindromic-subsequence/solution/zui-chang-hui-wen-zi-xu-lie-by-leetcode-hcjqp/)还提到了另外的动态规划方法。$dp[i][j]$代表从$i$到$j$的最长回文子序列，然后比较$s[i-1]$和$s[j+1]$。
 1. :yellow_circle: 375：[猜数字大小II](https://leetcode-cn.com/problems/guess-number-higher-or-lower-ii/)。**不是贪心**。一种经典的求解最优化的动态规划问题，还有一道扔鸡蛋的题目。[题解](https://leetcode-cn.com/problems/guess-number-higher-or-lower-ii/solution/cai-shu-zi-da-xiao-ii-by-leetcode-soluti-a7vg/)中讲明了此题需要进行区间上的动态规划并求出极值。主要的状态转移方程为：$dp[i][j]=min(k+max(dp[i][k],dp[k][j]))，k \in [i,j]$。
+1. :yellow_circle: 152：[乘积最大子数组](https://leetcode-cn.com/problems/maximum-product-subarray/)。很值得思考的题目。很明显和最大子数组和类似，但是问题在于存在0和负数。此时只需要同时保留max、min，就仍可以获得最终解。因为min中的负数可以再经一次和负数相乘变正。
 
 ## 哈希表
 1. :green_circle: 219：[存在重复元素II](https://leetcode-cn.com/problems/contains-duplicate-ii/)。滑动窗口+哈希表。
@@ -125,6 +129,7 @@ math: true
 1. :yellow_circle: 238：[除自身外的乘积](https://leetcode-cn.com/problems/product-of-array-except-self)。有的时候可以从复杂度要求思考方法。
 1. :yellow_circle: 18：[四数之和](https://leetcode-cn.com/problems/4sum)。**值得二刷**。
 1. :yellow_circle: 1151：[最少交换次数来组合所有的1](https://leetcode-cn.com/problems/minimum-swaps-to-group-all-1s-together/)。[非会员链接](https://blog.csdn.net/qq_17550379/article/details/99169544)。滑动窗口+前缀和。滑动窗口的关键之一就是如何设置窗口大小。
+1. :yellow_circle: 424：[替换后的最长重复字符](https://leetcode-cn.com/problems/longest-repeating-character-replacement/)。DP明显会超时。而本题带有明显的区间的特征，可以考虑使用双指针解法，详见[题解](https://leetcode-cn.com/problems/longest-repeating-character-replacement/solution/ti-huan-hou-de-zui-chang-zhong-fu-zi-fu-n6aza/)。注意其实当我们找到任意一种解之后，区间长度一定不会减小。
 
 ## 分治
 1. :green_circle: 70：[爬楼梯](https://leetcode-cn.com/problems/climbing-stairs/)。经典斐波那契问题。矩阵快速幂。

@@ -78,11 +78,13 @@ math: true
 1. :yellow_circle: 343：[整数拆分](https://leetcode-cn.com/problems/integer-break/)。从数字分析入手，发现所有的拆分方式中，拆出最多的3是最优解。
 1. :yellow_circle: 365：[水壶问题](https://leetcode-cn.com/problems/water-and-jug-problem/)。基础款可以写个BFS。但由于是判定问题，其实可以直接参考**扩展欧几里得**、**裴蜀定理**。
 1. :yellow_circle: [完全平方数](https://leetcode-cn.com/problems/perfect-squares/)。可以按照无穷背包进行处理。但[题解](https://leetcode-cn.com/problems/perfect-squares/solution/wan-quan-ping-fang-shu-by-leetcode-solut-t99c/)提供了一个数学解法。四平方和定理。只需要记住一点，若数字可表示为$4^k(8m+7)$，其中$k,m \in \mathbb{N}$，则必定只能用4个平方数求和，否则可以用至多3个平方数求和得出。
+1. :red_circle: [子序列宽度之和](https://leetcode-cn.com/problems/sum-of-subsequence-widths/)。逆向思维，寻找子序列中的max/min$\to$固定max/min，计算有多少个序列。固定max/min，需要先对数组排序，然后按顺序取。随后可以通过数学推理，计算出所有序列的和的一个解析解表达式。
 
 ## 二分
 1. :yellow_circle: 33：[搜索旋转排序数组](https://leetcode-cn.com/problems/search-in-rotated-sorted-array)。自己写了很久总有问题。[精选题解](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/solution/ji-jian-solution-by-lukelee/)。很考虑分类讨论能力和对二分查找的理解。**值得二刷**。
 1. :yellow_circle: 540：[有序数组中的单一元素](https://leetcode-cn.com/problems/single-element-in-a-sorted-array)。利用有序性。
-1. :red_circle: 4：[寻找两个正序数组的中位数](https://leetcode-cn.com/problems/median-of-two-sorted-arrays/)。经典的二分查找题目。普通的二分$O(log(m+n))$，以及利用中位数性质的二分$O(log(min(m,n))$（典型的**数量关系**，一个数组划分后，另一个数组理论上的划分位置是固定的）。还要注意特殊情况处理。**值得二刷。**
+1. :red_circle: 4：[寻找两个正序数组的中位数](https://leetcode-cn.com/problems/median-of-two-sorted-arrays/)。经典的二分查找题目。普通的二分$O(log(m+n))$，以及利用中位数性质的二分$O(log(min(m,n))$（典型的**数量关系**，一个数组划分后，另一个数组理论上的划分位置是固定的）。还要注意特殊情况处理。**值得二刷**。
+1. :red_circle: 719：[找出第k小的距离对](https://leetcode-cn.com/problems/find-k-th-smallest-pair-distance)。看的[题解](https://leetcode-cn.com/problems/find-k-th-smallest-pair-distance/solution/hei-ming-dan-zhong-de-sui-ji-shu-by-leetcode/)：二分查找 + **非常妙**的双指针。一般来说，计算全部的距离（本题的求解目标值）的复杂度，是要高于搜索合适的距离值（尤其是使用二分搜索）。可思考求第K大这个经典问题。
 
 ## 字符串
 1. :green_circle: 28：[实现strstr](https://leetcode-cn.com/problems/implement-strstr/)。平均意义上又好写又快的[Sunday算法](https://blog.csdn.net/q547550831/article/details/51860017)。其实就是两条策略：失配后对比主串中此次参加匹配的子串后的下一个字符，如果在模式串中没有，则大跳，否则对齐到模式串从右数第一次出现的位置。
@@ -167,6 +169,8 @@ math: true
 1. :yellow_circle: 109：[从有序链表转换二叉搜索树](https://leetcode-cn.com/problems/convert-sorted-list-to-binary-search-tree/)。锻炼基础能力，熟悉前中后序遍历。**值得二刷**。
 1. :yellow_circle: 146：[LRU缓存](https://leetcode-cn.com/problems/lru-cache/)。LRU缓存是最近最少使用，按照使用时间戳排序。用一个链表，加一个哈希表即可。
 1. :red_circle: 84：[柱状图中最大的矩形](https://leetcode-cn.com/problems/largest-rectangle-in-histogram/)。经典**单调栈**题目。
+1. :red_circle: 42：[接雨水](https://leetcode-cn.com/problems/trapping-rain-water/)。单调栈。思考的时候可以从三种基本简单情况开始：[2,1,2]，[2,1,3]，[3,1,2]。单调栈其实就是保留有用的单调信息，在出入栈的时候再进行统一计算的一种方法。
+1. :red_circle: 1157：[子数组中占绝大多数的元素](https://leetcode-cn.com/problems/online-majority-element-in-subarray/)。**线段树**。树中维护的数据是BM众数投票算法的值。重点在于学会[线段树](https://www.cnblogs.com/AC-King/p/7789013.html)。另外还有题解提到[树套树]解法(https://leetcode-cn.com/problems/online-majority-element-in-subarray/solution/wu-nao-shu-ju-jie-gou-zuo-fa-shu-tao-shu-by-wnjxyk/)。
 
 ## 其他
 1. :green_circle: 665：[非递减数列](https://leetcode-cn.com/problems/non-decreasing-array/)。不简单的简单题，**值得二刷**。考虑情况要完整。
@@ -174,6 +178,7 @@ math: true
 1. :yellow_circle: 169：[找众数](https://leetcode-cn.com/problems/majority-element)。Boyer-Moore投票算法。维护当前众数和计数器。相等+1，否则-1。变为0则更换数字。
 1. :yellow_circle: 287：[寻找重复数](https://leetcode-cn.com/problems/find-the-duplicate-number/)。要求$O(n)$复杂度。题解使用等价变换+[Floyd判圈法](https://www.jianshu.com/p/36a89d938440)，**值得二刷**。
 1. :yellow_circle: 138：[复制带随机指针的链表](https://leetcode-cn.com/problems/copy-list-with-random-pointer/)。题解方法非常有趣，原地将链表复制一遍，变为a->a'->b->b'->...->nil。然后再对random域赋值。这种原地操作的思路值得思考。
+1. :red_circle: 41：[缺失的第一个正数](https://leetcode-cn.com/problems/first-missing-positive/)。题目给出了$O(n)$时间，$O(1)$的空间限制。但是**输入数组**是可以使用的空间。由于寻找正整数，所以忽略负数。**原地排序新思路**，一个萝卜一个坑，把数字移动到自己的位置上，最后遍历看哪里的下标不是自己。
 
 # 待整理算法博客链接
 1. [后缀树详解及其具体应用](https://blog.csdn.net/Yuzhiyuxia/article/details/24305683)、[后缀树Ukkonen构造法](https://blog.csdn.net/smbroe/article/details/42362347)、[后缀树系列一:概念以及Ukk实现原理](https://blog.csdn.net/fjsd155/article/details/80211145)
@@ -183,7 +188,6 @@ math: true
 1. 字符串匹配[BF、KMP、BM、Sunday详解](https://www.cnblogs.com/Syhawk/p/4077295.html)、[从头到尾彻底理解KMP](https://blog.csdn.net/v_july_v/article/details/7041827)、[BF、RK、BM、KMP、Trie树、AC自动机](https://blog.csdn.net/weixin_40805537/article/details/89044710)
 1. [SGI版本STL源码中的hashtable（上）](https://blog.csdn.net/Move_now/article/details/78022963)
 1. [大数乘法高效算法](https://blog.csdn.net/u010983881/article/details/77503519)
-1. [线段树详解](https://www.cnblogs.com/AC-King/p/7789013.html)
 
 # 经典书籍
 1. 《程序员面试经典》

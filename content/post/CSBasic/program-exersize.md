@@ -179,6 +179,7 @@ math: true
 1. :yellow_circle: 287：[寻找重复数](https://leetcode-cn.com/problems/find-the-duplicate-number/)。要求$O(n)$复杂度。题解使用等价变换+[Floyd判圈法](https://www.jianshu.com/p/36a89d938440)，**值得二刷**。
 1. :yellow_circle: 138：[复制带随机指针的链表](https://leetcode-cn.com/problems/copy-list-with-random-pointer/)。题解方法非常有趣，原地将链表复制一遍，变为a->a'->b->b'->...->nil。然后再对random域赋值。这种原地操作的思路值得思考。
 1. :red_circle: 41：[缺失的第一个正数](https://leetcode-cn.com/problems/first-missing-positive/)。题目给出了$O(n)$时间，$O(1)$的空间限制。但是**输入数组**是可以使用的空间。由于寻找正整数，所以忽略负数。**原地排序新思路**，一个萝卜一个坑，把数字移动到自己的位置上，最后遍历看哪里的下标不是自己。
+1. :yellow_circle: 29：[两数相除](https://leetcode-cn.com/problems/divide-two-integers/)。非常基础的题目，一点快速乘的思想就可以。但是非常考验对于**边界溢出**情况的考虑。由于负数范围大于正数，实际上我更推荐把数字**全转为负数**再进行运算和分类讨论（而不是转为正数），转为无符号也行。另外最好单独处理INT_MIN/1和INT_MIN/-1这两种情况。
 
 # 待整理算法博客链接
 1. [后缀树详解及其具体应用](https://blog.csdn.net/Yuzhiyuxia/article/details/24305683)、[后缀树Ukkonen构造法](https://blog.csdn.net/smbroe/article/details/42362347)、[后缀树系列一:概念以及Ukk实现原理](https://blog.csdn.net/fjsd155/article/details/80211145)
@@ -216,6 +217,9 @@ math: true
 # 语言相关要点
 1. C++：
     1. IEEE754数字标准在C++的实现：[传送门](https://zh.cppreference.com/w/cpp/language/types)
+
+# 边界情况
+1. 能支持*2的最大int数：0x40000000（正）、0xc0000000（负）
 
 # 一些优化思路
 1. 用计算代替分支：分支跳转的代价较高。

@@ -85,6 +85,7 @@ math: true
 1. :yellow_circle: 540：[有序数组中的单一元素](https://leetcode-cn.com/problems/single-element-in-a-sorted-array)。利用有序性。
 1. :red_circle: 4：[寻找两个正序数组的中位数](https://leetcode-cn.com/problems/median-of-two-sorted-arrays/)。经典的二分查找题目。普通的二分$O(log(m+n))$，以及利用中位数性质的二分$O(log(min(m,n))$（典型的**数量关系**，一个数组划分后，另一个数组理论上的划分位置是固定的）。还要注意特殊情况处理。**值得二刷**。
 1. :red_circle: 719：[找出第k小的距离对](https://leetcode-cn.com/problems/find-k-th-smallest-pair-distance)。看的[题解](https://leetcode-cn.com/problems/find-k-th-smallest-pair-distance/solution/hei-ming-dan-zhong-de-sui-ji-shu-by-leetcode/)：二分查找 + **非常妙**的双指针。一般来说，计算全部的距离（本题的求解目标值）的复杂度，是要高于搜索合适的距离值（尤其是使用二分搜索）。可思考求第K大这个经典问题。
+1. :yellow_circle: 57：[插入区间](https://leetcode-cn.com/problems/insert-interval/)。C++下本题最快捷的办法就是自己写一个lower_bound、upper_bound所需要的Compare函数。
 
 ## 字符串
 1. :green_circle: 28：[实现strstr](https://leetcode-cn.com/problems/implement-strstr/)。平均意义上又好写又快的[Sunday算法](https://blog.csdn.net/q547550831/article/details/51860017)。其实就是两条策略：失配后对比主串中此次参加匹配的子串后的下一个字符，如果在模式串中没有，则大跳，否则对齐到模式串从右数第一次出现的位置。
@@ -115,6 +116,7 @@ math: true
 1. :yellow_circle: 516：[最长回文子序列](https://leetcode-cn.com/problems/longest-palindromic-subsequence/)。自己写了一个求字符串s和s逆的最长公共子序列的方法，转化为了已知的问题。[题解](https://leetcode-cn.com/problems/longest-palindromic-subsequence/solution/zui-chang-hui-wen-zi-xu-lie-by-leetcode-hcjqp/)还提到了另外的动态规划方法。$dp[i][j]$代表从$i$到$j$的最长回文子序列，然后比较$s[i-1]$和$s[j+1]$。
 1. :yellow_circle: 375：[猜数字大小II](https://leetcode-cn.com/problems/guess-number-higher-or-lower-ii/)。**不是贪心**。一种经典的求解最优化的动态规划问题，还有一道扔鸡蛋的题目。[题解](https://leetcode-cn.com/problems/guess-number-higher-or-lower-ii/solution/cai-shu-zi-da-xiao-ii-by-leetcode-soluti-a7vg/)中讲明了此题需要进行区间上的动态规划并求出极值。主要的状态转移方程为：$dp[i][j]=min(k+max(dp[i][k],dp[k][j]))，k \in [i,j]$。
 1. :yellow_circle: 152：[乘积最大子数组](https://leetcode-cn.com/problems/maximum-product-subarray/)。很值得思考的题目。很明显和最大子数组和类似，但是问题在于存在0和负数。此时只需要同时保留max、min，就仍可以获得最终解。因为min中的负数可以再经一次和负数相乘变正。
+1. :red_circle: 312：[戳气球](https://leetcode-cn.com/problems/burst-balloons/)。经典区间DP，模板$dp[l][r]=max/min/···(dp[l][r],f(dp[l][k],dp[k][r],g(l,k,r)))$。
 
 ## 哈希表
 1. :green_circle: 219：[存在重复元素II](https://leetcode-cn.com/problems/contains-duplicate-ii/)。滑动窗口+哈希表。
@@ -171,6 +173,8 @@ math: true
 1. :red_circle: 84：[柱状图中最大的矩形](https://leetcode-cn.com/problems/largest-rectangle-in-histogram/)。经典**单调栈**题目。
 1. :red_circle: 42：[接雨水](https://leetcode-cn.com/problems/trapping-rain-water/)。单调栈。思考的时候可以从三种基本简单情况开始：[2,1,2]，[2,1,3]，[3,1,2]。单调栈其实就是保留有用的单调信息，在出入栈的时候再进行统一计算的一种方法。
 1. :red_circle: 1157：[子数组中占绝大多数的元素](https://leetcode-cn.com/problems/online-majority-element-in-subarray/)。**线段树**。树中维护的数据是BM众数投票算法的值。重点在于学会[线段树](https://www.cnblogs.com/AC-King/p/7789013.html)。另外还有题解提到[树套树]解法(https://leetcode-cn.com/problems/online-majority-element-in-subarray/solution/wu-nao-shu-ju-jie-gou-zuo-fa-shu-tao-shu-by-wnjxyk/)。
+1. :red_circle: 23：[合并k个排序链表](https://leetcode-cn.com/problems/merge-k-sorted-lists/)。本题实际上是使用一个k个大小的**小顶堆**，每次出堆元素所在的链表继续入堆。
+1. :red_circle: 1354：[多次求和构造目标数组](https://leetcode-cn.com/problems/construct-target-array-with-multiple-sums/)。**逆向思维**，求生成的可能性很多，但是反方向的恢复方式只有一个。使用大顶堆，每次消去当前数组最大的数字，测试是否能反向恢复数组至初始状态。
 
 ## 其他
 1. :green_circle: 665：[非递减数列](https://leetcode-cn.com/problems/non-decreasing-array/)。不简单的简单题，**值得二刷**。考虑情况要完整。

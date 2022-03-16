@@ -118,6 +118,7 @@ math: true
 1. :yellow_circle: 152：[乘积最大子数组](https://leetcode-cn.com/problems/maximum-product-subarray/)。很值得思考的题目。很明显和最大子数组和类似，但是问题在于存在0和负数。此时只需要同时保留max、min，就仍可以获得最终解。因为min中的负数可以再经一次和负数相乘变正。
 1. :red_circle: 312：[戳气球](https://leetcode-cn.com/problems/burst-balloons/)。经典区间DP，模板$dp[l][r]=max/min/···(dp[l][r],f(dp[l][k],dp[k][r],g(l,k,r)))$。
 1. :red_circle: 943：[最短超级串](https://leetcode-cn.com/problems/find-the-shortest-superstring/)。**经典字符串生成类**题目。从$O(N!)$降到$O(2^N)$的关键思路，在于并不需要计算全部的排列。[题解](https://leetcode-cn.com/problems/find-the-shortest-superstring/solution/zui-duan-chao-ji-chuan-by-leetcode/)只需要计算每一次以第j个字符串为结尾时，所能达到的最优长度。再结合对全部二进制子集的枚举。这种思路是通用的：用二进制枚举子集，然后计算当前这一步的最优解。
+1. :red_circle: 44：[通配符匹配](https://leetcode-cn.com/problems/wildcard-matching/)。和正则类似的动态规划。但其实还有[贪心的题解](https://leetcode-cn.com/problems/wildcard-matching/solution/tong-pei-fu-pi-pei-by-leetcode-solution/)。
 
 ## 哈希表
 1. :green_circle: 219：[存在重复元素II](https://leetcode-cn.com/problems/contains-duplicate-ii/)。滑动窗口+哈希表。
@@ -135,6 +136,7 @@ math: true
 1. :yellow_circle: 18：[四数之和](https://leetcode-cn.com/problems/4sum)。**值得二刷**。
 1. :yellow_circle: 1151：[最少交换次数来组合所有的1](https://leetcode-cn.com/problems/minimum-swaps-to-group-all-1s-together/)。[非会员链接](https://blog.csdn.net/qq_17550379/article/details/99169544)。滑动窗口+前缀和。滑动窗口的关键之一就是如何设置窗口大小。
 1. :yellow_circle: 424：[替换后的最长重复字符](https://leetcode-cn.com/problems/longest-repeating-character-replacement/)。DP明显会超时。而本题带有明显的区间的特征，可以考虑使用双指针解法，详见[题解](https://leetcode-cn.com/problems/longest-repeating-character-replacement/solution/ti-huan-hou-de-zui-chang-zhong-fu-zi-fu-n6aza/)。注意其实当我们找到任意一种解之后，区间长度一定不会减小。
+1. :red_circle: 30：[串联所有单词的子串](https://leetcode-cn.com/problems/substring-with-concatenation-of-all-words/)。只要想到是滑动窗口（因为匹配目标**长度固定**），其实就很好办了。使用双hash，一个统计窗口内单词数，一个统计words中的单词数。遍历多种滑动窗口的起点即可。
 
 ## 分治
 1. :green_circle: 70：[爬楼梯](https://leetcode-cn.com/problems/climbing-stairs/)。经典斐波那契问题。矩阵快速幂。

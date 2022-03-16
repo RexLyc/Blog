@@ -14,7 +14,7 @@ math: true
 题目内容来自leetcode、牛客等平台，偶有面试笔试真题。
 <!--more-->
 # 总结
-1. 惯用语言为C++，偶尔会使用Java、Python。
+1. 未特殊说明则惯用语言为C++，偶尔会使用Java、Python，这些情况会特别标出。
 1. 由于牛客等平台在面试时，不一定会提供头文件，需要自己牢记使用的标准库函数位于哪个头文件中。
 1. 会给出一些我觉得非常好看的题解、总结博客的链接。
 1. 算法分类：
@@ -117,6 +117,7 @@ math: true
 1. :yellow_circle: 375：[猜数字大小II](https://leetcode-cn.com/problems/guess-number-higher-or-lower-ii/)。**不是贪心**。一种经典的求解最优化的动态规划问题，还有一道扔鸡蛋的题目。[题解](https://leetcode-cn.com/problems/guess-number-higher-or-lower-ii/solution/cai-shu-zi-da-xiao-ii-by-leetcode-soluti-a7vg/)中讲明了此题需要进行区间上的动态规划并求出极值。主要的状态转移方程为：$dp[i][j]=min(k+max(dp[i][k],dp[k][j]))，k \in [i,j]$。
 1. :yellow_circle: 152：[乘积最大子数组](https://leetcode-cn.com/problems/maximum-product-subarray/)。很值得思考的题目。很明显和最大子数组和类似，但是问题在于存在0和负数。此时只需要同时保留max、min，就仍可以获得最终解。因为min中的负数可以再经一次和负数相乘变正。
 1. :red_circle: 312：[戳气球](https://leetcode-cn.com/problems/burst-balloons/)。经典区间DP，模板$dp[l][r]=max/min/···(dp[l][r],f(dp[l][k],dp[k][r],g(l,k,r)))$。
+1. :red_circle: 943：[最短超级串](https://leetcode-cn.com/problems/find-the-shortest-superstring/)。**经典字符串生成类**题目。从$O(N!)$降到$O(2^N)$的关键思路，在于并不需要计算全部的排列。[题解](https://leetcode-cn.com/problems/find-the-shortest-superstring/solution/zui-duan-chao-ji-chuan-by-leetcode/)只需要计算每一次以第j个字符串为结尾时，所能达到的最优长度。再结合对全部二进制子集的枚举。这种思路是通用的：用二进制枚举子集，然后计算当前这一步的最优解。
 
 ## 哈希表
 1. :green_circle: 219：[存在重复元素II](https://leetcode-cn.com/problems/contains-duplicate-ii/)。滑动窗口+哈希表。
@@ -175,6 +176,7 @@ math: true
 1. :red_circle: 1157：[子数组中占绝大多数的元素](https://leetcode-cn.com/problems/online-majority-element-in-subarray/)。**线段树**。树中维护的数据是BM众数投票算法的值。重点在于学会[线段树](https://www.cnblogs.com/AC-King/p/7789013.html)。另外还有题解提到[树套树]解法(https://leetcode-cn.com/problems/online-majority-element-in-subarray/solution/wu-nao-shu-ju-jie-gou-zuo-fa-shu-tao-shu-by-wnjxyk/)。
 1. :red_circle: 23：[合并k个排序链表](https://leetcode-cn.com/problems/merge-k-sorted-lists/)。本题实际上是使用一个k个大小的**小顶堆**，每次出堆元素所在的链表继续入堆。
 1. :red_circle: 1354：[多次求和构造目标数组](https://leetcode-cn.com/problems/construct-target-array-with-multiple-sums/)。**逆向思维**，求生成的可能性很多，但是反方向的恢复方式只有一个。使用大顶堆，每次消去当前数组最大的数字，测试是否能反向恢复数组至初始状态。
+1. :red_circle: 432：[全O(1)的数据结构](https://leetcode-cn.com/problems/all-oone-data-structure/)。哈希表+链表。思路很简单。但是在prev、next、swap、iter_swap这方面受了半天苦。
 
 ## 其他
 1. :green_circle: 665：[非递减数列](https://leetcode-cn.com/problems/non-decreasing-array/)。不简单的简单题，**值得二刷**。考虑情况要完整。
@@ -184,6 +186,7 @@ math: true
 1. :yellow_circle: 138：[复制带随机指针的链表](https://leetcode-cn.com/problems/copy-list-with-random-pointer/)。题解方法非常有趣，原地将链表复制一遍，变为a->a'->b->b'->...->nil。然后再对random域赋值。这种原地操作的思路值得思考。
 1. :red_circle: 41：[缺失的第一个正数](https://leetcode-cn.com/problems/first-missing-positive/)。题目给出了$O(n)$时间，$O(1)$的空间限制。但是**输入数组**是可以使用的空间。由于寻找正整数，所以忽略负数。**原地排序新思路**，一个萝卜一个坑，把数字移动到自己的位置上，最后遍历看哪里的下标不是自己。
 1. :yellow_circle: 29：[两数相除](https://leetcode-cn.com/problems/divide-two-integers/)。非常基础的题目，一点快速乘的思想就可以。但是非常考验对于**边界溢出**情况的考虑。由于负数范围大于正数，实际上我更推荐把数字**全转为负数**再进行运算和分类讨论（而不是转为正数），转为无符号也行。另外最好单独处理INT_MIN/1和INT_MIN/-1这两种情况。
+1. :yellow_circle: 50：[Pow(x,n)](https://leetcode-cn.com/problems/powx-n/)。快速幂，但n是int全范围。**注意INT_MIN**。
 
 # 待整理算法博客链接
 1. [后缀树详解及其具体应用](https://blog.csdn.net/Yuzhiyuxia/article/details/24305683)、[后缀树Ukkonen构造法](https://blog.csdn.net/smbroe/article/details/42362347)、[后缀树系列一:概念以及Ukk实现原理](https://blog.csdn.net/fjsd155/article/details/80211145)

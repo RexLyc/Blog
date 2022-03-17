@@ -125,6 +125,60 @@ redis提供广泛的数据结构种类，用于在不同业务场景中使用。
         1. rehash过程并不是立刻全部，而是渐进式的，每次访问到仍在ht[0]中的剩余键，进行迁移。
         1. rehashidx代表当前已经迁移的键的个数。rehash开始后，每次CRUD操作，都会额外进行对ht[0].table[rehashidx]的迁移。并自增rehashidx。
 1. 跳跃表
+    ```c
+    // 跳跃表节点
+    typedef struct zskiplistNode {
+        // 当前节点各层
+        struct zskiplistLevel {
+            // 当前层后继
+            struct zskiplistNode *forward;
+            // 当前层后继的距离
+            unsigned int span;
+        } level [];
+        // 当前节点前驱
+        struct zskiplistNode *backward;
+        // 当前节点分数（各节点升序排列，可重复）
+        double score;
+        // 保存的对象，跳跃表内唯一
+        robj *obj;
+    } zskiplistNode;
+
+    // 跳跃表
+    typedef struct zskiplist {
+        // 表头和表尾
+        struct zskiplistNode *header, *tail;
+        // 节点总数（不含表头）
+        unsigned long length;
+        // 最大层数（不含表头）
+        int level;
+    }
+    ```
+    1. 有序集合键的底层实现之一。也用于集群模式节点中做内部数据结构。
+    1. 层数以幂次定律生成，越大概率越低，取值范围[1,32]。表头节点是特殊的，不存储数据，但有全部32层。
+    1. 遍历过程中累计span，可以得出目标值在跳跃表中的排位。 
+    1. 排序先按score，score相同，则按保存的对象*obj排序。
+1. 整数集合
+    ```c
+    typedef struct intset {
+        // 编码方式
+        uint32_t encoding;
+        // 集合元素总数
+        uint32_t length;
+        // 保存元素的数组
+        int8_t contents[];
+    }
+    ```
+    1. 集合键的底层实现之一。针对数量较少的整数存储。
+    1. 元素升序排列，不允许重复。
+    1. encoding取值有：INTSET_ENC_INT16、INTSET_ENC_INT32、INTSET_ENC_INT64等。
+    1. 升级：当新元素长度超过现有encoding能表达的范围时，整个数组将会进行升级，原有元素也会使用表达范围更大的编码方式进行存储。步骤包括：扩展数组空间，转存已有元素，添加新元素（一定在数组头或尾）。
+    1. 不支持降级。
+1. 压缩列表
+    ```c
+    
+    ```
+    1. 列表键和哈希键的底层实现之一。主要针对数量少，长度短/数值小的关键字。
+    1. 
 # 键值对
 1. redis数据库中最基础的数据结构。key-value pair。
 1. 键总是字符串对象。而值则可以是：字符串、列表（list）、哈希（hash）、集合（set）、有序集合（zset）。

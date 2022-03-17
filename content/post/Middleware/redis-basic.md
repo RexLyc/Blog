@@ -13,8 +13,13 @@ math: true
 ---
 redis提供广泛的数据结构种类，用于在不同业务场景中使用。
 <!--more-->
+# 键值对
+1. redis数据库中最基础的数据结构。key-value pair。
+1. 键总是字符串对象。而值则可以是：字符串、列表（list）、哈希（hash）、集合（set）、有序集合（zset）。
+1. 因为键总是字符串，所以称呼“字符串键”，指值是字符串，同理其他键。
+
 # 底层
-1. 字符串
+1. 字符串：raw
     ```c
     struct sdshdr {
         // 所存储的字符串长度
@@ -35,7 +40,7 @@ redis提供广泛的数据结构种类，用于在不同业务场景中使用。
     1. 优化策略：
         - 空间预分配：free=min(1MB,len)。
         - 惰性空间释放：字符串缩短时，并不立刻释放buf。
-1. 链表
+1. 双端链表：linkedlist
     ```c
     // 链表节点
     typedef struct listNode {
@@ -59,7 +64,7 @@ redis提供广泛的数据结构种类，用于在不同业务场景中使用。
     // listSetDupMethod / listLength / listPrevNode / listDup ...
     ```
     1. 用于列表键（元素较多时）、发布订阅、慢查询、监视器登功能的实现。
-1. 字典
+1. 字典：hashtable
     ```c
     // 字典项
     typedef struct dictEntry {
@@ -124,7 +129,7 @@ redis提供广泛的数据结构种类，用于在不同业务场景中使用。
         1. rehash条件：未BGSAVE、BGREWRITEAOF，且负载因子大于1；或者正在BGSAVE、BGREWRITEAOF，但负载因子大于5；负载因子小于0.1，进行收缩。
         1. rehash过程并不是立刻全部，而是渐进式的，每次访问到仍在ht[0]中的剩余键，进行迁移。
         1. rehashidx代表当前已经迁移的键的个数。rehash开始后，每次CRUD操作，都会额外进行对ht[0].table[rehashidx]的迁移。并自增rehashidx。
-1. 跳跃表
+1. 跳跃表：skiplist
     ```c
     // 跳跃表节点
     typedef struct zskiplistNode {
@@ -157,7 +162,7 @@ redis提供广泛的数据结构种类，用于在不同业务场景中使用。
     1. 层数以幂次定律生成，越大概率越低，取值范围[1,32]。表头节点是特殊的，不存储数据，但有全部32层。
     1. 遍历过程中累计span，可以得出目标值在跳跃表中的排位。 
     1. 排序先按score，score相同，则按保存的对象*obj排序。
-1. 整数集合
+1. 整数集合：intset
     ```c
     typedef struct intset {
         // 编码方式
@@ -173,21 +178,82 @@ redis提供广泛的数据结构种类，用于在不同业务场景中使用。
     1. encoding取值有：INTSET_ENC_INT16、INTSET_ENC_INT32、INTSET_ENC_INT64等。
     1. 升级：当新元素长度超过现有encoding能表达的范围时，整个数组将会进行升级，原有元素也会使用表达范围更大的编码方式进行存储。步骤包括：扩展数组空间，转存已有元素，添加新元素（一定在数组头或尾）。
     1. 不支持降级。
-1. 压缩列表
-    ```c
-    
-    ```
+1. 压缩列表：ziplist
+    1. 字段组成
+        1. 压缩列表
+        | 字段名称 | 类型 | 长度（字节） | 作用 |
+        | --- | --- | --- | --- |
+        | zlbytes | uint32_t | 4 | 记录压缩列表总的内存字节数 |
+        | zltail | uint32_t | 4 | 记录表尾节点距离起始地址的字节数 |
+        | zllen | uint16_t | 2 | 记录了压缩列表包含的节点数量 |
+        | entryX | 列表节点 | 不定 | 压缩列表包含的各个节点 |
+        | zlend | uint8_t | 1 | 0xFF标记 |
+        1. 压缩列表节点
+        | 字段名称 | 长度 | 作用 |
+        | --- | --- | --- |
+        | previous_entry_length | 1或5字节 | 记录前一个节点的长度，如果大于等于0xFE，则以5字节存储，并以0xFE标记开头 |
+        | encoding | 1、2、5字节 | 最高两个bit位00、01、10则代表是字节数组，其后数值代表数组长度；最高两个bit位11则代表整数编码，其后长度代表整数值类型和长度 |
+        | content |  |  |
     1. 列表键和哈希键的底层实现之一。主要针对数量少，长度短/数值小的关键字。
-    1. 
-# 键值对
-1. redis数据库中最基础的数据结构。key-value pair。
-1. 键总是字符串对象。而值则可以是：字符串、列表（list）、哈希（hash）、集合（set）、有序集合（zset）。
-    
+    1. 由于zllen的类型限制，当压缩列表数量大于等于UINT16_MAX时，真正的节点数量需要遍历整个列表才能得知。
+    1. 每个节点可以保存一个字节数组或者一个整数值
+        - 字节数组：长度<=63字节、<=16383、<=4294967295
+        - 整数值：4bit（0~12）、1字节有符号整数、3字节有符号整数、int16_t类型整数、int32_t类型整数、int64_t类型整数
+    1. 编码较为复杂，可以参考[ziplist](https://zhuanlan.zhihu.com/p/144211926?from_voters_page=true)。
+    1. 连锁更新：由于每个节点存储前一个节点的长度，所以当前驱大小发生变更时（插入、删除），有可能会导致多个节点连锁更新。但平均情况下，连锁更新对性能的损耗并不是很高。
+    1. 压缩列表的核心目的是节约内存。
+# 对象
+```c
+typedef struct redisObject {
+    // 类型
+    unsigned type:4;
+    // 编码
+    unsigned encoding:4;
+    // 底层数据结构指针
+    void *ptr;
+}
+```
+1. 概述：Redis实现了一套对象系统。并在系统内使用前面提到的各类基础数据结构。Redis实现了基于引用计数技术的内存回收机制。并基于引用计数进行对象共享。Redis的对象带有访问时间记录信息，可以用于计算键的空转时长。可以配置优先删除这些键。
+1. 类型指存储的数据类型，包括：REDIS_STRING / REDIS_LIST / REDIS_HASH / REDIS_SET / REDIS_ZSET等
+1. 编码，指存储数据所使用的底层实现，包括：</br>
+    &emsp;&emsp;&emsp;REDIS_ENCODING_INT、</br>
+    &emsp;&emsp;&emsp;REDIS_ENCODING_EMBSTR、</br>
+    &emsp;&emsp;&emsp;REDIS_ENCODING_RAW、</br>
+    &emsp;&emsp;&emsp;REDIS_ENCODING_HT、</br>
+    &emsp;&emsp;&emsp;REDIS_ENCODING_LINKREDIST、</br>
+    &emsp;&emsp;&emsp;REDIS_ENCODING_ZIPLIST、</br>
+    &emsp;&emsp;&emsp;REDIS_ENCODING_INTSET、</br>
+    &emsp;&emsp;&emsp;REDIS_ENCODING_SKIPLIST
+    - 有些类型拥有多个编码方式
+    - raw即SDS，embstr其实也是SDS。但raw在分配时会分别调用robj、SDS的内存分配函数，而embstr只需要调用一次内存分配，直接分配一个同时包含robj、sds的连续内存区域。释放同理。
+1. 对象类型：
+    1. 字符串对象
+        1. 编码：
+            - int：如果字符串保存整数值，且在long范围内，则void*转为long
+            - embstr：小于等于32字节的字符串
+            - raw：大于32字节的字符串，使用SDS
+        1. 编码转换：当执行了一些指令，使得对象保存的数据类型发生变化，则将会进行转换。如对int类型连接字符串，则会转为raw。对embstr的任何修改，都会转为raw。
+        1. 部分字符串键命令：SET、GET、APPEND、INCRBYFLOAT、INCRBY、DECRBY、STRLEN、SETRANGE、GETRANGE
+            - embstr、raw不支持INCRBY、DECRBY
+    1. 列表对象
+        1. 
+
 # redis-cli
 1. redis的命令行控制工具。
+1. 实用指令
+    1. TYPE：获取一个键值对中值的数据类型
+    1. OBJECT ENCODING：查看一个键值对中值的底层实现类型
+    1. SET：
+    1. GET：
+    1. APPEND：
+    1. INCREBYFLOAT：
+    1. INCRBY：
+    1. DECRBY：
+    1. STRLEN：
+    1. SETRANGE：
+    1. GETRANGE：
 1. 实用技巧
 ```bash
 # 通过管道方式，批量执行控制命令
 cat insert.txt | redis-cli --pipe
 ```
-已阅读至第三章

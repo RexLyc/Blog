@@ -211,6 +211,10 @@ typedef struct redisObject {
     unsigned encoding:4;
     // 底层数据结构指针
     void *ptr;
+    // 引用计数
+    int refcount;
+    // 空转时长
+    unsigned lru:22;
 }
 ```
 1. 概述：Redis实现了一套对象系统。并在系统内使用前面提到的各类基础数据结构。Redis实现了基于引用计数技术的内存回收机制。并基于引用计数进行对象共享。Redis的对象带有访问时间记录信息，可以用于计算键的空转时长。可以配置优先删除这些键。
@@ -231,27 +235,72 @@ typedef struct redisObject {
         1. 编码：
             - int：如果字符串保存整数值，且在long范围内，则void*转为long
             - embstr：小于等于32字节的字符串
-            - raw：大于32字节的字符串，使用SDS
+            - raw：大于32字节的字符串
         1. 编码转换：当执行了一些指令，使得对象保存的数据类型发生变化，则将会进行转换。如对int类型连接字符串，则会转为raw。对embstr的任何修改，都会转为raw。
+        1. 字符串对象会被嵌套在其他类型对象内部。
         1. 部分字符串键命令：SET、GET、APPEND、INCRBYFLOAT、INCRBY、DECRBY、STRLEN、SETRANGE、GETRANGE
             - embstr、raw不支持INCRBY、DECRBY
     1. 列表对象
-        1. 
+        1. 编码：
+            - ziplist：列表对象保存的所有字符串对象的长度都小于64字节，且总对象数量少于512。阈值可配置。
+            - linkedlist：其他情况
+        1. 编码转换：当编码条件不满足时进行转换。
+        1. 部分列表键命令：LPUSH、RPUSH、LPOP、RPOP、LINDEX、LLEN、LINSERT、LREM（指定删除）、LTRIM（指定范围外删除）、LSET
+    1. 哈希对象
+        1. 编码：
+            - ziplist：所有键值对中键、值的字符串对象大小都小于64字节，且键值对总数少于512个。阈值可配置。
+            - hashtable：其他情况
+        1. ziplist的存储方式：按照键-值-键-值的顺序，依次添加压缩列表节点到列表尾部。
+        1. 编码转换：编码条件不满足时进行转换。
+        2. 部分哈希键命令：HSET、HGET、HEXISTS、HDEL、HLEN、HGETALL
+    1. 集合对象
+        1. 编码：
+            - intset：所有元素都是整数值，且总数不超过512个。阈值可配置。
+            - hashtable：其他情况。字典中的值字段都设为NULL。
+        1. 编码转换：不满足时转换。
+        1. 部分集合键命令：SADD、SCARD（获取元素总数）、SISMEMBER、SMEMBERS、SRANDMEMBER（随即返回）、SPOP（随机弹）、SREM（删除指定）
+    1. 有序集合对象
+        1. 编码：
+            - ziplist：保存元素的对象长度都小于64字节，且元素总数小于128个。阈值可配置。
+            - skiplist：其他情况
+        1. 编码实现：
+            - ziplist：按照值（字符串对象）-分值（score）-值-分值保存，以分值升序排列。
+            - skiplist：此处的skiplist并非底层的跳跃表实现，而是同时包含字典和跳跃表的对象，且同一个值及其分值以指针共享。
+                ```c
+                typedef struct zset {
+                    // 保存实际存储对象
+                    zskiplist *zsl;
+                    // 保存对象及其在zskiplist中的分值
+                    dict *dict;
+                }
+                ```
+                > 同时存储字典和跳跃表是为了能同时提供高效率的单点访存和范围访存。
+        1. 编码转换：不满足时转换。
+        1. 部分有序集合键命令：ZADD、ZCARD、ZCOUNT（统计指定分值范围内的元素数量）、ZRANGE、ZERVRANGE（反向返回指定索引范围内元素）、ZRANK、ZREVRANK（反向分值排名）、ZREM、ZSCORE
+# 类型和多态
+1. Redis的类型检查通过redisObject结构中的type属性实现。
+1. Redis的多态性表现在：
+    1. 有些命令可以对多种数据类型使用（如DEL、EXPIRE）
+    1. 有些类型限定命令，可以对多种底层编码使用（如LLEN，对ziplist和linkedlist均可）
+
+# 对象共享
+1. 通过引用计数统计共享情况。一个对象可能被多个程序引用，也可能被多个键的值所引用。
+1. 当存储的数据存在重复情况时，将会进行对象的共享
+    - 如键A插入后，又创建了值完全一样的键B，则键B的值会直接指向键A的值，并增加引用计数
+1. Redis默认创建存储0~9999的全部整数值的字符串对象。这些值将会直接用于共享。
+    - 实际上，出于验证完全相等的性能考虑，Redis仅对包含整数值的字符串对象进行共享。
+
+# 空转时长
+1. 键的空转时长计算方式是：当前时间-值对象的lru时间
 
 # redis-cli
 1. redis的命令行控制工具。
 1. 实用指令
     1. TYPE：获取一个键值对中值的数据类型
-    1. OBJECT ENCODING：查看一个键值对中值的底层实现类型
-    1. SET：
-    1. GET：
-    1. APPEND：
-    1. INCREBYFLOAT：
-    1. INCRBY：
-    1. DECRBY：
-    1. STRLEN：
-    1. SETRANGE：
-    1. GETRANGE：
+    1. OBJECT：
+        - OBJECT ENCODING：查看一个键值对中值的底层实现类型
+        - OBJECT REFCOUNT：查看一个键值对中值的引用计数
+        - OBJECT IDLETIME：查看给定键的空转时长
 1. 实用技巧
 ```bash
 # 通过管道方式，批量执行控制命令

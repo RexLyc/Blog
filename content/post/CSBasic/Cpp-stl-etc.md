@@ -57,6 +57,18 @@ thumbnailImage: /images/thumbnail/cpp.png
         - 容量：empty、size、max_size
         - 修改（至多造成被删除位置迭代器失效）：clear、insert、emplace、erase、push_back、emplace_back、pop_back、push_front、emplace_front、pop_front、resize、swap
         - 其他操作：merge合并两个有序列表、splice从另一列表移动元素、reverse、unique删除连续重复元素、sort、remove、remove_if
+1. 容器适配器
+    1. [stack](https://zh.cppreference.com/w/cpp/container/stack)
+        ```cpp
+        template<
+            class T,
+            class Container = std::deque<T>
+        > class stack;
+        ```
+        - 常用构造函数：(first, last)
+        - 元素访存：top
+        - 容量：empty、size
+        - 修改：push、pop、emplace、swap
 1. 算法\<algorithm\>
     1. [iter_swap](https://zh.cppreference.com/w/cpp/algorithm/iter_swap)：交换迭代器所指向元素的内容
         - 如果想交换两个迭代器，应该使用swap，而不是iter_swap

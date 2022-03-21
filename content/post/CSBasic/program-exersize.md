@@ -60,7 +60,7 @@ math: true
 ## 搜索
 1. :yellow_circle: 39：[组合总数](https://leetcode-cn.com/problems/combination-sum/)。标准DFS。
 1. :yellow_circle: 40：[组合总数II](https://leetcode-cn.com/problems/combination-sum-ii/)。39题的变种。需要使用一些剪枝来避免重复。
-1. :yellow_circle: 94：[二叉树的中序遍历](https://leetcode-cn.com/problems/binary-tree-inorder-traversal/)。普通写法没什么。迭代写法就需要一点东西了，可参考[Morris遍历](https://www.freesion.com/article/2475651348/)。另一篇[更通用的写法](https://blog.csdn.net/softwarex4/article/details/95986102)参考。
+1. :yellow_circle: 94：[二叉树的中序遍历](https://leetcode-cn.com/problems/binary-tree-inorder-traversal/)。普通写法没什么。迭代写法就需要一点东西了，可参考[二叉树遍历方法大全](https://www.cnblogs.com/sunshuyi/p/12680577.html)、[Morris遍历](https://www.freesion.com/article/2475651348/)。尤其注意思考Morris后序遍历的反转操作。
 1. :yellow_circle: 22：[括号生成](https://leetcode-cn.com/problems/generate-parentheses/)。虽然是搜索题，但是想要写一个高效的剪枝版并不是很容易。
 1. :yellow_circle: 133：[克隆图](https://leetcode-cn.com/problems/clone-graph/)。BFS，需要注意的是图的各种特殊情况，自环，重复边等。
 1. :yellow_circle: 491：[递增子序列](https://leetcode-cn.com/problems/increasing-subsequences/)。DFS+少量优化。通过添加当前层使用的数字的记录来避免生成重复的记录。**值得二刷**

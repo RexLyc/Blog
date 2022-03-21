@@ -1,5 +1,5 @@
 ---
-title: "Redis：数据结构和用法"
+title: "Redis：数据结构和基础命令"
 date: 2022-02-18T20:16:44+08:00
 categories:
 - 计算机科学与技术

@@ -26,4 +26,8 @@ thumbnailImage: /images/thumbnail/PS.jpg
 1. 图层选滤色（过滤黑色）
 1. 参考：[PS制作雪花飘落效果](https://www.bilibili.com/video/BV1Wa411F7Wm)
 
+# 图片降噪
+1. 基本的原理都是利用CameraRaw中的**减少杂色**相关工具，如果觉得细节丢失，可以使用高反差保留保留边缘信息，并使用蒙版，回复细节。
+1. 参考：[降噪技巧大合集](https://www.bilibili.com/video/BV1zf4y1177L)、[用PS自带滤镜快速给照片降噪](https://www.bilibili.com/video/BV1jy4y1G7ub)。
+
 # To Be Continued

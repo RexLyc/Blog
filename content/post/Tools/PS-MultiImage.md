@@ -45,6 +45,7 @@ thumbnailImage: /images/thumbnail/PS.jpg
 1. 步骤：
     - 载入图层：每一个图层是一张图片
     <center><img src='/images/Photoshop/Adjust_LayerAlign.png'></center>
+    
     - 图层对齐：选中所有图层->编辑->自动对齐图层
     - 可能的单张图片处理：
         - 如果发现某张图片的某区域不能输出，应当使用模板进行去除

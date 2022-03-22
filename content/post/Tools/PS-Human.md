@@ -27,6 +27,7 @@ thumbnailImage: /images/thumbnail/PS.jpg
     1. 复制两个图层，分别命名为"高频"，"低频"
     1. 低频图层：滤镜->模糊->表面模糊；18半径、15阈值（根据实际图片调整，目标是恰好看不清毛孔细节）
         <center><img src='/images/Photoshop/Human_HighFreq.png'>高频图层设置</center>
+        
     1. 高频图层：图像->应用图像：图层"低频"、混合"减去"、缩放2、补偿值128（）
         - 其计算方式是：通过"高频"和"低频"在特定混合模式计算后，对亮度值，除以缩放值，加上补偿值。
         - 设置范围一般为：缩放（1.0~2.0），补偿值（-128~128）。
@@ -41,7 +42,8 @@ thumbnailImage: /images/thumbnail/PS.jpg
 > 使用修补工具时，一定要考虑人脸部皮肤生长方向（回想脸部3D模型的线框模型），光照情况等。让修补更自然。而不是以不合理的其他区域作为修补采样。
 1. 中性灰磨皮
     1. 在上方新建空白图层，填充50%灰色（Shift + F5），设置柔光模式
-        <center><img src='/images/Photoshop/Human_Gray.png'></center></br>
+        <center><img src='/images/Photoshop/Human_Gray.png'></center>
+
     1. 为了便于观察，创建用于观察的图层
         - 新建黑白图层，降低该图层的红色通道的明度，并使用曲线增强对比度
         - 此时可以看到明显的面部瑕疵，就是我们要处理的部分
@@ -102,6 +104,9 @@ thumbnailImage: /images/thumbnail/PS.jpg
     1. 明度
         - 等待学习
     1. 其他参考：[两根曲线做牛奶肌](https://www.bilibili.com/video/BV1TB4y1N7DW/?spm_id_from=autoNext)
+1. 去除油光：
+    1. 原理是选取高光区域，用覆盖颜色进行覆盖。
+    1. 参考：[PS骚操作-面部皮肤去油光教程](https://www.bilibili.com/video/BV1PC4y1x7PF)
 
 # 头发
 1. 去除杂发

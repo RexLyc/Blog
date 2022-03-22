@@ -35,7 +35,7 @@ math: true
         1. 双堆
         1. 数组：双指针、预处理、和递归结合
         1. 树：前中后序的递归&非递归写法，层次遍历
-    1. 图算法：并查集、拓扑排序、欧拉图、最短路、网络流
+    1. 图算法：并查集、拓扑排序、欧拉图、最短路、网络流、哈密顿路径、欧拉路径
         - 偶尔会有字符串等其他类型题目转换为图论。
     1. 模拟
     1. 数学推导
@@ -72,6 +72,7 @@ math: true
 1. :yellow_circle: 351：[安卓系统手势解锁](https://leetcode-cn.com/problems/android-unlock-patterns)。**暴力生成并判别**是否满足要求即可。不用费力的进行正确生成。
 1. :yellow_circle: 465：[我能赢吗](https://leetcode-cn.com/problems/can-i-win/)。不可多得的博弈类型DFS，这类题目基本的思路就是记忆化的DFS。本题DFS的返回值代表是否有必胜策略。可以看看[题解](https://leetcode-cn.com/problems/can-i-win/solution/464-wo-neng-ying-ma-dai-bei-wang-lu-de-d-qu1t/)。
 1. :yellow_circle: 1530：[好叶子节点对的数量](https://leetcode-cn.com/problems/number-of-good-leaf-nodes-pairs/)。DFS时选择一个好的返回值真的很重要。本题可以考虑返回当前节点各深度的子孙节点列表。
+1. :red_circle: 124：[二叉树中的最大路径和](https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/)。经典的对树结构的搜索。通用思路就是，分别递归搜索左子树、右子树，处理二者返回值并返回。
 
 ## 数学
 1. :green_circle: 914：[卡牌分组](https://leetcode-cn.com/problems/x-of-a-kind-in-a-deck-of-cards)。简单的gcd（最大公约数）题目。[欧几里得gcd、扩展欧几里得](https://zhuanlan.zhihu.com/p/58241990)
@@ -96,6 +97,9 @@ math: true
 1. :yellow_circle: 151：[反转字符串里的单词](https://leetcode-cn.com/problems/reverse-words-in-a-string/)。小技巧，先翻转小单词，再翻转整体，等价于把单词位置进行对调。
 1. :yellow_circle: 647：[回文子串](https://leetcode-cn.com/problems/palindromic-substrings/)。先使用[Manacher算法](https://www.jianshu.com/p/116aa58b7d81)求出全部回文子串，结果显然。**值得二刷**。
 1. :red_circle: 1044：[最长重复子串](https://leetcode-cn.com/problems/longest-duplicate-substring/)。二分法+Rabin-Karp算法（实现不好就超时）。后缀数组+最长公共子串。***没做完***
+1. :red_circle: 65：[有效数字](https://leetcode-cn.com/problems/valid-number/)。直接上状态机，参考[题解](https://leetcode-cn.com/problems/valid-number/solution/biao-qu-dong-fa-by-user8973/)中提到的编译原理DFA。
+1. :red_circle: 466：[统计重复个数](https://leetcode-cn.com/problems/count-the-repetitions/)。题材非常新颖的一道。统计字符串之间的循环节。注意：参考小数的循环，字符串的循环节不一定从第一节字符串开始（前面可能有一个前缀）。[题解传送门](https://leetcode-cn.com/problems/count-the-repetitions/solution/tong-ji-zhong-fu-ge-shu-by-leetcode-solution/)。**值得二刷**。
+1. :red_circle: 1153：[字符串转化](https://leetcode-cn.com/problems/string-transforms-into-another-string/)。[非会员传送门](https://blog.csdn.net/qq_17550379/article/details/99404963)。很新颖的一道题目。判断类题目不需要给出解，**只需要判断**。本题只需要判断是否可能完成转换：不能具有全部26个字母，不能有相同字母需要修改为不同字母。
 
 ## 动态规划
 1. :green_circle: 121、122：买卖股票的最佳时机[I](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock/)/[II](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-ii/)。有通用DP模板。
@@ -119,6 +123,8 @@ math: true
 1. :red_circle: 312：[戳气球](https://leetcode-cn.com/problems/burst-balloons/)。经典区间DP，模板$dp[l][r]=max/min/···(dp[l][r],f(dp[l][k],dp[k][r],g(l,k,r)))$。
 1. :red_circle: 943：[最短超级串](https://leetcode-cn.com/problems/find-the-shortest-superstring/)。**经典字符串生成类**题目。从$O(N!)$降到$O(2^N)$的关键思路，在于并不需要计算全部的排列。[题解](https://leetcode-cn.com/problems/find-the-shortest-superstring/solution/zui-duan-chao-ji-chuan-by-leetcode/)只需要计算每一次以第j个字符串为结尾时，所能达到的最优长度。再结合对全部二进制子集的枚举。这种思路是通用的：用二进制枚举子集，然后计算当前这一步的最优解。
 1. :red_circle: 44：[通配符匹配](https://leetcode-cn.com/problems/wildcard-matching/)。和正则类似的动态规划。但其实还有[贪心的题解](https://leetcode-cn.com/problems/wildcard-matching/solution/tong-pei-fu-pi-pei-by-leetcode-solution/)。
+1. :red_circle: 72：[编辑距离](https://leetcode-cn.com/problems/edit-distance/)。字符串之间变换的DP方法都比较相似。$dp[i][j]$取最小值：$dp[i-1][j-1]$、$dp[i-1][j-1]+1$、$dp[i][j-1]+1$、$dp[i-1][j]$。对两个串前缀的各情况进行穷举：前缀最后一对儿字符相等，替换字符，添加一个字符，删除一个字符。
+1. :red_circle: 887：[鸡蛋掉落](https://leetcode-cn.com/problems/super-egg-drop/)。求给定鸡蛋数量和楼层总数情况下，测得安全楼层所需的最小次数。非常经典的题目，[题解](https://leetcode-cn.com/problems/super-egg-drop/solution/ji-dan-diao-luo-by-leetcode-solution-2/)提出了3种方法，从二分+动态规划，单调动态规划，再到数学法（**逆向思维**，将楼层作为目标值）。其中带有决策单调性优化的动态规划非常值得思考。**非常值得二刷**。
 
 ## 哈希表
 1. :green_circle: 219：[存在重复元素II](https://leetcode-cn.com/problems/contains-duplicate-ii/)。滑动窗口+哈希表。
@@ -164,6 +170,8 @@ math: true
 1. :yellow_circle: 310：[最小高度树](https://leetcode-cn.com/problems/minimum-height-trees/)。自己写的是普通的BFS。[题解]()中揭示了本题实际上是逐步删除度为1的节点，即拓扑排序。或者说这是一类，两端烧香求中点的题目。
 1. :yellow_circle: 743：[网络延迟时间](https://leetcode-cn.com/problems/network-delay-time/)。基础款单源有向最短路。邻接表+djikstra+堆优化。
 1. :yellow_circle: 787：[K站中转内最便宜的航班](https://leetcode-cn.com/problems/cheapest-flights-within-k-stops)。K轮[Bellman-Ford算法](http://localhost:1313/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E5%85%AD%E5%9B%BE%E7%AE%97%E6%B3%95/)。
+1. :red_circle: 685：[冗余连接II](https://leetcode-cn.com/problems/redundant-connection-ii/solution/)。树+并查集。根据冗余连接的不同情况，查找可以断开的边。
+1. :red_circle: 1168：[水资源分配优化](https://leetcode-cn.com/problems/optimize-water-distribution-in-a-village/)。[非会员传送门](https://blog.csdn.net/qq_17550379/article/details/100070671)。图论的经典思路：**添加超级源点**。通过引入超级源点，水井费用也成为一种普通的边。转化后就成为了最小生成树题目。
 
 ## 数据结构
 1. :red_circle: 2179：[统计数组中好三元组数目](https://leetcode-cn.com/problems/count-good-triplets-in-an-array/)。核心题解思路是，以变量y遍历第一个列表，视作三元组的中间元素，并统计第二个列表中，位于y前面的变量中，有多少也在第一个列表中y位置之前出现过。这个统计的信息，恰好可以用[树状数组](https://zhuanlan.zhihu.com/p/93795692)来进行维护。由此达到$O(nlogn)$。
@@ -179,6 +187,8 @@ math: true
 1. :red_circle: 23：[合并k个排序链表](https://leetcode-cn.com/problems/merge-k-sorted-lists/)。本题实际上是使用一个k个大小的**小顶堆**，每次出堆元素所在的链表继续入堆。
 1. :red_circle: 1354：[多次求和构造目标数组](https://leetcode-cn.com/problems/construct-target-array-with-multiple-sums/)。**逆向思维**，求生成的可能性很多，但是反方向的恢复方式只有一个。使用大顶堆，每次消去当前数组最大的数字，测试是否能反向恢复数组至初始状态。
 1. :red_circle: 432：[全O(1)的数据结构](https://leetcode-cn.com/problems/all-oone-data-structure/)。哈希表+链表。思路很简单。但是在prev、next、swap、iter_swap这方面受了半天苦。
+1. :red_circle: 460：[LFU缓存](https://leetcode-cn.com/problems/lfu-cache/)。结合多种数据结构：散列表、链表、最小频率标记。按照频率设置不同链表存储键值是本题的精髓。
+1. :red_circle: 99：[恢复二叉搜索树](https://leetcode-cn.com/problems/recover-binary-search-tree/)。还是中序Morris遍历。
 
 ## 其他
 1. :green_circle: 665：[非递减数列](https://leetcode-cn.com/problems/non-decreasing-array/)。不简单的简单题，**值得二刷**。考虑情况要完整。

@@ -189,6 +189,7 @@ math: true
 1. :red_circle: 432：[全O(1)的数据结构](https://leetcode-cn.com/problems/all-oone-data-structure/)。哈希表+链表。思路很简单。但是在prev、next、swap、iter_swap这方面受了半天苦。
 1. :red_circle: 460：[LFU缓存](https://leetcode-cn.com/problems/lfu-cache/)。结合多种数据结构：散列表、链表、最小频率标记。按照频率设置不同链表存储键值是本题的精髓。
 1. :red_circle: 99：[恢复二叉搜索树](https://leetcode-cn.com/problems/recover-binary-search-tree/)。还是中序Morris遍历。
+1. :red_circle: 440：[字典序的第K小数字](https://leetcode-cn.com/problems/k-th-smallest-in-lexicographical-order/)。数字顺序类题目大都需要思考顺序和数量之间的规律。自己的思路比较繁琐，是按位去生成的，一个数字除最高位是1~9，其他位均为0\~9。数量可以逐位累加（如1是最高位的数字每一位分别可以有1，10，100，...）。[题解](https://leetcode-cn.com/problems/k-th-smallest-in-lexicographical-order/solution/zi-dian-xu-de-di-kxiao-shu-zi-by-leetcod-bfy0/)更为简洁，建议学习。题解思路是从思考字符串的字典树构造开始，按照对树的遍历进行。
 
 ## 其他
 1. :green_circle: 665：[非递减数列](https://leetcode-cn.com/problems/non-decreasing-array/)。不简单的简单题，**值得二刷**。考虑情况要完整。

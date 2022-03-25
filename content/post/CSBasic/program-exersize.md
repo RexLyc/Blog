@@ -73,6 +73,7 @@ math: true
 1. :yellow_circle: 465：[我能赢吗](https://leetcode-cn.com/problems/can-i-win/)。不可多得的博弈类型DFS，这类题目基本的思路就是记忆化的DFS。本题DFS的返回值代表是否有必胜策略。可以看看[题解](https://leetcode-cn.com/problems/can-i-win/solution/464-wo-neng-ying-ma-dai-bei-wang-lu-de-d-qu1t/)。
 1. :yellow_circle: 1530：[好叶子节点对的数量](https://leetcode-cn.com/problems/number-of-good-leaf-nodes-pairs/)。DFS时选择一个好的返回值真的很重要。本题可以考虑返回当前节点各深度的子孙节点列表。
 1. :red_circle: 124：[二叉树中的最大路径和](https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/)。经典的对树结构的搜索。通用思路就是，分别递归搜索左子树、右子树，处理二者返回值并返回。
+1. :red_circle: 301：[删除无效的括号](https://leetcode-cn.com/problems/remove-invalid-parentheses/)。DFS剪枝典范。对每个括号进行是否删除的搜索，但可以结合当前左右括号数量、总的左右括号数量进行一定程度的剪枝。
 
 ## 数学
 1. :green_circle: 914：[卡牌分组](https://leetcode-cn.com/problems/x-of-a-kind-in-a-deck-of-cards)。简单的gcd（最大公约数）题目。[欧几里得gcd、扩展欧几里得](https://zhuanlan.zhihu.com/p/58241990)
@@ -87,6 +88,7 @@ math: true
 1. :red_circle: 4：[寻找两个正序数组的中位数](https://leetcode-cn.com/problems/median-of-two-sorted-arrays/)。经典的二分查找题目。普通的二分$O(log(m+n))$，以及利用中位数性质的二分$O(log(min(m,n))$（典型的**数量关系**，一个数组划分后，另一个数组理论上的划分位置是固定的）。还要注意特殊情况处理。**值得二刷**。
 1. :red_circle: 719：[找出第k小的距离对](https://leetcode-cn.com/problems/find-k-th-smallest-pair-distance)。看的[题解](https://leetcode-cn.com/problems/find-k-th-smallest-pair-distance/solution/hei-ming-dan-zhong-de-sui-ji-shu-by-leetcode/)：二分查找 + **非常妙**的双指针。一般来说，计算全部的距离（本题的求解目标值）的复杂度，是要高于搜索合适的距离值（尤其是使用二分搜索）。可思考求第K大这个经典问题。
 1. :yellow_circle: 57：[插入区间](https://leetcode-cn.com/problems/insert-interval/)。C++下本题最快捷的办法就是自己写一个lower_bound、upper_bound所需要的Compare函数。
+1. :red_circle: 1095：[山脉数组中查找目标值](https://leetcode-cn.com/problems/find-in-mountain-array/)。还是区间二分，需要先从数组中查找到最大值。很有新意的一道题目，考验对于各种情况的分析。[题解](https://leetcode-cn.com/problems/find-in-mountain-array/solution/shan-mai-shu-zu-zhong-cha-zhao-mu-biao-zhi-by-leet/)非常简洁，**值得二刷**。
 
 ## 字符串
 1. :green_circle: 28：[实现strstr](https://leetcode-cn.com/problems/implement-strstr/)。平均意义上又好写又快的[Sunday算法](https://blog.csdn.net/q547550831/article/details/51860017)。其实就是两条策略：失配后对比主串中此次参加匹配的子串后的下一个字符，如果在模式串中没有，则大跳，否则对齐到模式串从右数第一次出现的位置。
@@ -125,11 +127,15 @@ math: true
 1. :red_circle: 44：[通配符匹配](https://leetcode-cn.com/problems/wildcard-matching/)。和正则类似的动态规划。但其实还有[贪心的题解](https://leetcode-cn.com/problems/wildcard-matching/solution/tong-pei-fu-pi-pei-by-leetcode-solution/)。
 1. :red_circle: 72：[编辑距离](https://leetcode-cn.com/problems/edit-distance/)。字符串之间变换的DP方法都比较相似。$dp[i][j]$取最小值：$dp[i-1][j-1]$、$dp[i-1][j-1]+1$、$dp[i][j-1]+1$、$dp[i-1][j]$。对两个串前缀的各情况进行穷举：前缀最后一对儿字符相等，替换字符，添加一个字符，删除一个字符。
 1. :red_circle: 887：[鸡蛋掉落](https://leetcode-cn.com/problems/super-egg-drop/)。求给定鸡蛋数量和楼层总数情况下，测得安全楼层所需的最小次数。非常经典的题目，[题解](https://leetcode-cn.com/problems/super-egg-drop/solution/ji-dan-diao-luo-by-leetcode-solution-2/)提出了3种方法，从二分+动态规划，单调动态规划，再到数学法（**逆向思维**，将楼层作为目标值）。其中带有决策单调性优化的动态规划非常值得思考。**非常值得二刷**。
+1. :red_circle: 546：[移除盒子](https://leetcode-cn.com/problems/remove-boxes/)。搜索式的DP写法。本题指出了一类相对复杂的区间DP问题，即区间结构可以由于之前的决策发生改变。使用普通的$[l,r]$不能表示出全部的区间结构。[题解](https://leetcode-cn.com/problems/remove-boxes/solution/yi-chu-he-zi-by-leetcode-solution/)指出这种情况下需要引入额外的状态维度，来表示出一次决策所使用的全部区间。如$[l,r,k]$代表范围后还有$k$个。**值得二刷**。
+1. :red_circle: 664：[奇怪的打印机](https://leetcode-cn.com/problems/strange-printer/)。其实和546题是一模一样的。锻炼下举一反三的能力。
+1. :red_circle: 514：[自由之路](https://leetcode-cn.com/problems/freedom-trail/)。自己写了个略带优化的搜索。实际可以用DP。比较特别的一道题目。$dp[i][j]$代表对齐$key[i]$时，位于$ring[j]$位置的最小移动步数。注意环是可以逆时针、顺时针转。
 
 ## 哈希表
 1. :green_circle: 219：[存在重复元素II](https://leetcode-cn.com/problems/contains-duplicate-ii/)。滑动窗口+哈希表。
 1. :yellow_circle: 945：[使数组唯一的最小增量值](https://leetcode-cn.com/problems/minimum-increment-to-make-array-unique/)。把哈希表的线性探测思路应用到算法题目中。[题解](https://leetcode-cn.com/problems/minimum-increment-to-make-array-unique/solution/ji-shu-onxian-xing-tan-ce-fa-onpai-xu-onlogn-yi-ya/)还结合了路径压缩。
-1. :yellow_circle: [不同岛屿的数量](https://leetcode-cn.com/problems/number-of-distinct-islands/)。[非会员链接](https://www.jianshu.com/p/492db10d4159)。本题提供了一个散列化思路，网格散列（岛屿轮廓形状）、路径散列（DFS路径）。如果形状一样，则DFS路径必定相等。可以直接用相对坐标写为字符串，作为散列值。
+1. :yellow_circle: 694：[不同岛屿的数量](https://leetcode-cn.com/problems/number-of-distinct-islands/)。[非会员链接](https://www.jianshu.com/p/492db10d4159)。本题提供了一个散列化思路，网格散列（岛屿轮廓形状）、路径散列（DFS路径）。如果形状一样，则DFS路径必定相等。可以直接用相对坐标写为字符串，作为散列值。
+1. :red_circle: 711：[不同岛屿的数量II](https://leetcode-cn.com/problems/number-of-distinct-islands-ii/)。[非会员传送门](https://blog.csdn.net/pianzang5201/article/details/93503836)。和694不同的地方在于这里会有旋转和翻转。其实这个就能很好的考研对于哈希的理解。只要换一个哈希思路，就能保证翻转、旋转不变性。即对形状坐标序列进行排序，并选择字典序最小的作为该形状的记录。
 
 ## 多指针 & 滑动窗口
 1. :green_circle: 26：[删除数组重复项](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-array/)。输入已经有序，单向双指针扫描。
@@ -172,6 +178,7 @@ math: true
 1. :yellow_circle: 787：[K站中转内最便宜的航班](https://leetcode-cn.com/problems/cheapest-flights-within-k-stops)。K轮[Bellman-Ford算法](http://localhost:1313/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E5%85%AD%E5%9B%BE%E7%AE%97%E6%B3%95/)。
 1. :red_circle: 685：[冗余连接II](https://leetcode-cn.com/problems/redundant-connection-ii/solution/)。树+并查集。根据冗余连接的不同情况，查找可以断开的边。
 1. :red_circle: 1168：[水资源分配优化](https://leetcode-cn.com/problems/optimize-water-distribution-in-a-village/)。[非会员传送门](https://blog.csdn.net/qq_17550379/article/details/100070671)。图论的经典思路：**添加超级源点**。通过引入超级源点，水井费用也成为一种普通的边。转化后就成为了最小生成树题目。
+1. :red_circle: 329：[矩阵中的最长递增路径](https://leetcode-cn.com/problems/longest-increasing-path-in-a-matrix/)。经典转化思路：将原题目中的一些约束，修改为图论中点和点之间的边关系。而最长路径恰好可以用拓扑排序的方式进行计算（或者说是类似BFS的方式）。
 
 ## 数据结构
 1. :red_circle: 2179：[统计数组中好三元组数目](https://leetcode-cn.com/problems/count-good-triplets-in-an-array/)。核心题解思路是，以变量y遍历第一个列表，视作三元组的中间元素，并统计第二个列表中，位于y前面的变量中，有多少也在第一个列表中y位置之前出现过。这个统计的信息，恰好可以用[树状数组](https://zhuanlan.zhihu.com/p/93795692)来进行维护。由此达到$O(nlogn)$。

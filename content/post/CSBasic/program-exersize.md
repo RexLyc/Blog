@@ -74,6 +74,8 @@ math: true
 1. :yellow_circle: 1530：[好叶子节点对的数量](https://leetcode-cn.com/problems/number-of-good-leaf-nodes-pairs/)。DFS时选择一个好的返回值真的很重要。本题可以考虑返回当前节点各深度的子孙节点列表。
 1. :red_circle: 124：[二叉树中的最大路径和](https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/)。经典的对树结构的搜索。通用思路就是，分别递归搜索左子树、右子树，处理二者返回值并返回。
 1. :red_circle: 301：[删除无效的括号](https://leetcode-cn.com/problems/remove-invalid-parentheses/)。DFS剪枝典范。对每个括号进行是否删除的搜索，但可以结合当前左右括号数量、总的左右括号数量进行一定程度的剪枝。
+1. :red_circle: 1036：[逃离大迷宫](https://leetcode-cn.com/problems/escape-a-large-maze/)。BFS略加优化能过，但[题解](https://leetcode-cn.com/problems/escape-a-large-maze/)效率更高。搜索类题目，先看输入数据规模，选择合理的搜索内容。本题就是，不是直接搜索通路，而是判断障碍节点能否单独包围住起始点或终止点。
+1. :red_circle: 1368：[使网格图至少有一条有效路径的最小代价](https://leetcode-cn.com/problems/minimum-cost-to-make-at-least-one-valid-path-in-a-grid/)。可以用最短路。但本题更有价值的思路是0-1广度优先搜索。原理很简单，BFS的队列使用双端队列，权为0的边push_front，1的push_back。
 
 ## 数学
 1. :green_circle: 914：[卡牌分组](https://leetcode-cn.com/problems/x-of-a-kind-in-a-deck-of-cards)。简单的gcd（最大公约数）题目。[欧几里得gcd、扩展欧几里得](https://zhuanlan.zhihu.com/p/58241990)
@@ -102,6 +104,7 @@ math: true
 1. :red_circle: 65：[有效数字](https://leetcode-cn.com/problems/valid-number/)。直接上状态机，参考[题解](https://leetcode-cn.com/problems/valid-number/solution/biao-qu-dong-fa-by-user8973/)中提到的编译原理DFA。
 1. :red_circle: 466：[统计重复个数](https://leetcode-cn.com/problems/count-the-repetitions/)。题材非常新颖的一道。统计字符串之间的循环节。注意：参考小数的循环，字符串的循环节不一定从第一节字符串开始（前面可能有一个前缀）。[题解传送门](https://leetcode-cn.com/problems/count-the-repetitions/solution/tong-ji-zhong-fu-ge-shu-by-leetcode-solution/)。**值得二刷**。
 1. :red_circle: 1153：[字符串转化](https://leetcode-cn.com/problems/string-transforms-into-another-string/)。[非会员传送门](https://blog.csdn.net/qq_17550379/article/details/99404963)。很新颖的一道题目。判断类题目不需要给出解，**只需要判断**。本题只需要判断是否可能完成转换：不能具有全部26个字母，不能有相同字母需要修改为不同字母。
+1. :red_circle: 212：[单词搜索II](https://leetcode-cn.com/problems/word-search-ii/)。经典前缀树（字典树、Trie树）题目。可以看一下题解的[优化实现](https://leetcode-cn.com/problems/word-search-ii/solution/dan-ci-sou-suo-ii-by-leetcode-solution-7494/)。
 
 ## 动态规划
 1. :green_circle: 121、122：买卖股票的最佳时机[I](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock/)/[II](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-ii/)。有通用DP模板。
@@ -117,6 +120,7 @@ math: true
 1. :yellow_circle: 221：[最大正方形](https://leetcode-cn.com/problems/maximal-square/)。二维问题（及以上）设计状态方程的经典例子。[题解](https://leetcode-cn.com/problems/maximal-square/solution/zui-da-zheng-fang-xing-by-leetcode-solution/)按照右下角坐标设置状态。$dp[i][j]$代表右下角坐标为$(i,j)$的矩形的最大面积。则状态转移类似$dp[i][j]=f(dp[i-1][j-1],dp[i][j-1],dp[i-1][j])$
 1. :yellow_circle: 473：[火柴拼正方形](https://leetcode-cn.com/problems/matchsticks-to-square/)。基本解法是多次DFS。但[题解](https://leetcode-cn.com/problems/matchsticks-to-square/solution/huo-chai-pin-zheng-fang-xing-by-leetcode/)给出了更好的状态压缩的动态规划。即标记每一个火柴是否被使用，作为状态。而且规定任意状态下至多有1个边尚未填满。动态规划的一个典型思路就是，并不需要计算所有状态，只需要证明，所计算的状态链必定包含最优解即可。**值得二刷**。
 1. :yellow_circle: 139：[单词拆分](https://leetcode-cn.com/problems/word-break/)。自己写了个回溯+前缀树，经典TLE（Time Limit Exceeded）。其实这道题是个DP，字符串的DP其实挺多的。以$dp[i]$记录目标字符串$s$的子串$substr(0,i)$能否被成功过拆分。状态转移类似背包问题。
+1. :red_circle: 140：[单词拆分II](https://leetcode-cn.com/problems/word-break-ii/)。做一定的预处理，获取任意位置分割后的字符串样子，便于使用。
 1. :yellow_circle: 131：[分割回文串](https://leetcode-cn.com/problems/palindrome-partitioning/)。先**预处理**回文位置，再做动态规划。$dp[i]=f(dp[0...i])$。
 1. :yellow_circle: 698：[划分为k个相等的子集](https://leetcode-cn.com/problems/partition-to-k-equal-sum-subsets/)。自顶向下是搜索，自底向上是DP。[题解](https://leetcode-cn.com/problems/partition-to-k-equal-sum-subsets/solution/hua-fen-wei-kge-xiang-deng-de-zi-ji-by-leetcode/)又是状态压缩的动态规划，和473题火柴拼正方形类似。**值得二刷**。
 1. :yellow_circle: 516：[最长回文子序列](https://leetcode-cn.com/problems/longest-palindromic-subsequence/)。自己写了一个求字符串s和s逆的最长公共子序列的方法，转化为了已知的问题。[题解](https://leetcode-cn.com/problems/longest-palindromic-subsequence/solution/zui-chang-hui-wen-zi-xu-lie-by-leetcode-hcjqp/)还提到了另外的动态规划方法。$dp[i][j]$代表从$i$到$j$的最长回文子序列，然后比较$s[i-1]$和$s[j+1]$。
@@ -130,6 +134,7 @@ math: true
 1. :red_circle: 546：[移除盒子](https://leetcode-cn.com/problems/remove-boxes/)。搜索式的DP写法。本题指出了一类相对复杂的区间DP问题，即区间结构可以由于之前的决策发生改变。使用普通的$[l,r]$不能表示出全部的区间结构。[题解](https://leetcode-cn.com/problems/remove-boxes/solution/yi-chu-he-zi-by-leetcode-solution/)指出这种情况下需要引入额外的状态维度，来表示出一次决策所使用的全部区间。如$[l,r,k]$代表范围后还有$k$个。**值得二刷**。
 1. :red_circle: 664：[奇怪的打印机](https://leetcode-cn.com/problems/strange-printer/)。其实和546题是一模一样的。锻炼下举一反三的能力。
 1. :red_circle: 514：[自由之路](https://leetcode-cn.com/problems/freedom-trail/)。自己写了个略带优化的搜索。实际可以用DP。比较特别的一道题目。$dp[i][j]$代表对齐$key[i]$时，位于$ring[j]$位置的最小移动步数。注意环是可以逆时针、顺时针转。
+1. :red_circle: 741：[摘樱桃](https://leetcode-cn.com/problems/cherry-pickup/)。经典“多线程”DP，其实就是状态方程中同时考虑多个决策。$dp[point_1][point_2]$$=f(dp[prev(point_1)][point_2]$$,dp[point_1][prev(point_2)])$。
 
 ## 哈希表
 1. :green_circle: 219：[存在重复元素II](https://leetcode-cn.com/problems/contains-duplicate-ii/)。滑动窗口+哈希表。
@@ -179,6 +184,9 @@ math: true
 1. :red_circle: 685：[冗余连接II](https://leetcode-cn.com/problems/redundant-connection-ii/solution/)。树+并查集。根据冗余连接的不同情况，查找可以断开的边。
 1. :red_circle: 1168：[水资源分配优化](https://leetcode-cn.com/problems/optimize-water-distribution-in-a-village/)。[非会员传送门](https://blog.csdn.net/qq_17550379/article/details/100070671)。图论的经典思路：**添加超级源点**。通过引入超级源点，水井费用也成为一种普通的边。转化后就成为了最小生成树题目。
 1. :red_circle: 329：[矩阵中的最长递增路径](https://leetcode-cn.com/problems/longest-increasing-path-in-a-matrix/)。经典转化思路：将原题目中的一些约束，修改为图论中点和点之间的边关系。而最长路径恰好可以用拓扑排序的方式进行计算（或者说是类似BFS的方式）。
+1. :red_circle: 675：[为高尔夫比赛砍树](https://leetcode-cn.com/problems/cut-off-trees-for-golf-event/)。思路很简单，排序后找最短路。但复杂度也奇高。[官方题解](https://leetcode-cn.com/problems/cut-off-trees-for-golf-event/solution/wei-gao-er-fu-bi-sai-kan-shu-by-leetcode/)和[民间题解](https://leetcode-cn.com/problems/cut-off-trees-for-golf-event/solution/c-160ms-ti-jie-xi-shuo-chang-shu-you-hua-na-xie-sh/)都提到了优化问题，尤其是**间隔搜索**值得思考。更厉害的是[分治法优化思路](https://leetcode-cn.com/problems/cut-off-trees-for-golf-event/solution/on3fen-zhi-c-48ms-100-by-hqztrue-jhxz/)。**值得二刷**。
+1. :red_circle: 854：[相似度为K的字符串](https://leetcode-cn.com/problems/k-similar-strings/)。又是字符串变换转为图论变换的题目。本题的[题解](https://leetcode-cn.com/problems/k-similar-strings/solution/xiang-si-du-wei-k-de-zi-fu-chuan-by-leetcode/)把字符移动理解为对边的变换。
+1. :red_circle: 1197：[进击的骑士](https://leetcode-cn.com/problems/minimum-knight-moves/)。[非会员传送门](https://blog.csdn.net/qq_17550379/article/details/101195668)。使用[A*算法](https://zhuanlan.zhihu.com/p/54510444)，给搜索添加启发式估计值作为排序规则的一部分。这个规则的主要目的是，不让100%恶化的情况入队。
 
 ## 数据结构
 1. :red_circle: 2179：[统计数组中好三元组数目](https://leetcode-cn.com/problems/count-good-triplets-in-an-array/)。核心题解思路是，以变量y遍历第一个列表，视作三元组的中间元素，并统计第二个列表中，位于y前面的变量中，有多少也在第一个列表中y位置之前出现过。这个统计的信息，恰好可以用[树状数组](https://zhuanlan.zhihu.com/p/93795692)来进行维护。由此达到$O(nlogn)$。

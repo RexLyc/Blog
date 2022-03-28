@@ -79,4 +79,12 @@ thumbnailImage: /images/thumbnail/cpp.png
         - 右值是不能swap的！
 1. 迭代器\<iterator\>
     1. next、prev：返回下一个、上一个迭代器。
+1. 字符串\<string\>
+    1. to_string：重载函数，将int、long、long long、unsigned、unsigned long、unsigned long long、float、double、long double转为字符串
+        - 转换后数字高位在字符串的0下标
+        - 对浮点数并不保证完全正确（和cout输出可能不同）    
+    1. [stoi/stol/stoll](https://zh.cppreference.com/w/cpp/string/basic_string/stol)、[stoul/stoull](https://zh.cppreference.com/w/cpp/string/basic_string/stoul)、[stof/stod/stold](https://zh.cppreference.com/w/cpp/string/basic_string/stof)：字符串转数字
+        - 舍弃前缀空白字符，只取第一段数字
+        - 无法转换或超出范围都会抛异常
+
 # C

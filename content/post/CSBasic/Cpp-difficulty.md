@@ -91,3 +91,25 @@ C/C++中有一些经常会出现的难点，也是考研功底的要点。本文
 1. 流
     1. 参考：
         - [std::streambuf从示例到应用](https://izualzhy.cn/stream-buffer)
+
+# 右值
+1. 重载：先看一段程序
+    ```cpp
+    void print(string a) {}             // 1
+    void print(string &a) {}            // 2
+    void print(const string &a) {}      // 3
+    void print(string &&a) {}           // 4
+    void print(const string && a) {}    // 5
+    int main() {
+        // 重载错误，1/3/4/5均可
+        print("hello world");
+        return 0;
+    }
+    ```
+    - 当这五个函数同时实现后，调用时会出现重载错误。
+    - 重载函数的选择逻辑
+        - 优先选择不需要做转型的重载函数
+        - 右值不会自动绑定到非常量左值引用
+        - 其他情况下优先情况未确定
+    - 第五种几乎没有意义，不要这么用
+    - c语言的历史遗留问题：const int和int不能作为重载函数的区分

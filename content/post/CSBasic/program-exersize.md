@@ -77,6 +77,7 @@ math: true
 1. :red_circle: 1036：[逃离大迷宫](https://leetcode-cn.com/problems/escape-a-large-maze/)。BFS略加优化能过，但[题解](https://leetcode-cn.com/problems/escape-a-large-maze/)效率更高。搜索类题目，先看输入数据规模，选择合理的搜索内容。本题就是，不是直接搜索通路，而是判断障碍节点能否单独包围住起始点或终止点。
 1. :red_circle: 1368：[使网格图至少有一条有效路径的最小代价](https://leetcode-cn.com/problems/minimum-cost-to-make-at-least-one-valid-path-in-a-grid/)。可以用最短路。但本题更有价值的思路是0-1广度优先搜索。原理很简单，BFS的队列使用双端队列，权为0的边push_front，1的push_back。
 1. :red_circle: 980：[不同路径III](https://leetcode-cn.com/problems/unique-paths-iii/)。记忆化搜索。通过保存$dp(current_point,unseen_points)$来减少重复搜索。其中unseen_points代表了尚未遍历的节点列表。
+1. :red_circle: 407：[接雨水II](https://leetcode-cn.com/problems/trapping-rain-water-ii/)。直观上是寻找低点并扩散，但实际本题是从外向内扩展，即假定外围有一圈水，并且从最矮处开始扩展（短板效应）。经典的**反向思路**的BFS。BFS可以偶尔尝试把从内向外，转为从外向内。
 
 ## 数学
 1. :green_circle: 914：[卡牌分组](https://leetcode-cn.com/problems/x-of-a-kind-in-a-deck-of-cards)。简单的gcd（最大公约数）题目。[欧几里得gcd、扩展欧几里得](https://zhuanlan.zhihu.com/p/58241990)
@@ -144,6 +145,8 @@ math: true
 1. :red_circle: 741：[摘樱桃](https://leetcode-cn.com/problems/cherry-pickup/)。经典“多线程”DP，其实就是状态方程中同时考虑多个决策。$dp[point_1][point_2]$$=f(dp[prev(point_1)][point_2]$$,dp[point_1][prev(point_2)])$。
 1. :red_circle: 85：[最大矩形](https://leetcode-cn.com/problems/maximal-rectangle/)。84题的变种，动态规划和单调栈的结合。[题解](https://leetcode-cn.com/problems/maximal-rectangle/solution/zui-da-ju-xing-by-leetcode-solution-bjlu/)是预处理+单调栈。
 1. :red_circle: 689：[三个无重叠子数组的最大和](https://leetcode-cn.com/problems/maximum-sum-of-3-non-overlapping-subarrays/)。经典的**多种中间状态**输出到最终决策的动态规划。3次预处理，分别是每个位置的子数组和$sum[]$，i之前的子数组和最大值$before[i]$，j之后的子数组和的最大值$after[j]$。求最大值$sum[i]+before[i-k]+after[i+k]$。[题解](https://leetcode-cn.com/problems/maximum-sum-of-3-non-overlapping-subarrays/solution/san-ge-wu-zhong-die-zi-shu-zu-de-zui-da-4a8lb/)还有更厉害的$O(1)$空间的解法。
+1. :red_circle: 1531：[压缩字符串II](https://leetcode-cn.com/problems/string-compression-ii/)。不容易的一道题目。有[反方向选取](https://leetcode-cn.com/problems/string-compression-ii/solution/dong-tai-gui-hua-shi-jian-on3kong-jian-on2-by-newh/)和[删除](https://leetcode-cn.com/problems/string-compression-ii/solution/ya-suo-zi-fu-chuan-ii-by-leetcode-solution/)两种题解。**值得二刷**。
+1. :red_circle: 956：[最高的广告牌](https://leetcode-cn.com/problems/tallest-billboard/)。比较特别的一题。[题解](https://leetcode-cn.com/problems/tallest-billboard/solution/zui-gao-de-yan-gao-pai-by-leetcode/)两种解法，递归式DP方法$dp[i][s]$代表前i个管子正负总和为s时，正数和的最值。细节：实现时需要保证s>0，将总和**向正平移5000**，不影响结果。第二种是对半搜索，也比较巧妙，也值得一看。递归式DP其实和记忆化搜索非常相似。
 
 ## 哈希表
 1. :green_circle: 219：[存在重复元素II](https://leetcode-cn.com/problems/contains-duplicate-ii/)。滑动窗口+哈希表。

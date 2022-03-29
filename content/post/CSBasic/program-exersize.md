@@ -1,5 +1,5 @@
 ---
-title: "编程题笔记"
+title: "编程题笔记：题目记录"
 date: 2021-12-30T16:29:39+08:00
 categories:
 - 求职
@@ -55,7 +55,7 @@ math: true
     - 篇幅所限，仅记录较有代表性的题目
 
 ## 模拟
-1. :yellow_circle: 950：[按递增顺序显示卡牌](https://leetcode-cn.com/problems/reveal-cards-in-increasing-order/)。重新排序卡牌，使得满足一定条件。考研模拟的思路。
+1. :yellow_circle: 950：[按递增顺序显示卡牌](https://leetcode-cn.com/problems/reveal-cards-in-increasing-order/)。重新排序卡牌，使得满足一定条件。考验模拟的思路。
 
 ## 搜索
 1. :yellow_circle: 39：[组合总数](https://leetcode-cn.com/problems/combination-sum/)。标准DFS。
@@ -152,7 +152,7 @@ math: true
 1. :green_circle: 219：[存在重复元素II](https://leetcode-cn.com/problems/contains-duplicate-ii/)。滑动窗口+哈希表。
 1. :yellow_circle: 945：[使数组唯一的最小增量值](https://leetcode-cn.com/problems/minimum-increment-to-make-array-unique/)。把哈希表的线性探测思路应用到算法题目中。[题解](https://leetcode-cn.com/problems/minimum-increment-to-make-array-unique/solution/ji-shu-onxian-xing-tan-ce-fa-onpai-xu-onlogn-yi-ya/)还结合了路径压缩。
 1. :yellow_circle: 694：[不同岛屿的数量](https://leetcode-cn.com/problems/number-of-distinct-islands/)。[非会员链接](https://www.jianshu.com/p/492db10d4159)。本题提供了一个散列化思路，网格散列（岛屿轮廓形状）、路径散列（DFS路径）。如果形状一样，则DFS路径必定相等。可以直接用相对坐标写为字符串，作为散列值。
-1. :red_circle: 711：[不同岛屿的数量II](https://leetcode-cn.com/problems/number-of-distinct-islands-ii/)。[非会员传送门](https://blog.csdn.net/pianzang5201/article/details/93503836)。和694不同的地方在于这里会有旋转和翻转。其实这个就能很好的考研对于哈希的理解。只要换一个哈希思路，就能保证翻转、旋转不变性。即对形状坐标序列进行排序，并选择字典序最小的作为该形状的记录。
+1. :red_circle: 711：[不同岛屿的数量II](https://leetcode-cn.com/problems/number-of-distinct-islands-ii/)。[非会员传送门](https://blog.csdn.net/pianzang5201/article/details/93503836)。和694不同的地方在于这里会有旋转和翻转。其实这个就能很好的考验对于哈希的理解。只要换一个哈希思路，就能保证翻转、旋转不变性。即对形状坐标序列进行排序，并选择字典序最小的作为该形状的记录。
 
 ## 多指针 & 滑动窗口
 1. :green_circle: 26：[删除数组重复项](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-array/)。输入已经有序，单向双指针扫描。
@@ -230,14 +230,20 @@ math: true
 1. :yellow_circle: 29：[两数相除](https://leetcode-cn.com/problems/divide-two-integers/)。非常基础的题目，一点快速乘的思想就可以。但是非常考验对于**边界溢出**情况的考虑。由于负数范围大于正数，实际上我更推荐把数字**全转为负数**再进行运算和分类讨论（而不是转为正数），转为无符号也行。另外最好单独处理INT_MIN/1和INT_MIN/-1这两种情况。
 1. :yellow_circle: 50：[Pow(x,n)](https://leetcode-cn.com/problems/powx-n/)。快速幂，但n是int全范围。**注意INT_MIN**。
 
-# 待整理算法博客链接
-1. [后缀树详解及其具体应用](https://blog.csdn.net/Yuzhiyuxia/article/details/24305683)、[后缀树Ukkonen构造法](https://blog.csdn.net/smbroe/article/details/42362347)、[后缀树系列一:概念以及Ukk实现原理](https://blog.csdn.net/fjsd155/article/details/80211145)
-1. [后缀数组解析及应用](https://blog.csdn.net/yxuanwkeith/article/details/50636898?_=_)
-1. [二叉树最近公共祖先（LCA）详解](https://www.hrwhisper.me/algorithm-lowest-common-ancestor-of-a-binary-tree/)
-1. [July《十五个经典算法研究与总结》索引](https://blog.csdn.net/sailinglt/article/details/79323509)
-1. 字符串匹配[BF、KMP、BM、Sunday详解](https://www.cnblogs.com/Syhawk/p/4077295.html)、[从头到尾彻底理解KMP](https://blog.csdn.net/v_july_v/article/details/7041827)、[BF、RK、BM、KMP、Trie树、AC自动机](https://blog.csdn.net/weixin_40805537/article/details/89044710)
-1. [SGI版本STL源码中的hashtable（上）](https://blog.csdn.net/Move_now/article/details/78022963)
-1. [大数乘法高效算法](https://blog.csdn.net/u010983881/article/details/77503519)
+# 经典算法
+1. 后缀树：
+    - 参考：[后缀树详解及其具体应用](https://blog.csdn.net/Yuzhiyuxia/article/details/24305683)、[后缀树Ukkonen构造法](https://blog.csdn.net/smbroe/article/details/42362347)、[后缀树系列一:概念以及Ukk实现原理](https://blog.csdn.net/fjsd155/article/details/80211145)
+1. 后缀数组：
+    - 参考：[后缀数组解析及应用](https://blog.csdn.net/yxuanwkeith/article/details/50636898?_=_)
+1. 其他树：
+    - 参考：[二叉树最近公共祖先（LCA）详解](https://www.hrwhisper.me/algorithm-lowest-common-ancestor-of-a-binary-tree/)
+1. 扩展阅读：
+    - [July《十五个经典算法研究与总结》索引](https://blog.csdn.net/sailinglt/article/details/79323509)
+    - [SGI版本STL源码中的hashtable（上）](https://blog.csdn.net/Move_now/article/details/78022963)
+1. 字符串匹配：
+    - 参考：[BF、KMP、BM、Sunday详解](https://www.cnblogs.com/Syhawk/p/4077295.html)、[从头到尾彻底理解KMP](https://blog.csdn.net/v_july_v/article/details/7041827)、[BF、RK、BM、KMP、Trie树、AC自动机](https://blog.csdn.net/weixin_40805537/article/details/89044710)
+1. 大数乘法：
+    - 参考：[大数乘法高效算法](https://blog.csdn.net/u010983881/article/details/77503519)
 
 # 经典书籍
 1. 《程序员面试经典》

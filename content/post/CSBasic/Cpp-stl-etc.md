@@ -12,11 +12,14 @@ thumbnailImage: /images/thumbnail/cpp.png
 本章统一记录实用的C/C++标准库接口。或者其他实用标准下的接口。未特殊说明，仅针对C++11标准。
 <!--more-->
 # C++
+1. 说在前面的一些重要经验
+    1. 如果你发现程序抛出任何类似于：used after free、iterator can't dereference等问题。不要怀疑，你的迭代器一定是在使用时**早已非法化**了。由于STL中迭代器被广泛使用。请务必注意其可能导致非法化的任何场景。
+    1. 优先使用emplace
+    1. 优先使用数据结构自身的成员函数lower_bound、upper_bound、find，而不是使用通用的算法（受访问限制，性能可能会退化）。
 1. 容器
     1. [map](https://zh.cppreference.com/w/cpp/container/map)：可逆、AllocatorAware、关联容器，键唯一，通常实现为红黑树
         ```c++
-        #include <map>
-        
+        // 定义于头文件<map>
         template<
             class Key,
             class T,
@@ -30,10 +33,23 @@ thumbnailImage: /images/thumbnail/cpp.png
         - 容量：empty、size、max_size
         - 修改：clear、erase、swap
         - 查找：count、find、equal_range、lower_bound、upper_bound
+    1. [set](https://zh.cppreference.com/w/cpp/container/set)：可逆、AllocatorAware、关联容器，键唯一，通常实现为红黑树
+        ```cpp
+        // 定义于头文件<set>
+        template<
+            class Key,
+            class Compare = std::less<Key>,
+            class Allocator = std::allocator<Key>
+        > class set;
+        ```
+        - 常用构造函数：(first, last)、(compare)
+        - 迭代器（不可修改元素内容）：begin/end、cbegin/cend、rbegin/rend、crbegin/crend
+        - 容量：empty、size、max_size
+        - 修改：clear、erase、insert、emplace、swap
+        - 查找：count、find、equal_range、lower_bound、upper_bound
     1. [vector](https://zh.cppreference.com/w/cpp/container/vector)：可逆、AllocatorAware、序列、连续容器
         ```c++
-        #include <vector>
-
+        // 定义于头文件<vector>
         template<
             class T,
             class Allocator = std::allocator<T>
@@ -46,6 +62,7 @@ thumbnailImage: /images/thumbnail/cpp.png
         - 修改（均可能造成部分迭代器无效）：clear、insert、emplace、erase、push_back、emplace_back、pop_back、resize、swap
     1. [list](https://zh.cppreference.com/w/cpp/container/list)：可逆、AllocatorAware、序列容器，通常实现为双向链表
         ```c++
+        // 定义于头文件<list>
         template<
             class T,
             class Allocator = std::allocator<T>
@@ -60,6 +77,7 @@ thumbnailImage: /images/thumbnail/cpp.png
 1. 容器适配器
     1. [stack](https://zh.cppreference.com/w/cpp/container/stack)
         ```cpp
+        // 定义于头文件<stack>
         template<
             class T,
             class Container = std::deque<T>
@@ -69,6 +87,19 @@ thumbnailImage: /images/thumbnail/cpp.png
         - 元素访存：top
         - 容量：empty、size
         - 修改：push、pop、emplace、swap
+    1. [priority_queue](https://zh.cppreference.com/w/cpp/container/priority_queue)：默认实现为大顶堆
+        ```cpp
+        // 定义于头文件<queue>
+        template<
+            class T,
+            class Container = std::vector<T>,
+            class Compare = std::less<typename Container::value_type>
+        > class priority_queue;
+        ```
+        - 常用构造函数：(first, last)、(compare)
+        - 元素访问：top（返回const_reference）
+        - 容量：empty、size
+        - 修改器：push、emplace、pop、swap
 1. 算法\<algorithm\>
     1. [iter_swap](https://zh.cppreference.com/w/cpp/algorithm/iter_swap)：交换迭代器所指向元素的内容
         - 如果想交换两个迭代器，应该使用swap，而不是iter_swap

@@ -30,3 +30,6 @@ Linux系统是目前世界上最流行的操作系统。操作系统的学习内
 # 参考资料
 - [Linux Tools Quick Tutorial](https://linuxtools-rst.readthedocs.io/zh_CN/latest/index.html#)
 - 《鸟哥的Linux私房菜》
+- 《Linux内核设计与实现》
+- 《深入理解计算机系统》
+- 《Unix网络编程》

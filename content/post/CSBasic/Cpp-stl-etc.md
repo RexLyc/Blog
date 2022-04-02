@@ -117,5 +117,6 @@ thumbnailImage: /images/thumbnail/cpp.png
     1. [stoi/stol/stoll](https://zh.cppreference.com/w/cpp/string/basic_string/stol)、[stoul/stoull](https://zh.cppreference.com/w/cpp/string/basic_string/stoul)、[stof/stod/stold](https://zh.cppreference.com/w/cpp/string/basic_string/stof)：字符串转数字
         - 舍弃前缀空白字符，只取第一段数字
         - 无法转换或超出范围都会抛异常
+1. IO
 
 # C

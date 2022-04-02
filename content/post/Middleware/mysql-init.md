@@ -22,7 +22,7 @@ MySQL是当前一种主流的关系型数据库，本系列从原理和高性能
 - 2000年，改进ISAM，命名为MyISAM。
 - 2001年，InnoDB成为MySQL的存储引擎备选方案。
 - 2008年，MySQL AB被Sun收购。Sun则随后被Oracle收购。
-- 2010年，MySQL 5.5发布，该版本非常经典，加强了企业级的各种特性。此版种InnoDB正式称为MySQL的默认存储引擎。
+- 2010年，MySQL 5.5发布，该版本非常经典，加强了企业级的各种特性。此版中InnoDB正式称为MySQL的默认存储引擎。
 # 安装
 - Linux/Ubuntu 18.04
 ```bash
@@ -47,5 +47,12 @@ mysql>> # 开始数据库操作
         - 检查mysql库，user表，host & user字段：host应当是符号“%”才允许任意ip访问。
         - ***仍然失败？***
 - 推荐一个命令行工具mycli
+
+# 发展趋势
+1. 存储计算分离
+1. 超快扩缩容
+1. 超大存储
+1. 高可用
+
 # 参考资料
 1. [MySQL数据库的发展历史](https://www.cnblogs.com/joyfulcode/p/12683009.html)

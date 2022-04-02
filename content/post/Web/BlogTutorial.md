@@ -66,6 +66,7 @@ thumbnailImage: images/thumbnail/lycStamp.png
 1. [emoji编码查询网站](https://www.webfx.com/tools/emoji-cheat-sheet/)
 <!-- hugo原理 -->
 1. [如何创建自己的hugo主题](https://www.jianshu.com/p/0b9aecff290c)
+1. [Hugo官方文档](https://gohugo.io/documentation/)
 <!-- nginx原理 -->
 <!-- dns解析原理 -->
 <!-- https原理 -->

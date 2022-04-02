@@ -51,6 +51,19 @@ add_executable(Tutorial tutorial.cxx)
     - [官方文档](https://cmake.org/cmake/help/latest/index.html)
     - [CMake入门实战](https://www.hahack.com/codes/cmake/)
 # Makefile
+# GDB
+1. 启用：gcc -g
+1. 常用指令：
+    1. break
+    1. delete
+    1. clear
+    1. condition
+    1. commands
+    1. run、next、stop
+    1. bt
+    1. print
+    1. info
+    1. reg
 # 其他构建工具
 ## 测试工具
 1. Google Test

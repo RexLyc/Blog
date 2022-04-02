@@ -17,12 +17,14 @@ thumbnailImage: /images/thumbnail/java.jpg
 - 在寻求硬件厂商支持无果后。Java发现其设计目标对于网页开发也适用，从此搭上了互联网开发的东风。
 - Sun公司目前已被甲骨文收购。
 # 系列计划内容
+1. 基础难点总结
 1. 注解
 1. JVM内存模型
 1. JVM垃圾回收
 1. 内部类
 1. 反射
 1. 泛型
+1. 并发编程
 # 配置时需要注意的内容
 1. 环境变量
     - 由于部分环境会对空格敏感，因此在windows上建议安装至无空格，无特殊字符的目录。
@@ -37,4 +39,6 @@ thumbnailImage: /images/thumbnail/java.jpg
 # 参考文献
 1. 《Java编程思想（第四版）》
 1. 《Java核心技术》
+1. 《深入理解Java虚拟机》
+1. 《Effective Java》
 1. [Awesome Java](https://github.com/akullpp/awesome-java)

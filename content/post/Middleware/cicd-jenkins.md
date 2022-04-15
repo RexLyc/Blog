@@ -23,7 +23,9 @@ Jenkins是CI/CD工具中非常重要的一个持续集成工具。本文进行�
     # 安装将自动完成各类配置，并启动
     sudo apt-get install jenkins
     ```
-    1. 用网页连接（默认8080端口）
+    1. 用网页连接（默认8080端口），进行用户配置，初次插件安装
+        - 如果存在安装失败，仍然可以在后续页面中，安装可用插件，进行重新安装
+        - 重启的方式是在网页URL中直接访问/restart，如http://xxx/restart
     1. Github添加webhook
     1. jenkins添加流水线
     1. 参考：[利用Jenkins+Github自动部署hugo博客](https://zhuanlan.zhihu.com/p/129069420)

@@ -8,7 +8,8 @@ tags:
 - 中间件
 - 施工中
 thumbnailImagePosition: left
-thumbnailImage: /images/thumbnail/IBM.jpg
+thumbnailImage: /images/thumbnail/jenkins.png
+draft: false
 ---
 Jenkins是CI/CD工具中非常重要的一个持续集成工具。本文进行简要介绍总结。
 <!--more-->

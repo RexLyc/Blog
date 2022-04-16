@@ -41,5 +41,6 @@ Jenkins是CI/CD工具中非常重要的一个持续集成工具。本文进行�
     - 解决办法：
 1. 设置邮箱
     - 推荐安装插件：Email Extension Plugin，配置SMTP，注意此处密码应当是授权码
+    - Editable Email Notification 问题，不发邮件。仍然需要使用Email Extension Plugin。搭配Editable Email Notification。
 # 参考
 1. [官方中文网站](https://www.jenkins.io/zh/doc/book/installing/#setup-wizard)

@@ -30,7 +30,12 @@ Jenkins是CI/CD工具中非常重要的一个持续集成工具。本文进行�
     1. Github添加webhook
         - 默认就是jenkins地址+github-webhook，例如http://your.web.com/github-webhook
     1. jenkins添加流水线
-    1. 参考：[利用Jenkins+Github自动部署hugo博客](https://zhuanlan.zhihu.com/p/129069420)
+    1. 配置CDN刷新程序（调用运营商API）
+    1. 参考：
+        - [利用Jenkins+Github自动部署hugo博客](https://zhuanlan.zhihu.com/p/129069420)
+        <!-- https://console.cloud.tencent.com/api/explorer?Product=cdn&Version=2018-06-06&Action=PurgePathCache&SignVersion= -->
+
+        <!-- https://console.cloud.tencent.com/api/explorer?Product=cdn&Version=2018-06-06&Action=PurgePathCache&SignVersion= -->
 # 经典问题
 1. Shell构建中的权限问题
     - 描述：由于jenkins会在安装过程中，创建名为jenkins的用户，并以此为基础运行。因此很容易出现权限问题。常见的就是无法创建文件夹，无法删除等。[细节参考文件权限博文](/2022/04/边学边用linux-文件系统/)

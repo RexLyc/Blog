@@ -220,6 +220,7 @@ math: true
 1. :red_circle: 440：[字典序的第K小数字](https://leetcode-cn.com/problems/k-th-smallest-in-lexicographical-order/)。数字顺序类题目大都需要思考顺序和数量之间的规律。自己的思路比较繁琐，是按位去生成的，一个数字除最高位是1~9，其他位均为0\~9。数量可以逐位累加（如1是最高位的数字每一位分别可以有1，10，100，...）。[题解](https://leetcode-cn.com/problems/k-th-smallest-in-lexicographical-order/solution/zi-dian-xu-de-di-kxiao-shu-zi-by-leetcod-bfy0/)更为简洁，建议学习。题解思路是从思考字符串的字典树构造开始，按照对树的遍历进行。
 1. :red_circle: 862：[和至少为K的最短子数组](https://leetcode-cn.com/problems/shortest-subarray-with-sum-at-least-k/solution/he-zhi-shao-wei-k-de-zui-duan-zi-shu-zu-by-leetcod/)。结合多种思路，前缀和（加速）+单调栈（因为有负数，不能简单滑动窗口）+二分（加速）。**值得思考**。
 1. :red_circle: 1606：[找到处理最多请求的服务器](https://leetcode-cn.com/problems/find-servers-that-handled-most-number-of-requests/)。典型的多种数据结构配合。思考思路：需要有一个数据结构有序保存服务器当前任务结束时刻，还需要有一个数据结构有序保存空闲服务器序号。思维上**不要局限于单一数据结构**解决所有需求。
+1. :red_circle: 732：[我的日程安排表III](https://leetcode-cn.com/problems/my-calendar-iii/)。经典线段树板子，需要动态增加节点。即抛弃build过程，在update过程中（具体就是push_down）过程中，进行原来的节点分裂。
 
 ## 其他
 1. :green_circle: 665：[非递减数列](https://leetcode-cn.com/problems/non-decreasing-array/)。不简单的简单题，**值得二刷**。考虑情况要完整。

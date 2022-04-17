@@ -9,7 +9,6 @@ tags:
 - 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/jenkins.png
-draft: false
 ---
 Jenkins是CI/CD工具中非常重要的一个持续集成工具。本文进行简要介绍总结。
 <!--more-->
@@ -38,11 +37,18 @@ Jenkins是CI/CD工具中非常重要的一个持续集成工具。本文进行�
                 - 使用smtp：用户名（qq号），密码（qq邮箱smtp授权码）
                 - 使用ssl协议
             - 在流水线中配置构建后动作，发送邮件
-    1. 参考：[利用Jenkins+Github自动部署hugo博客](https://zhuanlan.zhihu.com/p/129069420)
+    1. 配置CDN刷新程序（调用运营商API）
+    1. 参考：
+        - [利用Jenkins+Github自动部署hugo博客](https://zhuanlan.zhihu.com/p/129069420)
+        <!-- https://console.cloud.tencent.com/api/explorer?Product=cdn&Version=2018-06-06&Action=PurgePathCache&SignVersion= -->
+
+        <!-- https://console.cloud.tencent.com/api/explorer?Product=cdn&Version=2018-06-06&Action=PurgePathCache&SignVersion= -->
 # 经典问题
 1. Shell构建中的权限问题
     - 描述：由于jenkins会在安装过程中，创建名为jenkins的用户，并以此为基础运行。因此很容易出现权限问题。常见的就是无法创建文件夹，无法删除等。[细节参考文件权限博文](/2022/04/边学边用linux-文件系统/)
     - 解决办法：
-
+1. 设置邮箱
+    - 推荐安装插件：Email Extension Plugin，配置SMTP，注意此处密码应当是授权码
+    - Editable Email Notification 问题，不发邮件。仍然需要使用Email Extension Plugin。搭配Editable Email Notification。
 # 参考
 1. [官方中文网站](https://www.jenkins.io/zh/doc/book/installing/#setup-wizard)

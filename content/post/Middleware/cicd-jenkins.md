@@ -47,8 +47,14 @@ Jenkins是CI/CD工具中非常重要的一个持续集成工具。本文进行�
 1. Shell构建中的权限问题
     - 描述：由于jenkins会在安装过程中，创建名为jenkins的用户，并以此为基础运行。因此很容易出现权限问题。常见的就是无法创建文件夹，无法删除等。[细节参考文件权限博文](/2022/04/边学边用linux-文件系统/)
     - 解决办法：
+        - 等待解决
 1. 设置邮箱
     - 推荐安装插件：Email Extension Plugin，配置SMTP，注意此处密码应当是授权码
-    - Editable Email Notification 问题，不发邮件。仍然需要使用Email Extension Plugin。搭配Editable Email Notification。
+        - 可以用自带的Email notification里的Test功能测试，测试无误，直接将相关内容填到插件的配置中
+    - 安装推荐插件后可以在构建后事件中，创建一个Editable Email Notification。并自定义邮件内容。
+1. 拉取git失败
+    - 提示错误：gnutls_handshake() failed: The TLS connection was non-properly terminated. 
+    - apt安装curl
+    - 问题：仍不能100%解决
 # 参考
 1. [官方中文网站](https://www.jenkins.io/zh/doc/book/installing/#setup-wizard)

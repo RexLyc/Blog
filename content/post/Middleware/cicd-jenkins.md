@@ -30,13 +30,19 @@ Jenkins是CI/CD工具中非常重要的一个持续集成工具。本文进行�
     1. Github添加webhook
         - 默认就是jenkins地址+github-webhook，例如http://your.web.com/github-webhook
     1. jenkins添加流水线
+        1. 设置邮箱
+            - 不用安装邮件扩展，可以在系统管理-系统配置中，直接配置最后一项，邮件通知
+            - 配置内容形如：
+                - smtp服务器：smtp.qq.com
+                - 默认后缀：@qq.com
+                - 使用smtp：用户名（qq号），密码（qq邮箱smtp授权码）
+                - 使用ssl协议
+            - 在流水线中配置构建后动作，发送邮件
     1. 参考：[利用Jenkins+Github自动部署hugo博客](https://zhuanlan.zhihu.com/p/129069420)
 # 经典问题
 1. Shell构建中的权限问题
     - 描述：由于jenkins会在安装过程中，创建名为jenkins的用户，并以此为基础运行。因此很容易出现权限问题。常见的就是无法创建文件夹，无法删除等。[细节参考文件权限博文](/2022/04/边学边用linux-文件系统/)
     - 解决办法：
-1. 设置邮箱
-    - 推荐安装插件：Email Extension Plugin，配置SMTP，注意此处密码应当是授权码
-    - **未成功**
+
 # 参考
 1. [官方中文网站](https://www.jenkins.io/zh/doc/book/installing/#setup-wizard)

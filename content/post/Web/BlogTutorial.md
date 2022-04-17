@@ -54,6 +54,10 @@ thumbnailImage: images/thumbnail/lycStamp.png
 - 扩展内容
     1. 安全性：由于https协议（安全的超文本传输协议）具有明显优势，因此不建议还使用普通的http协议来发布网站。
 # Hugo进阶
+- Latex支持
+    - 待补充
+- 标记草稿
+    - 在markdown开头，添加draft: true / false
 - 如何自定义模板
     - 其实我也想知道
 # CDN加速
@@ -67,6 +71,7 @@ thumbnailImage: images/thumbnail/lycStamp.png
 <!-- hugo原理 -->
 1. [如何创建自己的hugo主题](https://www.jianshu.com/p/0b9aecff290c)
 1. [Hugo官方文档](https://gohugo.io/documentation/)
+1. [Hugo中文帮助文档](https://hugo.aiaide.com/)
 <!-- nginx原理 -->
 <!-- dns解析原理 -->
 <!-- https原理 -->

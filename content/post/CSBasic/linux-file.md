@@ -16,6 +16,8 @@ thumbnailImage: /images/thumbnail/linux.jpg
 # Linux的文件管理机制
 - 术语：
     - inode
+- 权限：
+    - 用户和组：Linux的每一个用户都属于一个用户组
 # 安装时の烦恼
 - 术语：
     - 主分区

@@ -7,7 +7,6 @@ categories:
 tags:
 - 操作系统系列
 - 开坑篇
-- 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/linux.jpg
 ---

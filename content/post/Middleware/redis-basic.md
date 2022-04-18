@@ -6,7 +6,6 @@ categories:
 - 中间件
 tags:
 - 中间件
-- 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/redis.jpg
 math: true

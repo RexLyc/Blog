@@ -28,7 +28,7 @@ C/C++从诞生之日就开始承担计算机世界的基础构成的任务。本
 1. [Boost](https://www.boost.org/)
     - Boost Asio：[Boost.Asio 网络编程](https://mmoaay.gitbooks.io/boost-asio-cpp-network-programming-chinese/content/Chapter1.html)
 1. Qt
-# 经典数据
+# 经典书籍
 1. C++ Primer 
 1. The C++ Programming Language
 1. C++标准模板库

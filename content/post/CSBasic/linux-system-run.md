@@ -12,7 +12,7 @@ thumbnailImage: /images/thumbnail/linux.jpg
 ---
 了解系统运行是更好的使用Linux的基础。本文讲述Linux的系统运行原理。
 <!--more-->
-# 启动
+## 启动
 1. BIOS
 1. GRUB
 1. 内核启动

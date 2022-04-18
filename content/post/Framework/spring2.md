@@ -12,11 +12,11 @@ thumbnailImage: images/thumbnail/spring.jpg
 ---
 框架中有一些特别重要，或者基础而通用的注解，在这里进行一定的讲解。本文尚未完成。
 <!--more-->
-# 注解的原理
+## 注解的原理
 - 请移步至Java系列阅读。
-# 常用注解
+## 常用注解
 - 在此并不直接区分Spring、SpringCloud等，如有必要会单独列出。
-## 配置篇
+### 配置篇
 1. 基础类型数据结构的配置注入步骤：Integer、String等
     1. main类中添加注解：@EnableConfigurationProperties
     2. 需要注入的地方添加注解形如：@Value("${file-storage.path}")，花括号内为完整的配置路径
@@ -50,7 +50,7 @@ thumbnailImage: images/thumbnail/spring.jpg
             - b
             - c
         ```
-## 核心
+### 核心
 1. @ComponentScan
     1. 概述：扫描指定包下的的组件，并进行实例化
     1. 用法：
@@ -93,7 +93,7 @@ thumbnailImage: images/thumbnail/spring.jpg
     1. 顺序：Constructor(构造方法) -> @Autowired(依赖注入) -> @PostConstruct(构造后)
 1. @PreDestroy
     1. 概述：在销毁之前执行
-## Web
+### Web
 1. @RestController
     1. 概述：http后端的入口，一般和@RequestMapping、@PostMapping等组合使用
     1. 写法：
@@ -190,7 +190,7 @@ thumbnailImage: images/thumbnail/spring.jpg
 1. @CrossOrigin
     1. 概述：用于支持跨域请求。
     1. 用法：施加于类或方法上。
-# 数据库
+## 数据库
 1. @MapperScan
     1. 概述：扫描指定包下的数据库mapper，根据SQL注解（或嵌入SQL的XML文件）对接口进行实例化
     1. 用法：在入口类添加
@@ -226,7 +226,7 @@ thumbnailImage: images/thumbnail/spring.jpg
     1. 概述：用于进行事务管理。
     1. 用法：对函数或类型使用。
 
-## 切面（AOP）
+### 切面（AOP）
 1. @Aspect
     1. 概述：将当前类标识为一个切面供容器读取
 1. @PointCut
@@ -237,28 +237,28 @@ thumbnailImage: images/thumbnail/spring.jpg
 1. @AfterThrowing
 1. @After
 
-## 异步
+### 异步
 1. @Async
 
-## 环境
+### 环境
 1. @Profile
 1. @Conditional
 
-## 定时
+### 定时
 1. @Scheduled
 
-## 开关
+### 开关
 1. @EnableAsync
 1. @EnableScheduling
 1. @EnableConfigurationProperties
 1. @EnableTransactionManagement
 1. @EnableCaching
 
-## 测试
+### 测试
 1. @RunWith
 1. @ContextConfiguration
 1. @Test
 1. @ActiveProfiles
 
-# 参考资料
+## 参考资料
 - [Spring常见注解大全](https://blog.csdn.net/lixiaolian123/article/details/108090499)

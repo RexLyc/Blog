@@ -11,16 +11,16 @@ thumbnailImage: /images/thumbnail/java.jpg
 ---
 注解是Java所提供的一种特别的编程方式。从Java5被引入，在Spring框架中应用尤为广泛。
 <!--more-->
-# 为什么要使用注解
+## 为什么要使用注解
 1. 注解能够将一些元数据直接写入代码当中。而不需要另写文档。
 1. 代码更加易于阅读，并且拥有了编译期类型检查的能力。
 1. 可以用于控制编译期代码的生成。
 > 总之，一旦你的代码中出现了重复性的工作，你就可以考虑使用注解来简化、自动化该过程。
-# 核心原理
+## 核心原理
 1. 运行期注解：利用Java的反射机制，在运行期对注解进行解析。
 1. 编译期注解：逐轮次处理注解，生成新的源文件
 1. 字节码工程
-# 内置注解
+## 内置注解
 1. 标准注解：
     1. @Override：表示当前方法将覆盖父类中的方法。
     1. @Deprecated：表示当前方法已被废弃，如果被使用，编译器会发出警告。
@@ -82,8 +82,8 @@ public class ExampleTracker {
     }
 }
 ```
-# 运行时注解示例代码
-## 一种创建SQL数据表的注解写法
+## 运行时注解示例代码
+### 一种创建SQL数据表的注解写法
 1. 注解部分
 ```java
 // 以下注解定义分散在各自的源文件中
@@ -197,7 +197,7 @@ public class SQLAnnotationProcessor {
 }
 ```
 > 逐个处理类型，逐个处理类型中的域，对于每个域，逐个处理其注解
-## 事件监听器
+### 事件监听器
 1. 注解和使用部分
 ```java
 // 监听器注解，只需要提供监听信号源名称
@@ -267,7 +267,7 @@ public class ActionListenerInstaller {
     }
 }
 ```
-# 编译时注解处理
+## 编译时注解处理
 1. 原有工具的英文名称为Annotation Processing Tool（APT），目标是直接处理源文件。java8之后该部分已经直接迁移到javac内部。
 1. 处理原理：注解处理器将会从最初的源文件开始，逐轮次处理注解，并**产生新的源文件**，直到不再有新的源文件产生。然后再进行传统的java源文件编译。
 1. 使用方法
@@ -576,7 +576,7 @@ public class FactoryAnnotationProcessor extends AbstractProcessor {
             1. 先rebuild待处理程序，此时build过程会持续等待远程Debug端口
             1. 以Debug方式运行APTDebug
             1. 开始调试吧
-# 字节码工程
+## 字节码工程
 1. 在字节码级别上进行处理，是在源码和运行时之外的第三种处理情况。处理字节码文件是相当复杂的事情，一般需要借助一些特殊类库，如AMS。
 1. 字节码速学：
     1. 字节码以类为单位。
@@ -762,7 +762,7 @@ public class Application {
     1. 代码暂略
     
 
-# 参考内容
+## 参考内容
 - [cnblogs编译期生成](https://www.cnblogs.com/LQBlog/p/14208046.html)
 - [csdn编译期生成](https://blog.csdn.net/kaifa1321/article/details/79683246)
 - [javac选项](https://www.cnblogs.com/itxiaok/p/10356513.html)

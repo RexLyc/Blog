@@ -13,7 +13,7 @@ thumbnailImage: /images/thumbnail/cpp.png
 ---
 C/C++中有一些经常会出现的难点，也是考研功底的要点。本文致力于总结这一部分。
 <!--more-->
-# 指针篇
+## 指针篇
 1. 函数指针
     1. C：
         1. 函数签名：即函数的类型，由返回类型+参数类型列表构成。
@@ -79,7 +79,7 @@ C/C++中有一些经常会出现的难点，也是考研功底的要点。本文
     1. 参考
         - [函数指针使用总结](https://www.cnblogs.com/lvchaoshun/p/7806248.html)似乎并不完全正确，**等待确认**。
 
-# 模板编程
+## 模板编程
 1. 类型萃取
     1. 参考
         - [type_traits类型萃取](https://www.cnblogs.com/gtarcoder/p/4807670.html)
@@ -87,12 +87,12 @@ C/C++中有一些经常会出现的难点，也是考研功底的要点。本文
     1. 参考
         - [C++类型擦除和std::function性能测试](https://www.codercto.com/a/57707.html)
 
-# 高性能IO
+## 高性能IO
 1. 流
     1. 参考：
         - [std::streambuf从示例到应用](https://izualzhy.cn/stream-buffer)
 
-# 右值
+## 右值
 1. [右值详解](https://www.cnblogs.com/jiu0821/p/7920837.html)
 1. 右值相关的重载：先看一段程序
     ```cpp

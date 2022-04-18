@@ -13,7 +13,7 @@ thumbnailImage: /images/thumbnail/linux.jpg
 ---
 进程管理是操作系统的重中之重，本文将对Linux的进程管理进行总结。
 <!--more-->
-# 进程状态
+## 进程状态
 1. 状态类型：
     - R（TASK_RUNNING）：可执行状态
     - S（TASK_INTERRUPTIBLE）：可中断的睡眠状态
@@ -21,7 +21,7 @@ thumbnailImage: /images/thumbnail/linux.jpg
     - T（TASK_STOPPED、TASK_TRACED)：暂停状态、跟踪状态
     - Z（TASK_DEAD、EXIT_ZOMBIE）：退出状态，僵尸进程
     - X（TASK_DEAD、EXIT_DEAD）：退出状态，即将销毁
-# 部分源代码
+## 部分源代码
 ```cpp
 // 部分字段
 struct task_struct {

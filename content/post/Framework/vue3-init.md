@@ -14,11 +14,11 @@ thumbnailImage: images/thumbnail/vue.png
 <!--more-->
 &emsp;&emsp;Vue3的教程其实非常多，去bilibili上搜索就能搜索到非常多，因此本系列将会从实际案例出发，讲述一些Vue3的使用方式。
 
-# 版本
+## 版本
 &emsp;&emsp;由于vue2.x和vue3.x是隔离的两个版本。面向未来考虑，本系列将只针对vue3.x。截止本文发布时的版本为vue3.2.1。
-# 前置知识
+## 前置知识
 &emsp;&emsp;大概了解什么是HTTP（超文本传输协议，Web开发最重要的通信协议）、HTML（超文本标记语言，构成了页面的基本结构）、CSS（层叠样式表，美化界面）、Javascript（前端最常用的开发语言之一）、DOM（文档对象模型），掌握一门服务器端开发语言就可以了。另外如果会一点点网络通信的知识就更完美啦。
-# 安装
+## 安装
 1. 引入vue的方式有很多种。事实上大部分类库、框架都有这几种引入方式。
     1. 在页面上直接引入链接。
         ```html
@@ -55,12 +55,12 @@ thumbnailImage: images/thumbnail/vue.png
     vue create YourProjectName
     ```
     - 按照需要选择配置，不熟悉的话可以默认。
-# 运行
+## 运行
 &emsp;&emsp;在使用脚手架的前提下。运行一个vue3项目是很简单的。如对默认的空项目，只需到package.json同级目录下，执行
 ```bash
 npm run serve #serve名称可修改，具体参照package.json中的配置
 ```
-# 打包
+## 打包
 &emsp;&emsp;根据package.json中关于build的配置，一般来说直接执行脚本即可完成用于部署的构建。如对默认空项目，在package.json同级下执行
 ```bash
 npm run build
@@ -71,13 +71,13 @@ npm run -g  serve #-g的意思是全局安装，而不是在当前项目中
 serve -s dist #指定为dist目录做http服务器
 ```
 - 额外注意
-# 实用第三方库
+## 实用第三方库
 1. 组件库：Element-Plus
 2. 图形库：Pixi.js
 2. 更多参考：[Github上的awesome系列中的前端内容](https://github.com/dypsilon/frontend-dev-bookmarks)
-# 本系列暂定版本
+## 本系列暂定版本
 1. Nodejs：14.17.4(LTS)
     - npm：6.14.14
 2. @vue/cli： 4.5.13
-# 参考资料
+## 参考资料
 [Vue.js官方网站](https://v3.cn.vuejs.org)

@@ -12,7 +12,7 @@ thumbnailImage: /images/thumbnail/linux.jpg
 ---
 SSH（Secure Shell）安全外壳协议，是常用的登录到远程服务器的协议。在日常开发中具有不可撼动的基础地位。
 <!--more-->
-# 基本流程
+## 基本流程
 ![一次基本的SSH协议流程](/images/Linux/SSH_simplified_protocol_diagram-2.webp)
 1. 版本号协商：
     - 客户端发起连接请求，双方协商SSH版本号
@@ -23,7 +23,7 @@ SSH（Secure Shell）安全外壳协议，是常用的登录到远程服务器�
     - 客户端向服务器端发送认证请求（携带用户名和密码）
 4. 授权后开展加密通信
 > 如果采用其他认证方式，步骤2、3可能有变化
-# 基本脚本
+## 基本脚本
 1. 登录
     ```sh
     ssh user@host
@@ -41,7 +41,7 @@ SSH（Secure Shell）安全外壳协议，是常用的登录到远程服务器�
     scp user@src_host:/path/to/your/file user@dest_host:/path/to/your/newfile
     scp -r user@src:/path/to/your/dir user@dest_host:/path/to/your/newdir #目录整体拷贝
     ```
-# 实用进阶
+## 实用进阶
 1. ssh跳板与端口转发（forwarding port）：
     1. 需求：有一个公网ip，有一群分布在不同内网的内网机器，希望内网机器之间能ssh互连
     2. 设备：
@@ -134,7 +134,7 @@ SSH（Secure Shell）安全外壳协议，是常用的登录到远程服务器�
         - 本文环境中，内网被登录机器机器为RaspberryPi，有一些和教程有出入的地方
             - autossh使用-f时才能在后台运行，而此时无法使用spawn，只能使用上传公钥的免密方式
             - crontab在不同用户下的执行任务是区分的，需要在指定用户的命令行环境下进行设置
-# 参考资料
+## 参考资料
 - 核心协议：RFC 4251（协议架构）、RFC 4253（传输层协议）、RFC 4252（鉴权协议）、RFC 4254（连接协议）
 - [SSH Academy](https://www.ssh.com/academy/ssh/protocol) 
 - [SSH 端口转发](https://wangdoc.com/ssh/port-forwarding.html)

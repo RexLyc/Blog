@@ -12,20 +12,20 @@ thumbnailImage: images/thumbnail/spring.jpg
 ---
 Bean作为Spring程序构成的基础之一，其行为奠定软件的基础功能。本章主要介绍Bean的部分原理和实用操作。
 <!--more-->
-# 什么是Bean
+## 什么是Bean
 Spring Bean是被Spring实例化、组装并由Spring容器管理的Java对象。默认情况下，Spring中的bean都是单例的。
-# 定义方式
+## 定义方式
 1. 用@Component注解（或其衍生物）注解一个Java类型
 2. 编写配置类型（带有@Configuration的类型），使用@Bean注解编写一个工厂方法返回Bean
 3. 通过XML配置声明Bean定义（不推荐使用）
 > 更推荐使用类型安全的1和2来完成定义。
-# 装配
+## 装配
 1. （推荐）自动化的装配：使用@ComponentScan来自动化扫描，对于支持Bean定义，将会自动生成Bean。搭配@Autowired注解，将会自动把生成的Bean注入到依赖的对象中。
     - @Autowired可以用于成员变量、构造函数、成员函数。由于bean生命周期的先后顺序，对构造函数添加注解更稳妥（避免在构造函数中使用null的成员变量）。
     - 自动注入存在两种可能性，如果没找到任何bean或找到多个符合条件的bean，默认情况都会报错。
 2. 显式装配，编写配置类型@Configuration，用@Bean返回。一般会手动调用new来创建对象。
 3. xml跳过（不推荐使用）
-# 关键原理
+## 关键原理
 1. @ComponentScan：
     - 处理器ComponentScanAnnotationParser，位于org.springframework.context.annotation包。大致流程（有待确认）：配置类加载→ComponentScan→加载所有已找到的bean的定义→AbstractApplicationContext开始创建bean。
     - ComponentScan过程中，扫描的是.class字节码文件，从中寻找@Component注解。（findCandidateComponents）
@@ -40,7 +40,7 @@ Spring Bean是被Spring实例化、组装并由Spring容器管理的Java对象�
     - 作为显式装配的必要注解，对一个返回Bean的工厂函数进行注解。
     - 工厂函数可以拥有参数，参数内容将会自动注入（隐含@Autowired）
         - 可以搭配@Primary、@Qualifier区分自动注入的Bean来源
-# 一个bean的典型生命周期
+## 一个bean的典型生命周期
 1. 实例化（instantiation）
 2. 填充属性（Populate）
 3. 初始化（Initialization）
@@ -79,5 +79,5 @@ public class PojoTest implements BeanFactoryAware {
 }
 ```
 
-# 参考资料
+## 参考资料
 [史上最通俗易懂的ASM教程 知乎](https://zhuanlan.zhihu.com/p/94498015?utm_source=wechat_timeline)

@@ -12,11 +12,11 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
 ---
 本文总结一些MySQL的最佳实践案例
 <!--more-->
-# 建库建表
+## 建库建表
 1. 默认使用InnoDB、mb4utf8字符集
 1. 不使用触发器等拖累MySQL计算资源的特性
     - 可以交给具体业务维护
-# 查询
+## 查询
 1. 不负向查询：not
 1. 不模糊查询：like
 1. 不允许where子句使用函数、表达式处理查询到的字段值

@@ -11,7 +11,7 @@ thumbnailImage: /images/thumbnail/cpp.png
 ---
 本章统一记录实用的C/C++标准库接口。或者其他实用标准下的接口。未特殊说明，仅针对C++11标准。
 <!--more-->
-# C++
+## C++
 1. 说在前面的一些重要经验
     1. 如果你发现程序抛出任何类似于：used after free、iterator can't dereference等问题。不要怀疑，你的迭代器一定是在使用时**早已非法化**了。由于STL中迭代器被广泛使用。请务必注意其可能导致非法化的任何场景。
     1. 优先使用emplace
@@ -119,4 +119,4 @@ thumbnailImage: /images/thumbnail/cpp.png
         - 无法转换或超出范围都会抛异常
 1. IO
 
-# C
+## C

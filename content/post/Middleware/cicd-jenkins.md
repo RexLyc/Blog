@@ -15,17 +15,22 @@ Jenkins是CI/CD工具中非常重要的一个持续集成工具。本文进行�
 # 基本原理
 # 安装使用实战
 1. Hugo博客自动生成
-    1. 在Debian系电脑上安装（2022年4月）
+    1. 在Debian系电脑上安装（2022年4月，ubuntu18.04，jenkins 2.332.2）
     ```bash
+    # apt 安装的最大问题是，插件等下载地址配置容易被墙
     wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
     sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
     sudo apt-get update
     # 安装将自动完成各类配置，并启动
     sudo apt-get install jenkins
     ```
+    1. (强烈推荐)修改jenkins在服务器上的启动用户
+        ```bash
+        sudo vim 
+        ```
     1. 用网页连接（默认8080端口），进行用户配置，初次插件安装
         - 如果存在安装失败，仍然可以在后续页面中，安装可用插件，进行重新安装
-        - 重启的方式是在网页URL中直接访问/restart，如http://xxx/restart
+        - 重启的方式是在网页URL中直接访问/restart，如http://xxx/restart。或者后台systemctl restart jenkins。
     1. Github添加webhook
         - 默认就是jenkins地址+github-webhook，例如http://your.web.com/github-webhook
     1. jenkins添加流水线
@@ -44,6 +49,17 @@ Jenkins是CI/CD工具中非常重要的一个持续集成工具。本文进行�
 
         <!-- https://console.cloud.tencent.com/api/explorer?Product=cdn&Version=2018-06-06&Action=PurgePathCache&SignVersion= -->
 # 经典问题
+1. 插件安装失败、长时间无法启动
+    - 修改镜像和其他
+        ```bash
+        # /var/lib/jenkins/hudson.model.UpdateCenter.xml
+        http://mirrors.tuna.tsinghua.edu.cn/jenkins/updates/update-center.json
+        # /var/lib/jenkins/update/default.json
+        sed -i 's/http:\/\/updates.jenkins-ci.org\/download/https:\/\/mirrors.tuna.tsinghua.edu.cn\/jenkins/g' default.json && sed -i 's/http:\/\/www.google.com/https:\/\/www.baidu.com/g' default.json
+        ```
+    - 也可以手动安装
+        - [官网插件地址](https://updates.jenkins.io/download/plugins/)
+        - 插件管理->高级
 1. Shell构建中的权限问题
     - 描述：由于jenkins会在安装过程中，创建名为jenkins的用户，并以此为基础运行。因此很容易出现权限问题。常见的就是无法创建文件夹，无法删除等。[细节参考文件权限博文](/2022/04/边学边用linux-文件系统/)
     - 解决办法：

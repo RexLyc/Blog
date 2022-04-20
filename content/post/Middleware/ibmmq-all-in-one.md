@@ -12,7 +12,7 @@ thumbnailImage: /images/thumbnail/IBM.jpg
 ---
 由于工作原因，需要使用到IBMMQ，由于相关资料较少，所以在此特地整理一篇。尽力涵盖安装、配置、使用。
 <!--more-->
-# 安装
+## 安装
 最离谱的事情就是安装，尚且不知道从哪里能一步步找到到Linux的服务器安装包连接，以及Windows的Explorer客户端的安装包。
 - 网上查到的安装包网址：
     - [下载无需安装的压缩包](http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqadv/)
@@ -48,7 +48,7 @@ thumbnailImage: /images/thumbnail/IBM.jpg
 - Windows（仅Explorer）
     - 下载到安装包压缩包，形如：ms0t_mqexplorer_9100_windows_x86_64.zip
     - 解压缩，双击setup.exe安装
-# 配置
+## 配置
 - 创建队列管理器：
 <br/> &emsp; crtmqm -q YOUR_MQM_NAME
 - 开启队列管理器：
@@ -82,7 +82,8 @@ thumbnailImage: /images/thumbnail/IBM.jpg
         <br/> &emsp; SET CHLAUTH(*) TYPE(ADDRESSMAP) ADDRESS(10.8.203.215) USERSRC(MAP) MCAUSER('mqm') ACTION(ADD)
 - 结束：end
 > 注意：创建队列和通道时，定义名字的或者绑定名字的时候不加‘’的是默认大写的，加上‘’是区分大小写的，这是一个坑。
-# IBMMQ基本使用
+
+## IBMMQ基本使用
 - 主要概念
     - 队列
         - 本地队列：物理上位于本地队列管理器中的队列
@@ -119,19 +120,19 @@ thumbnailImage: /images/thumbnail/IBM.jpg
     ```
     - 配置
     ```yml
-    #ibm mq 配置信息
-    project.mq.host= 172.16.20.51
-    project.mq.port= 1414
-    #(队列管理器名称)
-    project.mq.queue-manager= MQTEST
-    #(通道名称)
-    project.mq.channel= SERVERCONN
-    #创建的MQ用户
-    project.mq.username= mqm #填上你的用户名
-    #创建的MQ用户连接密码
-    project.mq.password= 123456 #如果关闭了验证，这里随意
-    #连接超时
-    project.mq.receive-timeout= 20000
+        #ibm mq 配置信息
+        project.mq.host= 172.16.20.51
+        project.mq.port= 1414
+        #(队列管理器名称)
+        project.mq.queue-manager= MQTEST
+        #(通道名称)
+        project.mq.channel= SERVERCONN
+        #创建的MQ用户
+        project.mq.username= mqm #填上你的用户名
+        #创建的MQ用户连接密码
+        project.mq.password= 123456 #如果关闭了验证，这里随意
+        #连接超时
+        project.mq.receive-timeout= 20000
     ```
     - 配置类代码
     ```java
@@ -328,7 +329,7 @@ thumbnailImage: /images/thumbnail/IBM.jpg
     }
     ```
     
-# 参考资料
+## 参考资料
 [在Linux系统安装IBM WebSphere MQ](https://blog.csdn.net/chengyan0079/article/details/78922889)
 
 [Linux安装IBM WebSphere MQ以及配置](https://blog.csdn.net/weixin_37539417/article/details/93488229)

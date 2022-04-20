@@ -12,7 +12,7 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
 ---
 MySQL是当前一种主流的关系型数据库，本系列从原理和高性能方面入手进行学习
 <!--more-->
-# 历史
+## 历史
 和想象中不同的是，MySQL的发展其实已经有很多年的历史。
 - 1979年，程序员Monty Widenius为一个名为TcX的小公司打工时，用Basic设计了一个报表工具。之后又以C重写移植到UNIX平台。该工具是一个很底层且仅面向报表的存储引擎，名为Unireg。
 - 1983年，Monty遇到了David Axmark，两人相见恨晚，开始合作运营TcX。公司在为一些超市做数据管理工具。此时他们开发了一个利用索引顺序存取数据的程序，也就是ISAM（Indexed Sequential Access Method）存储引擎核心算法的前身。
@@ -23,7 +23,7 @@ MySQL是当前一种主流的关系型数据库，本系列从原理和高性能
 - 2001年，InnoDB成为MySQL的存储引擎备选方案。
 - 2008年，MySQL AB被Sun收购。Sun则随后被Oracle收购。
 - 2010年，MySQL 5.5发布，该版本非常经典，加强了企业级的各种特性。此版中InnoDB正式称为MySQL的默认存储引擎。
-# 安装
+## 安装
 - Linux/Ubuntu 18.04
 ```bash
 sudo apt install mysql-server
@@ -48,11 +48,11 @@ mysql>> # 开始数据库操作
         - ***仍然失败？***
 - 推荐一个命令行工具mycli
 
-# 发展趋势
+## 发展趋势
 1. 存储计算分离
 1. 超快扩缩容
 1. 超大存储
 1. 高可用
 
-# 参考资料
+## 参考资料
 1. [MySQL数据库的发展历史](https://www.cnblogs.com/joyfulcode/p/12683009.html)

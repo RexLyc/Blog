@@ -41,9 +41,17 @@ draft: true
 
 ## 网站建设
 1. 搜索功能
+    - 参考：
+        - [Hugo 实现搜索功能小白教程](https://blog.csdn.net/weixin_44903718/article/details/108541002)
 2. 博文置顶功能
 3. 侧边导航
-    - 参考：[最好的一篇](https://www.bram.us/2020/01/10/smooth-scrolling-sticky-scrollspy-navigation/)、[这篇也可以看看](https://orianna-zzo.github.io/sci-tech/)
+    - 基本原理就是使用Hugo从0.64（大概）开始提供的toc（table of content）变量，可以直接生成一个目录，剩余的事情就是配置一个css来美化
+        ```html
+        <div>{{ .TableOfContent }}</div>
+        ```
+    - 参考
+        - [最好的一篇](https://www.bram.us/2020/01/10/smooth-scrolling-sticky-scrollspy-navigation/)
+        - [这篇也可以看看](https://orianna-zzo.github.io/sci-tech/)
 
 ## 带整理博客
 1. CSS学习：https://zhuanlan.zhihu.com/p/124284328

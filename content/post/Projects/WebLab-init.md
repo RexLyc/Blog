@@ -14,7 +14,7 @@ thumbnailImage: /images/thumbnail/weblab.jpg
 ---
 本系列将会以搭建项目为导向，从实战角度出发学习网络相关技术。
 <!--more-->
-# 远程启动项目
+## 远程启动项目
 1. 技术内容
     1. 支持身份验证，基于RBAC的控制
     1. 前端Vue3 + Typescript

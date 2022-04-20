@@ -13,8 +13,8 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
 在大城市生活独自生活的你，是否经常思念家乡的菜，是否想吃点家常便饭。自己动手丰衣足食。今天是手残博主，明天就是美食大手子。滚动更新，欢迎推荐菜谱。
 <!--more-->
 
-# 热菜
-## 思乡の锅包肉
+## 热菜
+### 思乡の锅包肉
 - 当前水平：还算好吃
 - 小声BB
     - 思乡锅包肉的精髓就是一定要使用糖醋碗汁，番茄酱是什么邪教。
@@ -34,7 +34,7 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
 <!-- 改用本地目录必须以/开头 -->
 <center><img src="/images/food/guobaorou-1-finished.jpg" width="256" height="256" ></center>
 
-## 糖醋鲑鱼
+### 糖醋鲑鱼
 - 当前水平：还算好吃
 - 菜谱：
     1. 小米辣切段，姜丝，葱段。准备大量糖醋碗汁（因为后续要炖，会被稀释）
@@ -47,7 +47,7 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
     1. 糖醋味道还是稍淡了些。
 <center><img src="/images/food/SweetSourMFish.jpg" width="256" height="256" ></center>
 
-## 炒包菜
+### 炒包菜
 - 当前水平：一般
 - 菜谱：
     1. 包菜掰碎泡盐水5分钟后尽量控干，备好干辣椒或小米椒
@@ -59,7 +59,7 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
     - 似乎可以添加花椒？等待确认。
 <center><img src="/images/food/FriedCabbage.jpg" width="256" height="256" ></center>
 
-## 蒜蓉西兰花
+### 蒜蓉西兰花
 - 当前水平：还行（第三次更新）
 - 菜谱：
     1. 西兰花切段、泡盐水5分钟控干，备好蒜
@@ -71,7 +71,7 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
     - [多找几个教程试试](https://www.bilibili.com/video/BV1RE411o76o?from=search&seid=12289287111077673266)
 <center><img src="/images/food/GarlicBroccoli.jpg" width="256" height="256" ></center>
 
-## 蒜蓉粉丝秋葵
+### 蒜蓉粉丝秋葵
 - 当前水平：还算好吃
 - 菜谱：
     1. 粉丝温热水泡20分钟，秋葵焯至变绿（就是比原来绿了就行），备大量蒜、少量小米辣
@@ -79,7 +79,7 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
     3. 粉丝，秋葵切好摆盘，淋上蒜蓉，蒸锅开锅后5分钟即可。
 <center><img src="/images/food/GarlicChineseVermicelliOkra.jpg" width="256" height="256" ></center>
 
-## 番茄炒鸡蛋
+### 番茄炒鸡蛋
 - 当前水平：还算好吃
 - 菜谱（注意比例）：
     1. 2个番茄、三个鸡蛋，备好。葱花选配（少量）
@@ -88,7 +88,7 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
     4. 翻炒几下后即可调味，调料勺盐一勺，白糖两勺。
 <center><img src="/images/food/PotatoFriedEgg.jpg" width="256" height="256" ></center>
 
-## 炒豇豆
+### 炒豇豆
 - 当前水平：很行（第二次更新）
 - 菜谱：
     1. 一把豇豆、葱姜蒜、肉丝、尖椒段
@@ -101,7 +101,7 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
 - 豇豆即使生一些也是无毒的。
 <center><img src="/images/food/Cowpea.jpg" width="256" height="256" ></center>
 
-## 炒豆角
+### 炒豆角
 - 当前水平：还行
 - 菜谱：
     1. 豆角去丝，姜片、肉片切好备用。
@@ -113,7 +113,7 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
     1. 肉和菜一起炒，则肉到最后会几乎完全脱水。是否可以尝试分开炒。
 <center><img src="/images/food/FriedBeans.jpg" width="256" height="256" ></center>
 
-## 地三鲜
+### 地三鲜
 - 当前水平：不太行
 - 菜谱：
     1. 两根线茄子、一些蒜、尖椒、土豆
@@ -124,8 +124,8 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
     - 太油了，不太健康。。。
 <center><img src="/images/food/PotatoEggplantPepper.jpg" width="256" height="256" ></center>
 
-# 主食
-## 酸甜炒面
+## 主食
+### 酸甜炒面
 - 当前水平：还行（第二次更新）
 - 菜谱：
     1. 准备油菜、西红柿、干辣椒、少量蒜，洗净。糖醋碗汁和锅包肉类似。
@@ -135,7 +135,7 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
 - 糖醋碗汁：2勺米醋、2大勺白砂糖、半勺酱油、小半勺盐、加少量水溶解。
 <center><img src="/images/food/FriedNoodles-SourSweet.jpg" width="256" height="256" ></center>
 
-## 饺子
+### 饺子
 - 当前水平：还行
 - 菜谱：
     1. 唯一指定牛肉芹菜，准备牛肉切成馅、芹菜切成小丁
@@ -146,15 +146,15 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
     1. 煮水，可略加盐（据说能让面更筋道），下饺子直到饺子飘起，肚子鼓起来。
 <center><img src="/images/food/dumplings.jpg" width="256" height="256" ></center>
 
-# 汤
-## 蘑菇葱花汤
+## 汤
+### 蘑菇葱花汤
 - 当前水平：还行
 - 菜谱：
     1. 准备口蘑、葱花
     2. 口蘑去杆，口朝下稍微煎一下，马上翻过来，煎至出水
     3. 加水，加葱花，开锅5分钟，加足量盐，少少十三香
 
-## 白菜豆腐汤
+### 白菜豆腐汤
 - 当前水平：没味儿
 - 菜谱：
     1. 准备葱花、小白菜、冻豆腐（水豆腐也行）
@@ -164,8 +164,8 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
     1. 出国前再来把葱花
 <center><img src="/images/food/CabbageTofu.jpg" width="256" height="256" ></center>
 
-# 凉菜
-## 酱牛肉拍黄瓜
+## 凉菜
+### 酱牛肉拍黄瓜
 - 水平：一般
 - 原材料：煮好的酱牛肉、黄瓜、蒜、辣椒油、少许酱油
 - 关键问题：如何煮出好吃的酱牛肉[暂时看看这个](https://www.bilibili.com/video/BV1VW41147Fh?from=search&seid=8548449022870512989)
@@ -174,7 +174,7 @@ thumbnailImage: images/thumbnail/braveCattle.jpg
     - 香料和酱料比例？
 <center><img src="/images/food/CucumberBeef.jpg" width="256" height="256" ></center>
 
-# To Do List:
+## To Do List:
 - 肉菜类：
     - 咖喱牛肉
     - 酱牛肉

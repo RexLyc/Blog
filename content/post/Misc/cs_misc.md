@@ -12,7 +12,7 @@ thumbnailImage: /images/thumbnail/misc.jpg
 ---
 一些尚未形成体系，但是可能很有用的技术杂项整理。
 <!--more-->
-# Web
+## Web
 1. PixiJS：纹理重复加载问题
     - 问题描述：使用Pixi在加载纹理的时候，经常出现重复加载的警告。显然可以优化。
     - 基础写法
@@ -48,12 +48,12 @@ thumbnailImage: /images/thumbnail/misc.jpg
 1. MyBatis，使用缓存时需要将所有查询结果实体类进行可序列化声明
     - 为什么不是仅声明需要缓存的实体为可序列化的类型？
 
-# 树莓派
-## 网络配置
+## 树莓派
+### 网络配置
 - 树莓派还是推荐使用Raspbian系统，而且最好选择无桌面版，功耗低
 - 配置网络推荐使用自带工具：raspi-config，可以对大部分功能、硬件进行设置。
-# 命令行工具
-## ZSH美化
+## 命令行工具
+### ZSH美化
 1. 环境：MobaXterm（Windows）、Raspbian
 2. 美化脚本
     1. 在目标机器上安装zsh并启用

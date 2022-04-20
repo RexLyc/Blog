@@ -12,7 +12,7 @@ thumbnailImage: /images/thumbnail/redis.jpg
 ---
 单机数据库是Redis的基础形式。本章讲解相关概念和原理。
 <!--more-->
-# 数据库基本能力
+## 数据库基本能力
 ```c
 // 持久化参数
 struct saveparam {
@@ -78,7 +78,7 @@ struct redisClient {
     - AOF持久化模式下，只有当过期键确实被删除时，才会进行DEL命令的记录。AOF重写也不会记录和过期键有关的操作。
     - 复制模式下，**主服务器控制**从服务器上过期键的删除，而不是连接到从服务器的客户端（即使接收到命令，也不会去删除）。未删除时，该过期键仍然能够被查询返回。
 
-# 订阅和通知
+## 订阅和通知
 1. 键空间通知（key space notification）
     1. 订阅指定的键的所有操作命令
 1. 键事件通知（key event notification）
@@ -104,7 +104,7 @@ struct redisClient {
     ```
     - 发送：publishMessage函数，该函数也是PUBLISH命令的底层实现。
 
-# RDB持久化
+## RDB持久化
 1. RDB文件是一个经过压缩的二进制文件。
 1. 创建：
     - SAVE：阻塞服务器进程直到RDB文件创建完毕，阻塞期间不处理任何请求。
@@ -117,7 +117,7 @@ struct redisClient {
     1. 其他细节：
         1. dirty计数器：统计自上次持久化后修改的元素数，而非命令数量。如一次性添加多个键值对儿，增加dirty多次，而非一次。
 
-# 数据库命令
+## 数据库命令
 1. SELECT X：选择第X个数据库
 1. EXPIRE KEY SEC：设置生存时间（秒）
 1. PEXPIRE KEY MSEC：设置生存时间（毫秒）

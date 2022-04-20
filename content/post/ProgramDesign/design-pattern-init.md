@@ -13,10 +13,10 @@ thumbnailImage: images/thumbnail/design-pattern.svg
 ---
 软件行业发展到现在，大部分需求场景下，优秀的开发模式已有定论。本系列结合场景和代码，总结常用设计模式。
 <!--more-->.
-# 为什么要看设计模式
+## 为什么要看设计模式
 - 虽然设计模式经常被人吐槽，但实际上学一点设计模式本质上只是想借鉴前人经验。
 - 不仅是代码复用，更要体会经验复用，分解问题的方式方法。
-# 常用设计模式速览
+## 常用设计模式速览
 1. 创建型：如何更优雅的创建对象
     - 单例模式（Singleton）：一个类型在程序生命周期内只有一个实例
     - 抽象工厂（Abstract Factory）：提供一个接口用于创建相关对象的工厂，是工厂的工厂
@@ -47,7 +47,7 @@ thumbnailImage: images/thumbnail/design-pattern.svg
     - MVC：Model代表存取数据的对象，View包含可视化内容，Controller控制数据双向流动
 4. 其他：
     - 空对象（Null Object）：取代空对象实例检测，反应一种不做任何动作的子类情况。
-# 七大原则
+## 七大原则
 1. 开闭原则：允许扩展，禁止修改。
 2. 单一职责原则：一个类只做一件事情。
 3. 依赖倒转原则：高层模块不应依赖底层模块。即开发应当面向抽象（接口），而不针对具体实现。
@@ -55,10 +55,10 @@ thumbnailImage: images/thumbnail/design-pattern.svg
 5. 里氏代换原则：任何可以使用父类的地方，均应可以使用子类。
 6. 接口隔离原则：接口应当尽量分化、细化，不应当强迫用户实现一些不会使用到的接口。互相依赖应当建立在最小的接口集合上。
 7. 组合/聚合复用原则：尽量使用组合和聚合少使用继承来完成代码复用。
-# 术语
+## 术语
 1. 耦合性：指模块之间的信息、参数的依赖程度。
 2. 内聚性：和耦合相对，指功能相关的程序组合成一个模块的程度。
-# 图例
+## 图例
 - 实现：新类型实现了接口
 <center><img src="/images/ProgramDesign/ImplementUML.svg" ></center></br>
 
@@ -77,7 +77,7 @@ thumbnailImage: images/thumbnail/design-pattern.svg
 - 关联：被关联类（Student）在关联类型（Teacher）中有保留，两者地位平等，不负责生命周期管理。也存在双向关联
 <center><img src="/images/ProgramDesign/AssociationUML.svg" ></center></br>
 
-# 参考资料
+## 参考资料
 《Head First设计模式》
 
 [24种设计模式大全](https://blog.csdn.net/yanlin813/article/details/52664805)

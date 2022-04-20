@@ -12,7 +12,7 @@ thumbnailImage: /images/thumbnail/among-us.jpg
 ---
 among us是一个非常好玩的，多人在线扯皮、互演游戏。但是他的服务器实在是太差了。本文的目标就是解决这个问题。
 <!--more-->
-# 服务器端步骤
+## 服务器端步骤
 1. 去Github上下载对应的服务器端程序
 2. 在服务器上安装.NET
 ```sh
@@ -39,17 +39,17 @@ sudo apt-get update; \
 ```sh
 ./Impostor.Server
 ```
-# 客户端步骤
+## 客户端步骤
 1. 去Github上下载客户端配置生成工具
     - 或者去这里[在线生成](https://impostor.github.io/Impostor/)
 2. 复制到本地游戏的配置位置
     - 例如C:\Users\liyicheng\AppData\LocalLow\Innersloth\Among Us
-# 已知问题
+## 已知问题
 1. 游戏升级到2021.11.9之后，无法使用目前的Impostorv1.9.0
     - 游戏使用了新的验证机制，等待Github仓库更新。
-# 注意事项
+## 注意事项
 1. 安装.NET框架，一定注意版本。
-# 参考资料
+## 参考资料
 - [服务器、客户端Github仓库](https://github.com/Impostor/Impostor)
 - [搭建教程](https://www.bilibili.com/read/cv13573966)
 - [微软.NET官网安装导航](https://dotnet.microsoft.com/download/dotnet)

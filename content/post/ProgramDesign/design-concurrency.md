@@ -12,15 +12,15 @@ thumbnailImage: images/thumbnail/design-pattern.svg
 ---
 并发编程是现代计算机程序的基本构成部分之一。本文将总结常见的相关内容和常见问题。
 <!--more-->
-# 并行和并发
+## 并行和并发
 1. 并发（Concurrency）：具有一段时间内同时处理多个任务的能力。
     - 并发和顺序（Sequential）相对应。顺序只能做完一件，再做另一件。不能都处于运行阶段。
 1. 并行（Parallelism）：具有在一个时间点上同时处理多个任务的能力。
     - 并行和串行（Serial）相对应。串行只能在一个时刻处理一个任务。不能同一时刻同时执行多个任务。
 1. 并行实际上是并发的子集。本文以并发为主要总结目标。
-# 常用并发编程模式
+## 常用并发编程模式
 1. 
-# 常见问题
+## 常见问题
 1. 伪共享（False Sharing）：先看一段受害者代码
     ```cpp
     void f(unsigned __int64 begin, unsigned __int64 end, unsigned __int64 &result) noexcept {

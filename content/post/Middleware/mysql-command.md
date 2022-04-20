@@ -12,11 +12,11 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
 ---
 本章以MySQL的SQL指令为主，也会结合其他的DBMS。
 <!--more-->
-# C
+## C
 
-# R
+## R
 
-# U
+## U
 1. 用b表数据更新a表
 ```sql
 -- MySQL
@@ -26,4 +26,4 @@ ON a.id = b.id
 SET a.content = b.content; 
 ```
 
-# D
+## D

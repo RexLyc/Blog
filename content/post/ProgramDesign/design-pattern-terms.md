@@ -12,7 +12,7 @@ thumbnailImage: images/thumbnail/design-pattern.svg
 ---
 软件工程中常有和设计模式相关的一些额外的术语，在这里进行一个整理。
 <!--more-->
-# 对象
+## 对象
 1. O/RM（Object Relational Mapping，对象关系映射），将对象和关系型数据库进行绑定，以对象来表示关系数据。
     1. VO & PO，最基本的两种对象：
         1. VO（Value Object，值对象）：通常用于业务层之间（层内、各层之间）传递数据，可以和表对应，也可以不对应。由用户以new创建。
@@ -30,6 +30,6 @@ thumbnailImage: images/thumbnail/design-pattern.svg
         - 和DO的区别：DO是完整的业务实体，但并不一定允许展示层查看所有字段、方法。
     1. POJO：符合Java Bean规范的简单对象。
 
-# 函数式编程
+## 函数式编程
 
-# 
+##

@@ -12,7 +12,7 @@ thumbnailImage: /images/thumbnail/PS.jpg
 ---
 在HDR、全景图片等场景中，使用多张照片合成最终的输出结果是非常常见的操作。本文讲解使用Photoshop & Camera Raw进行合成的办法。
 <!--more-->
-# HDR
+## HDR
 <center><img src='/images/Photoshop/ACR_HDR.png'>HDR生成示例</center></br>
 
 1. HDR：高动态光照渲染。High-Dynamic Range。
@@ -22,7 +22,7 @@ thumbnailImage: /images/thumbnail/PS.jpg
     1. 导入要生成HDR照片的多张输入照片
     1. 全选，右键合并到HDR
 
-# 全景图
+## 全景图
 1. 目标：当相机焦段无法涵盖全部的取景范围，使用多张图片，后期合成一张全景图
 1. 注意的细节:
     - 两张图片之间应当有30%的重叠范围。
@@ -31,7 +31,7 @@ thumbnailImage: /images/thumbnail/PS.jpg
     1. 导入
     1. 全选，邮件合并到全景图
 
-# 堆栈合成
+## 堆栈合成
 1. 目标：将同一机位拍摄的同一场景的多张图片，按照一定的算法堆叠合成。获得降噪、去杂物、模拟慢门等效果。
 1. 拍摄时注意：
     - 可能需要关闭镜头降噪、高感降噪等功能
@@ -57,6 +57,6 @@ thumbnailImage: /images/thumbnail/PS.jpg
     - 中间值：多用来降噪，或者广场去人这类情况
     - 最大值：星空、星轨、车轨、萤火虫
 
-# 注意事项
+## 注意事项
 1. 所有需要多张合成的照片，都需要额外设定白平衡为统一参数
     - 非常重要！！

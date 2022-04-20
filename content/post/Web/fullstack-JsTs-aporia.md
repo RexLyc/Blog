@@ -13,7 +13,7 @@ thumbnailImage: images/thumbnail/fullstack.jpg
 ---
 本文讲解的是JavaScript和TypeScript在使用中容易犯错的点，以及一些特别重要的其他要点。
 <!--more-->
-# 闭包
+## 闭包
 1. 闭包中的this:
     1. 使用function进行的闭包定义，其中的this，会在运行时动态解析，导致和编程的含义不同（除非你确实希望是动态时的this）。
     1. 使用箭头函数进行闭包定义，其中的this，会绑定为定义时所在位置的this。在执行时也不会变。**推荐**

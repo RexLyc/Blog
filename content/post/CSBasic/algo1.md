@@ -81,10 +81,3 @@ math: true
 3. 举例
 ## 参考资料
 *学点英语，主要是尽量把术语发音正确噢* :winking_face_with_tongue:<a href="https://www.bilibili.com/video/BV1Tb411M7FA?from=search&seid=3716615071312119347" target="_blank">MIT6.046Jのbilibili传送门</a>
-## 本节博客搭建过程中的坑
-0. 添加内嵌html支持，需要修改toml，令markdown引擎支持内嵌html（unsafe模式）
-1. <a href="https://note.qidong.name/2018/03/hugo-mathjax/" target="_blank">使用MathJax在Hugo的Markdown中绘制公式</a>
-    - 第一步：添加一个单独的html于主题文件夹partials下，并引入所需的js库，css内容。
-    - 第二步：去head.html中利用插值表达式引用该html。
-    - 第三步：最好是在markdown开头的Front Matter部分添加math: true。也可以在toml中全局启用MathJax。
-2. 使用bootcdn对js、css等进行加速，注意只能使用主题中限定的版本。

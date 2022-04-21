@@ -7,13 +7,12 @@ categories:
 tags:
 - 滚动更新
 - 网站建设
-- 施工中
 thumbnailImagePosition: left
 thumbnailImage: images/thumbnail/lycStamp.png
 ---
-这篇博文就是想分享一下从零开始的博客搭建之路。让有想法的朋友们也能一样记录自己的生活，让网络见证自己的成长。
+&emsp;&emsp;这篇博文就是想分享一下从零开始的博客搭建之路。让有想法的朋友们也能一样记录自己的生活，让网络见证自己的成长。
 <!--more-->
-知识分享现在已经完全不是什么新鲜的内容了。但我一直不太喜欢寄人篱下的感觉。比如知乎、公众号等等。毕竟作为自己的专业，肯定是希望能在自己的网站上（合理合法地）做点有趣有意义的东西。
+&emsp;&emsp;知识分享现在已经完全不是什么新鲜的内容了。但我一直不太喜欢寄人篱下的感觉。比如知乎、公众号等等。毕竟作为自己的专业，肯定是希望能在自己的网站上（合理合法地）做点有趣有意义的东西。
 ## 概述
 - 主要准备
     - 一点点数量的人民币
@@ -25,7 +24,7 @@ thumbnailImage: images/thumbnail/lycStamp.png
     - 服务器硬件：对于绝大多数朋友，用国内的服务器商就够用了。大品牌如阿里云、腾讯云、电信云这些厂商，都会定期开展活动。新用户可以白菜价尝尝鲜。如果你已经有服务器，直接用就行啦。
 ## 我的
 - 基础工具准备
-    - nginx（服务器软件）、MobaXterm（用于访问远程服务器的本地终端）、VSCode（文本编辑器）、Git（代码同步和版本管理）
+    - nginx（服务器软件）、MobaXterm（用于访问远程服务器的本地终端）、VSCode（文本编辑器）、Git（代码同步和版本管理）、Hugo-v0.87
 - 剁手阶段
     - 购买服务器硬件，作为静态网站，最便宜的就够了。1核2G绰绰有余。
     - 购买域名
@@ -44,20 +43,52 @@ thumbnailImage: images/thumbnail/lycStamp.png
         - 上传SSL证书 <!-- 贴一下ssl证书包含的内容 -->
         - 修改nginx配置，指定SSL证书位置、指定网站位置 <!-- 贴一下自己的配置 -->
         - 启动nginx
-        ```bash
-        # 贴几个常用nginx指令
-        ```
+            ```bash
+            # 启动
+            nginx
+            # 关闭
+            nginx -s stop
+            # nginx 重新加载配置
+            nginx -s reload
+            ```
 - 备案
     - 这是整个搭建过程中最慢的步骤，注意一定要在网站有内容可以展示的时候再去备案，否则会以网站未完成为理由被拒绝。
     - 域名备案：备案可以选择不同省的省管局，建议选一个快一点的，这个和你是哪个省的人没啥关系。这一步内容填写正确即可。
-    - 公安备案：需要去公安信息管理系统中备案，需要一个手持身份证的拍照，唯一离谱的地方是不让自拍。
+    - 公安备案：需要去公安信息管理系统中备案，需要一个手持身份证的拍照，唯一离谱的地方是不让自拍（不能是镜像）。
 - 扩展内容
     1. 安全性：由于https协议（安全的超文本传输协议）具有明显优势，因此不建议还使用普通的http协议来发布网站。
 ## Hugo进阶
+- 添加内嵌html支持，需要修改toml，令markdown引擎支持内嵌html（开启unsafe模式）
+    ```toml
+    [markup]
+        [markup.goldmark] # 需要hugo版本高于0.64（大概），在使用goldmark之后
+            [markup.goldmark.renderer]     
+            unsafe = true
+    ```
 - Latex支持
-    - 待补充
+    - 第一步：添加一个单独的html于主题文件夹partials下，并引入所需的js库，css内容。
+    - 第二步：去head.html中利用插值表达式引用该html。
+    - 第三步：最好是在markdown开头的Front Matter部分添加math: true。也可以在toml中全局启用MathJax。
+    - 参考：[使用MathJax在Hugo的Markdown中绘制公式](https://note.qidong.name/2018/03/hugo-mathjax/)
+- 使用其他人的主题，可以考虑使用bootcdn对js、css等进行加速，但注意只能使用主题中限定的版本。
 - 标记草稿
-    - 在markdown开头，添加draft: true / false
+    - 在markdown开头，添加标记
+        ```md
+        <!-- 作为草稿 -->
+        draft: true
+        <!-- 非草稿 -->
+        draft: false
+        ```
+- 添加侧边导航目录功能：
+    - 基本原理就是使用Hugo从0.64（大概）开始提供的toc（table of content）变量，可以直接生成一个目录，剩余的事情就是配置一个css来美化。注意默认是从二级目录##开始记录。
+        ```html
+        <!-- 支持平滑移动 -->
+        <style>
+        * { scroll-behavior: smooth; }
+        </style>
+        <!-- 插入一个页面目录 -->
+        <div>{{ .TableOfContent }}</div>
+        ```
 - 如何自定义模板
     - 其实我也想知道
 ## CDN加速
@@ -68,7 +99,6 @@ thumbnailImage: images/thumbnail/lycStamp.png
 
 ## 参考资料
 1. [emoji编码查询网站](https://www.webfx.com/tools/emoji-cheat-sheet/)
-<!-- hugo原理 -->
 1. [如何创建自己的hugo主题](https://www.jianshu.com/p/0b9aecff290c)
 1. [Hugo官方文档](https://gohugo.io/documentation/)
 1. [Hugo中文帮助文档](https://hugo.aiaide.com/)

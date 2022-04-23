@@ -147,6 +147,7 @@ math: true
 1. :red_circle: 689：[三个无重叠子数组的最大和](https://leetcode-cn.com/problems/maximum-sum-of-3-non-overlapping-subarrays/)。经典的**多种中间状态**输出到最终决策的动态规划。3次预处理，分别是每个位置的子数组和$sum[]$，i之前的子数组和最大值$before[i]$，j之后的子数组和的最大值$after[j]$。求最大值$sum[i]+before[i-k]+after[i+k]$。[题解](https://leetcode-cn.com/problems/maximum-sum-of-3-non-overlapping-subarrays/solution/san-ge-wu-zhong-die-zi-shu-zu-de-zui-da-4a8lb/)还有更厉害的$O(1)$空间的解法。
 1. :red_circle: 1531：[压缩字符串II](https://leetcode-cn.com/problems/string-compression-ii/)。不容易的一道题目。有[反方向选取](https://leetcode-cn.com/problems/string-compression-ii/solution/dong-tai-gui-hua-shi-jian-on3kong-jian-on2-by-newh/)和[删除](https://leetcode-cn.com/problems/string-compression-ii/solution/ya-suo-zi-fu-chuan-ii-by-leetcode-solution/)两种题解。**值得二刷**。
 1. :red_circle: 956：[最高的广告牌](https://leetcode-cn.com/problems/tallest-billboard/)。比较特别的一题。[题解](https://leetcode-cn.com/problems/tallest-billboard/solution/zui-gao-de-yan-gao-pai-by-leetcode/)两种解法，递归式DP方法$dp[i][s]$代表前i个管子正负总和为s时，正数和的最值。细节：实现时需要保证s>0，将总和**向正平移5000**，不影响结果。第二种是对半搜索，也比较巧妙，也值得一看。递归式DP其实和记忆化搜索非常相似。
+1. :red_circle: LCP 57：[打地鼠](https://leetcode-cn.com/problems/ZbAuEH/)。团体赛题目。自己写了一个$O(nlogk),k=1e9$的dp，但其实可以做到$O(n)$。问题的关键在于理解，以时间向前回溯dp，和用步数向前回溯其实都是对的。但前者慢一些（常数太大了），步数其实最多只需要回溯45步（3 * 3棋盘，最多4步可到任意位置，3 * 3 * 4=45）。
 
 ###  哈希表
 1. :green_circle: 219：[存在重复元素II](https://leetcode-cn.com/problems/contains-duplicate-ii/)。滑动窗口+哈希表。

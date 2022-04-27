@@ -17,7 +17,8 @@ among us是一个非常好玩的，多人在线扯皮、互演游戏。但是他
 2. 在服务器上安装.NET
 ```sh
 # 添加包来源
-wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb \
+       -O packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
 
@@ -34,7 +35,7 @@ sudo apt-get update; \
   sudo apt-get install -y aspnetcore-runtime-5.0
 ```
 3. 修改服务器配置config.json
-    - 主要是修改ip、端口
+    - 主要是修改公共ip，可参考[官方教程](https://github.com/Impostor/Impostor/blob/master/docs/Running-the-server.md)
 4. 运行
 ```sh
 ./Impostor.Server
@@ -47,6 +48,15 @@ sudo apt-get update; \
 ## 已知问题
 1. 游戏升级到2021.11.9之后，无法使用目前的Impostorv1.9.0
     - 游戏使用了新的验证机制，等待Github仓库更新。
+    - 20220427 更新
+      1. 下载仓库的CI Build最新版
+      1. 在服务器的配置中，添加
+        ```json
+        "AuthServer": {
+          "Enabled": false
+        }
+        ```
+        > 暂时关闭了验证用的服务，有时间的读者可以研究研究
 ## 注意事项
 1. 安装.NET框架，一定注意版本。
 ## 参考资料

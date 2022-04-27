@@ -291,13 +291,28 @@ math: true
 - 三剑客之三
 ### find & locate：
 ## 其他常用指令
-1. 网络工具
+1. 网络工具集合
     ```bash
     # 嗅探指定端口
     nmap ip -p port
     # 嗅探全部端口
     nmap ip
     ```
+1. 终端复用tmux
+    1. 基本用法
+        ```bash
+        # 创建名为test的tmux会话
+        tmux new -s test
+        # 进入名为test的tmux会话
+        tmux attach -t test
+        # 进入第一个会话（如果你只有一个的话这样更快）
+        tmux a
+        # 杀死名为test的会话
+        tmux kill -t test
+        # 杀死未处于使用状态（未attach）的所有会话
+        tmux kill-session
+        ```
+    1. tmux内
 ## Shell编程
 1. 基本概念
     1. 标准输入输出

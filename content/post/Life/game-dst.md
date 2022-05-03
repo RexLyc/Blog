@@ -26,8 +26,12 @@ Steam> app_update 343050 validate
   系统输出一堆balabala
 Steam> quit
 cd /path/to/your/dst/bin
-echo "./dontstarve_dedicated_server_nullrenderer -console -persistent_storage_root /home/ubuntu/Game/dstsave -conf_dir dst -cluster World1 -shard Master" > master_create.sh
-echo "./dontstarve_dedicated_server_nullrenderer -console -persistent_storage_root /home/ubuntu/Game/dstsave -conf_dir dst -cluster World1 -shard Caves" > cave_create.sh
+echo "./dontstarve_dedicated_server_nullrenderer -console\
+ -persistent_storage_root /home/ubuntu/Game/dstsave -conf_dir\
+  dst -cluster World1 -shard Master" > master_create.sh
+echo "./dontstarve_dedicated_server_nullrenderer -console\
+ -persistent_storage_root /home/ubuntu/Game/dstsave -conf_dir\
+  dst -cluster World1 -shard Caves" > cave_create.sh
 chmod +x master_create.sh cave_create.sh
 ./master_create.sh #运行一下看到WILL NOT START就退出即可
 ./cave_create.sh #运行一下看到WILL NOT START就退出即可
@@ -51,6 +55,6 @@ chmod +x master_create.sh cave_create.sh
 ## 一些实用远程指令
 1. c_rollback()：输入参数为回退的天数，如c_rollback(2)代表回到2天前。
 ## 参考资料
-[主要参考：官方论坛关于SteamCMD的相关内容](https://developer.valvesoftware.com/wiki/SteamCMD)
-[centos7搭建饥荒服务器](https://blog.csdn.net/zhang41228/article/details/103106298)
-[SteamCMD良好支持的服务器游戏列表](https://developer.valvesoftware.com/wiki/Dedicated_Servers_List)
+- [主要参考：官方论坛关于SteamCMD的相关内容](https://developer.valvesoftware.com/wiki/SteamCMD)
+- [centos7搭建饥荒服务器](https://blog.csdn.net/zhang41228/article/details/103106298)
+- [SteamCMD良好支持的服务器游戏列表](https://developer.valvesoftware.com/wiki/Dedicated_Servers_List)

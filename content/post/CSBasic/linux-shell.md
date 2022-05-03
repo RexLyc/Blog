@@ -214,7 +214,7 @@ math: true
     - 单词：默认情况下，是由字母、数字、下划线和其他部分非空字符（如~）组成的连续字符串，其他任何字符都视作分割
 - 参考：[菜鸟教程](https://www.runoob.com/linux/linux-vim.html)、[将vim配置成强大的IDE编辑工具](https://blog.csdn.net/qq_26708669/article/details/121057164)
 ### awk
-- 三剑客之一
+- 三剑客之一：主要使用方式是预处理+逐行处理+最终处理，常用于格式化输出、统计等工作
 - 基本结构
     ```bash
     awk [各命令行参数] 'BEGIN{} {/pattern1/ action1;action2;} \
@@ -286,7 +286,92 @@ math: true
     - -v var=value 或 --asign var=value ：定义变量
 - 参考：[Linux三剑客之awk](https://www.cnblogs.com/ginvip/p/6352157.html)、[awk内置函数](https://www.runoob.com/w3cnote/awk-built-in-functions.html)
 ### sed
-- 三剑客之二
+- 三剑客之二：处理、编辑文本文件，和awk相比，更擅长修改文件。默认输出结果到控制台。
+    - sed是面向行的处理，读入每一行，保存到缓存区（模式空间），匹配并做相应动作，不会修改源文件。
+    - 所使用的正则表达式和awk的正则语法一致，也用斜杠对儿/pattern/作为表达式范围标志。
+- 基本语法
+    ```bash
+    # 使用脚本，或脚本文件，处理输入文件
+    sed [-e <script>] [-f <scriptFiles>] [inputFiles]
+    ```
+- 动作
+    | 命令 | 功能 |
+    | --- | --- |
+    | a | 追加 |
+    | c | 更改 |
+    | i | 插入 |
+    | d | 删除 |
+    | s | 替换 |
+    | p | 打印 |
+    | = | 用于打印被匹配行的行号 |
+    | n | 跳到下一行 |
+    | r | 将内容读入文件 |
+    | w | 将匹配内容写入文件 |
+    | y | 一对一替换 |
+    | q | 退出 |
+- 脚本结构：
+    1. 不指定行的操作：触发条件(匹配，行) + 动作 + 动作参数 + 动作 + 参数...例如：
+        ```bash
+        # -e 可省略
+        # 匹配123的行并增加hello
+        sed '/123/ahello' test.txt
+        # 最后一行添加hello
+        sed '$ahello' test.txt
+        # 替换语法s/x/y/，每行只替换第一个
+        sed 's/from/to/' test.txt
+        # 替换，行内出现多次也替换
+        sed 's/from/to/g' test.txt
+        # 替换，行内替换第2个匹配位置
+        sed 's/from/to/2' test.txt
+        # 替换并写入新文件
+        sed 's/from/to/gpw output.txt' test.txt
+        # 从input.txt读入内容到test.txt的第3行后
+        sed '3r input.txt' test.txt
+        # 删除每行的最后两个字符
+        sed 's/..$//g' test.txt
+        # a->A, b->B, c->C
+        sed 'y/abc/ABC/' test.txt
+        ```
+    1. 指定行的操作：运算符, ~ +
+        ```bash
+        # 在第3行后添加新行2333
+        sed '3a2333' test.txt
+        # 第3行插入hello
+        sed '3ihello' test.txt
+        # 第一行替换为hello
+        sed '1chello' test.txt
+        # 删掉奇数行（每两个删一个）
+        sed '1~2d' test.txt
+        # 删掉1到2行
+        sed '1,2d' test.txt
+        # 打印匹配#的行及其后1行
+        sed '/#/,+1p' test.txt
+        ```
+    1. 复合动作：花括号{}
+        ```bash
+        # 删掉1到3行中匹配123的行
+        sed '1,3{/123/d}' test.txt
+        # 打印最后一行的行号和内容
+        sed '${=;p}' test.txt
+        # 匹配hello，并删除其下一行的内容
+        sed '/hello/{n;d}' test.txt
+        ```
+    1. 取反：运算符!
+        ```bash
+        # 删掉除了1,2行的所有行
+        sed '1,2!d' test.txt
+        ```
+    1. 结合
+        ```bash
+        # 匹配没有#号的行并替换@为#
+        sed '/#/!s/@/#/g' test.txt
+        ```
+    1. 多重编辑：注意前后顺序有影响
+        ```bash
+        # 先删掉1至3行，再进行替换
+        sed -e '1,3d' -e 's/Rex/Lyc/g' test.txt
+        ```
+- 参考：[shell脚本-sed的用法](https://blog.csdn.net/wdz306ling/article/details/80087889)、[sed详解](https://blog.csdn.net/w757052816/article/details/119874525)
 ### grep
 - 三剑客之三
 ### find & locate：

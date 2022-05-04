@@ -413,20 +413,51 @@ math: true
     ```
 - 参考：[grep 命令](https://www.runoob.com/linux/linux-comm-grep.html)
 ### find & locate：
-- find
-    - 基本语法：
-        ```bash
-        find path -option [-print] [-exec -ok command] {}\
-        ```
-    - 
-## 其他常用指令
-1. 网络工具集合
+- find：相对较慢的通用查询方式，但可以指定不同属性查找文件，属性包括：名称、文件类型、文件大小、文件归属、文件权限、文件时间等等
     ```bash
-    # 嗅探指定端口
-    nmap ip -p port
-    # 嗅探全部端口
-    nmap ip
+    # 基本语法
+    # 指定路径在前（默认从当前位置开始），指定搜索内容在后
+    find path expression -option [-print] [-exec -ok command {} \;]
+    # 查找指定名称的目录
+    find ./ -type d -name Projects
+    # 使用通配符
+    find ./ -name "*.log"
+    # 查找指定777权限
+    find ./ -perm 777
+    # 查找空目录
+    find ./ -type d -empty
+    # 查找空文件
+    find ./ -type f -empty
+    # 查找用户为root的文件
+    find / -user root
+    # 查找属组是root的文件
+    find / -group root
+    # 查找大小在30M到100M的文件
+    find ./ -size +30M -size -100M -type f
+    # 查找777权限，打印并改为700，结尾{} \;是必需的
+    find ./ -perm 777 -print -exec {} \;
     ```
+- locate：相对较快的查询，但需要提前用updatedb构建数据库，但只能查询名字，一般需要单独安装
+## 其他常用指令
+1. 二进制查看hexdump
+1. 压缩tar
+1. 用户管理useradd、groupadd、userdel、groupdel
+1. 权限管理chmod、chown
+1. 系统状态top、htop、free、df、du
+1. 进程管理ps、kill
+1. 文件查看cat、more、less、tail、head、sort
+1. 链接ln
+1. 网络工具集合
+    - 嗅探nmap
+        ```bash
+        # 嗅探指定端口
+        nmap ip -p port
+        # 嗅探全部端口
+        nmap ip
+        ```
+    - ssh详见ssh章节
+    - 网络传输scp
+    - 网络状态netstat
 1. 终端复用tmux
     1. 基本用法
         ```bash
@@ -465,7 +496,7 @@ cat /etc/os-release
 # Ubuntu系
 cat /etc/issue
 ```
-- 拷贝、转换文件：
+- 拷贝、转换文件dd：
 ```bash
 # 从输入拷贝到输出
 dd if=input.txt of=output.txt
@@ -474,3 +505,5 @@ dd if=/dev/zero of=zero.bin count=1
 # 交换每两个相邻字节
 dd if=input.txt of=output.txt conv=swab
 ```
+## 一些建议
+1. 对于rm，可以替换为mv到临时文件夹，并定期清理，尽量避免使用rm，尤其禁止使用rm -rf

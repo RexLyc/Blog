@@ -224,7 +224,7 @@ math: true
     - BEGIN块最先执行、END块最后执行，其他各块之间按顺序依次执行
     - action内容和脚本语言类似，有一套自己的语法
     - 注意使用**单引号**'，在单引号对儿内部，仍然可以使用双引号对儿""代表内部是字符串
-- pattern语法（正则表达式）
+- pattern语法（正则表达式[Wiki](https://en.wikipedia.org/wiki/Regular_expression)）
     | 符号 | 描述 |
     | --- | --- |
     | ^$ | 行首尾定位符 |
@@ -238,6 +238,7 @@ math: true
     | \| | 或，用于组合多种匹配情况 |
     | \\ | 转义 |
     | x{m[,[,n]]} | 匹配$m$、$[m,+\infty]$、$[m,n]$次（需awk版本支持） |
+    | [:lower:] | 任意小写字母，参考[POSIX字符组](https://blog.csdn.net/shangboerds/article/details/7555332) |
     > 注意只要正则表达式能成立（能匹配到该行的部分或全部字符），则会执行后续动作，即使匹配空。这点在使用*且不指定边界时应当尤其注意。
 - action语法
     - 运算符：
@@ -373,8 +374,51 @@ math: true
         ```
 - 参考：[shell脚本-sed的用法](https://blog.csdn.net/wdz306ling/article/details/80087889)、[sed详解](https://blog.csdn.net/w757052816/article/details/119874525)
 ### grep
-- 三剑客之三
+- 三剑客之三：强大的文本搜索工具，家族成员包括grep、egrep、fgrep，后两者只是前者的一种扩展。
+    - 匹配指定文件中的各行，默认打印匹配成功的行
+    - 默认使用基础正则表达式
+- 基本语法
+    ```bash
+    # 输入匹配用的正则表达式，以及待匹配的输入文件
+    grep expression files
+    ```
+- 常用参数
+    | 参数 | 意义 |
+    | --- | --- |
+    | -a | 对二进制文件依然尝试匹配 |
+    | -c | 统计匹配成功的行数总和 |
+    | -A n | 显示匹配行和之后的n行 |
+    | -B n | 显示匹配行和之前的n行 |
+    | -C n | 显示匹配行前后各n行 |
+    | -e expression | 指定使用的匹配字符串 |
+    | -E | 扩展正则模式(和基础正则相比，转义的含义恰好相反) |
+    | -f files | 指定基础正则表达式所在文件，一行一个 |
+    | -F | 将表达式视为普通字符串，进行朴素模式匹配 |
+    | -H | 在打印匹配行前，额外显示匹配行所在文件 |
+    | -i | 忽略大小写 |
+    | -l（小写的L） | 不打印匹配行，只列出匹配成功的文件名 |
+    | -L | 列出无法匹配的文件名 |
+    | -n | 列出行号 |
+    | -d read/skip/recurse | 输入文件含有目录时，处理该目录/跳过/递归处理该目录 |
+- 用例
+    ```bash
+    # 在test.txt中查找hello
+    grep hello test.txt
+    # 使用基础正则查找hellohello
+    grep "\(hello\)\{2\}" test.txt
+    # 使用扩展正则
+    grep -E "(hello){2}" test.txt
+    # 递归查找当前目录下文件，扩展正则匹配
+    grep -d recurse -E "(hello){2}" ./
+    ```
+- 参考：[grep 命令](https://www.runoob.com/linux/linux-comm-grep.html)
 ### find & locate：
+- find
+    - 基本语法：
+        ```bash
+        find path -option [-print] [-exec -ok command] {}\
+        ```
+    - 
 ## 其他常用指令
 1. 网络工具集合
     ```bash
@@ -420,4 +464,13 @@ math: true
 cat /etc/os-release
 # Ubuntu系
 cat /etc/issue
+```
+- 拷贝、转换文件：
+```bash
+# 从输入拷贝到输出
+dd if=input.txt of=output.txt
+# 拷贝512字节的0
+dd if=/dev/zero of=zero.bin count=1
+# 交换每两个相邻字节
+dd if=input.txt of=output.txt conv=swab
 ```

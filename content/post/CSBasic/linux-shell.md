@@ -440,9 +440,68 @@ math: true
 - locate：相对较快的查询，但需要提前用updatedb构建数据库，但只能查询名字，一般需要单独安装
 ## 其他常用指令
 1. 二进制查看hexdump
-1. 压缩tar
-1. 用户管理useradd、groupadd、userdel、groupdel
+    | 参数 | 含义 |
+    | --- | --- |
+    | -n length | 显示前length个字节 |
+    | -C | 单字节十六进制和ascii |
+    | -c | ascii |
+    | -d | 双字节十进制 |
+    | -x | 双字节十六进制 |
+    | -s pos | 偏移pos个字节开始输出 |
+    | -e '"format" a/b "format1 "format2"' | 以指定输出格式打印[具体参考](https://blog.csdn.net/zsj1126/article/details/105770068/) |
+1. 压缩tar：
+    | 参数 | 含义 |
+    | --- | --- |
+    | -c | 创建新的tar包 |
+    | -x | 解tar包 |
+    | -t | 列出tar包内容列表 |
+    | -r | 附加新的文件到tar |
+    | -v -vv | 打包、解包时显示文件名、显示文件全部属性 |
+    | -k | 保留旧文件不覆盖 |
+    | -z -Z -j | 调用gzip、compress、bzip2进行解压缩 |
+    | -f file | 从file解包，或打包成file |
+    | -C path | 解包到指定路径 |
+    - 示例：
+        ```bash
+        # 将当前目录下所有文件打入package包
+        tar -czvf package.tar.gz ./*
+        # 解压到/tmp
+        tar -zxvf package.tar.gz -C /tmp/
+        ```
+1. 用户管理useradd、groupadd、userdel、groupdel、usermod、groupmod、groups、id
+    - 这些命令主要对/etc/passwd、/etc/shadow、/etc/group三个文件进行维护，[字段含义参考](http://www.javashuo.com/article/p-mwuizuri-pq.html)
+    ```bash
+    # 创建用户liyicheng，并设定：登陆位置/tmp，主属组lyc
+    # 附加属组ubuntu，home下不创建用户目录（-M），不创建同名用户组（-N）
+    useradd -d /tmp/ -g lyc -G ubuntu -M -N liyicheng
+    # 修改用户liyicheng：主属组为ubuntu，增加（-a）附加属组mysql
+    # 改名为liyicheng2，改登录shell为zsh
+    usermod liyicheng -g ubuntu -G mysql -a -l liyicheng2 -s /usr/bin/zsh
+    # 删除用户在passwd、group、shadow、gshadow中的内容，并删除其主目录下文件
+    userdel -r liyicheng
+    # 查看属组
+    groups liyicheng
+    # 查看uid、gid等
+    id liyicheng
+    # 添加普通用户组（添加-r则为系统用户组）
+    groupadd li
+    # 删除用户组（此时要求没有以li为主用户组的用户）
+    groupdel li
+    # 修改用户组li的gid为2333，名字为newli
+    # groupmod 改组名和gid都容易会引起混乱，慎用
+    groupmod -g 2333 -n newli li
+    ```
 1. 权限管理chmod、chown
+    ```bash
+    # 递归修改当前路径以下的文件、符号链接的用户为liyicheng，属组为li
+    # 注：-L 不修改所有的符号链接（软链接），-H不修改目录的符号链接
+    chown -R liyicheng:li ./*
+    # -c打印修改、-f屏蔽错误信息、-v为verbose、-R递归处理
+    # ugoa分别是用户、同组、其他、所有人
+    # rwx读写运行，Xst
+    # 注：chmod永远不会修改符号链接的权限
+    chmod [-cfvR] [ugoa...][[+-=][rwxXst]...][,...] file
+    ```
 1. 系统状态top、htop、free、df、du
 1. 进程管理ps、kill
 1. 文件查看cat、more、less、tail、head、sort

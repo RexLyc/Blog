@@ -502,7 +502,21 @@ math: true
     # 注：chmod永远不会修改符号链接的权限
     chmod [-cfvR] [ugoa...][[+-=][rwxXst]...][,...] file
     ```
-1. 系统状态top、htop、free、df、du
+1. 系统状态
+    - top、htop：查看系统综合信息和各进程
+    - free：查看内存信息
+    - df：查看磁盘使用情况
+    - du：查看文件的大小（默认只显示目录的占用大小）
+        | 参数 | 含义 |
+        | --- | --- |
+        | -a | 显示所有文件（含目录） |
+        | -b | 显示文件实际大小，单位byte |
+        | -c | 统计大小之和 |
+        | -d n | 只显示到第n层（n层以下只统计，不详细列出） |
+        | --inodes | 显示inode信息 |
+        | -s | 只列出整体结果 |
+        | -X file | 去除指定文件不计入统计 |
+        | --exclude=pattern | 去除匹配不计入统计（使用通配符?和*，非正则表达式） |
 1. 进程管理ps、kill
 1. 文件查看cat、more、less、tail、head、sort
 1. 链接ln

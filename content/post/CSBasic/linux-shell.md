@@ -533,7 +533,26 @@ math: true
     | --sort=spec | 以spec指定的列排序，正负号代表升降序（如uid,-ppid,+pid） |
     | -u userlist | 查看指定用户的进程 |
 1. 文件查看cat、more、less、tail、head、sort
+    - sort是按行排序
+    - cat、more、less、tail、head都是查看用的，这里略去基本用法，展示一些额外实用的用法
+    ```bash
+    # 合并文件
+    cat 1.txt 2.txt > 1and2.txt
+    # 显示百分比、当前页行数范围、总行数，按顺序查看多个文件
+    # :n 下一个文件，:p 上一个文件
+    less -N -M *.log
+    # 头部10行
+    head -n 10 test.log
+    # 头部10个字节
+    head -c 10 test.log
+    ```
 1. 链接ln
+    ```bash
+    # 和cp、mv等类似，都是源文件在前
+    ln [options] source linkfile
+    # 创建软链接（默认硬链接）
+    ln -s boot.log boot-link.log
+    ```
 1. 网络工具集合
     - 嗅探nmap
         ```bash
@@ -576,6 +595,7 @@ math: true
 1. 启动环境
     - init.d
     - rcX.d
+1. 参考：[Shell编程快速入门](https://www.runoob.com/w3cnote/shell-quick-start.html)
 ## 其他指令收集
 - 查看系统发行版：
 ```bash

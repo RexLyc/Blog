@@ -518,6 +518,20 @@ math: true
         | -X file | 去除指定文件不计入统计 |
         | --exclude=pattern | 去除匹配不计入统计（使用通配符?和*，非正则表达式） |
 1. 进程管理ps、kill
+    - ps常用参数
+    | 参数 | 含义 |
+    | --- | --- |
+    | -e | 查看系统全部进程 |
+    | -a | 查看系统全部进程（session leader和未关联终端的进程除外）|
+    | -d | 查看系统全部进程（session leader除外）|
+    | -f | 展示进程全部信息 |
+    | -j | 以任务形式展示 |
+    | -l | 小写L，长展示格式 |
+    | -H | 以进程树格式展示 |
+    | -pid | 查看给定pid的进程 |
+    | -C cmdlist | 查询运行指定程序的进程，cmdlist形如"zsh ps" |
+    | --sort=spec | 以spec指定的列排序，正负号代表升降序（如uid,-ppid,+pid） |
+    | -u userlist | 查看指定用户的进程 |
 1. 文件查看cat、more、less、tail、head、sort
 1. 链接ln
 1. 网络工具集合
@@ -548,6 +562,7 @@ math: true
     1. tmux内
 ## Shell编程
 1. 基本概念
+    1. 生命周期
     1. 标准输入输出
     1. 重定向
     1. 管道

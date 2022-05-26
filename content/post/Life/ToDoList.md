@@ -25,6 +25,7 @@ draft: true
 1. cicd-jenkins - 2h(稍加补充，后续可以更新不同项目的一些build的坑)
 1. mysql-backend - 16h(整理之前的笔记)
 1. mysql-command - 4h
+    - https://www.csdn.net/tags/OtDaIg1sNzA2Ni1ibG9n.html
 1. mysql-practice - 8h(整理一些sql实用脚本)
 1. fullstack-jsts-basic - 8h
 1. fullstack-jsts-aporia - 8h

@@ -502,6 +502,8 @@ math: true
     # 注：chmod永远不会修改符号链接的权限
     chmod [-cfvR] [ugoa...][[+-=][rwxXst]...][,...] file
     ```
+1. 统计
+    - wc：从文件&标准输入，默认分别统计并打印行数(-l)、单词数(-w)，byte数(-c)
 1. 系统状态
     - top、htop：查看系统综合信息和各进程
     - free：查看内存信息
@@ -562,7 +564,19 @@ math: true
         nmap ip
         ```
     - ssh详见ssh章节
-    - 网络传输scp
+    - 网络传输scp（基于ssh的cp）
+        | 参数 | 含义 |
+        | --- | --- |
+        | -1 -2 | 强制使用ssh1或ssh2 |
+        | -4 -6 | 强制使用ipv4或ipv6 |
+        | -C 大写 | 允许压缩Compress |
+        | -p | 保留源文件的属性（时间、权限）|
+        | -r | 递归复制 |
+        | -v | 经典verbose |
+        | -c 小写 | 数据加密cipher |
+        | -F ssh_config | 使用指定的ssh配置 |
+        | -P port | 特定端口，也可以直接ip:port |
+        | -l limit 小写的L | 指定带宽限制Kb/s |
     - 网络状态netstat
 1. 终端复用tmux
     1. 基本用法
@@ -571,14 +585,43 @@ math: true
         tmux new -s test
         # 进入名为test的tmux会话
         tmux attach -t test
+        
+        # 列出当前的所有tmux会话
+        tmux ls
+        # 或者
+        tmux list-session
+
         # 进入第一个会话（如果你只有一个的话这样更快）
         tmux a
         # 杀死名为test的会话
-        tmux kill -t test
+        tmux kill-session -t test
         # 杀死未处于使用状态（未attach）的所有会话
         tmux kill-session
+
+        # 重命名0号会话为zero
+        tmux rename-session -t 0 zero
+
+        # 加载tmux配置
+        tmux source-file xxx.tmux.conf
         ```
-    1. tmux内
+    1. tmux内：ctrl+b是所有快捷键的前置键，下面略去
+        | 会话内快捷键 | 含义 |
+        | --- | --- |
+        | s | 列出所有会话（可以借机跳转） |
+        | $ | 重命名当前会话 |
+        | % “ | 垂直、水平分割窗格 |
+        | ; o | 跳到上个、下个窗格 |
+        | { } | 和上个、下个窗格调换位置 |
+        | x | 关闭当前窗格 |
+        | ! | 将当前窗格提升为一个独立的窗口 |
+        | z | 当前窗格全屏 |
+        | q | 显示窗格编号（可以借机跳转） |
+        | c | 创建新窗口 |
+        | p n | 跳到上个、下个窗口 |
+        | 数字 | 跳到指定编号的窗口 |
+        | , | 窗口重命名 |
+    1. 不同版本的tmux在配置上会有一些区分，注意使用
+    1. 可以使用两个扩展：Tmux Resurrect（会话手动保存和恢复）、Tmux Continuum（会话定时保存和自动恢复）
 ## Shell编程
 1. 基本概念
     1. 生命周期
@@ -612,6 +655,11 @@ dd if=input.txt of=output.txt
 dd if=/dev/zero of=zero.bin count=1
 # 交换每两个相邻字节
 dd if=input.txt of=output.txt conv=swab
+```
+- 查看cpu信息
+```bash
+lscpu
+cat /proc/cpuinfo
 ```
 ## 一些建议
 1. 对于rm，可以替换为mv到临时文件夹，并定期清理，尽量避免使用rm，尤其禁止使用rm -rf

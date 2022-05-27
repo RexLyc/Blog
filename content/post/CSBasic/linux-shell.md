@@ -624,13 +624,36 @@ math: true
     1. 可以使用两个扩展：Tmux Resurrect（会话手动保存和恢复）、Tmux Continuum（会话定时保存和自动恢复）
 ## Shell编程
 1. 基本概念
-    1. 生命周期
-    1. 标准输入输出
-    1. 重定向
-    1. 管道
+    1. 什么是shell：shell是用户使用操作系统的主要方式。同时包含交互式命令行和脚本两种使用方式。目前linux环境下常用的有：sh(Bourne shell)、bash(bourne again shell)、csh、ksh、zsh。bash是最常见的shell环境，大多数情况下sh和bash等价。
+    > 脚本文件内部首行，可以使用#!/bin/xxsh来指定执行使用的shell
+    1. 生命周期：用户登陆后会运行在自己的用户shell中，每一次运行一个shell脚本程序，系统将创建一个子shell来执行。子shell单向继承父shell的环境变量（普通变量不继承）。环境变量由export进行导出。
+    > 只有以source执行的脚本，才会在当前shell内进行。
+    1. IO
+        1. 标准输入输出
+        1. 重定向
+        1. 管道
     1. 前后台
-    1. 系统变量
+    1. 常用环境变量
 1. 核心语法
+    1. 变量定义：英文、数字、下划线
+        ```bash
+        # 基本写法
+        name="first name"
+        # 赋值永远不要加$
+        name="second name"
+        # 语句赋值
+        for name in `ls *.log`
+        # 调用
+        echo $name
+        # 使用花括号标识边界
+        echo "file ${name}Log"
+        # 删除
+        unset name
+        # 标记为只读变量（不可删除）
+        readonly name
+        ```
+    1. 数据类型
+        - 字符串
 1. 经典例子
 1. Shell环境
     - .bashrc
@@ -638,6 +661,8 @@ math: true
 1. 启动环境
     - init.d
     - rcX.d
+1. 快捷用法
+    - 历史记录
 1. 参考：[Shell编程快速入门](https://www.runoob.com/w3cnote/shell-quick-start.html)
 ## 其他指令收集
 - 查看系统发行版：

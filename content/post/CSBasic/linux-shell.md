@@ -626,6 +626,7 @@ math: true
 1. 基本概念
     1. 什么是shell：shell是用户使用操作系统的主要方式。同时包含交互式命令行和脚本两种使用方式。目前linux环境下常用的有：sh(Bourne shell)、bash(bourne again shell)、csh、ksh、zsh。bash是最常见的shell环境，大多数情况下sh和bash等价。
     > 脚本文件内部首行，可以使用#!/bin/xxsh来指定执行使用的shell
+    1. 什么时候用shell：想编写运行在类linux系统上的辅助程序，而且最好别太复杂。实际上如果对perl、python非常熟悉，可以使用这些相对高级的语言代替。
     1. 生命周期：用户登陆后会运行在自己的用户shell中，每一次运行一个shell脚本程序，系统将创建一个子shell来执行。子shell单向继承父shell的环境变量（普通变量不继承）。环境变量由export进行导出。
     > 只有以source执行的脚本，才会在当前shell内进行。
     1. IO
@@ -637,7 +638,7 @@ math: true
 1. 核心语法
     1. 变量定义：英文、数字、下划线
         ```bash
-        # 基本写法
+        # 基本写法,等号左右不允许有空格
         name="first name"
         # 赋值永远不要加$
         name="second name"
@@ -653,7 +654,52 @@ math: true
         readonly name
         ```
     1. 数据类型
-        - 字符串
+        - 字符串：
+            ```bash
+            # 双引号：内部可用\\转义，可以使用$引用变量
+            my_str="233\t${name}"
+            # 单引号：内部所有的字符都以原样输出
+            my_str='233\t${name}'
+            # 两种引号都是前后直接拼接
+            my_str="233"${name}$"hello"
+            # 获取长度${#}，对字符串有效
+            echo ${#my_str}
+            # 子字符串提取方法，first:len
+            my_str=${my_str:1:4}
+            # 查找字符（注意是查找字符）,例如3和h，返回第一个出现的字符
+            # 返回值从1开始（代表下标0），如果未找到，返回0
+            expr index ${my_str} 3h
+            ```
+        - 数组：
+            ```bash
+            # 用括号定义，以空格分隔，数组下标从0开始
+            my_array=(1 2 3)
+            # 也可以单独定义，允许空洞
+            my_array[5]=6
+            # 类型多变
+            my_array2=(1 "23" ${my_array[@]})
+            # 引用
+            echo ${my_array[3]}
+            # 获取全部元素
+            echo ${my_array[@]}
+            # 获取总长度
+            echo ${#my_array[@]}
+            # 获取某个元素的长度
+            echo ${#my_array[2]}
+            ```
+    1. 参数：
+        - 内置参数：
+        | 参数写法 | 含义 |
+        | --- | --- |
+        | $# | 传递到脚本内的参数个数 |
+        | $* | 以一个单字符串显示所有向脚本传递的参数 |
+        | $$ | 脚本运行的当前进程ID号 |
+        | $! | 后台运行的最后一个进程号 |
+        | $@ | 逐个分别输出所有参数 |
+        | $- | 显示shell的当前选项（每个字符都是shell选项） |
+        | $? | 前一个任务的返回值 |
+        | !$ | 将前一个命令的**参数**传递给当前命令做**参数**（实用） |
+    1. 运算符：
 1. 经典例子
 1. Shell环境
     - .bashrc
@@ -661,9 +707,12 @@ math: true
 1. 启动环境
     - init.d
     - rcX.d
+1. 实用建议
+    1. 引用变量尽量用双引号包括
+    1. 不同shell并不完全相同（zsh和bash的起始数组下标就不同），编写时请注意尽量指定所用的shell
 1. 快捷用法
     - 历史记录
-1. 参考：[Shell编程快速入门](https://www.runoob.com/w3cnote/shell-quick-start.html)
+1. 参考：[Shell编程快速入门](https://www.runoob.com/w3cnote/shell-quick-start.html)、[shell部分经验](https://www.jb51.net/article/174033.htm)
 ## 其他指令收集
 - 查看系统发行版：
 ```bash

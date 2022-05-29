@@ -439,6 +439,26 @@ math: true
     ```
 - locate：相对较快的查询，但需要提前用updatedb构建数据库，但只能查询名字，一般需要单独安装
 ## 其他常用指令
+1. 输出
+    - echo
+        ```bash
+        # 普通字符串，可以不加双引号
+        echo 1 2 3
+        echo "1 2 3"
+        # 双引号内可以对双引号进行转义
+        echo "\"haha\""
+        # 选项-e，开启使用其他转义
+        echo -e "new line \n"
+        # 定向到文件（使用重定向时最好添加双引号以明确内容）
+        echo "hello world" > test.log
+        # 使用单引号时，字符串不做任何转义或变量引用
+        echo '$name\n'
+        ```
+    - printf
+        ```bash
+        # 模仿库函数用法即可
+        printf format-string params ...
+        ```
 1. 二进制查看hexdump
     | 参数 | 含义 |
     | --- | --- |
@@ -630,15 +650,31 @@ math: true
     1. 生命周期：用户登陆后会运行在自己的用户shell中，每一次运行一个shell脚本程序，系统将创建一个子shell来执行。子shell单向继承父shell的环境变量（普通变量不继承）。环境变量由export进行导出。
     > 只有以source执行的脚本，才会在当前shell内进行。
     1. IO
-        1. 标准输入输出
-        1. 重定向
-        1. 管道
+        1. 标准输入输出：键盘和显示器（当前终端）
+        1. 重定向：
+            ```bash
+            # > 重定向输出（覆盖）
+            echo "233" > log
+            # >> 重定向输出（追加）
+            echo "666" >> log
+            # < 重定向输入（本来等待键盘输入的，去读文件）
+            read a < log; echo $a
+            # 0标准输入、1标准输出，2标准错误文件
+            # 输出错误日志
+            command 2>log
+            # 合并1、2输出到日志，&1意为取标准输出
+            command > log 2>&1 # 2>&1 不能有空格
+            ```
+        1. 管道：通过符号 | 将前一个命令结果传送给下一个命令
     1. 前后台
-    1. 常用环境变量
+    1. 常用环境变量：PATH、CLASSPATH、JAVA_HOME等等
+        - /etc/profile：对所有用户永久生效
+        - ~/.bashrc：对单一用户永久生效
 1. 核心语法
     1. 变量定义：英文、数字、下划线
         ```bash
         # 基本写法,等号左右不允许有空格
+        # 实际上，空格会导致表达式被解析成命令+参数
         name="first name"
         # 赋值永远不要加$
         name="second name"
@@ -700,7 +736,133 @@ math: true
         | $? | 前一个任务的返回值 |
         | !$ | 将前一个命令的**参数**传递给当前命令做**参数**（实用） |
     1. 运算符：
+        - 算术运算：原生bash并不支持（注意只是算术运算不支持），需要通过expr、let或其他指令实现。此时表达式和运算符之间**必须有空格**。
+            ```bash
+            # + - * / %
+            # 由于*有通配符的含义，必须进行转义
+            expr $a + $b \* $c / $d % $e -$f
+            # 赋值
+            val=`expr $a + $b`
+            ```
+        - 关系运算符：==和!=支持字符串，其他运算符只支持数字，或者内容是数字的字符串
+            ```bash
+            # 必须用[]括起来，而且内部必须有空格
+            # ps:[]内叫做条件表达式
+            if [ $a == $b ]
+            then
+                echo "a==b"
+            fi
+            # 此外还有!= -eq -ne -gt -lt -ge -le
+            if [ $a -ge $b]
+            then
+                echo "a>=b"
+            fi
+            ```
+        - 逻辑运算符：&&和||，一样左右需要有空格
+        - 字符串运算符
+            | 运算符 | 含义 |
+            | --- | --- |
+            | = != | 检测字符串是否相等/不等（在条件表达式内=和==等价） |
+            | -z "$a" | 字符串a长度为0返回true |
+            | -n "$a" | 字符串a长度不为0返回true |
+            | $a | 字符串a内容不为空返回true，外侧不要加双引号 |
+        - 文件测试：操作文件是shell编程的主要用途
+            | 运算符 | 含义 |
+            | --- | --- |
+            | -b/-c/-d/-p file | 是否为块设备、字符设备、文件夹、命名管道 |
+            | -f file | 是否为普通文件 |
+            | -g/-u/-k file | 是否设置了SGID、SUID、Stiky位（详见文件系统章节） |
+            | -r/-w/-x file | 是否可读、写、运行 |
+            | -s file | 是否不为空 |
+            | -e file | 是否存在 |
+            > 实际上文件测试语义都包含了**是否存在**，但为了便于记忆和理解，还是建议写上-e
+    1. 流程控制
+        ```bash
+        # if
+        if condition1
+        then
+            command1
+        elif condition2
+        then
+            command2
+        else
+        then
+            command3
+        fi
+        # for和零散变量
+        for var in item1 item2 item3
+        do
+            commands
+        done
+        # for和数组
+        for var in $my_array
+        do
+            commands
+        done
+        # while
+        while condition
+        do
+            command
+        done
+        # 都可以写到一行
+        if xxx; then xxx; fi ; for xxx; do xxxx; done
+        # case，匹配成功后则结束，不进行后续的模式匹配
+        case $val in
+        pattern-1)
+            commands
+            ;; # 必须
+        pattern-2)
+            commands
+            ;;
+        *)
+            commands
+            ;;
+        esac
+        # break 和 continue与其他语言大不相同
+        break n # 跳出n层循环
+        break # 跳出所有循环
+        continue n # 跳出n层循环
+        continue # 跳出当前循环
+        ```
+    1. 函数
+        ```bash
+        # 定义
+        funcName ()
+        {
+            echo $*
+            echo $0
+            echo $1
+            # ...
+            echo ${10} # 获取第十个，必须加括号
+            # 不写return则默认返回最后一个语句的返回值
+        }
+        # 调用
+        funcName 1 2 3 4 5
+        ```
+    1. 调用外部脚本
+        ```bash
+        # other.sh内
+        echo "this is other"
+        # test.sh 内
+        # . other.sh
+        . other.sh
+        # source other.sh 也行
+        source other.sh
+        ```
 1. 经典例子
+    1. 输入输出
+        ```bash
+        echo '输入你的名字 <ctrl+c退出>'
+        while read name
+        do
+            echo 'welcome ' $name ' to the system'
+        done
+        ```
+    1. 希望在前台执行，但是希望命令闭嘴
+        ```bash
+        # /dev/null 黑洞
+        ping www.baidu.com > /dev/null
+        ```
 1. Shell环境
     - .bashrc
     - .bash_profile
@@ -712,7 +874,7 @@ math: true
     1. 不同shell并不完全相同（zsh和bash的起始数组下标就不同），编写时请注意尽量指定所用的shell
 1. 快捷用法
     - 历史记录
-1. 参考：[Shell编程快速入门](https://www.runoob.com/w3cnote/shell-quick-start.html)、[shell部分经验](https://www.jb51.net/article/174033.htm)
+1. 参考：[Shell编程快速入门](https://www.runoob.com/w3cnote/shell-quick-start.html)、[shell部分经验](https://www.jb51.net/article/174033.htm)、[linux命令大全](https://www.runoob.com/linux/linux-command-manual.html)
 ## 其他指令收集
 - 查看系统发行版：
 ```bash
@@ -735,5 +897,6 @@ dd if=input.txt of=output.txt conv=swab
 lscpu
 cat /proc/cpuinfo
 ```
+- 查看所有环境变量：env
 ## 一些建议
 1. 对于rm，可以替换为mv到临时文件夹，并定期清理，尽量避免使用rm，尤其禁止使用rm -rf

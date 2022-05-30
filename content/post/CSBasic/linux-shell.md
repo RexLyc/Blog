@@ -224,7 +224,7 @@ math: true
     - BEGIN块最先执行、END块最后执行，其他各块之间按顺序依次执行
     - action内容和脚本语言类似，有一套自己的语法
     - 注意使用**单引号**'，在单引号对儿内部，仍然可以使用双引号对儿""代表内部是字符串
-- pattern语法（正则表达式）
+- pattern语法（正则表达式[Wiki](https://en.wikipedia.org/wiki/Regular_expression)）
     | 符号 | 描述 |
     | --- | --- |
     | ^$ | 行首尾定位符 |
@@ -238,6 +238,7 @@ math: true
     | \| | 或，用于组合多种匹配情况 |
     | \\ | 转义 |
     | x{m[,[,n]]} | 匹配$m$、$[m,+\infty]$、$[m,n]$次（需awk版本支持） |
+    | [:lower:] | 任意小写字母，参考[POSIX字符组](https://blog.csdn.net/shangboerds/article/details/7555332) |
     > 注意只要正则表达式能成立（能匹配到该行的部分或全部字符），则会执行后续动作，即使匹配空。这点在使用*且不指定边界时应当尤其注意。
 - action语法
     - 运算符：
@@ -373,16 +374,230 @@ math: true
         ```
 - 参考：[shell脚本-sed的用法](https://blog.csdn.net/wdz306ling/article/details/80087889)、[sed详解](https://blog.csdn.net/w757052816/article/details/119874525)
 ### grep
-- 三剑客之三
-### find & locate：
-## 其他常用指令
-1. 网络工具集合
+- 三剑客之三：强大的文本搜索工具，家族成员包括grep、egrep、fgrep，后两者只是前者的一种扩展。
+    - 匹配指定文件中的各行，默认打印匹配成功的行
+    - 默认使用基础正则表达式
+- 基本语法
     ```bash
-    # 嗅探指定端口
-    nmap ip -p port
-    # 嗅探全部端口
-    nmap ip
+    # 输入匹配用的正则表达式，以及待匹配的输入文件
+    grep expression files
     ```
+- 常用参数
+    | 参数 | 意义 |
+    | --- | --- |
+    | -a | 对二进制文件依然尝试匹配 |
+    | -c | 统计匹配成功的行数总和 |
+    | -A n | 显示匹配行和之后的n行 |
+    | -B n | 显示匹配行和之前的n行 |
+    | -C n | 显示匹配行前后各n行 |
+    | -e expression | 指定使用的匹配字符串 |
+    | -E | 扩展正则模式(和基础正则相比，转义的含义恰好相反) |
+    | -f files | 指定基础正则表达式所在文件，一行一个 |
+    | -F | 将表达式视为普通字符串，进行朴素模式匹配 |
+    | -H | 在打印匹配行前，额外显示匹配行所在文件 |
+    | -i | 忽略大小写 |
+    | -l（小写的L） | 不打印匹配行，只列出匹配成功的文件名 |
+    | -L | 列出无法匹配的文件名 |
+    | -n | 列出行号 |
+    | -d read/skip/recurse | 输入文件含有目录时，处理该目录/跳过/递归处理该目录 |
+- 用例
+    ```bash
+    # 在test.txt中查找hello
+    grep hello test.txt
+    # 使用基础正则查找hellohello
+    grep "\(hello\)\{2\}" test.txt
+    # 使用扩展正则
+    grep -E "(hello){2}" test.txt
+    # 递归查找当前目录下文件，扩展正则匹配
+    grep -d recurse -E "(hello){2}" ./
+    ```
+- 参考：[grep 命令](https://www.runoob.com/linux/linux-comm-grep.html)
+### find & locate：
+- find：相对较慢的通用查询方式，但可以指定不同属性查找文件，属性包括：名称、文件类型、文件大小、文件归属、文件权限、文件时间等等
+    ```bash
+    # 基本语法
+    # 指定路径在前（默认从当前位置开始），指定搜索内容在后
+    find path expression -option [-print] [-exec -ok command {} \;]
+    # 查找指定名称的目录
+    find ./ -type d -name Projects
+    # 使用通配符
+    find ./ -name "*.log"
+    # 查找指定777权限
+    find ./ -perm 777
+    # 查找空目录
+    find ./ -type d -empty
+    # 查找空文件
+    find ./ -type f -empty
+    # 查找用户为root的文件
+    find / -user root
+    # 查找属组是root的文件
+    find / -group root
+    # 查找大小在30M到100M的文件
+    find ./ -size +30M -size -100M -type f
+    # 查找777权限，打印并改为700，结尾{} \;是必需的
+    find ./ -perm 777 -print -exec {} \;
+    ```
+- locate：相对较快的查询，但需要提前用updatedb构建数据库，但只能查询名字，一般需要单独安装
+## 其他常用指令
+1. 输出
+    - echo
+        ```bash
+        # 普通字符串，可以不加双引号
+        echo 1 2 3
+        echo "1 2 3"
+        # 双引号内可以对双引号进行转义
+        echo "\"haha\""
+        # 选项-e，开启使用其他转义
+        echo -e "new line \n"
+        # 定向到文件（使用重定向时最好添加双引号以明确内容）
+        echo "hello world" > test.log
+        # 使用单引号时，字符串不做任何转义或变量引用
+        echo '$name\n'
+        ```
+    - printf
+        ```bash
+        # 模仿库函数用法即可
+        printf format-string params ...
+        ```
+1. 二进制查看hexdump
+    | 参数 | 含义 |
+    | --- | --- |
+    | -n length | 显示前length个字节 |
+    | -C | 单字节十六进制和ascii |
+    | -c | ascii |
+    | -d | 双字节十进制 |
+    | -x | 双字节十六进制 |
+    | -s pos | 偏移pos个字节开始输出 |
+    | -e '"format" a/b "format1 "format2"' | 以指定输出格式打印[具体参考](https://blog.csdn.net/zsj1126/article/details/105770068/) |
+1. 压缩tar：
+    | 参数 | 含义 |
+    | --- | --- |
+    | -c | 创建新的tar包 |
+    | -x | 解tar包 |
+    | -t | 列出tar包内容列表 |
+    | -r | 附加新的文件到tar |
+    | -v -vv | 打包、解包时显示文件名、显示文件全部属性 |
+    | -k | 保留旧文件不覆盖 |
+    | -z -Z -j | 调用gzip、compress、bzip2进行解压缩 |
+    | -f file | 从file解包，或打包成file |
+    | -C path | 解包到指定路径 |
+    - 示例：
+        ```bash
+        # 将当前目录下所有文件打入package包
+        tar -czvf package.tar.gz ./*
+        # 解压到/tmp
+        tar -zxvf package.tar.gz -C /tmp/
+        ```
+1. 用户管理useradd、groupadd、userdel、groupdel、usermod、groupmod、groups、id
+    - 这些命令主要对/etc/passwd、/etc/shadow、/etc/group三个文件进行维护，[字段含义参考](http://www.javashuo.com/article/p-mwuizuri-pq.html)
+    ```bash
+    # 创建用户liyicheng，并设定：登陆位置/tmp，主属组lyc
+    # 附加属组ubuntu，home下不创建用户目录（-M），不创建同名用户组（-N）
+    useradd -d /tmp/ -g lyc -G ubuntu -M -N liyicheng
+    # 修改用户liyicheng：主属组为ubuntu，增加（-a）附加属组mysql
+    # 改名为liyicheng2，改登录shell为zsh
+    usermod liyicheng -g ubuntu -G mysql -a -l liyicheng2 -s /usr/bin/zsh
+    # 删除用户在passwd、group、shadow、gshadow中的内容，并删除其主目录下文件
+    userdel -r liyicheng
+    # 查看属组
+    groups liyicheng
+    # 查看uid、gid等
+    id liyicheng
+    # 添加普通用户组（添加-r则为系统用户组）
+    groupadd li
+    # 删除用户组（此时要求没有以li为主用户组的用户）
+    groupdel li
+    # 修改用户组li的gid为2333，名字为newli
+    # groupmod 改组名和gid都容易会引起混乱，慎用
+    groupmod -g 2333 -n newli li
+    ```
+1. 权限管理chmod、chown
+    ```bash
+    # 递归修改当前路径以下的文件、符号链接的用户为liyicheng，属组为li
+    # 注：-L 不修改所有的符号链接（软链接），-H不修改目录的符号链接
+    chown -R liyicheng:li ./*
+    # -c打印修改、-f屏蔽错误信息、-v为verbose、-R递归处理
+    # ugoa分别是用户、同组、其他、所有人
+    # rwx读写运行，Xst
+    # 注：chmod永远不会修改符号链接的权限
+    chmod [-cfvR] [ugoa...][[+-=][rwxXst]...][,...] file
+    ```
+1. 统计
+    - wc：从文件&标准输入，默认分别统计并打印行数(-l)、单词数(-w)，byte数(-c)
+1. 系统状态
+    - top、htop：查看系统综合信息和各进程
+    - free：查看内存信息
+    - df：查看磁盘使用情况
+    - du：查看文件的大小（默认只显示目录的占用大小）
+        | 参数 | 含义 |
+        | --- | --- |
+        | -a | 显示所有文件（含目录） |
+        | -b | 显示文件实际大小，单位byte |
+        | -c | 统计大小之和 |
+        | -d n | 只显示到第n层（n层以下只统计，不详细列出） |
+        | --inodes | 显示inode信息 |
+        | -s | 只列出整体结果 |
+        | -X file | 去除指定文件不计入统计 |
+        | --exclude=pattern | 去除匹配不计入统计（使用通配符?和*，非正则表达式） |
+1. 进程管理ps、kill
+    - ps常用参数
+    | 参数 | 含义 |
+    | --- | --- |
+    | -e | 查看系统全部进程 |
+    | -a | 查看系统全部进程（session leader和未关联终端的进程除外）|
+    | -d | 查看系统全部进程（session leader除外）|
+    | -f | 展示进程全部信息 |
+    | -j | 以任务形式展示 |
+    | -l | 小写L，长展示格式 |
+    | -H | 以进程树格式展示 |
+    | -pid | 查看给定pid的进程 |
+    | -C cmdlist | 查询运行指定程序的进程，cmdlist形如"zsh ps" |
+    | --sort=spec | 以spec指定的列排序，正负号代表升降序（如uid,-ppid,+pid） |
+    | -u userlist | 查看指定用户的进程 |
+1. 文件查看cat、more、less、tail、head、sort
+    - sort是按行排序
+    - cat、more、less、tail、head都是查看用的，这里略去基本用法，展示一些额外实用的用法
+    ```bash
+    # 合并文件
+    cat 1.txt 2.txt > 1and2.txt
+    # 显示百分比、当前页行数范围、总行数，按顺序查看多个文件
+    # :n 下一个文件，:p 上一个文件
+    less -N -M *.log
+    # 头部10行
+    head -n 10 test.log
+    # 头部10个字节
+    head -c 10 test.log
+    ```
+1. 链接ln
+    ```bash
+    # 和cp、mv等类似，都是源文件在前
+    ln [options] source linkfile
+    # 创建软链接（默认硬链接）
+    ln -s boot.log boot-link.log
+    ```
+1. 网络工具集合
+    - 嗅探nmap
+        ```bash
+        # 嗅探指定端口
+        nmap ip -p port
+        # 嗅探全部端口
+        nmap ip
+        ```
+    - ssh详见ssh章节
+    - 网络传输scp（基于ssh的cp）
+        | 参数 | 含义 |
+        | --- | --- |
+        | -1 -2 | 强制使用ssh1或ssh2 |
+        | -4 -6 | 强制使用ipv4或ipv6 |
+        | -C 大写 | 允许压缩Compress |
+        | -p | 保留源文件的属性（时间、权限）|
+        | -r | 递归复制 |
+        | -v | 经典verbose |
+        | -c 小写 | 数据加密cipher |
+        | -F ssh_config | 使用指定的ssh配置 |
+        | -P port | 特定端口，也可以直接ip:port |
+        | -l limit 小写的L | 指定带宽限制Kb/s |
+    - 网络状态netstat
 1. 终端复用tmux
     1. 基本用法
         ```bash
@@ -390,29 +605,289 @@ math: true
         tmux new -s test
         # 进入名为test的tmux会话
         tmux attach -t test
+        
+        # 列出当前的所有tmux会话
+        tmux ls
+        # 或者
+        tmux list-session
+
         # 进入第一个会话（如果你只有一个的话这样更快）
         tmux a
         # 杀死名为test的会话
-        tmux kill -t test
+        tmux kill-session -t test
         # 杀死未处于使用状态（未attach）的所有会话
         tmux kill-session
+
+        # 重命名0号会话为zero
+        tmux rename-session -t 0 zero
+
+        # 加载tmux配置
+        tmux source-file xxx.tmux.conf
         ```
-    1. tmux内
+    1. tmux内：ctrl+b是所有快捷键的前置键，下面略去
+        | 会话内快捷键 | 含义 |
+        | --- | --- |
+        | s | 列出所有会话（可以借机跳转） |
+        | $ | 重命名当前会话 |
+        | % “ | 垂直、水平分割窗格 |
+        | ; o | 跳到上个、下个窗格 |
+        | { } | 和上个、下个窗格调换位置 |
+        | x | 关闭当前窗格 |
+        | ! | 将当前窗格提升为一个独立的窗口 |
+        | z | 当前窗格全屏 |
+        | q | 显示窗格编号（可以借机跳转） |
+        | c | 创建新窗口 |
+        | p n | 跳到上个、下个窗口 |
+        | 数字 | 跳到指定编号的窗口 |
+        | , | 窗口重命名 |
+    1. 不同版本的tmux在配置上会有一些区分，注意使用
+    1. 可以使用两个扩展：Tmux Resurrect（会话手动保存和恢复）、Tmux Continuum（会话定时保存和自动恢复）
 ## Shell编程
 1. 基本概念
-    1. 标准输入输出
-    1. 重定向
-    1. 管道
+    1. 什么是shell：shell是用户使用操作系统的主要方式。同时包含交互式命令行和脚本两种使用方式。目前linux环境下常用的有：sh(Bourne shell)、bash(bourne again shell)、csh、ksh、zsh。bash是最常见的shell环境，大多数情况下sh和bash等价。
+    > 脚本文件内部首行，可以使用#!/bin/xxsh来指定执行使用的shell
+    1. 什么时候用shell：想编写运行在类linux系统上的辅助程序，而且最好别太复杂。实际上如果对perl、python非常熟悉，可以使用这些相对高级的语言代替。
+    1. 生命周期：用户登陆后会运行在自己的用户shell中，每一次运行一个shell脚本程序，系统将创建一个子shell来执行。子shell单向继承父shell的环境变量（普通变量不继承）。环境变量由export进行导出。
+    > 只有以source执行的脚本，才会在当前shell内进行。
+    1. IO
+        1. 标准输入输出：键盘和显示器（当前终端）
+        1. 重定向：
+            ```bash
+            # > 重定向输出（覆盖）
+            echo "233" > log
+            # >> 重定向输出（追加）
+            echo "666" >> log
+            # < 重定向输入（本来等待键盘输入的，去读文件）
+            read a < log; echo $a
+            # 0标准输入、1标准输出，2标准错误文件
+            # 输出错误日志
+            command 2>log
+            # 合并1、2输出到日志，&1意为取标准输出
+            command > log 2>&1 # 2>&1 不能有空格
+            ```
+        1. 管道：通过符号 | 将前一个命令结果传送给下一个命令
     1. 前后台
-    1. 系统变量
+    1. 常用环境变量：PATH、CLASSPATH、JAVA_HOME等等
+        - /etc/profile：对所有用户永久生效
+        - ~/.bashrc：对单一用户永久生效
 1. 核心语法
+    1. 变量定义：英文、数字、下划线
+        ```bash
+        # 基本写法,等号左右不允许有空格
+        # 实际上，空格会导致表达式被解析成命令+参数
+        name="first name"
+        # 赋值永远不要加$
+        name="second name"
+        # 语句赋值
+        for name in `ls *.log`
+        # 调用
+        echo $name
+        # 使用花括号标识边界
+        echo "file ${name}Log"
+        # 删除
+        unset name
+        # 标记为只读变量（不可删除）
+        readonly name
+        ```
+    1. 数据类型
+        - 字符串：
+            ```bash
+            # 双引号：内部可用\\转义，可以使用$引用变量
+            my_str="233\t${name}"
+            # 单引号：内部所有的字符都以原样输出
+            my_str='233\t${name}'
+            # 两种引号都是前后直接拼接
+            my_str="233"${name}$"hello"
+            # 获取长度${#}，对字符串有效
+            echo ${#my_str}
+            # 子字符串提取方法，first:len
+            my_str=${my_str:1:4}
+            # 查找字符（注意是查找字符）,例如3和h，返回第一个出现的字符
+            # 返回值从1开始（代表下标0），如果未找到，返回0
+            expr index ${my_str} 3h
+            ```
+        - 数组：
+            ```bash
+            # 用括号定义，以空格分隔，数组下标从0开始
+            my_array=(1 2 3)
+            # 也可以单独定义，允许空洞
+            my_array[5]=6
+            # 类型多变
+            my_array2=(1 "23" ${my_array[@]})
+            # 引用
+            echo ${my_array[3]}
+            # 获取全部元素
+            echo ${my_array[@]}
+            # 获取总长度
+            echo ${#my_array[@]}
+            # 获取某个元素的长度
+            echo ${#my_array[2]}
+            ```
+    1. 参数：
+        - 内置参数：
+        | 参数写法 | 含义 |
+        | --- | --- |
+        | $# | 传递到脚本内的参数个数 |
+        | $* | 以一个单字符串显示所有向脚本传递的参数 |
+        | $$ | 脚本运行的当前进程ID号 |
+        | $! | 后台运行的最后一个进程号 |
+        | $@ | 逐个分别输出所有参数 |
+        | $- | 显示shell的当前选项（每个字符都是shell选项） |
+        | $? | 前一个任务的返回值 |
+        | !$ | 将前一个命令的**参数**传递给当前命令做**参数**（实用） |
+    1. 运算符：
+        - 算术运算：原生bash并不支持（注意只是算术运算不支持），需要通过expr、let或其他指令实现。此时表达式和运算符之间**必须有空格**。
+            ```bash
+            # + - * / %
+            # 由于*有通配符的含义，必须进行转义
+            expr $a + $b \* $c / $d % $e -$f
+            # 赋值
+            val=`expr $a + $b`
+            ```
+        - 关系运算符：==和!=支持字符串，其他运算符只支持数字，或者内容是数字的字符串
+            ```bash
+            # 必须用[]括起来，而且内部必须有空格
+            # ps:[]内叫做条件表达式
+            if [ $a == $b ]
+            then
+                echo "a==b"
+            fi
+            # 此外还有!= -eq -ne -gt -lt -ge -le
+            if [ $a -ge $b]
+            then
+                echo "a>=b"
+            fi
+            ```
+        - 逻辑运算符：&&和||，一样左右需要有空格
+        - 字符串运算符
+            | 运算符 | 含义 |
+            | --- | --- |
+            | = != | 检测字符串是否相等/不等（在条件表达式内=和==等价） |
+            | -z "$a" | 字符串a长度为0返回true |
+            | -n "$a" | 字符串a长度不为0返回true |
+            | $a | 字符串a内容不为空返回true，外侧不要加双引号 |
+        - 文件测试：操作文件是shell编程的主要用途
+            | 运算符 | 含义 |
+            | --- | --- |
+            | -b/-c/-d/-p file | 是否为块设备、字符设备、文件夹、命名管道 |
+            | -f file | 是否为普通文件 |
+            | -g/-u/-k file | 是否设置了SGID、SUID、Stiky位（详见文件系统章节） |
+            | -r/-w/-x file | 是否可读、写、运行 |
+            | -s file | 是否不为空 |
+            | -e file | 是否存在 |
+            > 实际上文件测试语义都包含了**是否存在**，但为了便于记忆和理解，还是建议写上-e
+    1. 流程控制
+        ```bash
+        # if
+        if condition1
+        then
+            command1
+        elif condition2
+        then
+            command2
+        else
+        then
+            command3
+        fi
+        # for和零散变量
+        for var in item1 item2 item3
+        do
+            commands
+        done
+        # for和数组
+        for var in $my_array
+        do
+            commands
+        done
+        # while
+        while condition
+        do
+            command
+        done
+        # 都可以写到一行
+        if xxx; then xxx; fi ; for xxx; do xxxx; done
+        # case，匹配成功后则结束，不进行后续的模式匹配
+        case $val in
+        pattern-1)
+            commands
+            ;; # 必须
+        pattern-2)
+            commands
+            ;;
+        *)
+            commands
+            ;;
+        esac
+        # break 和 continue与其他语言大不相同
+        break n # 跳出n层循环
+        break # 跳出所有循环
+        continue n # 跳出n层循环
+        continue # 跳出当前循环
+        ```
+    1. 函数
+        ```bash
+        # 定义
+        funcName ()
+        {
+            echo $*
+            echo $0
+            echo $1
+            # ...
+            echo ${10} # 获取第十个，必须加括号
+            # 不写return则默认返回最后一个语句的返回值
+        }
+        # 调用
+        funcName 1 2 3 4 5
+        ```
+    1. 调用外部脚本
+        ```bash
+        # other.sh内
+        echo "this is other"
+        # test.sh 内
+        # . other.sh
+        . other.sh
+        # source other.sh 也行
+        source other.sh
+        ```
 1. 经典例子
+    1. 输入输出
+        ```bash
+        echo '输入你的名字 <ctrl+c退出>'
+        while read name
+        do
+            echo 'welcome ' $name ' to the system'
+        done
+        ```
+    1. 希望在前台执行，但是希望命令闭嘴
+        ```bash
+        # /dev/null 黑洞
+        ping www.baidu.com > /dev/null
+        ```
 1. Shell环境
-    - .bashrc
-    - .bash_profile
-1. 启动环境
-    - init.d
-    - rcX.d
+    - 交互式shell和非交互式shell：字面就能理解，等待键盘输入的是交互式，在后台默默运行的是非交互式
+    - 登录式shell和非登录式shell：需要用户输入用户名密码才能开始使用的是登录式shell，而类似任务自动化执行的都是非登录式shell（非登录不代表没有用户）
+        - 登录式shell一般会读取的配置和顺序：/etc/profile(内部按顺序加载/etc/bash.bashrc，/etc/profile.d/*.sh)，~/.bashrc（内部会加载/etc/bashrc等）。如果使用了zsh，则相应换为~/.zshrc
+        - 非登录式shell一般会读取的配置和顺序：~/.bashrc，/etc/profile。
+    > 常见的登录式shell：ssh、从tty登录；非登录式shell：从图形界面的终端打开的命令行，自动执行的shell。
+1. 几种自启动脚本写法
+    - upstart风格（略）
+    - init风格（pid=1是init）
+        - init.d：经典的init风格的启动方式，较老的系统
+        - rcX.d：X是运行级别，其内脚本会按顺序分别执行
+        - rc.local：最后一个执行的脚本（end of each multiuser runlevel），可在其内撰写脚本，该脚本执行完毕之后就是登录了。
+    - sysV风格(最为广泛使用，仍然是init的一种，pid=1是init)
+        - /etc/rc.d/init.d
+    - systemd风格（pid=1是systemd了，注意仍然可能使用软链接/sbin/init->/lib/systemd/systemd）
+        - /etc/systemd/system：编写.service文件
+        - 为了兼容，仍然会以某种形式保留init风格的一些服务
+    - crontab：定时任务，其中也有启动时运行的方法，弊端是无法确定系统的启动情况（比如网络是否已经连接）。编写后需要启动定时服务。
+    > 建议同时学习关于linux启动部分，init和systemd。
+1. 实用建议
+    1. 引用变量尽量用双引号包括
+    1. 不同shell并不完全相同（zsh和bash的起始数组下标就不同），编写时请注意尽量指定所用的shell
+1. 快捷用法
+    - 历史记录
+1. 参考：[Shell编程快速入门](https://www.runoob.com/w3cnote/shell-quick-start.html)、[shell部分经验](https://www.jb51.net/article/174033.htm)、[linux命令大全](https://www.runoob.com/linux/linux-command-manual.html)、[Linux系统下如何设置开机自动运行脚本？](https://baijiahao.baidu.com/s?id=1722174560616569543&wfr=spider&for=pc)
 ## 其他指令收集
 - 查看系统发行版：
 ```bash
@@ -421,3 +896,20 @@ cat /etc/os-release
 # Ubuntu系
 cat /etc/issue
 ```
+- 拷贝、转换文件dd：
+```bash
+# 从输入拷贝到输出
+dd if=input.txt of=output.txt
+# 拷贝512字节的0
+dd if=/dev/zero of=zero.bin count=1
+# 交换每两个相邻字节
+dd if=input.txt of=output.txt conv=swab
+```
+- 查看cpu信息
+```bash
+lscpu
+cat /proc/cpuinfo
+```
+- 查看所有环境变量：env
+## 一些建议
+1. 对于rm，可以替换为mv到临时文件夹，并定期清理，尽量避免使用rm，尤其禁止使用rm -rf

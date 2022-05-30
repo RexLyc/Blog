@@ -19,7 +19,7 @@ draft: true
 1. jmeter-all-in-one - 2h(稍加补充)
 1. ibmmq-all-in-one - 2h(稍加补充)
 1. linux-file - 30h
-1. linux-system-run - 16h
+1. linux-system-run - 16h https://www.liuvv.com/p/c9c96ac3.html https://blog.csdn.net/lina_acm/article/details/79767414
 1. linux-process - 30h
 1. spring2 - 8h(稍加补充)
 1. cicd-jenkins - 2h(稍加补充，后续可以更新不同项目的一些build的坑)

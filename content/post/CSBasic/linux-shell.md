@@ -864,17 +864,30 @@ math: true
         ping www.baidu.com > /dev/null
         ```
 1. Shell环境
-    - .bashrc
-    - .bash_profile
-1. 启动环境
-    - init.d
-    - rcX.d
+    - 交互式shell和非交互式shell：字面就能理解，等待键盘输入的是交互式，在后台默默运行的是非交互式
+    - 登录式shell和非登录式shell：需要用户输入用户名密码才能开始使用的是登录式shell，而类似任务自动化执行的都是非登录式shell（非登录不代表没有用户）
+        - 登录式shell一般会读取的配置和顺序：/etc/profile(内部按顺序加载/etc/bash.bashrc，/etc/profile.d/*.sh)，~/.bashrc（内部会加载/etc/bashrc等）。如果使用了zsh，则相应换为~/.zshrc
+        - 非登录式shell一般会读取的配置和顺序：~/.bashrc，/etc/profile。
+    > 常见的登录式shell：ssh、从tty登录；非登录式shell：从图形界面的终端打开的命令行，自动执行的shell。
+1. 几种自启动脚本写法
+    - upstart风格（略）
+    - init风格（pid=1是init）
+        - init.d：经典的init风格的启动方式，较老的系统
+        - rcX.d：X是运行级别，其内脚本会按顺序分别执行
+        - rc.local：最后一个执行的脚本（end of each multiuser runlevel），可在其内撰写脚本，该脚本执行完毕之后就是登录了。
+    - sysV风格(最为广泛使用，仍然是init的一种，pid=1是init)
+        - /etc/rc.d/init.d
+    - systemd风格（pid=1是systemd了，注意仍然可能使用软链接/sbin/init->/lib/systemd/systemd）
+        - /etc/systemd/system：编写.service文件
+        - 为了兼容，仍然会以某种形式保留init风格的一些服务
+    - crontab：定时任务，其中也有启动时运行的方法，弊端是无法确定系统的启动情况（比如网络是否已经连接）。编写后需要启动定时服务。
+    > 建议同时学习关于linux启动部分，init和systemd。
 1. 实用建议
     1. 引用变量尽量用双引号包括
     1. 不同shell并不完全相同（zsh和bash的起始数组下标就不同），编写时请注意尽量指定所用的shell
 1. 快捷用法
     - 历史记录
-1. 参考：[Shell编程快速入门](https://www.runoob.com/w3cnote/shell-quick-start.html)、[shell部分经验](https://www.jb51.net/article/174033.htm)、[linux命令大全](https://www.runoob.com/linux/linux-command-manual.html)
+1. 参考：[Shell编程快速入门](https://www.runoob.com/w3cnote/shell-quick-start.html)、[shell部分经验](https://www.jb51.net/article/174033.htm)、[linux命令大全](https://www.runoob.com/linux/linux-command-manual.html)、[Linux系统下如何设置开机自动运行脚本？](https://baijiahao.baidu.com/s?id=1722174560616569543&wfr=spider&for=pc)
 ## 其他指令收集
 - 查看系统发行版：
 ```bash

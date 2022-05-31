@@ -10,8 +10,9 @@ draft: true
 这里是一些更新计划，没事记得看看。。。你欠了好多进度了
 <!--more-->
 ## 博文更新路线：
-1. linux-shell - 8h
+~~1. linux-shell - 8h~~
 1. spring1 - 8h
+    java annotation：
 1. design-pattern-init - 16h(各种模式找一个样例代码)
 1. git - 4h
 1. cpp-compile - 24h
@@ -34,6 +35,11 @@ draft: true
 1. redis-single - 8h
 1. WebLab-init - 30h(快点做完吧球球了)
 1. algo1 - 4h(重看一遍视频，把这部分博客补了)
+1. java-构建（maven、gradle）
+    maven 常见的几个解决办法：
+    1. 仍然使用自带maven（有的时候用自己下载的高版本maven就是有问题）
+    1. 使用解决冲突的一个插件，一般来说是exclude一些不要的包
+    
 
 - 合计：270h，预计需花费90天
 

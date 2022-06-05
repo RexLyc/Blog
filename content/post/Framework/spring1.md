@@ -69,30 +69,45 @@ Spring Bean是被Spring实例化、组装并由Spring容器管理的Java对象�
     - 作为显式装配的必要注解，对一个返回Bean的工厂函数进行注解。
     - 工厂函数可以拥有参数，参数内容将会自动注入（隐含@Autowired）
         - 可以搭配@Primary、@Qualifier区分自动注入的Bean来源
-4. @Autowired
+1. @Autowired
     - 在bean实例化过程，属性注入时会将需要的bean注入。
     - 关键函数：buildAutowiringMetadata。
 > 注解和注解处理器的代码都可以直接阅读，如果不理解了，网上搜不到好的，不妨直接去对应的包下面找一找。或者通过调试，跟踪注解的启动流程（仅限RUNTIME类型）。
 ## 一个bean的典型生命周期
+1. 大的阶段就四个：实例化、填充属性、初始化、销毁。此外还有一个加载过程，虽然不属于生命周期，但也很重要。
+1. 加载
+    1. 通过BeanDefinitionReader加载Bean定义，整理为BeanDefinition
+    1. Bean注册到BeanDefinitionRegistry
+    1. 注册后置增强器（BeanFactoryPostProcessor，可能有多个）等附属步骤
+    1. BeanDefinition合并阶段，自子向父合并一个Bean的内部的属性
 1. 实例化（instantiation）
-2. 填充属性（Populate）
-3. 初始化（Initialization）
-    1. 调用setBeanName方法【可选，需要实现BeanNameAware接口】
-    2. 调用setBeanFactory方法【可选，需要实现BeanFactoryAware接口】
-    3. 调用setApplictionContext方法【可选，需要实现ApplicationContextAware接口】
-    4. 调用预初始化方法【可选，需要实现BeanPostProcessor接口】
-    5. 调用afterPropertiesSet方法【可选，需要实现InitializingBean接口，或在用xml等方式装配时指定了初始化方法】
-    6. 调用自定义初始化方法
-    7. 调用初始化后方法【可选，需要实现BeanPostProcessor接口】
-4. bean开始使用
-5. 销毁（Destruction）
-    1. 容器关闭后：调用destroy方法【可选，需要实现DisposableBean接口，或在用xml等方式装配时制定了销毁方法】
-    2. 调用自定义销毁方法
+    1. 实例化过程前置处理
+    1. 实例化：通过反射进行。（思考为什么不能用new？动态编译问题、private属性问题）
+    1. 实例化过程后置处理
+    1. 属性修改：可对属性值进行添加、修改、删除。（此时的属性值还未被填充到具体实例）
+1. 填充属性（Populate）
+    1. 用户属性赋值
+    1. 容器属性赋值（执行实现了Aware接口的对应方法）
+1. 初始化（Initialization）
+    1. Bean Aware接口回调阶段，如
+        1. 调用setBeanName方法【需要实现BeanNameAware接口】
+        1. 调用setBeanFactory方法【需要实现BeanFactoryAware接口】
+        1. 调用setApplictionContext方法【需要实现ApplicationContextAware接口】
+    1. 调用初始化前置方法【需要实现BeanPostProcessor接口】
+    1. 初始化：三种方式，注解@PostConstruct、调用afterPropertiesSet方法（实现InitializingBean接口）、定义时指明@Bean(initMethod="")
+    1. 调用初始化后置方法【需要实现BeanPostProcessor接口】
+1. bean开始使用
+1. 销毁（Destruction）
+    1. 调用注解方法，@PreDestroy
+    1. 容器关闭后：调用destroy方法【需要实现DisposableBean接口，或在用xml等方式装配时制定了销毁方法】
+    1. 调用自定义销毁方法，定义于@Bean(destroyMethod="")
+    1. 如果是非单例模式，bean将跳过上述步骤，返回给用户处理
 > 分清楚初始化方法和构造函数的区别，构造函数和构造块会在实例化阶段被调用。
-
+> 由于目前推荐使用基于注解的Bean方式，所以大部分相关接口的实现都是以注解（Annotation）或类似开头，如AnnotatedBeanDefinitionReader，AnnotationConfigApplicationContext。
 ## 代码示例
 ```Java
-//在使用处Autowired就能看到效果
+// 在使用处Autowired就能看到效果
+// 可以实现各种接口查看构造阶段、销毁阶段的顺序
 @Component
 public class PojoTest implements BeanFactoryAware {
     private BeanFactory myBeanFactory;
@@ -113,5 +128,12 @@ public class PojoTest implements BeanFactoryAware {
 }
 ```
 
+## 扩展点
+1. 注意到其实在整个流程中，对于Spring框架的使用者来说。最有用的就是各种前置、后置处理器，Pre&PostProcessor。可以根据需求，在自己的程序中合理使用、扩展这些处理器。
+
 ## 参考资料
-[史上最通俗易懂的ASM教程 知乎](https://zhuanlan.zhihu.com/p/94498015?utm_source=wechat_timeline)
+- [史上最通俗易懂的ASM教程 知乎](https://zhuanlan.zhihu.com/p/94498015?utm_source=wechat_timeline)
+- [可以硬刚面试官的：Spring IOC详解 以及 Bean生命周期详细过程](https://baijiahao.baidu.com/s?id=1700981758220165177&wfr=spider&for=pc)
+- [Spring Bean生命周期doCreateBean源码阅读](https://blog.csdn.net/weixin_42955916/article/details/117824749?spm=1001.2101.3001.6661.1&utm_medium=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-1-117824749-blog-109271899.pc_relevant_default&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-1-117824749-blog-109271899.pc_relevant_default&utm_relevant_index=1)
+- [Spring | 深入理解Bean的生命周期](https://blog.csdn.net/weixin_42886699/article/details/122693816)
+- [Spring bean 生命周期详解](https://blog.csdn.net/weixin_44145478/article/details/120217272)

@@ -33,8 +33,74 @@ thumbnailImage: images/thumbnail/design-pattern.svg
 ### 创建型
 > 如何更优雅的创建对象
 - 单例模式（Singleton）：一个类型在程序生命周期内只有一个实例
-- 抽象工厂（Abstract Factory）：提供一个接口用于创建相关对象的工厂，是工厂的工厂
-- 工厂方法（Factory）：提供创建实例的接口，由具体的子类工厂决定具体实例化的类型
+- 工厂方法（Factory）：提供创建实例的接口，由具体的子类工厂决定具体实例化的类型。其实这样做还有一个好处，就是调用者不需要引入很多具体类型（没有直接依赖关系）。
+    ```java
+    interface BeanFactory {
+        Bean createBean(String type);
+    }
+
+    class FactoryA implements BeanFactory {
+        Bean createBean(String type) {
+            // ...
+        }
+    }
+
+    abstract class  Bean {
+    }
+
+    class A extends Bean {
+        //...
+    }
+
+    class B extends Bean {
+        //...
+    }
+
+    // 使用时以工厂创建
+    BeanFactory f = new FactoryA();
+    Bean bean = f.createBean("you type info");
+    ```
+- 抽象工厂（Abstract Factory）：提供一个接口用于创建相关对象或对象家族，而不需要明确指明创建的具体类型。抽象工厂模式和工厂模式经常一同出现。
+    ```java
+    interface AbstractFactory {
+        BeanA createBeanA();
+        BeanB createBeanB();
+    }
+
+    class AbstractFactoryA implements AbstractFactory{        
+        BeanA createBeanA() {
+            // ...
+        }
+        BeanB createBeanB() {
+            // ...
+        }
+    }
+
+    //同理
+    class AbstractFactoryB implements AbstractFactory {}
+
+    abstract class Bean {
+        BeanA componentA;
+        BeanB componentB;
+    }
+
+    class A extends Bean {
+        AbstractFactory componentFactory;
+        public A(AbstractFactory factory) {
+            componentFactory = factory;
+        }
+
+        public prepare() {
+            componentA = componentFactory.createBeanA();
+            componentB = componentFactory.createBeanB();
+        }
+    }
+
+    // class A 仍有自己的工厂(见工厂模式)
+    interface BeanFactory;
+    // ...
+    ```
+    > 相比于工厂模式，抽象工厂实际上提供了更高的抽象，即对对象的成员的具体构成，可以进一步使用工厂去控制创建。
 - 生成器（Builder）：将复杂对象的构建和表示分离，适合用于类型内部元素组合方式多变，而每个元素构造方式相对稳定的情况
 - 原型（Prototype）：用于创建重复的对象，并保证性能。即为创建代价较高的对象，提供克隆方法。
 ### 结构型
@@ -228,4 +294,4 @@ thumbnailImage: images/thumbnail/design-pattern.svg
 - [设计模式-菜鸟教程](https://www.runoob.com/design-pattern/design-pattern-tutorial.html)
 - [桥接模式、外观模式、适配器模式的区别](https://www.cnblogs.com/peida/archive/2008/08/01/1257574.html)
 
-阅读位置P109
+阅读位置P169

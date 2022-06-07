@@ -33,6 +33,34 @@ thumbnailImage: images/thumbnail/design-pattern.svg
 ### 创建型
 > 如何更优雅的创建对象
 - 单例模式（Singleton）：一个类型在程序生命周期内只有一个实例
+    ```java
+    // 一个比较中庸的写法
+    class Singleton {
+        // JVM在加载时创建，线程安全
+        private static Singleton instance = new Singleton();
+
+        private Singleton() {}
+
+        // 即使不调用getInstance，此时instance也已经构造出来了
+        public static Singleton getInstance() {
+            return instance;
+        }
+    }
+    ```
+    类似的，cpp中也可以用静态变量来做
+    ```cpp
+    class Singleton {
+        private:
+            Singleton() {}
+            Singleton(const Singleton&) = delete;
+        public:
+            // 线程安全
+            Singleton* getSingleton() {
+                static Singleton instance;
+                return &instance;
+            }
+    }
+    ```
 - 工厂方法（Factory）：提供创建实例的接口，由具体的子类工厂决定具体实例化的类型。其实这样做还有一个好处，就是调用者不需要引入很多具体类型（没有直接依赖关系）。
     ```java
     interface BeanFactory {
@@ -107,8 +135,66 @@ thumbnailImage: images/thumbnail/design-pattern.svg
 > 如何更优雅的扩展功能、精简代码
 - 组合模式（Composite）：部分整体模式，对象内部有同类型对象的集合，例如展开成树状结构的表达式。
 - 外观（Facade）：优化接口，降低外部使用模块的复杂度。可以用于封装多个类。项目中期优化使用。
+    ```java
+    interface Light {}
+    interface Sofa {}
+    interface TV {}
+    // ... 各自的具体实现
+    class SunLight implements Light {};
+    class SoftSofa implements Sofa {};
+    class CRT implements TV {};
+    // 外观模式封装
+    class HomeFacade {
+        Light light;
+        Sofa sofa;
+        TV tv;
+        
+        public HomeFacade(Light l,Sofa s,TV t) {
+            light = l; sofa = s; tv = t;
+        }
+        
+        public setWatchTVMode() {
+            // ... 一套操作
+        }
+
+        public setSleepMode() {
+            // ... 一套操作
+        }
+    }
+    // 其他封装情况
+    class BarFacade extends HomeFacade {}
+    ```
 - 代理（Proxy）：增加中间层，为其他对象提供接口以提供对当前被代理对象的访问。一般针对一个类。
 - 适配器（Adaptor）：为两个已有的不兼容模块间的接口建立连接，使得能够共同工作。非必要不应使用适配器模式，而应当进行重构。项目后期兼容开发。
+    ```java
+    interface Duck {
+        void fly();
+    }
+
+    interface Mouse {
+        void run();
+    }
+
+    class Jerry {
+        void run() {
+            // ...
+        }
+    }
+
+    // 对象适配器（继承 + 组合）
+    interface MouseDuck implements Duck {
+        Mouse m;
+
+        public MouseDuck(Mouse m) {
+            this.m = m;
+        }
+
+        void fly() {
+            m.run();
+        }
+    }
+    ```
+    由于语言限制，java无法实现类适配器（多继承）。如果在C++中，还能做类适配器。
 - 装饰器（Decorator）：允许向一个现有的对象的某个接口添加新的扩展功能，而不改变已有结构。由一个抽象类实现一个接口，可以一直扩展下去。在java中，java.io的InputStream类型体系就是装饰器结构。
     ```java
     abstract class BaseContent {
@@ -214,7 +300,127 @@ thumbnailImage: images/thumbnail/design-pattern.svg
     }
     ```
 - 模板方法（Template）：允许重写部分方法，但这些方法的调用将会以抽象类中定义的逻辑进行。
-- 命令（Command）：数据驱动，将命令包裹在对象中进行传递，调用对象负责寻找合适的处理对象，将命令传递过去。调用者→命令→接收者，即调用者实际保存若干命令，命令中封装对接收者的实际调用。
+    ```java
+    interface Drink {
+        default void prepare() {
+            boilWater();
+            brew(); // 冲泡
+            pourInCup();
+            addCondiments(); // 加配料
+            hook();
+            if(addTwiceCondiments()){
+                addCondiments();
+            }
+        }
+
+        default void boilWater() {
+            // ...
+        }
+
+        default void pourInCup() {
+            // ...
+        }
+
+        // 也可以留一个默认啥也不做的钩子
+        default void hook(/*... Args*/) {}
+
+        // 甚至可以留一个可以控制流程的函数
+        default bool addTwiceCondiments() {
+            return false
+        }
+
+        void braw();
+        void addCondiments();
+    }
+
+    class Tea implements Drink {
+        public void brew() {
+            // ...
+        }
+
+        public void addCondiments() {
+            // ...
+        }
+    }
+
+    class Coffe implements Drink {
+        public void brew() {
+            // ...
+        }
+
+        public void addCondiments() {
+            // ...
+        }
+    }
+    ```
+- 命令模式（Command）：数据驱动，将命令包裹在对象中进行传递，调用对象负责寻找合适的处理对象，将命令传递过去。调用者→命令→接收者，即调用者实际保存若干命令，命令中封装对接收者的实际调用，而调用者不需要关系命令究竟是如何实现的。
+    ```java
+    interface Command {
+        void execute();
+        void undo();
+    }
+
+    // 一种具体命令的实现
+    class LightOnCommand implements Command {
+        Light light;
+        public LightOnCommand(Light light) {
+            this.light=light;
+        }
+
+        public void execute() {
+            this.light.on();
+        }
+
+        public void undo() {
+            this.light.off();
+        }
+    }
+
+    // 可以组合出批处理命令
+    class BatchCommand implements Command {
+        Command[] commands;
+        
+        public BatchCommand(commands) {
+            this.commands = commands;
+        }
+
+        public void execute() {
+            for(Command c: commands) {
+                c.execute();
+            }
+        }
+
+        public void undo() {
+            for(Command c: commands) {
+                c.undo();
+            }
+        }
+    }
+
+    // 接收者
+    class RemoteControl {
+        List<Command> commands;
+        // 仅支持最后一个命令的撤销
+        Command lastCommands;
+
+        public RemoteControl() {
+            commands = new ArrayList<Command>();
+        }
+
+        public void setCommand(Command command) {
+            commands.add(command);
+        }
+
+        public void onButtonPressed(int index) {
+            commands[index].execute();
+            lastCommands = commands[index];
+        }
+
+        public void onUndoPressed() {
+            lastCommands.undo();
+        }
+    }
+    ```
 - 状态（State）：对象内部保存一个状态对象（每种状态需要实现不同状态下的行为，并且行为会变更依赖对象），根据不同状态变更行为。用来避免过多条件语句。表现为类的行为是受状态控制而变化。可以优雅的实现状态机。
 - 策略模式（Strategy）：创建统一接口下表示各种策略的对象，使之可被替换。表现上是一个类中接口的行为可以动态变化、替换。
     ```java
@@ -289,9 +495,9 @@ thumbnailImage: images/thumbnail/design-pattern.svg
 <center><img src="/images/ProgramDesign/AssociationUML.svg" ></center></br>
 
 ## 参考资料
-- 《Head First设计模式》
+- 代码示例主要来源：《Head First设计模式》
 - [24种设计模式大全](https://blog.csdn.net/yanlin813/article/details/52664805)
 - [设计模式-菜鸟教程](https://www.runoob.com/design-pattern/design-pattern-tutorial.html)
 - [桥接模式、外观模式、适配器模式的区别](https://www.cnblogs.com/peida/archive/2008/08/01/1257574.html)
 
-阅读位置P169
+阅读位置P351

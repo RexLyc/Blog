@@ -133,7 +133,37 @@ thumbnailImage: images/thumbnail/design-pattern.svg
 - 原型（Prototype）：用于创建重复的对象，并保证性能。即为创建代价较高的对象，提供克隆方法。
 ### 结构型
 > 如何更优雅的扩展功能、精简代码
-- 组合模式（Composite）：部分整体模式，对象内部有同类型对象的集合，例如展开成树状结构的表达式。
+- 组合模式（Composite）：部分整体模式，对象内部有同类型对象的集合，例如展开成树状结构的表达式。这样就能以一致的方式处理单个对象，或者对象组合（树）。
+    ```java
+    interface BaseItem {
+        String getName();
+        double getPrice();
+    }
+
+    class ItemA extends BaseItem {
+        public String getName() {
+            // ...
+        }
+        public double getPrice() {
+            // ...
+        }
+    }
+
+    class ItemMenu extends BaseItem {
+        ArrayList items = new ArrayList();
+        public void add(BaseItem item) {
+            items.add(item);
+        }
+        public String getName() {
+            // 遍历所有内容
+            // ...
+        }
+        public String getPrice() {
+            // 遍历所有内容
+            // ...
+        }
+    }
+    ```
 - 外观（Facade）：优化接口，降低外部使用模块的复杂度。可以用于封装多个类。项目中期优化使用。
     ```java
     interface Light {}
@@ -254,6 +284,29 @@ thumbnailImage: images/thumbnail/design-pattern.svg
 ### 行为型
 > 如何更优雅的完成一些操作
 - 迭代器（Iterator）：提供一个获取迭代器的接口，顺序访问集合对象元素。
+    ```java
+    interface Iterator {
+        boolean hasNext();
+        Object next();
+    }
+
+    class MyIterator implements Iterator {
+        MyItem[] items;
+        int position = 0;
+        
+        public MyIterator(MyItem[] items) {
+            this.items = items;
+        }
+
+        public Object next() {
+            return items[position++];
+        }
+        
+        public boolean hasNext() {
+            return position != items.lenth;
+        }
+    }
+    ```
 - 观察者（Observer）：对存在一对多依赖关系的情况，保管相关依赖对象的集合，变更属性则通知依赖它的对象。java对观察者模式有内置支持（Observer & Observable），而且观察者也分为推送（push）和拉取（pull）两种模式，下文仅以自定义代码展示推送方式的基本原理。
     ```java
     interface Subject {
@@ -500,4 +553,4 @@ thumbnailImage: images/thumbnail/design-pattern.svg
 - [设计模式-菜鸟教程](https://www.runoob.com/design-pattern/design-pattern-tutorial.html)
 - [桥接模式、外观模式、适配器模式的区别](https://www.cnblogs.com/peida/archive/2008/08/01/1257574.html)
 
-阅读位置P351
+阅读位置P421

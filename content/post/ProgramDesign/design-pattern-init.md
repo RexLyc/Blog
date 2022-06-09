@@ -194,7 +194,59 @@ thumbnailImage: images/thumbnail/design-pattern.svg
     // 其他封装情况
     class BarFacade extends HomeFacade {}
     ```
-- 代理（Proxy）：增加中间层，为其他对象提供接口以提供对当前被代理对象的访问。一般针对一个类。
+- 代理（Proxy）：增加中间层，为其他对象提供接口以提供对当前被代理对象的访问。一般针对一个类。Java中原生支持远程代理（RMI）。
+    ```java
+    // RMI：调用者 -> Stub -> 网络 -> Skeleton -> 执行者
+    // 远程接口，调用侧
+    interface MyRemote extends Remote {
+        public String helloWorld() throws RemoteException;
+    }
+    // main中
+    MyRemote service = (MyRemote) Naming.lookup("rmi://127.0.0.1/RemoteHello");
+
+
+    // 远程接口实现，执行侧
+    class MyRemoteImpl extends UnicastRemoteObject implements MyRemote {
+        public String helloWorld() {
+            return "hello world";
+        }
+
+        public MyRemoteImpl() throws RemoteException {
+
+        }
+
+        public static void main(String[] args) {
+            try {
+                MyRemote service = new MyRemoteImpl();
+                Naming.rebind("RemoteHello", service);
+            } catch(Exceptino e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    ```
+    再看一段更常见的例子
+    ```java
+    interface Action {
+        void doSth();
+    }
+
+    class RealActionA implements Action {
+        public void doSth() {
+            // ...
+        }
+    }
+
+    class ActionProxy implements Action {
+        Action realObject;
+
+        public void doSth() {
+            // ...
+            realObject.doSth();
+            // ...
+        }
+    }
+    ```
 - 适配器（Adaptor）：为两个已有的不兼容模块间的接口建立连接，使得能够共同工作。非必要不应使用适配器模式，而应当进行重构。项目后期兼容开发。
     ```java
     interface Duck {
@@ -474,7 +526,61 @@ thumbnailImage: images/thumbnail/design-pattern.svg
         }
     }
     ```
-- 状态（State）：对象内部保存一个状态对象（每种状态需要实现不同状态下的行为，并且行为会变更依赖对象），根据不同状态变更行为。用来避免过多条件语句。表现为类的行为是受状态控制而变化。可以优雅的实现状态机。
+- 状态模式（State）：对象内部保存一个状态对象（每种状态需要实现不同状态下的行为，并且行为会变更依赖对象），根据不同状态变更行为。用来避免过多条件语句。表现为类的行为是受状态控制而变化。可以优雅的实现状态机。
+    ```java
+    // 假定必须按顺序先做A，再做B
+    interface State {
+        void actionA();
+        void actionB();
+    }
+
+    class Controller {
+        State init;
+        State afterA;
+        State afterB;
+        State currentState;
+        public Controller() {
+            currentState = init = new StateInit();
+            afterA = new StateA();
+            afterB = new StateB();
+        }
+        public void actionA() {
+            currentState.actionA();
+        }
+        public void actionB() {
+            currentState.actionB();
+        }
+        public void setState(State s) {
+            currentState = s;
+        }
+        public State getStateA() {
+            return afterA;
+        }
+        public State getStateB() {
+            return afterB;
+        }
+    }
+
+    class StateInit implements State {
+        Controller controller;
+        public void actionA() {
+            controller.setState(controller.getStateA());
+        }
+        public void actionB() {
+            // reject
+        }
+    }
+
+    class StateB implements State {
+        Controller controller;
+        public void actionA() {
+            // reject
+        }
+        public void actionB() {
+            controller.setState(controller.getStateB());
+        }
+    }
+    ```
 - 策略模式（Strategy）：创建统一接口下表示各种策略的对象，使之可被替换。表现上是一个类中接口的行为可以动态变化、替换。
     ```java
     interface FlyStrategy {
@@ -553,4 +659,4 @@ thumbnailImage: images/thumbnail/design-pattern.svg
 - [设计模式-菜鸟教程](https://www.runoob.com/design-pattern/design-pattern-tutorial.html)
 - [桥接模式、外观模式、适配器模式的区别](https://www.cnblogs.com/peida/archive/2008/08/01/1257574.html)
 
-阅读位置P421
+阅读位置P510/676

@@ -761,6 +761,9 @@ public class Application {
         - 运行时调用方式为：java -javaagent:XXX.jar=xxx -classpath xxx
     1. 代码暂略
     
+## 注解和设计模式
+1. 注解的基本原理其实并不复杂，但如何用这份能力实现复杂的框架，就非常考验编程人员的能力。这里举几个Spring框架的例子
+1. CGLIB代理：
 
 ## 参考内容
 - [cnblogs编译期生成](https://www.cnblogs.com/LQBlog/p/14208046.html)

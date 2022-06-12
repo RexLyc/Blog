@@ -25,6 +25,7 @@ thumbnailImage: /images/thumbnail/java.jpg
 1. 反射
 1. 泛型
 1. 并发编程
+1. 构建
 ## 配置时需要注意的内容
 1. 环境变量
     - 由于部分环境会对空格敏感，因此在windows上建议安装至无空格，无特殊字符的目录。

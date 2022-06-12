@@ -44,6 +44,15 @@ project(Tutorial)
 # add the executable
 add_executable(Tutorial tutorial.cxx)
 ```
+1. 一些指令指路：
+    1. PROJECT()
+    1. ADD_EXECUTABLE()
+    1. FIND_PACKAGE()
+    1. INSTALL
+    1. IF()
+    1. MESSAGE()
+    1. SET()
+    1. ...
 1. 一些坑
     - SET(CMAKE_INSTALL_PREFIX)无效：和SET本身有关，可以使用SET(CMAKE_INSTALL_PREFIX "/your/path" CACHE PATH "注释" FORCE)。[方法来源](https://stackoverflow.com/questions/39481958/setting-cmake-install-prefix-from-cmakelists-txt-file)
         - 实际上应当尽量不使用FORCE，应该用链接中的方法。

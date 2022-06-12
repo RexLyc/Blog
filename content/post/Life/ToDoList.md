@@ -12,9 +12,12 @@ draft: true
 ## 博文更新路线：
 ~~1. linux-shell - 8h~~
 ~~1. spring1 - 8h~~
-1. design-pattern-init - 16h(各种模式找一个样例代码)
+~~1. design-pattern-init - 16h(各种模式找一个样例代码)~~
 1. git - 4h
 1. cpp-compile - 24h
+    - linux gcc & windows vs
+    - C++ 98 03 11 14 17 21
+    - C & C++
 1. qt-all-in-one - 8h(后续可以再补充，尤其是针对嵌入式、针对模块的单独使用)
 1. jmeter-all-in-one - 2h(稍加补充)
 1. ibmmq-all-in-one - 2h(稍加补充)

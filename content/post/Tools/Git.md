@@ -27,6 +27,8 @@ thumbnailImage: images/thumbnail/git.png
     - ORIG_HEAD：HEAD指针的前一个状态（可用于git checkout -等操作）
     - HEAD：当前正使用的分支引用名称
     - packed-refs：当ref文件过多时出现，用于优化
+- .gitignore
+- .gitsubmodule
 ## 核心原理
 <img src="/images/tools/git-object-model.png"></img>
 <img src="/images/tools/git-lifecycle.png"></img>
@@ -100,7 +102,7 @@ thumbnailImage: images/thumbnail/git.png
     - git checkout：切换分支、恢复文件到上次提交的状态
         - --patch：交互式部分恢复
         - -b branchName：创建分支并跳转过去
-        - [commitId] fileName：相当于git reset --hard [commitId] fileName
+        - commitId fileName：相当于git reset --hard commitId fileName
     - git status：查看当前工作目录内的文件状态
     - git diff：查看**未暂存**的文件和上一次提交的区别
         - --staged：查看**已暂存**的文件和上一次提交的区别
@@ -114,34 +116,46 @@ thumbnailImage: images/thumbnail/git.png
     - git show tagname：查看某个tag对应的提交信息
     - git grep：能够从仓库的提交历史、工作目录、索引等各种对象中查找正则表达式
 1. 想合并：git merge / rebase
-    ```bash
-    #--------- merge方式 ---------
-    # 分支a：       <- 4
-    #             /
-    # 分支b：1 <- 2 <- 3
-    git checkout b
-    git merge a
-    # 分支a：       <- 4 <-
-    #             /        \
-    # 分支b：1 <- 2 <- 3 <-- 5
+    - 基本用法
+        ```bash
+        #--------- merge方式 ---------
+        # 分支a：       <- 4
+        #             /
+        # 分支b：1 <- 2 <- 3
+        git checkout b
+        git merge a
+        # 分支a：       <- 4 <-
+        #             /        \
+        # 分支b：1 <- 2 <- 3 <-- 5
 
-    #--------- rebase方式 ---------
-    # 分支a：       <- 4
-    #             /
-    # 分支b：1 <- 2 <- 3
-    git checkout a
-    git rebase b
-    # 分支a：            <- 4
-    #                  /
-    # 分支b：1 <- 2 <- 3
-    # 进一步合并
-    git checkout b
-    git merge a
-    # 分支a：            <- 4
-    #                  /
-    # 分支b：1 <- 2 <- 3 <- 4'
-    ```
+        #--------- rebase方式 ---------
+        # 分支a：       <- 4
+        #             /
+        # 分支b：1 <- 2 <- 3
+        git checkout a
+        git rebase b
+        # 分支a：            <- 4
+        #                  /
+        # 分支b：1 <- 2 <- 3
+        # 进一步合并
+        git checkout b
+        git merge a
+        # 分支a：            <- 4
+        #                  /
+        # 分支b：1 <- 2 <- 3 <- 4'
+        ```
+    - 特别用法
+        - git merge --abort：在合并冲突时使用，中断合并，恢复到合并前的状态
+        - 合并冲突时，在终端环境下操作合并的办法
+            ```bash
+            # 查看合并问题
+            git diff
+
+
+            ```
     > 一般来说，本地操作下rebase是优于merge的。但一旦你要进行合并的提交已**被其他人使用**，那么使用merge。否则将会导致其他人陷入麻烦。
+1. 想还原提交：git revert
+    - git revert -m 1 HEAD：将HEAD还原到当前提交的第一父提交（-m 1），即合并时工作区所在的分支的提交
 1. 想同步：git pull
 1. 想提交：git push
 1. 想回到过去：git reset（对工作区、暂存区、HEAD的不同处理）
@@ -151,7 +165,8 @@ thumbnailImage: images/thumbnail/git.png
     - --mixed/--hard SHA-1 / HEAD~ fileName：恢复指定文件到指定提交（没有--soft）
     - --patch：交互式部分恢复
     > 注意在针对提交的移动时，reset会影响分支引用所指向的commit，它会导致当前分支的引用一起向前回溯。对比之下，checkout只会将HEAD移动。例如HEAD指向master，master指向某次提交，reset后，HEAD和master都移动了，checkout后，HEAD移动，master不动。
-1. 想回到另一个时间线的过去：git reflog
+1. 想看操作记录：git reflog
+    - 用于查看全部操作记录，可以记住对应操作前后的commitId，用于回到过去
 1. 想挑选修改：git cherry-pick
 1. 想管理分支：git branch
     - -v：查看每个分支的最后一次提交哈希值和说明
@@ -175,14 +190,78 @@ thumbnailImage: images/thumbnail/git.png
     - 清理仓库：git gc
     - 查看大小：git count-objects
 1. 想配置git：
-    - 
+    ```bash
+    # 帮助手册
+    man git-config
+    # 姓名、邮箱
+    git config --global user.name "rex"
+    git config --global user.email rex@hahaha.com
+    # 默认文本编辑器
+    git config --global core.editor emacs
+    # 设置外部的合并和比较工具
+    git config --global merge.tool code
+    # git mergetool
+    ```
 ## 一些复杂的操作
-1. 合并两个git仓库为1个，且保持双方提交
-    - 子目录和merge
-1. 彻底剔除从某次提交时加入的（大）文件
-    - filter-repo
+1. 合并两个git仓库为1个，且保持双方提交（即子树合并）
+    - 复杂的方法一
+    ```bash
+    # 第一步
+    # 添加一个远程仓库，引用名称为another_dir
+    git remote add another_dir https://github.com/xxxx
+    # 也可以是本地
+    # git remote add another_dir file://D:/Projects/xxx
+    # 获取内容(但不能直接作用于当前分支)
+    git fetch another_dir
+
+    # 第二步
+    # 创建一个本地分支映射到远程分支，并切过去看看
+    git checkout -b another_dir_branch another_dir/master
+
+    # 第三步
+    # 回到主分支，进行合并
+    git checkout master
+    # 将该分支写入到子目录another_sub_tree
+    git read-tree --prefix=another_sub_tree -u another_dir_branch
+
+    # 第四步（可选），即使进行了第五步，也还可以进行第四步
+    # 根据需要，还可以切回对应分支，再获取些更新
+    git checkout another_dir_branch
+    git pull
+
+    # 第五步
+    # 正式的合并，压缩提交
+    git checkout master
+    git merge --squash -s recursive -Xsubtree=another_sub_tree another_dir_branch
+    ```
+    - 方法二：**简单粗暴**，先将远程仓库修改一下，再直接合并
+    ```bash
+    # another_dir中，将所有内容移动到子文件夹内
+    mkdir another_sub_tree
+    mv * ./another_sub_tree
+    git add .
+    git commit -m "move to sub dir"
+
+    # 主项目中
+    git remote add another <URL>
+    git pull another
+    # 允许合并无关历史
+    git merge another/master --allow-unrelated-histories
+    ```
 1. 修改某次历史提交的提交信息
     - rebase
+1. 彻底剔除从某次提交时加入的（大）文件
+    - filter-repo
+1. 查找问题代码的引入提交
+    - git提供二分查找的办法：git blame & git bisect
+1. 子模块：git submodule
+    - 父仓库会将子模块视为一个整体管理，而并不管理其内部的提交。即当子仓库有更新时，父仓库的后续提交，可以不更新所使用的子仓库的提交的引用
+    - git submodule add URL：添加子模块仓库
+    - git submodule init：子仓库默认并不下载，需要单独init
+    - git submodule update：恢复子仓库到父仓库当前提交所使用的状态
+    - git clone --recurse-submodules url：相当于git submodule init & update
+1. 创建git离线更新包
+    - git bundle create
 ## 其他
 - push 有的时候会失败，提示remote rejected之类的，commit some refs failed。并不确定是不是自己的问题。可以尝试git gc。如果还是不行，建议等一段时间，可能只是github的问题。
 - git早期更像一个文件系统，即使是现在，很多底层命令依然保留。通常可以分为底层（plumbing）和上层（procelain）命令。
@@ -190,3 +269,5 @@ thumbnailImage: images/thumbnail/git.png
 - [Git Book中文版](https://git-scm.com/book/zh/v2)
     - [一定要看的Git Book原理部分](https://git-scm.com/book/zh/v2/Git-%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86-Git-%E5%AF%B9%E8%B1%A1)
 - [Git 菜鸟教程](https://www.runoob.com/git/git-tutorial.html)
+
+剩下cherry-pick、剔除大文件、修改某次历史提交的提交信息

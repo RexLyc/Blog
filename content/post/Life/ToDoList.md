@@ -10,10 +10,11 @@ draft: true
 这里是一些更新计划，没事记得看看。。。你欠了好多进度了
 <!--more-->
 ## 博文更新路线：
+每天去看一下待博客化笔记.docx
 ~~1. linux-shell - 8h~~
 ~~1. spring1 - 8h~~
 ~~1. design-pattern-init - 16h(各种模式找一个样例代码)~~
-1. git - 4h
+~~1. git - 4h~~
 1. cpp-compile - 24h
     - linux gcc & windows vs
     - C++ 98 03 11 14 17 21

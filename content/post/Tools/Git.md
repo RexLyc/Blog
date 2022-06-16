@@ -168,6 +168,7 @@ thumbnailImage: images/thumbnail/git.png
 1. 想看操作记录：git reflog
     - 用于查看全部操作记录，可以记住对应操作前后的commitId，用于回到过去
 1. 想挑选修改：git cherry-pick
+    - git cherry-pick SHA-1：用于挑选其他分支的个别提交，并作用于有需要的分支
 1. 想管理分支：git branch
     - -v：查看每个分支的最后一次提交哈希值和说明
     - -vv：比较分支和远程分支，给出更详细的说明
@@ -249,9 +250,24 @@ thumbnailImage: images/thumbnail/git.png
     git merge another/master --allow-unrelated-histories
     ```
 1. 修改某次历史提交的提交信息
-    - rebase
+    ```bash
+    # 使用git rebase
+    # 例如修改倒数第3次提交
+    git rebase -i HEAD~3
+    # 编辑弹出的文本
+    # ...
+
+    # 保存
+    git commit --amend
+    git rebase --continue
+    ```
 1. 彻底剔除从某次提交时加入的（大）文件
-    - filter-repo
+    - filter-repo：基于python的一款工具，pip安装git-filter-repo。
+    ```bash
+    git filter-repo --invert-paths --path "/you/large/file"
+    git gc --prune=now
+    git push --force
+    ```
 1. 查找问题代码的引入提交
     - git提供二分查找的办法：git blame & git bisect
 1. 子模块：git submodule
@@ -265,9 +281,8 @@ thumbnailImage: images/thumbnail/git.png
 ## 其他
 - push 有的时候会失败，提示remote rejected之类的，commit some refs failed。并不确定是不是自己的问题。可以尝试git gc。如果还是不行，建议等一段时间，可能只是github的问题。
 - git早期更像一个文件系统，即使是现在，很多底层命令依然保留。通常可以分为底层（plumbing）和上层（procelain）命令。
+- git add \*和git add .的区别：由于\*在shell中有特殊含义，因此前者实际由shell进行通配并传给git，而.在shell中没有特殊含义，即后者是真正的添加所有文件。
 ## 参考
 - [Git Book中文版](https://git-scm.com/book/zh/v2)
     - [一定要看的Git Book原理部分](https://git-scm.com/book/zh/v2/Git-%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86-Git-%E5%AF%B9%E8%B1%A1)
 - [Git 菜鸟教程](https://www.runoob.com/git/git-tutorial.html)
-
-剩下cherry-pick、剔除大文件、修改某次历史提交的提交信息

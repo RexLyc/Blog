@@ -74,7 +74,7 @@ gcc -c hello.c -o hello.o
 | .rel.data | 存储.data节中需要重定位的变量的信息 |
 | .debug | 一个调试符号表，其条目存储了调试所需的类型信息，源代码等 |
 | .line | 源代码和.text之间的映射关系 |
-> 并不是每个ELF文件都拥有全部的段，
+> 并不是每个ELF文件都拥有全部的段，不使用-g时则没有debug/line段，可执行文件中一般则不包含重定位信息
 ### 链接
 ```bash
 ld -o hello [依赖库] [各选项] hello.o 

@@ -44,6 +44,7 @@ draft: true
     - dhcp原理
     - dns
     - 代理和反向代理
+    - 网络安全（firewalld、selinux），常见攻击手段和防御方式
 1. java-构建（maven、gradle）
     maven 常见的几个解决办法：
     1. 仍然使用自带maven（有的时候用自己下载的高版本maven就是有问题）
@@ -55,6 +56,8 @@ draft: true
 1. 大数据
     pearson相关性系数、xgboost、随机森林、sklearn、lgboost、linear regression、交叉验证
     数据标注和预处理
+1. 运维
+    google sre、docker、k8s
 
 
 

@@ -21,6 +21,33 @@ Android是基于Linux开发的一款优秀的操作系统，尤其适用于在�
 
 ## Gradle配置
 
+
+## 权限获取
+
+## 跨线程通信
+- 关键词：
+    - Handler：核心方法如sendMessage、handleMessage，用于发送、处理一个消息
+    - Looper：执行Handler的handleMessage所在的事件循环线程
+    - Message、Bundle：发送消息的数据结构
+- 基本流程
+    - \[可选\]自定义Handler，尤其是handleMessage函数
+    - 创建Handler、创建Looper，启动Looper
+    - 将Handler发给不同的线程
+    - 各线程内自己组Message并发送
+- 示例代码
+    - 待补充
+## Camera2和TextureView
+- 关键词
+    - 待补充
+    - 补充一张Camera2的类图
+- 基本流程
+    - 为TextureView添加SurfaceViewListener
+    - 由于TextureView的SurfaceView在Listener的onAvailable阶段才可用，所以初始化需要放到该位置
+    - 根据需要调用capture拍照、或者setRepeatingRequest预览
+- 难点
+    - 记得控制画面长宽
+    - 相机权限获取
+- 主要参考：[CAMERA2 API 采集视频并SURFACEVIEW、TEXTUREVIEW 预览](https://www.freesion.com/article/3644114052/)
 ## 参考资料
 - [2022最新Android基础视频教程](https://www.bilibili.com/video/BV19U4y1R7zV)
 - 

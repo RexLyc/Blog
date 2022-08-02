@@ -16,17 +16,22 @@ thumbnailImage: images/thumbnail/android.jpeg
 ## 概述
 Android是基于Linux开发的一款优秀的操作系统，尤其适用于在手机端使用，目前也是用户数量最多的操作系统。本文从实用角度出发，给出一些使用的项目代码记录。
 ## Android Studio安装
-1. 最简单粗暴的办法，在HTTP Proxy设置中，直接使用Auto-detect proxy settings，然后用本机的任何上网代理即可。这也是最稳定的办法。
+1. 最简单粗暴的办法，在HTTP Proxy设置中，直接使用Auto-detect proxy settings，然后用本机的任何上网代理即可。这也是**最稳定**的办法。
+    - 但一定要在**第一次安装运行前就准备好代理**，否则可能出现包安装不完整导致的一系列非常奇怪的问题。
+    - android studio的代理（SDK）和gradle代理（各类第三方库）并不是同一回事，在settings.gradle中还可以选择所使用的代码仓库的URL
 1. 或者你也可以选择配置镜像：由于Android SDK存在版权问题，这里要搜索下可以使用的镜像源（清华TUNA在撰写本文时并不能使用）。可以使用中科院开源协会，填写如下图。
 ![Android Studio Proxy设置](/images/postImage/AndroidStudioProxy.jpg)
 1. 由于Android Studio更新较快，新版本很容易出现问题，建议在出现难以解决的问题的时候，可以使用
 
-## Gradle配置
+## 编译篇
+### SDK
+### SDK Build Tool
+### Gradle配置
 
+## 代码应用
+### 权限获取
 
-## 权限获取
-
-## 跨线程通信
+### 跨线程通信
 - 关键词：
     - Handler：核心方法如sendMessage、handleMessage，用于发送、处理一个消息
     - Looper：执行Handler的handleMessage所在的事件循环线程
@@ -38,7 +43,7 @@ Android是基于Linux开发的一款优秀的操作系统，尤其适用于在�
     - 各线程内自己组Message并发送
 - 示例代码
     - 待补充
-## Camera2和TextureView
+### Camera2和TextureView
 - 关键词
     - 待补充
     - 补充一张Camera2的类图
@@ -57,7 +62,10 @@ Android是基于Linux开发的一款优秀的操作系统，尤其适用于在�
     - [Android Camera2 全屏预览+实时获取预览帧进行图像处理](https://blog.csdn.net/qq_38743313/article/details/101557079?spm=1001.2101.3001.6650.3&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-3-101557079-blog-122077631.pc_relevant_multi_platform_whitelistv3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-3-101557079-blog-122077631.pc_relevant_multi_platform_whitelistv3&utm_relevant_index=6)：这一篇讲了一些坑和处理方法
     - [ImageReader 丢帧卡顿](https://blog.csdn.net/xuhui_7810/article/details/104402300)
 ## 坑
-1. 新建项目提示类似于：plugin com.android.application，**尚未解决**
+1. 新建项目提示类似于：plugin com.android.application not found in any repositories
+    - 尚不清楚原理，但是大概率和gradle有关，建议删除默认gradle目录(C:/Users/你的名字/.gradle/)，完全重新下载。
+    ![删除gradle目录](/images/postImage/delete_gradle_to_redownload.jpg)
+    - 其他的可能性包括：仓库中确实没有该版本、gradle和插件版本不兼容、gradle和gradle所用java版本不兼容（Gradle7.0+要求java11）、网路代理错误等
     - [参考](https://metapx.org/plugin-with-id-com-android-application-not-found/)
 
 ## 参考资料

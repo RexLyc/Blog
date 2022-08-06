@@ -27,7 +27,20 @@ Android是基于Linux开发的一款优秀的操作系统，尤其适用于在�
 ### SDK
 ### SDK Build Tool
 ### Gradle配置
-
+1. 概述
+    1. 全局配置是gradle.properties，位于用户目录的.gradle/下
+    1. 项目配置是gradle-wrapper.properties，位于项目下
+1. 代理：注意http和https都**必须写上**
+    ```python
+    #代理服务器IP/域名
+    systemProp.http.proxyHost=127.0.0.1
+    #代理服务器端口
+    systemProp.http.proxyPort=10809
+    #代理服务器IP/域名
+    systemProp.https.proxyHost=127.0.0.1
+    #代理服务器端口
+    systemProp.https.proxyPort=10809
+    ```
 ## 代码应用
 ### 权限获取
 
@@ -70,4 +83,5 @@ Android是基于Linux开发的一款优秀的操作系统，尤其适用于在�
 
 ## 参考资料
 - [2022最新Android基础视频教程](https://www.bilibili.com/video/BV19U4y1R7zV)
-- 
+- [Google官方文档](https://developer.android.google.cn/reference)
+    - Android Studio已经将文档融合进Android SDK源代码中，只需要安装项目所使用版本的SDK时同时安装其源代码即可

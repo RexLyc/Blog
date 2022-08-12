@@ -12,6 +12,11 @@ thumbnailImage: /images/thumbnail/misc.jpg
 ---
 一些尚未形成体系，但是可能很有用的技术杂项整理。
 <!--more-->
+## 开发工具
+1. Python：
+    - Mock服务器搭建
+        - 参考：[用flask搭建Python Mock服务器](http://t.zoukankan.com/xiaobaibailongma-p-12992802.html)
+
 ## Web
 1. PixiJS：纹理重复加载问题
     - 问题描述：使用Pixi在加载纹理的时候，经常出现重复加载的警告。显然可以优化。

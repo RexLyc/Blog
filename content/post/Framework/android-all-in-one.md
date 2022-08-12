@@ -42,7 +42,15 @@ Android是基于Linux开发的一款优秀的操作系统，尤其适用于在�
     systemProp.https.proxyPort=10809
     ```
 ## 代码应用
+### ListView
+- ListView容易出现卡顿问题
+- 参考：
+    - [Android最常用的控件ListView](https://blog.csdn.net/indeedes/article/details/119530068)
 ### 权限获取
+
+### Activity Manager Service
+- 参考:
+    - [Android7.1 AMS概述](https://www.freesion.com/article/1752426241/)
 
 ### 跨线程通信
 - 关键词：
@@ -80,6 +88,9 @@ Android是基于Linux开发的一款优秀的操作系统，尤其适用于在�
     ![删除gradle目录](/images/postImage/delete_gradle_to_redownload.jpg)
     - 其他的可能性包括：仓库中确实没有该版本、gradle和插件版本不兼容、gradle和gradle所用java版本不兼容（Gradle7.0+要求java11）、网路代理错误等
     - [参考](https://metapx.org/plugin-with-id-com-android-application-not-found/)
+1. 设置整个Layout的背景是图片动画，会造成绘制掉帧
+    - 不应将图片直接防到drawable下面，而应当放到mipmap下
+    - 当然实际上也不推荐直接用图片做背景
 
 ## 参考资料
 - [2022最新Android基础视频教程](https://www.bilibili.com/video/BV19U4y1R7zV)

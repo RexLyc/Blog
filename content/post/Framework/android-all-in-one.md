@@ -43,11 +43,16 @@ Android是基于Linux开发的一款优秀的操作系统，尤其适用于在�
     ```
 ## 代码应用
 ### ListView
-- ListView容易出现卡顿问题
+- ListView容易出现卡顿问题，一定要做其中的View优化
+- 最好准备完整的数据之后再进行setAdapter，减少触发数据变动
+    - 而且在回调中的数据变动，不一定会立刻影响到界面绘制
 - 参考：
     - [Android最常用的控件ListView](https://blog.csdn.net/indeedes/article/details/119530068)
 ### 权限获取
 
+### 开机自启动
+- 流程：配置监听权限、设置监听类、监听系统广播并启动
+- 参考：[设置程序开机自启动](https://blog.csdn.net/CSDNHAY/article/details/120785513)
 ### Activity Manager Service
 - 参考:
     - [Android7.1 AMS概述](https://www.freesion.com/article/1752426241/)
@@ -82,6 +87,7 @@ Android是基于Linux开发的一款优秀的操作系统，尤其适用于在�
     - [基于Camera2实现边录制视频边实时分析图片](https://blog.csdn.net/m0_37697747/article/details/122077631)
     - [Android Camera2 全屏预览+实时获取预览帧进行图像处理](https://blog.csdn.net/qq_38743313/article/details/101557079?spm=1001.2101.3001.6650.3&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-3-101557079-blog-122077631.pc_relevant_multi_platform_whitelistv3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-3-101557079-blog-122077631.pc_relevant_multi_platform_whitelistv3&utm_relevant_index=6)：这一篇讲了一些坑和处理方法
     - [ImageReader 丢帧卡顿](https://blog.csdn.net/xuhui_7810/article/details/104402300)
+    - [ImageReader Surface 垃圾回收问题](https://qa.1r1g.com/sf/ask/2340657301/)
 ## 坑
 1. 新建项目提示类似于：plugin com.android.application not found in any repositories
     - 尚不清楚原理，但是大概率和gradle有关，建议删除默认gradle目录(C:/Users/你的名字/.gradle/)，完全重新下载。

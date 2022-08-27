@@ -55,18 +55,21 @@ Java长期稳占编程语言Top3，好用的框架功不可没。Spring框架是
 ![Spring框架运行时结构](https://docs.spring.io/spring-framework/docs/4.2.x/spring-framework-reference/html/images/spring-overview.png)
 图片来自[Spring官网，4.2.x版本](https://docs.spring.io/spring-framework/docs/4.2.x/spring-framework-reference/html/overview.html)，最新版本可能有变动。
 
-## 参考资料
-《Spring实战》
-
-《Spring5核心原理》
-
-《精通Spring》
-
-《精通Spring 4.X:企业应用开发实战》
-
-《从零开始造Spring》
-
-Spring源代码（打断点跟进阅读）
-
 ## 工具
 1. javap：java自带的反汇编工具，和idea不同，仅把字节码做简单可视化，保留字节码原汁原味
+
+
+## Spring进化
+1. Spring Framework：就是指Spring的基础框架，提供一个轻量化的Bean模型，提供控制反转、依赖注入等能力。
+1. Spring Boot：继承了若干使用的模块，能够良好的完成一个单机服务。
+1. Spring Cloud：进一步整合了若干微服务模块，如网关、熔断、注册中心、服务发现。但实际上，Spring Cloud的定位有些尴尬，大部分微服务模块在各个公司内部都有自己自研或者其他开源方案代替。使用的时候可以辩证的对比一下。
+
+## 参考资料
+- [Spring官方文档5.0.0M1版本](https://docs.spring.io/spring-framework/docs/5.0.0.M1/javadoc-api/overview-summary.html)
+- [SpringBoot Reference Guide](https://docs.spring.io/spring-boot/docs/2.1.3.RELEASE/reference/htmlsingle/)
+- 《Spring实战》
+- 《Spring5核心原理》
+- 《精通Spring》
+- 《精通Spring 4.X:企业应用开发实战》
+- 《从零开始造Spring》
+- Spring源代码（打断点跟进阅读）

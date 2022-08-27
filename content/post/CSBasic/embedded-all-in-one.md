@@ -8,8 +8,8 @@ tags:
 - 持续施工
 - 合集
 - 嵌入式
-# thumbnailImagePosition: left
-# thumbnailImage: //example.com/image.jpg
+thumbnailImagePosition: left
+thumbnailImage: /images/thumbnail/embedded.jpg
 draft: true
 
 ---

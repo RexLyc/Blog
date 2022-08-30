@@ -82,3 +82,13 @@ thumbnailImage: /images/thumbnail/misc.jpg
         sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
         ```
 3. 参考：[Ubuntu18.04安装并美化zsh](https://www.sysgeek.cn/install-zsh-shell-ubuntu-18-04/)
+
+## Windows
+1. vc_redist那些事儿
+    - 可以命令行静默安装
+    ```powershell
+    # 查看帮助
+    ./vc_redist.x64.exe /?
+    # 静默安装
+    ./vc_redist.x64.exe /install /quiet
+    ```

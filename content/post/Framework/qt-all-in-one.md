@@ -44,5 +44,14 @@ cd qt5130build
 ../qt5/configure --prefix=/path/to/your/install/directory
 ```
 1. 更多配置内容参考[官方网站-ConfigOption](https://doc.qt.io/qt-5/configure-options.html),[官方网站-编译总结篇](https://wiki.qt.io/Building_Qt_5_from_Git#Getting_the_source_code)。
+
+## 打包
+### win
+- 使用官方提供的windeployqt.exe
+- 使用Qt Install Framework
+- 一些坑
+    - [Qt打包发布程序，解决找不到msvcp140.dll等动态库问题正确方案](https://blog.csdn.net/no_say_you_know/article/details/126360830)
+### linux
+
 ## 参考资料
 [Qt5官方文档](https://doc.qt.io/qt-5/classes.html)

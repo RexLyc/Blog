@@ -23,12 +23,15 @@ Node.JS是基于Chrome V8开发的JS服务器端运行环境，NPM则是Node.JS�
     | 目录/文件 | 内容 |
     | --- | --- |
     | /build/ | 构建目标、构建脚本 |
-    | /config/ | 配置脚本 |
+    | /config/ | 一些配置脚本 |
     | /node_modules/ | 本地安装的包 |
     | /src/ | 源代码 |
     | /static/ | 静态资源文件 |
     | .babelrc | babel配置文件 |
-    | 
+    | index.html | 生成的首页入口 |
+    | package.json | 项目配置 |
+    | package-lock.json | npm5后添加，用于锁定版本号 |
+    > 注：版本号约定X.Y.Z。X代表大变动，不向下兼容；Y代表新功能，但向下兼容；Z代表bug修补。注意package-lock将会完全锁定版本，不会自动更新。如果没有该文件，则会自动更新同一个X下的最新版本。
 1. 重要配置
 1. 实用命令
     | 命令 | 含义 |
@@ -37,6 +40,8 @@ Node.JS是基于Chrome V8开发的JS服务器端运行环境，NPM则是Node.JS�
     | npm install xxx -g | 安装包xxx到全局环境 |
     | npm install npm -g | 升级npm |
     | npm list -g | 查看全局安装的包 |
+    | npm uninstall xxx | 删除包 |
+    | npm search xxx | 搜索包 |
 1. 镜像
     - 使用cnpm
         ```bash
@@ -57,7 +62,9 @@ Node.JS是基于Chrome V8开发的JS服务器端运行环境，NPM则是Node.JS�
     - 注意：cnpm和npm的区别
         1. 本质上都是一种包管理器，而cnpm原生使用国内的镜像
         1. cnpm和npm无法完美混用，可以的情况下尽量使用npm，配置有效的镜像
-
+1. 一些库：
+    - babel：[官方文档](https://babeljs.io/docs/en/)
+        - 概述：目的是通过ES6到ES5的翻译，让ES6项目也能用于不支持ES6的浏览器
 ## Node.JS实用总结
 1. 版本变更
 1. 

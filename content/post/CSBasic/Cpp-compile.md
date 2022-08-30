@@ -167,22 +167,22 @@ ld -o hello [依赖库] [各选项] hello.o
     1. 编写CMakeLists.txt
     2. 编写对应的工程
     3. 惯用方式
-    ```bash
-    mkdir build
-    cd build
-    cmake ../
-    make
-    ```
+        ```bash
+        mkdir build
+        cd build
+        cmake ../
+        make
+        ```
 1. 以一个典型的CMakeLists.txt为例
-```bash
-cmake_minimum_required(VERSION 3.10)
+    ```bash
+    cmake_minimum_required(VERSION 3.10)
 
-# set the project name
-project(Tutorial)
+    # set the project name
+    project(Tutorial)
 
-# add the executable
-add_executable(Tutorial tutorial.cxx)
-```
+    # add the executable
+    add_executable(Tutorial tutorial.cxx)
+    ```
 1. 一些指令指路：
     1. PROJECT()
     1. ADD_EXECUTABLE()
@@ -191,7 +191,10 @@ add_executable(Tutorial tutorial.cxx)
     1. IF()
     1. MESSAGE()
     1. SET()
-    1. ...
+        - 设置普通变量：SET(\<variable\> \<value\> \[PARENT_SCOPE\])
+        - 设置可由用户于外部修改的变量：SET(\<variable\> \<value\> CACHE \<type\> \<docstring\> \[FORCE\])
+        - 设置环境变量：SET(ENV{\<variable\>} \[\<value\>\])
+1. [官方文档指路](https://cmake.org/cmake/help/latest/)
 
 ### Makefile
 ### Visual Studio

@@ -51,6 +51,7 @@ cd qt5130build
 - 使用Qt Install Framework
 - 一些坑
     - [Qt打包发布程序，解决找不到msvcp140.dll等动态库问题正确方案](https://blog.csdn.net/no_say_you_know/article/details/126360830)
+    - [OpenGL环境检测和设置](https://blog.csdn.net/mvmmvm/article/details/122177404)
 ### linux
 
 ## 参考资料

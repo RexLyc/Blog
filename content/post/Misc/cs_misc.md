@@ -57,6 +57,12 @@ thumbnailImage: /images/thumbnail/misc.jpg
 ### 网络配置
 - 树莓派还是推荐使用Raspbian系统，而且最好选择无桌面版，功耗低
 - 配置网络推荐使用自带工具：raspi-config，可以对大部分功能、硬件进行设置。
+- 一些坑
+    - 启动时需要连接HDMI，可以通过配置支持热拔插
+    ```bash
+    # /boot/config.txt
+    hdmi_force_hotplug=1
+    ```
 ## 命令行工具
 ### ZSH美化
 1. 环境：MobaXterm（Windows）、Raspbian

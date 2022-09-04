@@ -89,6 +89,12 @@ thumbnailImage: images/thumbnail/lycStamp.png
         <!-- 插入一个页面目录 -->
         <div>{{ .TableOfContent }}</div>
         ```
+- 添加搜索功能：
+    - 思路都是生成一个索引文件，然后进行搜索匹配，难点在于如何优雅的把搜索按钮添加到主题中（参考目录、归档页面的结构）
+    - 参考：
+        - [hugo-elasticsearch](https://blog.travismclarke.com/project/hugo-elasticsearch/)
+        - [几种搜索方式的官方指南](https://gohugo.io/tools/search/)
+        - [使用lunr生成搜索](https://blog.csdn.net/weixin_33143629/article/details/118322638)
 - 如何自定义模板
     - 其实我也想知道
 ## CDN加速

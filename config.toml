@@ -222,3 +222,6 @@ enableEmoji = true
 [params.footer]
   beian = "吉ICP备2021004867"
   PoliceBeiAn = "11010502045148"
+
+[outputs]
+  home = ["HTML","RSS","JSON"]

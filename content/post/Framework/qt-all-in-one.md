@@ -8,7 +8,7 @@ tags:
 - 持续施工
 - Qt
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/qt-logo.svg
+thumbnailImage: /images/thumbnail/qt-logo.svg
 ---
 Qt是一个非常好用的C++框架，最主要的用途是用来开发跨平台GUI程序。
 <!--more-->

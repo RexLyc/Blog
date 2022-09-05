@@ -9,7 +9,7 @@ tags:
 - 全栈
 - 施工中
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/fullstack.jpg
+thumbnailImage: /images/thumbnail/fullstack.jpg
 draft: true
 
 ---

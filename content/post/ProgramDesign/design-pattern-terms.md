@@ -8,7 +8,7 @@ tags:
 - 设计模式
 - 施工中
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/design-pattern.svg
+thumbnailImage: /images/thumbnail/design-pattern.svg
 ---
 软件工程中常有和设计模式相关的一些额外的术语，在这里进行一个整理。
 <!--more-->

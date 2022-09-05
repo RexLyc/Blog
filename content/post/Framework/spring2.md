@@ -8,7 +8,7 @@ tags:
 - Spring
 - 施工中
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/spring.jpg
+thumbnailImage: /images/thumbnail/spring.jpg
 ---
 框架中有一些特别重要，或者基础而通用的注解，在这里进行一定的讲解。本文尚未完成。
 <!--more-->

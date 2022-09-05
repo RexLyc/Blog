@@ -8,7 +8,7 @@ tags:
 - 持续施工
 - 习题
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/algo-exercises.jpg
+thumbnailImage: /images/thumbnail/algo-exercises.jpg
 math: true
 ---
 本篇以记录实用算法和技巧为主，和题目记录对照使用。

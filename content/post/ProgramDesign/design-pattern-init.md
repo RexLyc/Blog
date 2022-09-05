@@ -9,7 +9,7 @@ tags:
 - 设计模式
 - 施工中
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/design-pattern.svg
+thumbnailImage: /images/thumbnail/design-pattern.svg
 ---
 软件行业发展到现在，大部分需求场景下，优秀的开发模式已有定论。本系列结合场景和代码，总结常用设计模式。
 <!--more-->.

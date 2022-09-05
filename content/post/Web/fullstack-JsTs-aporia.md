@@ -9,7 +9,7 @@ tags:
 - 全栈
 - 施工中
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/fullstack.jpg
+thumbnailImage: /images/thumbnail/fullstack.jpg
 ---
 本文讲解的是JavaScript和TypeScript在使用中容易犯错的点，以及一些特别重要的其他要点。
 <!--more-->

@@ -8,7 +8,7 @@ tags:
 - 系列开坑
 - Spring
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/spring.jpg
+thumbnailImage: /images/thumbnail/spring.jpg
 ---
 Java长期稳占编程语言Top3，好用的框架功不可没。Spring框架是其中的集大成者。学一点总没有错。
 <!--more-->

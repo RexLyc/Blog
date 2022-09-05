@@ -7,7 +7,7 @@ categories:
 tags:
 - 算法系列
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/algorithm.jpg
+thumbnailImage: /images/thumbnail/algorithm.jpg
 math: true
 ---
 动态规划可以简单的理解为带备忘录的搜索。相较于搜索，动态规划通过列出状态转移方程和边界条件，通常能够非常简明的计算出结果。贪心算法也在本章。

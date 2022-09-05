@@ -7,7 +7,7 @@ categories:
 tags:
 - 个人总结
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/ship.jpg
+thumbnailImage: /images/thumbnail/ship.jpg
 coverImage: images/coverImage/2021halfSummary.jpg
 # metaAlignment: center
 # coverMeta: in

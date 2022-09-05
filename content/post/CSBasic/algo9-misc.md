@@ -7,7 +7,7 @@ categories:
 tags:
 - 算法系列
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/algorithm.jpg
+thumbnailImage: /images/thumbnail/algorithm.jpg
 math: true
 ---
 本文是以实用角度出发，总结一些比赛和生产中常用的优秀算法和技巧。和算法导论关系不大了。

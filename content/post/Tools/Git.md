@@ -6,7 +6,7 @@ categories:
 tags:
 - 实用工具
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/git.png
+thumbnailImage: /images/thumbnail/git.png
 ---
 据说git是大佬Linus用2周时间做出来的小工具。工具虽小，却成为了当今开源世界的重要基石。本文计划一站式解决Git从原理到实践上的核心问题。本文尚未完成
 <!--more-->

@@ -8,7 +8,7 @@ categories:
 tags:
 - 网站建设
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/zero.jpg
+thumbnailImage: /images/thumbnail/zero.jpg
 coverImage: images/coverImage/zero.jpg
 # metaAlignment: center
 # coverMeta: in

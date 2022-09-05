@@ -7,7 +7,7 @@ categories:
 tags:
 - 算法系列
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/algorithm.jpg
+thumbnailImage: /images/thumbnail/algorithm.jpg
 math: true
 ---
 树是一类特殊的图，但和图不一样的是，树作为数据结构的应用十分广泛。还有各种各样的变种用于加速一些特定领域的算法。性能是相当的妙啦~

@@ -8,7 +8,7 @@ tags:
 - 设计模式
 - 施工中
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/design-pattern.svg
+thumbnailImage: /images/thumbnail/design-pattern.svg
 ---
 并发编程是现代计算机程序的基本构成部分之一。本文将总结常见的相关内容和常见问题。
 <!--more-->

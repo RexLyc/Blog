@@ -8,7 +8,7 @@ tags:
 - 游戏
 - 个人项目
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/ue-logo.png
+thumbnailImage: /images/thumbnail/ue-logo.png
 draft: true
 ---
 本篇是独立游戏制作系列的游戏引擎开坑篇。由于虚幻引擎开源，且语言以C++为主，因此选择虚幻5引擎作为学习起点。

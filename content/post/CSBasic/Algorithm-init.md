@@ -8,7 +8,7 @@ tags:
 - 算法系列
 - 系列开坑
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/algorithm.jpg
+thumbnailImage: /images/thumbnail/algorithm.jpg
 ---
 什么时候学点算法都不晚......算法导论实际上是本科课程，当然还有高阶版本。但是基础往往是最重要的，时常回头看看，或许会有新的理解。
 <!--more-->

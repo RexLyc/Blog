@@ -8,7 +8,7 @@ tags:
 - 算法系列
 - 施工中
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/algorithm.jpg
+thumbnailImage: /images/thumbnail/algorithm.jpg
 math: true
 ---
 工欲善其事必先利其器，写出优良算法的基础是拥有对算法性能衡量的能力。一起回顾一下时间复杂度的计算吧。

@@ -12,6 +12,11 @@ thumbnailImage: /images/thumbnail/misc.jpg
 ---
 一些尚未形成体系，但是可能很有用的技术杂项整理。
 <!--more-->
+## 开发工具
+1. Python：
+    - Mock服务器搭建
+        - 参考：[用flask搭建Python Mock服务器](http://t.zoukankan.com/xiaobaibailongma-p-12992802.html)
+
 ## Web
 1. PixiJS：纹理重复加载问题
     - 问题描述：使用Pixi在加载纹理的时候，经常出现重复加载的警告。显然可以优化。
@@ -52,6 +57,12 @@ thumbnailImage: /images/thumbnail/misc.jpg
 ### 网络配置
 - 树莓派还是推荐使用Raspbian系统，而且最好选择无桌面版，功耗低
 - 配置网络推荐使用自带工具：raspi-config，可以对大部分功能、硬件进行设置。
+- 一些坑
+    - 启动时需要连接HDMI，可以通过配置支持热拔插
+    ```bash
+    # /boot/config.txt
+    hdmi_force_hotplug=1
+    ```
 ## 命令行工具
 ### ZSH美化
 1. 环境：MobaXterm（Windows）、Raspbian
@@ -77,3 +88,13 @@ thumbnailImage: /images/thumbnail/misc.jpg
         sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
         ```
 3. 参考：[Ubuntu18.04安装并美化zsh](https://www.sysgeek.cn/install-zsh-shell-ubuntu-18-04/)
+
+## Windows
+1. vc_redist那些事儿
+    - 可以命令行静默安装
+    ```powershell
+    # 查看帮助
+    ./vc_redist.x64.exe /?
+    # 静默安装
+    ./vc_redist.x64.exe /install /quiet
+    ```

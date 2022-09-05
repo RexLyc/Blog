@@ -9,7 +9,7 @@ tags:
 - 全栈
 - 施工中
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/fullstack.jpg
+thumbnailImage: /images/thumbnail/fullstack.jpg
 ---
 本文讲解Javascript和Typescript的基础概念和基本语法。
 <!--more-->

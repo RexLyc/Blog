@@ -8,7 +8,7 @@ tags:
 - 持续施工
 - 习题
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/algo-exercises.jpg
+thumbnailImage: /images/thumbnail/algo-exercises.jpg
 math: true
 ---
 题目内容来自leetcode、牛客等平台，偶有面试笔试真题。

@@ -8,7 +8,7 @@ tags:
 - 设计模式
 - 施工中
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/design-pattern.svg
+thumbnailImage: /images/thumbnail/design-pattern.svg
 ---
 在日常使用的各类操作系统级接口（系统调用）中，时常有同步、异步，阻塞、非阻塞的区分。本文将结合实际对其进行总结。应用程序级接口也可以由此类推。
 <!--more-->

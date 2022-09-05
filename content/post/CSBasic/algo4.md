@@ -7,7 +7,7 @@ categories:
 tags:
 - 算法系列
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/algorithm.jpg
+thumbnailImage: /images/thumbnail/algorithm.jpg
 math: true
 ---
 求中位数是非常经典，且有相当精妙算法的一个问题。代表了顺序统计问题的思考方式。

@@ -46,6 +46,12 @@ C/C++从诞生之日就开始承担计算机世界的基础构成的任务。本
 
 ## 经典项目
 1. leveldb：推荐阅读
+1. FaceBook项目
+    - [Facebook Open-source Library](https://github.com/facebook/folly)
+1. google项目：推荐阅读
+    - [Protobuf](https://developers.google.com/protocol-buffers/)
+    - [Google Test](https://code.google.com/p/googletest/)
+    - [Chromium](https://www.chromium.org/Home/)
 1. Linux
 1. Nginx
 1. Unreal Engine

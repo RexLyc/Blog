@@ -8,7 +8,7 @@ tags:
 - 滚动更新
 - 网站建设
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/lycStamp.png
+thumbnailImage: /images/thumbnail/lycStamp.png
 ---
 &emsp;&emsp;这篇博文就是想分享一下从零开始的博客搭建之路。让有想法的朋友们也能一样记录自己的生活，让网络见证自己的成长。
 <!--more-->
@@ -89,6 +89,94 @@ thumbnailImage: images/thumbnail/lycStamp.png
         <!-- 插入一个页面目录 -->
         <div>{{ .TableOfContent }}</div>
         ```
+- 添加搜索功能：
+    - 思路都是生成一个索引文件，然后进行搜索匹配，难点在于如何优雅的把搜索按钮添加到主题中（参考目录、归档页面的结构）
+    - 最终选择用hugo本省生成json索引，然后使用fuse.js进行模糊搜索的方案，修改思路和内容如下
+        1. /config.toml，添加:
+            ```toml
+            # HTML和RSS默认会生成，这里主要是通知Hugo，也有json文件需要生成
+            [outputs]
+                home = ["HTML","RSS","JSON"]
+            ```
+        1. themes/你的主题/layouts/_default/index.json，新增：
+            ```json
+            // 该文件就是生成的json文件的模板，指示Hugo生成的索引格式和内容
+            {{- $.Scratch.Add "index" slice -}}
+            {{- range .Site.RegularPages -}}
+                {{- $.Scratch.Add "index" (dict "title" .Title "tags" .Params.tags 
+                "categories" .Params.categories "contents" .Plain "permalink" .Permalink 
+                "date" .Params.date "thumbnailImageUrl" .Params.thumbnailImage) -}}
+            {{- end -}}
+            {{- $.Scratch.Get "index" | jsonify -}}
+            ```
+        1. themes/你的主题/layouts/partials/search.html，新增：
+            ```html
+            <!-- 根据你自己的喜好，添加一个展示搜索结果的页面 -->
+            <!-- 一定要有一个可供修改的入口元素 -->
+            <div id="search-results">
+                <!-- ...  -->
+            </div>
+            ```
+        1. themes/你的主题/layouts/partials/sidebar.html，修改：
+            ```html
+            <!-- 根据你自己的喜好，把搜索页面和搜索入口添加到原有页面中 -->
+            <!-- 这里我选择添加到导航栏 -->
+           <nav>
+                <div>
+                    <input type="search" style="width: 100%;appearance: none"
+                    id="searchInput" class="docsearch-input"
+                    placeholder="搜索" />
+                </div>
+            </nav>
+            {{partial "mysearch.html" .}}
+            <!-- 引入依赖库，和具体实现search.js -->
+            <script src="/scripts/jquery360/jquery.min.js"></script>
+            <!-- fuse也可以直接从cdn获取 -->
+            <script src="/js/fuse.min.js"></script>
+            <script src="/js/search.js"></script>
+            ```
+        1. themes/你的主题/static/js/search.js，新增：
+            ```js
+            // 页面基础逻辑，略
+            // ...
+
+            // 使用Fuse模糊搜索
+            function executeSearch(searchQuery){
+                // index会生成在根目录下
+                $.getJSON( "/index.json", function( data ) {
+                    var pages = data;
+                    var fuse = new Fuse(pages, fuseOptions);
+                    var result = fuse.search(searchQuery);
+                    populateResults(result,searchQuery);
+                });
+            }
+
+            // 对搜索结果进行展示处理
+            function populateResults(result,searchQuery){
+                var html='';
+                $.each(result,function(key,value){
+
+                    html += '<div class="media">';
+                    if (value.item.thumbnailImageUrl) {
+                    html += '<div class="media-left">';
+                    html += '<a class="link-unstyled" href="' + permalink + '">';
+                    html += '<img class="media-image" ' +
+                        'src="' + value.item.thumbnailImageUrl + '" ' +
+                        'width="90" height="90"/>';
+                    html += '</a>';
+                    html += '</div>';
+                    }
+                    // 更多内容，略
+                    // ...
+                });
+                // console.log(html)
+                $('#search-results').html(html)
+            }
+            ```
+    - 参考：
+        - [几种搜索方式的官方指南](https://gohugo.io/tools/search/)
+        - [hugo-elasticsearch](https://blog.travismclarke.com/project/hugo-elasticsearch/)
+        - [使用lunr生成搜索](https://blog.csdn.net/weixin_33143629/article/details/118322638)
 - 如何自定义模板
     - 其实我也想知道
 ## CDN加速
@@ -96,6 +184,10 @@ thumbnailImage: images/thumbnail/lycStamp.png
 
 &emsp;&emsp;这里有一些配置比较令人疑惑，要耐心的根据官方教程进行配置。
 <!-- 贴一下自己的配置，尤其是回源那里 -->
+
+## Wiki类网站参考
+&emsp;&emsp;看看其他的知识分享类网站的建设逻辑，可以向博客中添加有用的部分。
+- 链接：[Confluence](https://www.atlassian.com/software/confluence)、[MediaWiki](https://www.mediawiki.org/)、[DokuWiki](https://www.dokuwiki.org/dokuwiki)、[BlueSpice](https://bluespice.com/)
 
 ## 参考资料
 1. [emoji编码查询网站](https://www.webfx.com/tools/emoji-cheat-sheet/)

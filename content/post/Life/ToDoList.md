@@ -38,13 +38,28 @@ draft: true
 1. redis-single - 8h
 1. WebLab-init - 30h(快点做完吧球球了)
 1. algo1 - 4h(重看一遍视频，把这部分博客补了)
+- 合计：270h，预计需花费90天
+
+1. 计算机网络进阶
+    - dhcp原理
+    - dns
+    - 代理和反向代理
+    - 网络安全（firewalld、selinux），常见攻击手段和防御方式
 1. java-构建（maven、gradle）
     maven 常见的几个解决办法：
     1. 仍然使用自带maven（有的时候用自己下载的高版本maven就是有问题）
     1. 使用解决冲突的一个插件，一般来说是exclude一些不要的包
 1. java annotation：一些注解处理中常用的设计模式
+1. linux-mod：内核模块开发
+    lsusb、modprobe、dkms
 
-- 合计：270h，预计需花费90天
+1. 大数据
+    pearson相关性系数、xgboost、随机森林、sklearn、lgboost、linear regression、交叉验证
+    数据标注和预处理
+1. 运维
+    google sre、docker、k8s
+
+
 
 ## 长期型
 1. Unreal Engine5 (五一假期)

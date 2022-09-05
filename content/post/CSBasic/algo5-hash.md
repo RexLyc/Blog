@@ -7,7 +7,7 @@ categories:
 tags:
 - 算法系列
 thumbnailImagePosition: left
-thumbnailImage: images/thumbnail/algorithm.jpg
+thumbnailImage: /images/thumbnail/algorithm.jpg
 math: true
 ---
 哈希表的使用概率实在是太高太高啦，毕竟常数级的期望时间复杂度是真的诱惑。大部分语言都提供良好的哈希表数据结构。底层的原理进来了解一下呀。

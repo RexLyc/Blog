@@ -2,12 +2,16 @@
 title: "更新计划"
 date: 2022-03-01T20:00:00+08:00
 categories:
+- 博客搭建
 - 更新计划
 tags:
 - 计划
-draft: true
+- 网站建设
+- 滚动更新
 # 置顶方式是添加权重
 weight: 1000
+thumbnailImagePosition: left
+thumbnailImage: /images/thumbnail/todo.jpg
 ---
 这里是一些更新计划，没事记得看看。。。进度差的挺多的
 <!--more-->
@@ -25,7 +29,9 @@ weight: 1000
 1. [x] jmeter-all-in-one - 2h(稍加补充)
 1. [ ] ibmmq-all-in-one - 2h(稍加补充)
 1. [ ] linux-file - 30h
-1. [ ] linux-system-run - 16h https://www.liuvv.com/p/c9c96ac3.html https://blog.csdn.net/lina_acm/article/details/79767414
+1. [ ] linux-system-run - 16h 
+    - https://www.liuvv.com/p/c9c96ac3.html
+    - https://blog.csdn.net/lina_acm/article/details/79767414
 1. [ ] linux-process - 30h
 1. [ ] spring2 - 8h(稍加补充)
 1. [ ] cicd-jenkins - 2h(稍加补充，后续可以更新不同项目的一些build的坑)
@@ -70,7 +76,7 @@ weight: 1000
 1. 对于混合服务器、PC工作站、物联网终端设备的一个网络模型，建立一个可以动态感知设备、服务生存状态的基础服务。是否已经有类似的开源项目。本质上应该也是类似于服务发现的一种模块，但是是双向的（两侧都要感知到自己、对方掉线）。业界的开源方案是如何实现的。
 
 ## 网站建设
-1. [ ] 搜索功能完善：目前的模糊搜索参数不好，很多词搜不出来，例如“锅包肉”
+1. [x] 搜索功能完善：目前的模糊搜索参数不好，很多词搜不出来，例如“锅包肉”
 1. [x] 博文置顶功能，将本文ToDoList置顶
 1. [ ] 手机端配置隐藏目录的css、左侧侧边栏css不对（图标不够展开时应当隐藏）
 

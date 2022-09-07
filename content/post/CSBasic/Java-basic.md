@@ -8,7 +8,6 @@ tags:
 - Java系列
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/java.jpg
-draft: true
 ---
 
 <!--more-->

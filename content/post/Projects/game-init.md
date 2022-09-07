@@ -8,8 +8,6 @@ tags:
 - 游戏开发
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/game.jpg
-draft: true
-
 ---
 
 <!--more-->

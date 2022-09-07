@@ -10,7 +10,6 @@ tags:
 - 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/fullstack.jpg
-draft: true
 
 ---
 Node.JS是基于Chrome V8开发的JS服务器端运行环境，NPM则是Node.JS的包管理器。

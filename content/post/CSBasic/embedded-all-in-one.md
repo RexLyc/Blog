@@ -10,7 +10,6 @@ tags:
 - 嵌入式
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/embedded.jpg
-draft: true
 
 ---
 嵌入式软件开发是软件开发中比较特殊的一环，对于开发人员来说，往往需要具备对硬件的一定了解。

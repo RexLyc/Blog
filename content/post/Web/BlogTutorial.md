@@ -72,12 +72,18 @@ thumbnailImage: /images/thumbnail/lycStamp.png
     - 参考：[使用MathJax在Hugo的Markdown中绘制公式](https://note.qidong.name/2018/03/hugo-mathjax/)
 - 使用其他人的主题，可以考虑使用bootcdn对js、css等进行加速，但注意只能使用主题中限定的版本。
 - 标记草稿
-    - 在markdown开头，添加标记
+    - Front Matter（就是markdown开头），添加标记
         ```md
         <!-- 作为草稿 -->
         draft: true
         <!-- 非草稿 -->
         draft: false
+        ```
+- 标记置顶
+    - Front Matter添加权重，越大越优先
+        ```md
+        <!-- 权重 -->
+        weight: 1000
         ```
 - 添加侧边导航目录功能：
     - 基本原理就是使用Hugo从0.64（大概）开始提供的toc（table of content）变量，可以直接生成一个目录，剩余的事情就是配置一个css来美化。注意默认是从二级目录##开始记录。

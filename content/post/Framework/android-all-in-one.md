@@ -9,7 +9,6 @@ tags:
 - 安卓
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/android.jpeg
-# draft: true
 ---
 项目中偶尔需要一些Android开发，在此记录一下
 <!--more-->

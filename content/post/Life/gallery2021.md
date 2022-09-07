@@ -8,6 +8,7 @@ tags:
 - 摄影
 autoThumbnailImage : true
 thumbnailImagePosition: left
+thumbnailImage: /images/thumbnail/camera.jpg
 gallery:
 - /images/gallery2021/10-12/_DSF7926.jpg
 - /images/gallery2021/10-12/_DSF7927.jpg

@@ -61,9 +61,14 @@ Node.JS是基于Chrome V8开发的JS服务器端运行环境，NPM则是Node.JS�
     - 注意：cnpm和npm的区别
         1. 本质上都是一种包管理器，而cnpm原生使用国内的镜像
         1. cnpm和npm无法完美混用，可以的情况下尽量使用npm，配置有效的镜像
-1. 一些库：
-    - babel：[官方文档](https://babeljs.io/docs/en/)
-        - 概述：目的是通过ES6到ES5的翻译，让ES6项目也能用于不支持ES6的浏览器
+## 一些库：
+### babel
+- 概述：目的是通过ES6到ES5的翻译，让ES6项目也能用于不支持ES6的浏览器
+- 参考：[官方文档](https://babeljs.io/docs/en/)
+### vue
+- 概述：一个前端框架，支持双向绑定等
+- 参考：
+    - [vue config/index.js配置详解](https://blog.csdn.net/qq_31964019/article/details/106186776)
 ## Node.JS实用总结
 1. 版本变更
 1. 

@@ -46,6 +46,7 @@ mysql>> # 开始数据库操作
         - 检查端口、防火墙
         - 检查mysql库，user表，host & user字段：host应当是符号“%”才允许任意ip访问。
         - ***仍然失败？***
+    1. 想修改默认编码，参考[MySQL修改默认编码](http://www.3qphp.com/mysql/sqlquest/2240.html)。
 - 推荐一个命令行工具mycli
 
 ## 发展趋势

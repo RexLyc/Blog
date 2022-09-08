@@ -15,6 +15,10 @@ thumbnailImage: /images/thumbnail/todo.jpg
 ---
 这里是一些更新计划，没事记得看看。。。进度差的挺多的
 <!--more-->
+## 加更
+1. [ ] 一个测试框架
+1. [ ] Android
+
 ## 更新一
 每天去看一下待博客化笔记.docx
 1. [x] linux-shell - 8h
@@ -65,8 +69,6 @@ thumbnailImage: /images/thumbnail/todo.jpg
     - [ ] 数据标注和预处理
 1. [ ] 运维
     - [ ] google sre、docker、k8s
-
-
 
 ## 长期型
 1. Unreal Engine5 (五一假期)

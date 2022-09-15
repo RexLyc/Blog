@@ -124,6 +124,16 @@ thumbnailImage: /images/thumbnail/braveCattle.jpg
     - 太油了，不太健康。。。
 <center><img src="/images/food/PotatoEggplantPepper.jpg" width="256" height="256" ></center>
 
+### 醋溜木须
+- 当前水平：还行
+- 菜谱：
+    1. 准备葱姜蒜、花椒面、鸡蛋、淀粉、肉丝（片），糖醋碗汁（可加些料酒）
+    1. 肉丝（片）加少许盐、油、水、鸡蛋、淀粉、花椒面，腌制5分钟。
+    1. 腌制后下油锅滑肉
+    1. 鸡蛋打散，热油煎熟
+    1. 起锅炒葱姜蒜炝锅，加入肉丝（片），加入鸡蛋，加入糖醋碗汁
+- 参考：[B站的一个教程](https://www.bilibili.com/video/BV1WN4y1V7wU)
+
 ## 主食
 ### 酸甜炒面
 - 当前水平：还行（第二次更新）

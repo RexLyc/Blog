@@ -69,6 +69,14 @@ Node.JS是基于Chrome V8开发的JS服务器端运行环境，NPM则是Node.JS�
 - 概述：一个前端框架，支持双向绑定等
 - 参考：
     - [vue config/index.js配置详解](https://blog.csdn.net/qq_31964019/article/details/106186776)
+
+### electron
+- 概述：一个用于生成跨平台程序的node.js库
+- 实用工具：
+    1. electron-forge：打包工具
+    1. electron-builder：打成安装包的工具
+- 参考：
+    - [ElectronJS中获取GPU信息](https://www.imangodoc.com/199335.html)
 ## Node.JS实用总结
 1. 版本变更
 1. 

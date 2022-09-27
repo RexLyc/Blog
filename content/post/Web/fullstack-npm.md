@@ -77,6 +77,7 @@ Node.JS是基于Chrome V8开发的JS服务器端运行环境，NPM则是Node.JS�
     1. electron-builder：打成安装包的工具
 - 参考：
     - [ElectronJS中获取GPU信息](https://www.imangodoc.com/199335.html)
+    - [electron-builder打包优化](https://zhuanlan.zhihu.com/p/379467469)
 ## Node.JS实用总结
 1. 版本变更
 1. 

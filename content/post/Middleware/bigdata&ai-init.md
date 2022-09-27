@@ -2,9 +2,12 @@
 title: "大数据和AI技术：开坑篇"
 date: 2022-09-08T17:58:17+08:00
 categories:
-- 
+- 计算机科学与技术
+- 人工智能
 tags:
-- 
+- 系列开坑
+- 人工智能
+- 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/bigdata&ai.jpg
 ---

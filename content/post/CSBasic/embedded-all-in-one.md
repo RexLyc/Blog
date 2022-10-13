@@ -32,5 +32,4 @@ thumbnailImage: /images/thumbnail/embedded.jpg
     - 线圈（Coil）：boolean状态值，来源是早期的设备控制都是磁线圈，只有上电和失电两种状态。
         - 在一些地方也被称为“位”，这个就是使用了现代计算机的Bit概念了
     - 寄存器（Register）：int值，这个就是通用的寄存器的含义了。
-
 ## ToDo

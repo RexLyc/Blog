@@ -10,10 +10,11 @@ tags:
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/android.jpeg
 ---
-项目中偶尔需要一些Android开发，在此记录一下
+项目中偶尔需要一些Android开发，在此记录一下。API版本普遍为编译32，最低支持23。
 <!--more-->
 ## 概述
 Android是基于Linux开发的一款优秀的操作系统，尤其适用于在手机端使用，目前也是用户数量最多的操作系统。本文从实用角度出发，给出一些使用的项目代码记录。
+
 ## Android Studio安装
 1. 最简单粗暴的办法，在HTTP Proxy设置中，直接使用Auto-detect proxy settings，然后用本机的任何上网代理即可。这也是**最稳定**的办法。
     - 但一定要在**第一次安装运行前就准备好代理**，否则可能出现包安装不完整导致的一系列非常奇怪的问题。
@@ -44,8 +45,13 @@ Android是基于Linux开发的一款优秀的操作系统，尤其适用于在�
 1. 主要方式
     - 低难度：提供Java接口、so库。这意味着JNI代码已经写好了，使用者只需将so放到指定位置，调用Java接口即可
     - 高难度：C/C++接口、so库。需要用户编写编译规则和JNI代码
+1. 坑：
+    - 外部库的名字可以变动,调用加载时指定正确的名称即可，但是路径必须是固定的，而且要和so对应的CPU架构一致，如armeabi、armeabi-v7a、x86。
 1. 参考
     - [菜鸟教程：JNI入门教程](https://www.runoob.com/w3cnote/jni-getting-started-tutorials.html)
+    - [ANDROID动态加载 使用SO库时要注意的一些问题](https://segmentfault.com/a/1190000005646078)
+## 原理
+1. 四大组件：活动（Activity）、服务（Service）、广播接收者（BroadCast Receiver）、内容提供者（Content Provider）
 ## 代码应用
 ### ListView
 - ListView容易出现卡顿问题，一定要做其中的View优化
@@ -95,6 +101,142 @@ Android是基于Linux开发的一款优秀的操作系统，尤其适用于在�
     - [ImageReader 丢帧卡顿](https://blog.csdn.net/xuhui_7810/article/details/104402300)
     - [ImageReader Surface 垃圾回收问题](https://qa.1r1g.com/sf/ask/2340657301/)
 
+### 无界面Service及通信
+- 基本流程
+    - 根据需要继承Service、IntentService，实现必要的函数，并提供Binder、AIDL（Android Interface Define Language）
+        ```java
+        // Service主体
+        public class TPUService extends Service {
+            private String TAG = "TPUService";
+
+            @Override
+            public void onCreate() {
+                super.onCreate();
+                Log.i(TAG, "onCreate");
+            }
+
+            @Nullable
+            @Override
+            public IBinder onBind(Intent intent) {
+                Log.i(TAG, "onBind");
+                // 在此处提供接口的具体实现
+                return new TPUServiceInterface.Stub() {
+                    @Override
+                    public String ping() throws RemoteException {
+                        return "pong";
+                    }
+
+                    @Override
+                    public boolean reset() throws RemoteException {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean init() throws RemoteException {
+                        return false;
+                    }
+
+                    @Override
+                    public String readCard() throws RemoteException {
+                        return null;
+                    }
+                };
+            }
+        }
+
+        // 接口主题（.aidl文件），该文件会被Android Studio自动转为java文件
+        interface TPUServiceInterface {
+            String ping();
+            boolean reset();
+            boolean init();
+            String readCard();
+        }
+        ```
+    - 由于无界面，启动上一般需要设置开机启动、或者允许由其他程序启动，则其AndroidManifest.xml一般形如
+        ```xml
+        <?xml version="1.0" encoding="utf-8"?>
+        <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+            package="com.afclab.pr_tpuservice">
+            <!-- 自启动权限 -->
+            <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+            <application
+                android:allowBackup="true"
+                android:icon="@mipmap/ic_launcher"
+                android:label="@string/app_name"
+                android:roundIcon="@mipmap/ic_launcher_round"
+                android:supportsRtl="true"
+                android:theme="@style/Theme.PRTPUService">
+                <!-- 接收启动完成广播信号 -->
+                <receiver
+                    android:name="com.afclab.pr_tpuservice.OnBootBroadCast"
+                    android:enabled="true"
+                    android:exported="true">
+                    <intent-filter android:priority="1000">
+                        <action android:name="android.intent.action.BOOT_COMPLETED"></action>
+                    </intent-filter>
+                </receiver>
+                <!-- exported设置为true，允许其他应用启动 -->
+                <service android:name=".TPUService" android:exported="true"/>
+            </application>
+
+        </manifest>
+        ```
+    - 自定义广播信号处理类，接收广播，并运行自定义Service，代码形如
+        ```java
+        public class OnBootBroadCast extends BroadcastReceiver {
+            @Override
+            public void onReceive(Context arg0, Intent arg1) {
+                Intent mBootIntent = new Intent(arg0, TPUService.class);
+                arg0.startService(mBootIntent);
+            }
+        }
+        ```
+    - 受安卓系统限制（Android3.1+），初次安装后如果不启动一次，则并不会真正监听启动信号。如果不由外部应用启动，则需要通过adb，手动启动一次，此后监听将会正式生效。
+    - 客户端使用
+        ```java
+        public class MainActivity extends AppCompatActivity {
+            private String TAG = "MainActivity";
+            private TPUServiceInterface mService = null;
+            // 连接
+            private ServiceConnection mConnection = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName componentName, IBinder iBinder) { //绑定Service成功后执行
+                    mService = TPUServiceInterface.Stub.asInterface(iBinder);//获取远程服务的代理对象，一个IBinder对象
+                    try {
+                        Log.i(TAG, mService.ping()); //调用远程服务的接口。
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName componentName) {
+                    mService = null;
+                }
+            };
+
+            @Override
+            protected void onCreate(Bundle savedInstanceState) {
+                super.onCreate(savedInstanceState);
+                setContentView(R.layout.activity_main);
+                Button connectButton = findViewById(R.id.service_connect);
+                connectButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // 必须要正确提供包名、服务名，并传递给Intent
+                        ComponentName componentName = new ComponentName("com.afclab.pr_tpuservice", "com.afclab.pr_tpuservice.TPUService");
+                        Intent intent = new Intent();
+                        intent.setComponent(componentName);
+                        boolean result = bindService(intent, mConnection, BIND_AUTO_CREATE);
+                        Log.i(TAG, "bind result: " + result);
+                    }
+                });
+            }
+        }
+        ```
+- 参考
+    - [Android进程间通信](https://www.jianshu.com/p/e64b0a9472db)
+    - [Android Service的跨进程通信实战&Service/AIDL远程调用过程解析（Android Q）](https://blog.csdn.net/u011578734/article/details/106000423)
 ## ADB
 1. 概述：Android Debug Bridge，即ADB，安卓调试桥，可以通过ADB完成各种安装、调试、调用系统shell等能力。由于Android Studio有良好的调试工具，个人建议只把adb作为辅助手段，但是对于批量安装应用等场景，adb还是更有优势
 1. 一些指令
@@ -105,7 +247,7 @@ Android是基于Linux开发的一款优秀的操作系统，尤其适用于在�
     adb connect x.x.x.x # 连接置顶ip的安卓设备
     adb tcpip 5555 # 尝试打开对端5555端口连接
     adb install -r xxx.apk # 覆盖安装
-    adb shell am start com.你的包路径/com.你的Activity路径 # 启动
+    adb shell am start com.你的包路径/com.你的Activity或Service路径 # 启动
     adb shell screenrecord /存储/路径.mp4 # 录制屏幕
     adb shell input ... # 模拟各类输入事件（键鼠等）
 

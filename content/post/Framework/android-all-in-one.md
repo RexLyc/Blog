@@ -257,6 +257,10 @@ Android是基于Linux开发的一款优秀的操作系统，尤其适用于在�
     # adb shell命令也都可以用在这里
     # .. 可以使用其他部分linux指令
     ```
+
+## 实用第三方库
+> repositories一般会添加：maven(jitpack.io),jcenter，方便查找正确的包
+1. 串口通信：com.github.licheedev:Android-SerialPort-API
 ## 坑
 1. 新建项目提示类似于：plugin com.android.application not found in any repositories
     - 尚不清楚原理，但是大概率和gradle有关，建议删除默认gradle目录(C:/Users/你的名字/.gradle/)，完全重新下载。

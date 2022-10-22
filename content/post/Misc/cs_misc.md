@@ -13,9 +13,12 @@ thumbnailImage: /images/thumbnail/misc.jpg
 一些尚未形成体系，但是可能很有用的技术杂项整理。
 <!--more-->
 ## 开发工具
-1. Python：
-    - Mock服务器搭建
-        - 参考：[用flask搭建Python Mock服务器](http://t.zoukankan.com/xiaobaibailongma-p-12992802.html)
+### Python：
+- Mock服务器搭建
+    - 参考：[用flask搭建Python Mock服务器](http://t.zoukankan.com/xiaobaibailongma-p-12992802.html)
+### IDEA
+- 自动添加注释
+    - 参考: [IDEA类和方法注释模板设置（非常详细）](https://blog.csdn.net/xiaoliulang0324/article/details/79030752)
 
 ## Web
 1. PixiJS：纹理重复加载问题

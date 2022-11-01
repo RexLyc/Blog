@@ -49,6 +49,7 @@ thumbnailImage: /images/thumbnail/todo.jpg
 1. [ ] design-pattern-terms - 2h(后续不断补充)
 1. [ ] redis-single - 8h
 1. [ ] WebLab-init - 30h(快点做完吧球球了)
+    - 可以看看BliKVM，以KVM形式做一个控制器
 1. [ ] algo1 - 4h(重看一遍视频，把这部分博客补了)
 - 合计：270h，预计需花费90天
 ## 更新二
@@ -78,6 +79,7 @@ thumbnailImage: /images/thumbnail/todo.jpg
 ## 待读书清单
 1. 3D数学基础：图形和游戏开发
 1. Physically Based Rendering: From Theory to Implemention 3rd
+1. 点石成金：访客至上的Web和移动可用性设计秘笈 原书第3版
 
 ## 去哪儿玩
 - 户外：

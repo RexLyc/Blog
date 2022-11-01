@@ -89,6 +89,35 @@ thumbnailImage: /images/thumbnail/misc.jpg
         ```
 3. 参考：[Ubuntu18.04安装并美化zsh](https://www.sysgeek.cn/install-zsh-shell-ubuntu-18-04/)
 
+## 小飞机
+### hostwinds
+- 比较靠谱的供货商，但是其无管理（就是需要用户自己管理）的套餐，管理起来确实有些坑，在这里记录一下。
+    1. 封锁问题：目前没有很好的办法，只能用其提供的fix功能
+    1. 解决封锁后ipv6丢失问题：
+        ```sh
+        # /etc/network/interfaces
+        # 这个文件是networking服务用于控制网络的配置
+        # 一般来说，缺少了ipv6时需要自己在这里做如下内容
+        # Interface lo
+        auto lo
+        iface lo inet loopback
+
+        # Interface ens3
+        auto ens3
+        iface ens3 inet static
+            address 你的静态ipv4
+            netmask 你的掩码
+            gateway 你的网关
+        iface ens3 inet6 static
+            address 你的静态ipv6
+            netmask 你的掩码
+            gateway 你的网关
+
+        dns-nameservers 你喜欢的dns（可以不写ipv6的）
+            ```
+    1. 仍然留着的坑：
+        1. 重启之后ipv6会再次丢失
+        1. 截止到目前无法恢复
 ## Windows
 1. vc_redist那些事儿
     - 可以命令行静默安装

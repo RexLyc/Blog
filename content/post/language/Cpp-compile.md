@@ -154,19 +154,25 @@ ld -o hello [依赖库] [各选项] hello.o
     - 运行时：修改LD_PRELOAD环境变量，指定共享库路径，优先加载这里的运行库。一般会由包装程序内部再以dlsym来动态加载原始目标函数。包装程序需要编译为动态链接库。
 ## 常用指令
 ### GCC & G++
-1. 常用命令示例：
+1. 概述：gcc和g++分别是GNU旗下用于c和c++的编译器
+1. 常用命令、选项示例：
 ```bash
+# 用-o指定输出文件的名字
+gcc main.c -o main
 # -E为只进行预编译
 gcc -E hello.c -o hello.i
 # -S为只进行编译
 gcc -S hello.i -o hello.s
+# -C（大写），生成文件保留注释，用于调试
+gcc -C hello.c -o hello.o
 # 直接调用汇编器as
 as hello.s -o hello.o
 # 或者由gcc代劳
 gcc -c hello.s -o hello.o
 # -c也支持直接从源码到目标文件
 gcc -c hello.c -o hello.o
-
+# -pipe，使用管道避免产生临时文件
+gcc -pipe -o hello.o hello.c
 # --warp指定链接时打桩
 gcc --wrap malloc --warp free -o hello hello.c myMalloc.o
 # 等价于
@@ -174,11 +180,28 @@ gcc -Wl,--wrap,malloc -Wl,--wrap,free -o hello hello.c myMalloc.o
 ```
 1. 实用编译选项：
     1. -fno-common：禁止多重定义符号，提示错误
+        > -f开头的有大量语言特性的选项，有需要可以单独阅读
     1. -Werror：将所有警告提升为错误
-    1. -Wl：将后续的字符串传递给编译器，每个逗号替换为一个空格
+    1. -w：不生成任何警告信息
+    1. -Wall：生成所有警告信息
+    1. -Wl：将在此选项后面的字符串传递给**链接器**，每个逗号替换为一个空格
+    1. -Wa：将在此选项后面的字符串传递给**汇编器**，规则同上
     1. -fpic：指示编译器生成位置无关代码（动态链接库）
     1. --wrap xxx：将__warp_xxx的函数作为包装函数，在链接时绑定到xxx的符号引用上
+    1. -lxxx：指定链接所需要的库
     1. -ldl：需要运行期实用动态链接器的程序，用此指示编译器链接dlfcn相关依赖库
+    1. -ansi：关闭gnu c中和ansi c不兼容的部分。用来专门支持ansi c的特性。
+    1. -include：添加指定的头文件
+    1. -Dxxx：为代码添加#define xxx
+    1. -Dxxx=yyy：为代码添加#define xxx=yyy
+    1. -Uxxx：为代码添加#undef xxx
+    1. -undef：取消任何非标准宏的定义
+    1. -I路径：指定一个寻找头文件的路径
+    1. -L路径：指定库的寻找路径
+    1. -M、-MM、-MD：将所依赖的所有源代码包含到目标文件的一系列不同效果的选项
+    1. -O0/1/2/3：四个优化级别，默认1。0为不优化，3最高。
+    1. -static：禁止使用动态库，打包成全静态链接程序
+    1. -shared：尽可能使用动态库
 ### GDB
 1. 启用：gcc -g
 1. 常用指令：
@@ -229,8 +252,9 @@ gcc -Wl,--wrap,malloc -Wl,--wrap,free -o hello hello.c myMalloc.o
 1. [官方文档指路](https://cmake.org/cmake/help/latest/)
 
 ### Makefile
+&emsp;&emsp;2022年了，目前还是建议使用CMake等跨平台生成方案。在Linux系平台上，CMake将会生成Makefile。
 ### Visual Studio
-
+&emsp;&emsp;2022年了，目前还是建议使用CMake等跨平台生成方案。在Windows系平台上，CMake将会生成vxcproj/sln等文件。
 ## 其他构建工具
 ### 测试工具
 1. Google Test

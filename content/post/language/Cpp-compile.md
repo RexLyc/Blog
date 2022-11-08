@@ -203,18 +203,68 @@ gcc -Wl,--wrap,malloc -Wl,--wrap,free -o hello hello.c myMalloc.o
     1. -static：禁止使用动态库，打包成全静态链接程序
     1. -shared：尽可能使用动态库
 ### GDB
-1. 启用：gcc -g
-1. 常用指令：
-    1. break
-    1. delete
-    1. clear
-    1. condition
-    1. commands
-    1. run、next、stop
-    1. bt
-    1. print
-    1. info
-    1. reg
+1. gdb是一个基于命令行的，交互式的debug工具。对于没有gui界面的情况，可以使用。但现在已经是2022年啦，如果有gui，还是建议用gui吧。
+1. 启用：
+```sh
+# 编译时需要至少打开-g选项
+gcc -g main.c -o main
+# 使用gdb启动
+gdb main
+# 可以使用gdb调试一个正在运行的服务
+gdb 程序名 程序id
+```
+1. gdb常用指令：
+| 命令 | 简写 | 功能 |
+| --- | --- | --- |
+| 回车 |  |  重复执行上一条命令 |
+| list 行数/函数名 | l | 按顺序展示代码，每一次10行 |
+| start |  | 开始执行，停留在main的第一条语句 |
+| run | r | 连续执行，直到遇到断点或结束 |
+| continue | c | 继续执行，直到断点或结束 |
+| next | n | 执行下一句 |
+| step | s | 进入正在执行的函数内部（step in） |
+| until | | 运行直到跳出循环体 |
+| finish | | 一直执行直到跳出当前函数（step out） |
+| info | i | info有大量选项，观察变量、堆栈、寄存器等 |
+| info 变量名 | i | 查看变量的值 |
+| set var 变量名=变量值 | | 修改变量的值 |
+| print 表达式 | | 打印一个表达式 |
+| display 变量名 | | 程序每次停止都会显示该变量的值（监视）|
+| x/nbx 变量名 | | 查看变量名开始之后的n个字节（指针、数组） |
+| backtrace | bt | 查看调用栈 |
+| frame n | f | 查看调用栈中的第n个栈帧 |
+| break 行数/函数名 [if 条件表达式]| b | 设置断点 |
+| watch 变量名/表达式 | | 当程序访问指定变量的内存、表达式有变时触发断点 |
+| rwatch 变量名 | | 变量被读时断点 |
+| awatch 变量名 | | 变量被读写断点 |
+| ignore 断点号 n | | 忽略指定断点n次 |
+| info watchpoints/breakpoints | | 查看当前观察点、断点 |
+| condition 断点编号 断点条件 | | 为断点添加条件 |
+| catch catch/throw 类型 | | C++专用，发现一个catch或throw时触发 |
+| commands 断点号 </br> 指令列表 </br> end |  | 设置在指定断点时执行的一系列指令 |
+| clear 行数/函数名/文件名 | | 删除断点 |
+| delete breakpoints 断点编号 | | 删除断点 |
+| enable/disable breakpoints 断点编号 | | 启用/禁用断点 |
+| quit | q | 推出gdb |
+1. 条件断点的使用说明
+```sh
+# 创建普通断点
+(gdb) break 10
+# 注意gdb返回的断点编号为1
+breakpoints 1 at 0x....  file ..., line 10
+# 添加断点1条件，value不小于0
+(gdb) condition 1 value>=0
+
+# 类似的，观察断点
+(gdb) watch value
+breakpoints 2 at ....
+(gdb) condition 2 value>=10
+
+# 类似的，异常断点
+(gdb) catch throw int
+break points 3 at ...
+(gdb) condition 3 value>100
+```
 ## 常用项目级工具
 ### CMakeLists
 1. 概述：CMake是一个跨平台的C/C++构建文件生成工具，也支持一些其他语言。但是最主要的功能还是给C/C++语言项目使用。其在Windows上一般生成Visual Studio工程，在Linux下一般生成Makefile。
@@ -238,7 +288,7 @@ gcc -Wl,--wrap,malloc -Wl,--wrap,free -o hello hello.c myMalloc.o
     # add the executable
     add_executable(Tutorial tutorial.cxx)
     ```
-1. 一些指令指路：
+1. 一些基础指令指路：
     1. PROJECT()
     1. ADD_EXECUTABLE()
     1. FIND_PACKAGE()

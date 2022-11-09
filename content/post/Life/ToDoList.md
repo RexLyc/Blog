@@ -25,11 +25,11 @@ thumbnailImage: /images/thumbnail/todo.jpg
 1. [x] spring1 - 8h
 1. [x] design-pattern-init - 16h(各种模式找一个样例代码)
 1. [x] git - 4h
-1. [ ] cpp-compile - 24h
+1. [x] cpp-compile - 24h
     - [x] 编译链接装配
     - [x] linux gcc & windows vs
     - [x] gdb
-    - [ ] cmake
+    - [x] cmake
 1. [ ] cpp-standard - 16h
     - [ ] C & C++
     - [ ] C++ 98 03 11 14 17 21

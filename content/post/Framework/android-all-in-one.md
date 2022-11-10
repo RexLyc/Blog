@@ -270,7 +270,7 @@ Android是基于Linux开发的一款优秀的操作系统，尤其适用于在�
 1. 设置整个Layout的背景是图片动画，会造成绘制掉帧
     - 不应将图片直接放到drawable下面，而应当放到mipmap下
     - 当然实际上也不推荐直接用图片做背景
-
+1. 安卓设备连接上USB设备时，必须使用弹出式的权限获取窗口来获取权限，不能自动授权。该权限是动态获取的，在AndroidManifest中无法进行静态获取。
 ## 参考资料
 - [2022最新Android基础视频教程](https://www.bilibili.com/video/BV19U4y1R7zV)
 - [Google官方文档](https://developer.android.google.cn/reference)

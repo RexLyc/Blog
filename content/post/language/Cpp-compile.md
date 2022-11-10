@@ -6,7 +6,6 @@ categories:
 - 编程语言
 tags:
 - C/C++系列
-- 开坑篇
 - 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/cpp.png
@@ -40,32 +39,32 @@ math: true
 ### 目标文件
 1. 编译后的文件类型：PC平台上的可执行文件大致分为Windows的PE（Portable Executable），和Linux的ELF（Executable Linkable Format）。目标文件（.obj/.o）只是尚未进行链接的文件，但内容上和可执行文件是高度类似的。
 1. ELF标准下的文件划分
-| 文件类型 | 含义 | 例子 |
-| --- | --- | --- |
-| 可重定位文件 | 包含代码和数据，只在编译期链接 | 目标文件.o、静态链接库.a |
-| 可执行文件 | 可以直接执行 | bash |
-| 共享目标文件 | 包含代码和数据，编译期、运行期都可以进行链接 | 动态链接库.so |
-| 核心转储文件 | 保存的进程内存数据 | core dump |
-> PE和ELF都是基于Unix System V Release 3提出的COFF格式发展出来的。
+    | 文件类型 | 含义 | 例子 |
+    | --- | --- | --- |
+    | 可重定位文件 | 包含代码和数据，只在编译期链接 | 目标文件.o、静态链接库.a |
+    | 可执行文件 | 可以直接执行 | bash |
+    | 共享目标文件 | 包含代码和数据，编译期、运行期都可以进行链接 | 动态链接库.so |
+    | 核心转储文件 | 保存的进程内存数据 | core dump |
+    > PE和ELF都是基于Unix System V Release 3提出的COFF格式发展出来的。
 1. 核心概念：段（Segment）
-| 重要的段的名称 | 含义 |
-| --- | --- |
-| .text | 代码段 |
-| .rodata | 只读数据（如字符串常量、条件语句的跳转表） |
-| .data | 已初始化的全局变量和静态C变量 |
-| .bss | 未初始化的全局变量和静态C变量 |
-| .symtab | 符号表，存放程序中定义和引用的函数及全局变量 |
-| .interp | 动态链接器路径 |
-| .rel.text | 重定位条目，存储.text节中需要重定位的代码位置，即调用了外部函数和全局变量的位置 |
-| .rel.data | 重定位条目，存储.data节中需要重定位的变量的信息 |
-| .debug | 一个调试符号表，其条目存储了调试所需的类型信息，源代码等 |
-| .line | 源代码和.text之间的映射关系 |
-| .strtab | 字符串表，包括symtab、debug节中的符号表中符号的名称，以及各节的节名 |
-> 并不是每个ELF文件都拥有全部的段，不使用-g时则没有debug/line段，可执行文件中一般则不包含重定位信息
+    | 重要的段的名称 | 含义 |
+    | --- | --- |
+    | .text | 代码段 |
+    | .rodata | 只读数据（如字符串常量、条件语句的跳转表） |
+    | .data | 已初始化的全局变量和静态C变量 |
+    | .bss | 未初始化的全局变量和静态C变量 |
+    | .symtab | 符号表，存放程序中定义和引用的函数及全局变量 |
+    | .interp | 动态链接器路径 |
+    | .rel.text | 重定位条目，存储.text节中需要重定位的代码位置，即调用了外部函数和全局变量的位置 |
+    | .rel.data | 重定位条目，存储.data节中需要重定位的变量的信息 |
+    | .debug | 一个调试符号表，其条目存储了调试所需的类型信息，源代码等 |
+    | .line | 源代码和.text之间的映射关系 |
+    | .strtab | 字符串表，包括symtab、debug节中的符号表中符号的名称，以及各节的节名 |
+    > 并不是每个ELF文件都拥有全部的段，不使用-g时则没有debug/line段，可执行文件中一般则不包含重定位信息
 ### 链接
-```bash
-ld -o hello [依赖库] [各选项] hello.o 
-```
+    ```bash
+    ld -o hello [依赖库] [各选项] hello.o 
+    ```
 1. 符号和符号表：
     1. 符号：对于可重定位文件，其符号表内存储着当前模块定义或者引用的符号的信息。主要有有三种符号
         - 全局符号：非静态的C函数和全局变量，C++中的类函数（包括静态）、静态成员变量，这些符号能被其他模块引用
@@ -154,44 +153,118 @@ ld -o hello [依赖库] [各选项] hello.o
     - 运行时：修改LD_PRELOAD环境变量，指定共享库路径，优先加载这里的运行库。一般会由包装程序内部再以dlsym来动态加载原始目标函数。包装程序需要编译为动态链接库。
 ## 常用指令
 ### GCC & G++
-1. 常用命令示例：
-```bash
-# -E为只进行预编译
-gcc -E hello.c -o hello.i
-# -S为只进行编译
-gcc -S hello.i -o hello.s
-# 直接调用汇编器as
-as hello.s -o hello.o
-# 或者由gcc代劳
-gcc -c hello.s -o hello.o
-# -c也支持直接从源码到目标文件
-gcc -c hello.c -o hello.o
-
-# --warp指定链接时打桩
-gcc --wrap malloc --warp free -o hello hello.c myMalloc.o
-# 等价于
-gcc -Wl,--wrap,malloc -Wl,--wrap,free -o hello hello.c myMalloc.o
-```
-1. 实用编译选项：
-    1. -fno-common：禁止多重定义符号，提示错误
-    1. -Werror：将所有警告提升为错误
-    1. -Wl：将后续的字符串传递给编译器，每个逗号替换为一个空格
-    1. -fpic：指示编译器生成位置无关代码（动态链接库）
-    1. --wrap xxx：将__warp_xxx的函数作为包装函数，在链接时绑定到xxx的符号引用上
-    1. -ldl：需要运行期实用动态链接器的程序，用此指示编译器链接dlfcn相关依赖库
+1. 概述：gcc和g++分别是GNU旗下用于c和c++的编译器
+1. 常用命令、选项示例：
+    ```bash
+    # 用-o指定输出文件的名字
+    gcc main.c -o main
+    # -E为只进行预编译
+    gcc -E hello.c -o hello.i
+    # -S为只进行编译
+    gcc -S hello.i -o hello.s
+    # -C（大写），生成文件保留注释，用于调试
+    gcc -C hello.c -o hello.o
+    # 直接调用汇编器as
+    as hello.s -o hello.o
+    # 或者由gcc代劳
+    gcc -c hello.s -o hello.o
+    # -c也支持直接从源码到目标文件
+    gcc -c hello.c -o hello.o
+    # -pipe，使用管道避免产生临时文件
+    gcc -pipe -o hello.o hello.c
+    # --warp指定链接时打桩
+    gcc --wrap malloc --warp free -o hello hello.c myMalloc.o
+    # 等价于
+    gcc -Wl,--wrap,malloc -Wl,--wrap,free -o hello hello.c myMalloc.o
+    ```
+1. 其他实用编译选项：
+    | 选项 | 功能 |
+    | --- | --- |
+    | -fno-common | 禁止多重定义符号，提示错误 |
+    |-Werror | 将所有警告提升为错误 |
+    | -w | 不生成任何警告信息 |
+    | -Wall | 生成所有警告信息 |
+    | -Wl | 将在此选项后面的字符串传递给**链接器**，每个逗号替换为一个空格 |
+    | -Wa | 将在此选项后面的字符串传递给**汇编器**，规则同上 |
+    | -fpic | 指示编译器生成位置无关代码（动态链接库） |
+    | --wrap xxx | 将__warp_xxx的函数作为包装函数，在链接时绑定到xxx的符号引用上 |
+    | -lxxx | 指定链接所需要的库 |
+    | -ldl | 需要运行期实用动态链接器的程序，用此指示编译器链接dlfcn相关依赖库 |
+    | -ansi | 关闭gnu c中和ansi c不兼容的部分。用来专门支持ansi c的特性。 |
+    | -include | 添加指定的头文件 |
+    | -Dxxx | 为代码添加#define xxx |
+    | -Dxxx=yyy | 为代码添加#define xxx=yyy |
+    | -Uxxx | 为代码添加#undef xxx |
+    | -undef | 取消任何非标准宏的定义 |
+    | -I路径 | 指定一个寻找头文件的路径 |
+    | -L路径 | 指定库的寻找路径 |
+    | -M、-MM、-MD | 将所依赖的所有源代码包含到目标文件的一系列不同效果的选项 |
+    | -O0/1/2/3 | 四个优化级别，默认1。0为不优化，3最高。 |
+    | -static | 禁止使用动态库，打包成全静态链接程序 |
+    | -shared | 尽可能使用动态库 |
 ### GDB
-1. 启用：gcc -g
-1. 常用指令：
-    1. break
-    1. delete
-    1. clear
-    1. condition
-    1. commands
-    1. run、next、stop
-    1. bt
-    1. print
-    1. info
-    1. reg
+1. gdb是一个基于命令行的，交互式的debug工具。对于没有gui界面的情况，可以使用。但现在已经是2022年啦，如果有gui，还是建议用gui吧。
+1. 启用：
+    ```sh
+    # 编译时需要至少打开-g选项
+    gcc -g main.c -o main
+    # 使用gdb启动
+    gdb main
+    # 可以使用gdb调试一个正在运行的服务
+    gdb 程序名 程序id
+    ```
+1. gdb常用指令：
+    | 命令 | 简写 | 功能 |
+    | --- | --- | --- |
+    | 回车 |  |  重复执行上一条命令 |
+    | list 行数/函数名 | l | 按顺序展示代码，每一次10行 |
+    | start |  | 开始执行，停留在main的第一条语句 |
+    | run | r | 连续执行，直到遇到断点或结束 |
+    | continue | c | 继续执行，直到断点或结束 |
+    | next | n | 执行下一句 |
+    | step | s | 进入正在执行的函数内部（step in） |
+    | until | | 运行直到跳出循环体 |
+    | finish | | 一直执行直到跳出当前函数（step out） |
+    | info | i | info有大量选项，观察变量、堆栈、寄存器等 |
+    | info 变量名 | i | 查看变量的值 |
+    | set var 变量名=变量值 | | 修改变量的值 |
+    | print 表达式 | | 打印一个表达式 |
+    | display 变量名 | | 程序每次停止都会显示该变量的值（监视）|
+    | x/nbx 变量名 | | 查看变量名开始之后的n个字节（指针、数组） |
+    | backtrace | bt | 查看调用栈 |
+    | frame n | f | 查看调用栈中的第n个栈帧 |
+    | break 行数/函数名 [if 条件表达式]| b | 设置断点 |
+    | watch 变量名/表达式 | | 当程序访问指定变量的内存、表达式有变时触发断点 |
+    | rwatch 变量名 | | 变量被读时断点 |
+    | awatch 变量名 | | 变量被读写断点 |
+    | ignore 断点号 n | | 忽略指定断点n次 |
+    | info watchpoints/breakpoints | | 查看当前观察点、断点 |
+    | condition 断点编号 断点条件 | | 为断点添加条件 |
+    | catch catch/throw 类型 | | C++专用，发现一个catch或throw时触发 |
+    | commands 断点号 </br> 指令列表 </br> end |  | 设置在指定断点时执行的一系列指令 |
+    | clear 行数/函数名/文件名 | | 删除断点 |
+    | delete breakpoints 断点编号 | | 删除断点 |
+    | enable/disable breakpoints 断点编号 | | 启用/禁用断点 |
+    | quit | q | 推出gdb |
+1. 条件断点的使用说明
+    ```sh
+    # 创建普通断点
+    (gdb) break 10
+    # 注意gdb返回的断点编号为1
+    breakpoints 1 at 0x....  file ..., line 10
+    # 添加断点1条件，value不小于0
+    (gdb) condition 1 value>=0
+
+    # 类似的，观察断点
+    (gdb) watch value
+    breakpoints 2 at ....
+    (gdb) condition 2 value>=10
+
+    # 类似的，异常断点
+    (gdb) catch throw int
+    break points 3 at ...
+    (gdb) condition 3 value>100
+    ```
 ## 常用项目级工具
 ### CMakeLists
 1. 概述：CMake是一个跨平台的C/C++构建文件生成工具，也支持一些其他语言。但是最主要的功能还是给C/C++语言项目使用。其在Windows上一般生成Visual Studio工程，在Linux下一般生成Makefile。
@@ -206,31 +279,93 @@ gcc -Wl,--wrap,malloc -Wl,--wrap,free -o hello hello.c myMalloc.o
         make
         ```
 1. 以一个典型的CMakeLists.txt为例
-    ```bash
+    ```sh
+    # 指定所需要的cmake的最低版本
     cmake_minimum_required(VERSION 3.10)
+    # 设置C++编译环境需要支持支持标准11
+    SET(CMAKE_CXX_STANDARD 11)
+    SET(CMAKE_CXX_STANDARD_REQUIRED True)
+    # 设置项目名称
+    PROJECT(Tutorial VERSION 1.0)
 
-    # set the project name
-    project(Tutorial)
+    FIND_PACKAGE(Qt5 )
 
-    # add the executable
-    add_executable(Tutorial tutorial.cxx)
+    # 系统内省，判断是否能满足项目对平台或语言特性的需要
+    CHECK_CXX_SOURCE_COMPILES("
+        #include<cmath>
+        int main(){
+            std::exp(1.0);
+            return 0;
+        }
+    " HAVE_EXP)
+
+    IF(HAVE_EXP)
+        MESSAGE("EXP CHECK PASS")
+    ENDIF()
+
+    # 编译选项
+    OPTION(USE_MYDEP "使用自定义dep" ON)
+
+    IF(USE_MYDEP)
+        # 包含子文件夹dep的构建步骤
+        ADD_SUBDIRECTORY(dep)
+        # 将头文件和依赖库添加进来
+        LIST(APPEND EXTRA_LIBS dep)
+        LIST(APPEND EXTRA_INCLUDES "${PROJECT_SOURCE_DIR}/dep")
+    ENDIF()
+
+    # 根据需要引入到代码中
+    # CONFIGURE_FILE(...)
+
+    # 添加生成的目标文件
+    ADD_EXECUTABLE(Tutorial tutorial.cpp)
+
+    # 指定目标文件所需的链接库
+    target_link_libraries(Tutorial ${EXTRA_LIBS})
+
+    # 指定头文件的搜索路径
+    target_include_directories(Tutorial "${PROJECT_BINARY_DIR}" ${EXTRA_INCLUDES})
+
+    # 会被安装的文件
+    SET(export_targets Tutorial)
+    SET(exports_includes Tutorial.h)
+    # 安装类型，目的地
+    INSTALL(TARGETS ${export_targets} DESTINATION bin)
+    INSTALL(FILES ${exports_includes} DESTINATION include)
     ```
-1. 一些指令指路：
-    1. PROJECT()
-    1. ADD_EXECUTABLE()
-    1. FIND_PACKAGE()
-    1. INSTALL
-    1. IF()
-    1. MESSAGE()
-    1. SET()
-        - 设置普通变量：SET(\<variable\> \<value\> \[PARENT_SCOPE\])
-        - 设置可由用户于外部修改的变量：SET(\<variable\> \<value\> CACHE \<type\> \<docstring\> \[FORCE\])
-        - 设置环境变量：SET(ENV{\<variable\>} \[\<value\>\])
-1. [官方文档指路](https://cmake.org/cmake/help/latest/)
-
+1. 如果需要将宏从CMake引入到代码中，则需要配合专门指令
+    ```sh
+    # CMake文件内
+    # .in文件需要一定的编写，.h则会由cmake自动生成
+    CONFIGURE_FILE(BuildConfig.h.in BuildConfig.h)
+    ```
+    ```c
+    // BuildConfig.h.in内
+    // 获取版本
+    #define VERSION_MAJOR @Tutorial_VERSION_MAJOR@
+    #define VERSION_MINOR @Tutorial_VERSION_MINOR@
+    // 获取选项宏
+    #cmakedefine USE_MYDEP
+    ```
+1. 一些基础指令指路：
+    | 名称 | 功能 |
+    | --- | --- |
+    | PROJECT | 设定项目名称、版本 |
+    | ADD_EXECUTABLE | 设定输出的目标可执行文件 |
+    | ADD_LIBRARY | 设定输出的目标库文件(可配置库类型) |
+    | TARGET_COMPILE_FEATURES | 指定目标文件的编译特性 |
+    | FIND_PACKAGE | 查找必要的依赖包 |
+    | INSTALL | 安装配置 |
+    | IF | 条件编译语句 |
+    | MESSAGE | 打印信息 |
+    | SET | 设置普通、用户可修改、不可修改、环境变量 |
+    | ADD_CUSTOM_COMMAND | 执行用户自定义脚本 |
+    | EXPORT | 将本项目导出（生成.cmake配置），给其他项目使用 |
+1. cmake中的各种内置变量、命令行选项非常重要，可以多看多了解
 ### Makefile
+&emsp;&emsp;2022年了，目前还是建议使用CMake等跨平台生成方案。在Linux系平台上，CMake将会生成Makefile。
 ### Visual Studio
-
+&emsp;&emsp;2022年了，目前还是建议使用CMake等跨平台生成方案。在Windows系平台上，CMake将会生成vxcproj/sln等文件。
 ## 其他构建工具
 ### 测试工具
 1. Google Test
@@ -253,21 +388,21 @@ gcc -Wl,--wrap,malloc -Wl,--wrap,free -o hello hello.c myMalloc.o
         - 实际上应当尽量不使用FORCE，应该用链接中的方法。    
 ## 其他常用指令
 - objdump
-| 选项 | 含义 |
-| --- | --- |
-| -h | 查看简略的各段的头部信息 |
-| -x | 查看各段较详细信息，符号表单独显示 |
-| -s | 以十六进制打印 |
-| -d | 输出反汇编代码 |
+    | 选项 | 含义 |
+    | --- | --- |
+    | -h | 查看简略的各段的头部信息 |
+    | -x | 查看各段较详细信息，符号表单独显示 |
+    | -s | 以十六进制打印 |
+    | -d | 输出反汇编代码 |
 - readelf：看符号表更好用一些
-| 选项 | 含义 |
-| --- | --- |
-| -s | 查看符号表 |
-| -e | 查看节头信息 |
+    | 选项 | 含义 |
+    | --- | --- |
+    | -s | 查看符号表 |
+    | -e | 查看节头信息 |
 - ar：从目标文件(.o)创建静态库(.a)，ar \[options\] archive_file object_files ...
-| 选项 | 含义 |
-| --- | --- |
-| r | 创建、替换已有.a或向其插入新内容 |
+    | 选项 | 含义 |
+    | --- | --- |
+    | r | 创建、替换已有.a或向其插入新内容 |
 - strings：列出目标文件中**所有**可以打印的字符串
     > 包括用户的常量字符串，以及各个节的名字，函数名、文件名等等
 - nm：列出目标文件的符号表中的符号
@@ -283,3 +418,4 @@ gcc -Wl,--wrap,malloc -Wl,--wrap,free -o hello hello.c myMalloc.o
 1. 《深入理解计算机系统（第三版）》第七章链接
 1. [CMake官方文档](https://cmake.org/cmake/help/latest/index.html)
 1. [CMake入门实战](https://www.hahack.com/codes/cmake/)
+1. [CMake官方教程](https://cmake.org/cmake/help/latest/guide/tutorial/index.html)

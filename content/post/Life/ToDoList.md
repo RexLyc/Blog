@@ -25,10 +25,14 @@ thumbnailImage: /images/thumbnail/todo.jpg
 1. [x] spring1 - 8h
 1. [x] design-pattern-init - 16h(各种模式找一个样例代码)
 1. [x] git - 4h
-1. [ ] cpp-compile - 24h
-    - [ ] linux gcc & windows vs
-    - [ ] C++ 98 03 11 14 17 21
+1. [x] cpp-compile - 24h
+    - [x] 编译链接装配
+    - [x] linux gcc & windows vs
+    - [x] gdb
+    - [x] cmake
+1. [ ] cpp-standard - 16h
     - [ ] C & C++
+    - [ ] C++ 98 03 11 14 17 21
 1. [ ] qt-all-in-one - 8h(后续可以再补充，尤其是针对嵌入式、针对模块的单独使用)
 1. [x] jmeter-all-in-one - 2h(稍加补充)
 1. [ ] ibmmq-all-in-one - 2h(稍加补充)
@@ -80,6 +84,12 @@ thumbnailImage: /images/thumbnail/todo.jpg
 1. 3D数学基础：图形和游戏开发
 1. Physically Based Rendering: From Theory to Implemention 3rd
 1. 点石成金：访客至上的Web和移动可用性设计秘笈 原书第3版
+
+## 去哪儿玩
+- 户外：
+    - 密云水库（天线阵列、星空）
+    - 灵山（星空）
+    - 香山
 
 ## 日常想法：
 1. 对于着混合服务器、PC工作站、物联网终端设备的一个网络模型，建立一个可以动态感知设备、服务生存状态的基础服务。是否已经有类似的开源项目。本质上应该也是类似于服务发现的一种模块，但是是双向的（两侧都要感知到自己、对方掉线）。业界的开源方案是如何实现的。

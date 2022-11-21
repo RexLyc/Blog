@@ -53,16 +53,35 @@ math: true
 1. C17：主要是解决一些标准缺陷
 1. C23：还没出呢
 ## C++标准
-### 重要语法特性
+1. 在C++98之前，1985年是C++的第一个大版本，1991年是第二个大版本，但此时语言显然不够稳定。1990年、1991年，ANSI C++委员会、ISO C++委员会相继建立。
 1. C++98
-1. C++03
-1. C++11
+    - 第一个真正意义上的C++标准版本
+    - 新特性：运行时类型识别RTTI（Runtime Type Identification）、转型运算符、mutable、export、模板实例化、成员模板、在条件语句中定义、规定一些类型标准（nullptr_t、符号和大小修饰符）
+    - 新库：locales、bitset、valarray、auto_ptr、模板化的string、I/O流、复数
+    - STL：容器、函数、迭代器、函数对象
+        > 1999年，Boost建立，意在为C++标准试验编写高质量库
+1. C++03：小改进，主要是技术勘误，但也提出了一些小技术点：如构造对象时，使用空初始化的一些语法标准。
+1. C++11：**超大改进**，从TR1和Boost中接纳了大量的特性和库
+    - [C++11 Main Artical](https://en.cppreference.com/w/cpp/11)
+    - 核心新特性：
+        - 关键字：类型推导（auto和decltype）、default和delete函数声明，final和overide、constexpr和LiteralType（编译期常量及其类型）、noexcept函数声明和运算符、nullptr、对齐声明符（alignas）、对齐值运算符（alignof）
+        - 易用性：尾置返回类型（trailing return type）、初值列、委派构造（delegating）、构造函数继承、lambda表达式、类型别名和别名模板（using）、字符串字面值前缀（L、u8、u、U、R）、自定义整型/浮点型/字符/字符串字面值后缀、范围for语法糖、
+        - 模板：可变参数模板（typename ... pack-name)、
+        - 语法统一：在列表初始和拷贝列表初始化中均使用大括号\{\}
+        - 性能：右值引用、移动构造、移动赋值、
+        - 安全性：scoped enum（禁止转型的enum）、多线程内存模型、线程本地存储声明符（thread_local）、static_assert（编译期断言）、动态内存管理（智能指针）、存储类型声明符（如extern、static、mutable、thread_local）
+        - *不太懂的：函数属性声明符序列\[\[attr-list\]\]*
+    - 新库：
+    - 新的库特性
 1. C++14
 1. C++17
 1. C++20
 1. C++23
 1. 编译器支持情况（截止2022年底）
 
+> 注：一些在C++20、C++23决议被抛弃的特性将不再列出
+
 ## 参考
 1. [cppreference](https://zh.cppreference.com/w/)
+1. [History of C++](https://en.cppreference.com/w/cpp/language/history)
 1. [C89和C99区别](https://www.cnblogs.com/xiaoyoucai/p/6146784.html)

@@ -27,6 +27,10 @@ draft: true
         - [影视飓风灯光教程](https://space.bilibili.com/946974/channel/collectiondetail?sid=3313)
         - [摄影师泰罗：从零学用光](https://space.bilibili.com/110683415/channel/collectiondetail?sid=262445)
 
+## 摄影眼
+1. 拍雨雪这类场景，可以尝试拍摄其因为风力、人力，突然飘落的瞬间
+1. 拍建筑，尝试半逆光大角度侧拍，有的时候很有张力
+
 ## 毕业纪念视频想法
 - 旋转变装
 - 把书扔起来睁眼睛

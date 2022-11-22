@@ -71,8 +71,16 @@ math: true
         - 性能：右值引用、移动构造、移动赋值、
         - 安全性：scoped enum（禁止转型的enum）、多线程内存模型、线程本地存储声明符（thread_local）、static_assert（编译期断言）、动态内存管理（智能指针）、存储类型声明符（如extern、static、mutable、thread_local）
         - *不太懂的：函数属性声明符序列\[\[attr-list\]\]*
-    - 新库：
+    - 新头文件：
+        - C库迁移：cfenv（浮点库）、cinttypes、cstdint（整型类型和宏）、cuchar、
+        - 数据：array、forward_list、initializer_list、scoped_allocator、tuple、unordered_map、unordered_set、scoped_allocator、
+        - 工具：chrono、random、regex、ratio（编译期有理数运算）、
+        - 类型：typeindex
+        - 系统：system_error、
+        - 元编程：type_traits、
+        - 并发：atomic、condition_variable、future、mutex
     - 新的库特性
+        - 
 1. C++14
 1. C++17
 1. C++20

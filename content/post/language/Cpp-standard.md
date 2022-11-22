@@ -61,28 +61,40 @@ math: true
     - STL：容器、函数、迭代器、函数对象
         > 1999年，Boost建立，意在为C++标准试验编写高质量库
 1. C++03：小改进，主要是技术勘误，但也提出了一些小技术点：如构造对象时，使用空初始化的一些语法标准。
-1. C++11：**超大改进**，从TR1和Boost中接纳了大量的特性和库
-    - [C++11 Main Artical](https://en.cppreference.com/w/cpp/11)
+1. C++11：**超大改进**，从TR1和Boost中接纳了大量的特性和库。[C++11 Main Artical](https://zh.cppreference.com/w/cpp/11)
     - 核心新特性：
         - 关键字：类型推导（auto和decltype）、default和delete函数声明，final和overide、constexpr和LiteralType（编译期常量及其类型）、noexcept函数声明和运算符、nullptr、对齐声明符（alignas）、对齐值运算符（alignof）
-        - 易用性：尾置返回类型（trailing return type）、初值列、委派构造（delegating）、构造函数继承、lambda表达式、类型别名和别名模板（using）、字符串字面值前缀（L、u8、u、U、R）、自定义整型/浮点型/字符/字符串字面值后缀、范围for语法糖、
-        - 模板：可变参数模板（typename ... pack-name)、
+        - 易用性：尾置返回类型（trailing return type）、初值列、委派构造（delegating）、构造函数继承、lambda表达式、类型别名和别名模板（using）、字符串字面值前缀（L、u8、u、U、R）、自定义整型/浮点型/字符/字符串字面值后缀、范围for语法糖
+        - 模板：可变参数模板（typename ... pack-name)
         - 语法统一：在列表初始和拷贝列表初始化中均使用大括号\{\}
-        - 性能：右值引用、移动构造、移动赋值、
+        - 性能：右值引用、移动构造、移动赋值
         - 安全性：scoped enum（禁止转型的enum）、多线程内存模型、线程本地存储声明符（thread_local）、static_assert（编译期断言）、动态内存管理（智能指针）、存储类型声明符（如extern、static、mutable、thread_local）
         - *不太懂的：函数属性声明符序列\[\[attr-list\]\]*
     - 新头文件：
-        - C库迁移：cfenv（浮点库）、cinttypes、cstdint（整型类型和宏）、cuchar、
-        - 数据：array、forward_list、initializer_list、scoped_allocator、tuple、unordered_map、unordered_set、scoped_allocator、
-        - 工具：chrono、random、regex、ratio（编译期有理数运算）、
+        - C库迁移：cfenv（浮点库）、cinttypes、cstdint（整型类型和宏）、cuchar
+        - 数据：array、forward_list、initializer_list、scoped_allocator、tuple、unordered_map、unordered_set、scoped_allocator
+        - 工具：chrono、random、regex、ratio（编译期有理数运算）
         - 类型：typeindex
-        - 系统：system_error、
-        - 元编程：type_traits、
+        - 系统：system_error
+        - 元编程：type_traits
         - 并发：atomic、condition_variable、future、mutex
     - 新的库特性
-        - 
-1. C++14
-1. C++17
+        - 容器：emplace原地构造、forward_list前向列表、begin/end、prev/next
+        - 类型：智能指针、function、exception_ptr、error_code、error_condition、move_iterator
+        - 函数：xxx_of、xxx_if、shuffle、partition系列、is_xxx、minmax、iota、current_exception、rethrow_exception
+1. C++14：小的版本更新，主要是勘误。[C++14 Main Article](https://zh.cppreference.com/w/cpp/14)
+    - 新语言特性：
+        - 泛型：变量模板、泛型lambda、
+        - lambda：初值列捕获、右值补货
+        - 构造：聚合类（一种特殊的类）具有默认构造函数、
+        - 字面值：整数字面值内可以加入单引号\'作为分隔符提升可读性（编译器会自动忽略）
+        - 模板元：constexpr对函数的要求放宽
+    - 新库特性：
+        - 内存：make_unique（制造unique_ptr更好的方法）
+        - 并发：shared_timed_mutex、shared_lock
+        - 模板元：integer_sequence编译期整型序列
+        - 工具：exchange（交换并返回）、quoted（输出或输入带引号的字符串）
+1. C++17：
 1. C++20
 1. C++23
 1. 编译器支持情况（截止2022年底）
@@ -91,5 +103,7 @@ math: true
 
 ## 参考
 1. [cppreference](https://zh.cppreference.com/w/)
-1. [History of C++](https://en.cppreference.com/w/cpp/language/history)
+1. [History of C++](https://zh.cppreference.com/w/cpp/language/history)
 1. [C89和C99区别](https://www.cnblogs.com/xiaoyoucai/p/6146784.html)
+
+> 如果不能理解翻译的含义，建议切换到英文版本的网页

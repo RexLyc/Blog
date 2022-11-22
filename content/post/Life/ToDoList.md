@@ -85,6 +85,11 @@ thumbnailImage: /images/thumbnail/todo.jpg
 1. Physically Based Rendering: From Theory to Implemention 3rd
 1. 点石成金：访客至上的Web和移动可用性设计秘笈 原书第3版
 
+## 影剧清单
+- [ ] 海边的曼彻斯特
+- [ ] 白日梦想家
+- [ ] Rebeeca
+
 ## 去哪儿玩
 - 户外：
     - 密云水库（天线阵列、星空）

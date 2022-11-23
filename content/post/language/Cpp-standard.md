@@ -94,12 +94,27 @@ math: true
         - 并发：shared_timed_mutex、shared_lock
         - 模板元：integer_sequence编译期整型序列
         - 工具：exchange（交换并返回）、quoted（输出或输入带引号的字符串）
-1. C++17：
-1. C++20
-1. C++23
+1. C++17：大版本更新，合并了大量的新特性，废除了一些内容。[C++17 Main Article](https://zh.cppreference.com/w/cpp/17)
+    - 移除：
+        - 关键字：register、
+        - 类型：auto_ptr、
+        - 函数：random_shuffle()、旧的函数对象&适配器和binder、意外的异常抛出unexpected()
+        - IO流别名：io_state/open_mode/seek_dir/streamoff/streampos（命名变更了）
+        - 三字母词（trigraphs）：以??开头的三个字符，有特殊的转义含义，已被移除
+        - bool类型禁止自增运算符
+        - 动态异常说明：允许异常声明符标记一个父类，抛出异常是其子类即可。该特性已被移除。*那如何判断是否抛出了意料之外的异常类型呢？*
+    - 废除：
+        - 类型：std::iterator、raw_storage_iterator
+        - 模板元：is_literal_type、result_of、result_of_t
+        - 函数：get_temporary_buffer、
+        - 头文件：本地化库codecvt
+    
+1. C++20：大版本更新。
+1. C++23：还没出
 1. 编译器支持情况（截止2022年底）
 
-> 注：一些在C++20、C++23决议被抛弃的特性将不再列出
+> 注1：一些在C++20、C++23决议被抛弃的特性将不再列出
+> 注2：移除废除的理由一般都是，设计理念始终没有较好的被实现，最终被移除。
 
 ## 参考
 1. [cppreference](https://zh.cppreference.com/w/)

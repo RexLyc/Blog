@@ -26,3 +26,52 @@ draft: true
         - [5分钟从零上手闪光灯｜最实用接地气的入门教程](https://www.bilibili.com/video/BV1Nq4y1K7G9)
         - [影视飓风灯光教程](https://space.bilibili.com/946974/channel/collectiondetail?sid=3313)
         - [摄影师泰罗：从零学用光](https://space.bilibili.com/110683415/channel/collectiondetail?sid=262445)
+
+## 摄影眼
+1. 拍雨雪这类场景，可以尝试拍摄其因为风力、人力，突然飘落的瞬间
+1. 拍建筑，尝试半逆光大角度侧拍，有的时候很有张力
+
+## 毕业纪念视频想法
+- 旋转变装
+- 把书扔起来睁眼睛
+- 操场篮球
+
+- 面向窗外，阳光照射
+- 新主楼，图书馆，环绕视角
+- 图书馆正面使用长焦镜头
+- BGM：
+    - shooting stars
+    - 113 sweet dream
+    - 131 elisa theme
+    - 132 dreams
+    - 146 song on the beach
+    - 147 stayin alive
+    - 163 quiet romance
+    - 173 music box
+    - 176 pau hafa sloppio ……
+    - 188 transformation（似乎最适合做严肃版）
+    - 189 epic sax guy
+    - 196 le tunnel
+    - 老滚，黑魂，mc系列bgm
+
+    - 205 the ellie badge
+    - 213 paris,paris 欢快的
+    - 214 song for a new beginning
+    - 229 dawn of life
+    - 230 适合做ed，演职员表
+
+    - 234 villanelle
+    - 236 arrival of the bird（和188类似）
+    - 253 journey
+
+    - 265 roundabout
+    - 272 monkeybiz 动次打次
+    - 277 relax
+    - 282 海绵宝宝 （音量诉讼时效）
+    - 283 康康舞曲
+
+    - 290 monkey spin monkey
+    - 291 the happy troll
+- 文案
+    - I have loved you. I did my best.
+    - 以离校身份，转一转学校最后的地方，用剪辑和延时拍摄一下该地点的回忆。

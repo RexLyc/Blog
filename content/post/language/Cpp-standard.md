@@ -69,7 +69,7 @@ math: true
         - 语法统一：在列表初始和拷贝列表初始化中均使用大括号\{\}
         - 性能：右值引用、移动构造、移动赋值
         - 安全性：scoped enum（禁止转型的enum）、多线程内存模型、线程本地存储声明符（thread_local）、static_assert（编译期断言）、动态内存管理（智能指针）、存储类型声明符（如extern、static、mutable、thread_local）
-        - *不太懂的：函数属性声明符序列\[\[attr-list\]\]*
+        - *不太懂的：属性声明符序列\[\[attr-list\]\]*，该特性可以作用于很多语法结构（函数、if、类型、对象）
     - 新头文件：
         - C库迁移：cfenv（浮点库）、cinttypes、cstdint（整型类型和宏）、cuchar
         - 数据：array、forward_list、initializer_list、scoped_allocator、tuple、unordered_map、unordered_set、scoped_allocator
@@ -108,7 +108,15 @@ math: true
         - 模板元：is_literal_type、result_of、result_of_t
         - 函数：get_temporary_buffer、
         - 头文件：本地化库codecvt
-    
+    - 新特性：
+        - 字面值：字符字面值前缀符（u8、u、U、L）、
+        - 语法：...现在叫折叠表达式了（4种形式的二元运算表达式）
+        - 类型：noexcept成为函数签名的一部分、值类型变动（左值右值等）、几个新的attr声明符
+        - 底层：求值顺序规则变动、inline变量（头文件也可以有变量定义）、强制拷贝构造优化（避免多次拷贝构造）、临时量实质化（也是为了避免出现不必要的拷贝）
+        - 语法糖：lambda表达式可以捕获\*this、lambda表达式可以使用constexpr描述符（即使不用也可能是隐式的）、结构化绑定（同时赋多个值给多个标识符）、if和switch内可以先使用初始化语句序列（以;号结束）、using可以嵌套（using A::B::C \{\})、命名空间定义时也可以嵌套（namespace A::B \{\}）
+        - 模板元：编译期条件语句（if constexpr表达式）、CTAD（模板元参数自动推导，对pair、tuple等很实用）、非类型模板参数可以使用auto声明类型
+        - 宏：__has_include判断是否引入了某个头
+    - 
 1. C++20：大版本更新。
 1. C++23：还没出
 1. 编译器支持情况（截止2022年底）
@@ -120,5 +128,6 @@ math: true
 1. [cppreference](https://zh.cppreference.com/w/)
 1. [History of C++](https://zh.cppreference.com/w/cpp/language/history)
 1. [C89和C99区别](https://www.cnblogs.com/xiaoyoucai/p/6146784.html)
+1. 《C++17 the complete guide》，[中文翻译版](https://github.com/MeouSker77/Cpp17)
 
 > 如果不能理解翻译的含义，建议切换到英文版本的网页

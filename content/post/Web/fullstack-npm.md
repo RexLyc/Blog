@@ -72,11 +72,28 @@ Node.JS是基于Chrome V8开发的JS服务器端运行环境，NPM则是Node.JS�
 ### electron
 - 概述：一个用于生成跨平台程序的node.js库
 - 实用工具：
-    1. electron-forge：打包工具
-    1. electron-builder：打成安装包的工具
+    1. electron-forge：一个混合多种功能的cli，可以用于打包
+    1. electron-package：打成安装包的工具，打包功能稍弱
+    1. electron-builder：打成安装包的工具，打包功能更为强大
+- 注：
+    1. npm设置代理或镜像的方式都不够稳定，怎么解决？
+    1. electron-builder据说可以设置ELECTRON_MIRROR环境变量，未验证是否真的有效。否则builder也经常去拉github上的资源，容易失败。
+        ```sh
+        # windows下
+        set ELECTRON_MIRROR="https://npm.taobao.org/mirrors/electron/"
+        ```
+    1. files设置的打包时所需打包的文件，但是注意路径需要有一些变化。最好是通过from、to的方式指定清楚。
+- 项目文件参考
+```json
+// package.json
+```
 - 参考：
     - [ElectronJS中获取GPU信息](https://www.imangodoc.com/199335.html)
+    - [Electron使用electron-builder打包流程](https://segmentfault.com/a/1190000022763633)
     - [electron-builder打包优化](https://zhuanlan.zhihu.com/p/379467469)
+    - [electron打包优化之路](https://segmentfault.com/a/1190000038574623)
+    - [Electron 打包优化](https://www.jianshu.com/p/50043f485ec9/)
+    - [使用electron-builder在windows上打包并自动更新](https://www.cxyzjd.com/article/weixin_34249678/89009487)
 ## Node.JS实用总结
 1. 版本变更
 1. 

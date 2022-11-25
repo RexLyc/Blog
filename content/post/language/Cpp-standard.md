@@ -116,7 +116,9 @@ math: true
         - 语法糖：lambda表达式可以捕获\*this、lambda表达式可以使用constexpr描述符（即使不用也可能是隐式的）、结构化绑定（同时赋多个值给多个标识符）、if和switch内可以先使用初始化语句序列（以;号结束）、using可以嵌套（using A::B::C \{\})、命名空间定义时也可以嵌套（namespace A::B \{\}）
         - 模板元：编译期条件语句（if constexpr表达式）、CTAD（模板元参数自动推导，对pair、tuple等很实用）、非类型模板参数可以使用auto声明类型
         - 宏：__has_include判断是否引入了某个头
-    - 
+    - 新库：
+        - 工具：any通用包装类型、optional空或非空对象包装类型、variant一种类型安全的union
+        - 内存：memory_resource
 1. C++20：大版本更新。
 1. C++23：还没出
 1. 编译器支持情况（截止2022年底）

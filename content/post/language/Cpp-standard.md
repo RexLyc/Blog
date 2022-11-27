@@ -14,7 +14,7 @@ math: true
 语言标准是语言发展的重要基础，这一点在C/C++上尤为明显，从C++11开始，C++标准委员基本以3年为一个周期快速更新C/C++，这门语言也终于焕发越来越强的活力。
 <!--more-->
 ## 概述
-&emsp;&emsp; 标准是繁杂且专业的内容，本文仅记录一些我认为比较有学习价值的标准内容。
+&emsp;&emsp; 标准是繁杂且专业的内容，本文仅记录一些我认为比较有学习价值的标准内容。具体特性的使用还是要去参考文档。
 ## C标准
 1. K&R C：大佬Dennis Ritchie和Brian Kernighan合作的书《The C Programming Language》的参考指南中提到的C语言完整定义，成为当时（1978年）的事实标准。
 1. ANSI C和GNU C
@@ -117,14 +117,27 @@ math: true
         - 模板元：编译期条件语句（if constexpr表达式）、CTAD（模板元参数自动推导，对pair、tuple等很实用）、非类型模板参数可以使用auto声明类型
         - 宏：__has_include判断是否引入了某个头
     - 新库：
-        - 工具：any通用包装类型、optional空或非空对象包装类型、variant一种类型安全的union
+        - 工具：any通用包装类型、optional空或非空对象包装类型、variant一种类型安全的union、string_view高性能的只读字符串类型、charconv对C字符串转整/浮点型库
         - 内存：memory_resource
+        - 辅助：execution用于指示泛型算法的执行策略（开发并行程序更简单）
+        - 系统：filesystem文件系统
+    - 新的库特性：
+        - 工具：tuple（apply、make_from_tuple）、as_const左值转常量类型、not_fn非语义、
+        - 算法：search字符串搜索算法、gcd最大公约数、lcm最小公倍数、clamp取三者的中值、reduce可并行非顺序的规约、xx_scan求前缀和、
+        - 容器：非成员的std::size/empty/data函数、新的迭代器细分（老式连续内存迭代器）、map/set支持merge和extract、map/unordered_map接口扩展
+        - 内存：destroy_at析构函数族、unintialize_move内存移动函数族、weak_from_this构造weak_ptr、std::pmr::memory_resource封装内存资源、std::pmr::polymorphic_allocator分配器和前面搭配使用、shared_ptr支持数组、new和new[]支持显式对齐、owner_less提供对于共享指针控制块的比较能力、
+        - 对C兼容库的更新：
+            - cstdlib：std::aligned_alloc申请内存并自动对齐。
+            - cmath：hypot勾股求斜边、大量数学函数。由于cmath本身被numeric库包含，因此也可以使用。
+        - 模板元：
+        - 其他：
 1. C++20：大版本更新。
 1. C++23：还没出
 1. 编译器支持情况（截止2022年底）
 
 > 注1：一些在C++20、C++23决议被抛弃的特性将不再列出
-> 注2：移除废除的理由一般都是，设计理念始终没有较好的被实现，最终被移除。
+
+> 注2：移除、废除的理由一般都是，设计理念始终没有较好的被实现，最终被移除。
 
 ## 参考
 1. [cppreference](https://zh.cppreference.com/w/)

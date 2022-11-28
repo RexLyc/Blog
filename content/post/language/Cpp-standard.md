@@ -129,15 +129,30 @@ math: true
         - 对C兼容库的更新：
             - cstdlib：std::aligned_alloc申请内存并自动对齐。
             - cmath：hypot勾股求斜边、大量数学函数。由于cmath本身被numeric库包含，因此也可以使用。
+            - cstddef：byte方便二进制运算的字节类型
+            - ctime：timespec_get对timespec对象进行修改
         - 模板元：
+            - 逻辑运算：conjunction合取、disjunction析取、negation否定
+            - 基础类型值：大量的xxx_v类型（对xxx\<T\>::value简化）
+            - 类型判断：is_swappable是否支持swap函数、is_invocable是否可调用、is_aggregate是否是聚合类型、has_unique_object_representations是否具备平凡可复制特性（主要用于判断类型是否可hash）
         - 其他：
-1. C++20：大版本更新。
+            - 安全：launder提供对指针处对象的确定行为访问（和裸指针访问的未定义行为相对应）
+            - 字符串：to_chars/from_chars位于charconv的实用函数
+            - 并发：is_always_lock_free、scoped_lock获取多个锁、hardware_destructive_interference_size/hardware_constructive_interference_size优化数据共享的地址偏移来避免假共享、
+            - 异常：uncaught_exceptions获取当前线程仍活跃的异常对象
+            - chrono：对时间点和时间段提供floor、ceil、round等实用函数
+1. C++20：大版本更新。[C++20 Main Article](https://zh.cppreference.com/w/cpp/20)
+    - 新的语言特性：
+        - 
+    - 新库：
+    - 新库特性：
+        - 
 1. C++23：还没出
 1. 编译器支持情况（截止2022年底）
 
 > 注1：一些在C++20、C++23决议被抛弃的特性将不再列出
 
-> 注2：移除、废除的理由一般都是，设计理念始终没有较好的被实现，最终被移除。
+> 注2：移除、废除的理由一般都是，设计理念始终没有较好的被实现，最终被移除。特性将会先标记废除，再在下一次的大版本中完全移除。
 
 ## 参考
 1. [cppreference](https://zh.cppreference.com/w/)

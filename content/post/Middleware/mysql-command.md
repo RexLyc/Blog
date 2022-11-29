@@ -38,6 +38,12 @@ SET a.content = b.content;
 
 ## D - Delete删
 
+
+## 混合
+1. 用查询结果插入
+```sql
+INSERT INTO my_table(column1) SELECT column1 from table2;
+```
 ## 其他
 - 命令行
     1. 登录指定的MySQL数据库

@@ -113,7 +113,7 @@ math: true
         - 语法：...现在叫折叠表达式了（4种形式的二元运算表达式）
         - 类型：noexcept成为函数签名的一部分、值类型变动（左值右值等）、几个新的attr声明符
         - 底层：求值顺序规则变动、inline变量（头文件也可以有变量定义）、强制拷贝构造优化（避免多次拷贝构造）、临时量实质化（也是为了避免出现不必要的拷贝）
-        - 语法糖：lambda表达式可以捕获\*this、lambda表达式可以使用constexpr描述符（即使不用也可能是隐式的）、结构化绑定（同时赋多个值给多个标识符）、if和switch内可以先使用初始化语句序列（以;号结束）、using可以嵌套（using A::B::C \{\})、命名空间定义时也可以嵌套（namespace A::B \{\}）
+        - 语法糖：lambda表达式可以捕获\*this、lambda表达式可以使用constexpr描述符（即使不用也可能是隐式的）、结构化绑定（同时赋多个值给多个标识符，for里实用）、if和switch内可以先使用初始化语句序列（以;号结束）、using可以嵌套（using A::B::C \{\})、命名空间定义时也可以嵌套（namespace A::B \{\}）
         - 模板元：编译期条件语句（if constexpr表达式）、CTAD（模板元参数自动推导，对pair、tuple等很实用）、非类型模板参数可以使用auto声明类型
         - 宏：__has_include判断是否引入了某个头
     - 新库：
@@ -141,9 +141,15 @@ math: true
             - 并发：is_always_lock_free、scoped_lock获取多个锁、hardware_destructive_interference_size/hardware_constructive_interference_size优化数据共享的地址偏移来避免假共享、
             - 异常：uncaught_exceptions获取当前线程仍活跃的异常对象
             - chrono：对时间点和时间段提供floor、ceil、round等实用函数
-1. C++20：大版本更新。[C++20 Main Article](https://zh.cppreference.com/w/cpp/20)
+1. C++20：大版本更新。四大更新：协程、模块、range、concept。[C++20 Main Article](https://zh.cppreference.com/w/cpp/20)
     - 新的语言特性：
-        - 
+        - 宏：has_cpp_attribute()特性检测宏
+        - 类型：比较类型的operator函数提供default方案（包括友元函数），聚合类的初始化改进（但仍有和C不兼容的写法）
+        - 语法糖：range-for支持循环头初始化语句序列、lambda表达式可以捕获折叠表达式的展开、operator\<=\>
+        - 属性：新的attr（no_unique_address、likely等）
+        - 关键字：char8_t保证能存储任何utf-8字符的类型
+        - 模板元：constinit显式说明变量类型必须是静态初始化（零初始化或常量初始化）、consteval指示函数能且仅能工作在编译期、constexpr要求进一步放宽
+        - 底层：规定有符号整型以补码形式实现、**协程**、**模块**
     - 新库：
     - 新库特性：
         - 

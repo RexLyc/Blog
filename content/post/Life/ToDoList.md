@@ -30,9 +30,9 @@ thumbnailImage: /images/thumbnail/todo.jpg
     - [x] linux gcc & windows vs
     - [x] gdb
     - [x] cmake
-1. [ ] cpp-standard - 16h
-    - [ ] C & C++
-    - [ ] C++ 98 03 11 14 17 20
+1. [X] cpp-standard - 16h
+    - [X] C & C++
+    - [X] C++ 98 03 11 14 17 20
 1. [ ] qt-all-in-one - 8h(后续可以再补充，尤其是针对嵌入式、针对模块的单独使用)
 1. [x] jmeter-all-in-one - 2h(稍加补充)
 1. [ ] ibmmq-all-in-one - 2h(稍加补充)

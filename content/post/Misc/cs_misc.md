@@ -48,6 +48,11 @@ thumbnailImage: /images/thumbnail/misc.jpg
         }
         ```
     - 参考:[精灵加载去缓存](https://segmentfault.com/a/1190000022280843)
+1. CSS：
+    - 国家哀悼日等情况时，设置全站灰色的办法，在顶层添加
+        ```css
+        -webkit-filter: grayscale(.95);
+        ```
 
 1. WebSocket并发问题
     - 当并发量较大时，调用session.getAsyncRemote/getBasicRemote.send()，均会报错误“TEXT_FULL_WRITING”。

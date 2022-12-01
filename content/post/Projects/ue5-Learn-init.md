@@ -9,7 +9,6 @@ tags:
 - 个人项目
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/ue-logo.png
-draft: true
 ---
 本篇是独立游戏制作系列的游戏引擎开坑篇。由于虚幻引擎开源，且语言以C++为主，因此选择虚幻5引擎作为学习起点。
 <!--more-->
@@ -23,7 +22,7 @@ draft: true
 1. [界面基本构成](https://docs.unrealengine.com/5.0/zh-CN/unreal-editor-interface/)
     - 默认界面可能变化，根据需要自行调整
     - 主工具栏可以选择编辑模式、内容快捷创建、播放模式控制、场景构建等重要功能
-    - 关卡视口的左上角可以选择关卡视口的观察模式（透视、正交）
+    - 关卡视口的左上角可以选择关卡视口的观察模式（透视、正交）、右上角选择对模型的修改方式
     - 引擎已内置对版本管理的支持，在文件->源码管理（Source Control）
     - 大纲（Outlier）面板（一般于右上角），展示&编辑关卡中的所有内容
 1. [一些基本术语](https://docs.unrealengine.com/5.0/zh-CN/unreal-engine-terminology/)
@@ -50,6 +49,7 @@ draft: true
     - 鼠标左键、中键、右键均可以控制不同方式的视图变换
     - 在按下鼠标任何一个案件的同时，可以按QEWASD等键进行移动，此时滑动滚轮可以调整移动速度
     - Q、W、E、R：分别是选中、平移、旋转、缩放模式
+    - 在关卡视口中，灵活使用左上角的：透视、光照、模型，选项，来使开发更方便
 1. Actor：
     - Ctrl+D：复制一个Actor
     - Alt+拖拽：复制一个Actor

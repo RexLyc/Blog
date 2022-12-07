@@ -17,14 +17,39 @@ thumbnailImage: /images/thumbnail/ue-logo.png
 
 ## 蓝图编程
 - 蓝图类
-    - 角色
+    - 角色：用于编辑角色相关的逻辑
         - 双击进入编辑界面，视口用于显示角色模型，事件图表用于显示和编辑事件
     - 游戏模式
-- 常用节点：
-    - 输入类：键盘、鼠标、手柄按键
+    - 关卡蓝图：用于编辑整个关卡都生效的一些逻辑
+    - 窗口控件蓝图：添加一些显示到屏幕上的空间内容
+- 变量（Variable）：和材质的参数化类似，蓝图中也允许对外暴露一些变量便于利用相同的蓝图类生成不同的Actor
+    - 在左侧变量处点击添加按钮
+    - 设置类型、设置可见性、编译
+    - 从左侧拖动变量到事件图表中，获取变量是将变量输出，设置变量是为其输入
+- 常用事件节点：
+    - 输入类：键盘/鼠标/手柄按键（Key Event）、
+    - 设置类：
+        - 设置碰撞启用（Set Collision Enable）：设置为开启碰撞检测
+        - 设置模拟物理（Set Simulate Physics）：设置为开启物理模拟
+        - 设置物理混合权重（Set Physics Blend Weight）：用于设置骨骼动作和物理模拟的混合程度
     - 调试类：打印字符串
+    - 运动类：
+        - 添加Actor本地旋转（Add Actor Local Rotation）：刚体旋转
+    - 事件类：
+        - 组件重叠事件（On Component Begin Overlap）：Other XXX为对XXX进行判断，当确认是指定组件，才真正触发这次事件。
+        - 事件Tick（Event Tick）：每一帧都会触发的事件，注意直接使用输出会导致事件逻辑**不具备帧率无关性**，想要帧率无关，需要使用delta seconds属性
+    - 计算类：
+        - 创建旋转体（Make Rotator）：创建一个旋转运算单元，可以输入到Actor本地旋转中
+        - 乘法（Multiply）：对输入做乘法
+    - 类型转换：例如组件重叠事件的Other Actor转型为创建的角色蓝图类，转型成功则触发事件，否则触发失败信号
+    - 自定义事件：Custom
+- 常用组件
+    - Mesh：各种模型
+    - XXX Collision：各种碰撞体，可以利用其提供的事件，做一些简单的交互逻辑
+
 - 调试：先将蓝图运行起来，然后在蓝图编辑界面中，在运行按钮旁边就可以选择调试的对象
     > 注：当鼠标在主视口中，因为开始运行后消失，可以使用Shift+F1将鼠标恢复出来
+
 
 ## 全局后处理
 1. 类型：PostProcessorVolume
@@ -139,6 +164,11 @@ thumbnailImage: /images/thumbnail/ue-logo.png
 
 ## 其他特性
 - Nanite：一个大幅度优化密集多变形场景绘制的系统。目前对静态网格体效果最好，比如岩石、戈壁场景，使用Nanite优化的模型能够大幅度提升性能。在网格体的细节窗口设置中开启
+
+## 一些小技巧
+1. 在任何节点图中，按Alt抗原查看节点的原始英文名称。
+1. 调试时可以使用反引号按键呼出脚本菜单，一些常用的控制指令如
+    - 控制锁帧30：t.maxFPS 30
 
 ## 参考
 1. [Unreal Engine 5 Beginner Tutorial - UE5 Starter Course 2022](https://www.youtube.com/watch?v=k-zMkzmduqI)

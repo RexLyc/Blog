@@ -65,6 +65,8 @@ thumbnailImage: /images/thumbnail/ue-logo.png
     - 在想要导出的项目的Content（或指定folder处）
     - 右键选择迁移（Migrate），选择导出文件夹，一般直接导出到想要导入的项目即可
     - 资源将被自动加载进去
+1. 易用性：
+    - 书签（Bookmark）：在任意位置使用Ctrl+数字组合键，设置一个书签点，之后按数字键即可回到该位置。
 
 ## 参考资料
 1. [官方文档（中文）](https://docs.unrealengine.com/5.0/zh-CN/)

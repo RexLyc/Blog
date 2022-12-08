@@ -145,6 +145,8 @@ thumbnailImage: /images/thumbnail/ue-logo.png
     - 地形材质不能直接拖拽材质球到主视口中，需要拖拽到右侧细节设置中的地形材质选项
     - 在地形模式的绘制菜单中，为不同层的材质创建图层信息，根据需要选择（一般权重即可）
     - 地形的纹理平铺尺度需要借助一些内容来进行参考，一般可以使用添加→添加内容或功能包→添加第三人称→使用里面的人物模型
+    > 注：厉害的地形纹理可以做到自动化，即根据地形特点，自动输出不同的层，比如平地输出草地，高度变化很大的地方输出为岩石材质
+- 地形编辑是一个很复杂的事情，可以再多看看相关教学视频
 
 ## 植物编辑
 - 基本步骤
@@ -153,11 +155,17 @@ thumbnailImage: /images/thumbnail/ue-logo.png
     - 勾选想要使用的素材，左键绘制、Shift+左键删除
 - 一些选项：
     - 过滤器：设置Foliage会在哪些类型的模型上生成植物
+- 坑：
+    - 树木使用植物编辑时要小心，因为可能瞬间加入大量树木，直接卡死主机
 
 ## 素材
 - 素材库
     - Mega Scan：一个UE官方制作的库，也是免费使用，有大量的素材可以使用，
         - 入口：内容浏览器→添加→添加Quixel内容。或者从添加里也有Quixel Bridge。
+        - 推荐：Trees、Cliffs
+    - Epic Games Marketplace：Epic官方的商城，也有一些免费的素材
+- 其他推荐
+    - temperate vegetations
 ## 其他常用添加
 - 玩家出生点
 - 
@@ -169,6 +177,8 @@ thumbnailImage: /images/thumbnail/ue-logo.png
 1. 在任何节点图中，按Alt抗原查看节点的原始英文名称。
 1. 调试时可以使用反引号按键呼出脚本菜单，一些常用的控制指令如
     - 控制锁帧30：t.maxFPS 30
+1. 水的制作：基本上就是制作一个平面，给这个平面合适的材质即可
+1. 编辑场景可以使用无光照等模式，提高运行速度
 
 ## 参考
 1. [Unreal Engine 5 Beginner Tutorial - UE5 Starter Course 2022](https://www.youtube.com/watch?v=k-zMkzmduqI)

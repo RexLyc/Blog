@@ -97,6 +97,12 @@ thumbnailImage: /images/thumbnail/misc.jpg
         ```
 3. 参考：[Ubuntu18.04安装并美化zsh](https://www.sysgeek.cn/install-zsh-shell-ubuntu-18-04/)
 
+### Powershell
+1. 更换当前终端的字符编码（从GBK变为UTF8）
+    ```bash
+    chcp 65001
+    ```
+
 ## 小飞机
 ### hostwinds
 - 比较靠谱的供货商，但是其无管理（就是需要用户自己管理）的套餐，管理起来确实有些坑，在这里记录一下。

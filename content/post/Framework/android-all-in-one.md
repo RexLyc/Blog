@@ -41,6 +41,83 @@ Android是基于Linux开发的一款优秀的操作系统，尤其适用于在�
     #代理服务器端口
     systemProp.https.proxyPort=10809
     ```
+1. build.gradle示例
+```java
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    compileSdk 32
+
+    defaultConfig {
+        applicationId "com.afclab.pr_tpuservice"
+        minSdk 23
+        targetSdk 32
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // 自定义字段，将会最终写入到BuildConfig.java中
+        buildConfigField("String","BUILD_TIME","\""+getBuildDate()+"\"")
+    }
+
+
+    // apk签名配置
+    signingConfigs {
+        release {
+            storeFile file('../yourKey.jks')
+            storePassword 'yourPassword'
+            keyAlias 'yourKeyAlias'
+            keyPassword 'yourKeyPassword'
+        }
+    }
+
+    // 不同构建类型的配置
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.release
+        }
+
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+
+    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation 'com.google.android.material:material:1.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    // 在线下载的依赖
+    implementation 'com.github.licheedev:Android-SerialPort-API:2.0.0'
+    // 本地下载好的依赖
+    implementation fileTree(dir: '..\\3rdParty', include: ['*.aar', '*.jar'], exclude: [])
+    implementation 'com.google.code.gson:gson:2.9.1'
+    implementation 'com.squareup.okhttp:okhttp:2.7.5'
+    // 对本地其他项目的依赖
+    implementation project(path: ':pr-common')
+}
+
+// 自定义函数要写在做外侧
+String getBuildDate() {
+    TimeZone.setDefault(TimeZone.getDefault().getTimeZone("GMT+8"));
+    Date date =new Date();
+    return date.toString();
+}
+```
+
 ### 调用外部C++库
 1. 主要方式
     - 低难度：提供Java接口、so库。这意味着JNI代码已经写好了，使用者只需将so放到指定位置，调用Java接口即可
@@ -273,6 +350,7 @@ Android是基于Linux开发的一款优秀的操作系统，尤其适用于在�
     - 不应将图片直接放到drawable下面，而应当放到mipmap下
     - 当然实际上也不推荐直接用图片做背景
 1. 安卓设备连接上USB设备时，必须使用弹出式的权限获取窗口来获取权限，不能自动授权。该权限是动态获取的，在AndroidManifest中无法进行静态获取。
+1. Gson和Fastjson在对于byte[]的序列化方面，并不兼容，尽量使用同一种序列化方式。
 ## 参考资料
 - [2022最新Android基础视频教程](https://www.bilibili.com/video/BV19U4y1R7zV)
 - [Google官方文档](https://developer.android.google.cn/reference)

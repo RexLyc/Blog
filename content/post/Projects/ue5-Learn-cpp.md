@@ -12,6 +12,13 @@ thumbnailImage: /images/thumbnail/ue-logo.png
 ---
 Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和蓝图进行配合，能够发挥更大的威力。本文记录一些C++开发知识。
 <!--more-->
+
+## 基本流程
+1. 构造函数：进行资源获取，基本的参数变量的设置
+1. BeginPlay：对动画等和运行时相关的逻辑进行设定和启动的函数
+1. Tick：每一帧都会进行调用的函数
+1. SetPlayerInputComponent：将控制器的某些事件绑定当当前类型的处理函数
+
 ## 类型系统概述
 1. Unreal Engine大幅拓展了C++的能力，并形成了自己的类型系统，添加C++类型时，需要遵照相应的框架规则。
 1. 宏构成了Unreal Engine对C++扩展的一大部分，从类型生成到类成员的生成，都有宏的参与
@@ -28,10 +35,11 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
 | --- | --- | --- |
 | GetCapsuleComponent() | 继承函数 | 获取碰撞胶囊组件 |
 | GetMesh() | 继承函数 |获取网格体，用于进一步设置SkeletalMesh等 |
-| bUseControllerRotationXXXX | 继承变量 | 指示变量：是否使用控制器的输入控制旋转 |
-| SetupPlayerInputComponent | 重写函数 | 用于将输入事件绑定到用户输入组件 |
+| bUseControllerRotationXXXX | 继承变量 | 指示变量：是否使用控制器的输入控制旋转角色 |
+| SetupPlayerInputComponent() | 重写函数 | 用于将输入事件绑定到用户输入组件 |
 | AutoPossessPlayer | 继承变量 | 用于记录该角色相机视角是否为初始视角（Player0） |
-| AddMovementInput | 继承函数 | 用于提供橘色的移动方向和移动量 |
+| AddMovementInput() | 继承函数 | 用于提供橘色的移动方向和移动量 |
+| GetCharacterMovenent() | 继承函数 | 获取角色当前的运动组件 | 
 
 1. AController：角色控制通用的基类
 | 成员名称 | 成员类型 | 含义 | 
@@ -53,12 +61,15 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
 | 名称 | 含义 | 注意 | 常用成员 |
 | --- | --- | --- | --- |
 | UStaticMeshComponent&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; | 静态网格体组件，即一个UStaticMesh的实例 | 可能被垃圾回收，需要用UPROPERTY进行标记 | SetupAttachment、SetStaticMesh |
-| USkeletalMeshComponent&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; | 可动画化的网格体组件 | 也需用UPROPERTY标记 | |
+| USkeletalMeshComponent&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; | 可动画化的网格体组件 | 也需用UPROPERTY标记 | SetAnimationMode、PlayAnimation |
 | UStaticMesh、USkeletalMesh | 静态、骨骼网格体底层存储类型 | 需设置给特定的component才能使用 | |
 | FVector、FRotator | 向量、旋转子 | 常在SetXXXRotation/Location中使用 | |
-| USpringArmComponent | 摇臂类，常用于辅助第三人称相机 | 一般绑定到角色 | |
-| UCameraComponent | 相机类型 | 常绑定到摇臂 | |
+| FString | 可变字符串 | 每个FString独立保存字符数组 | |
+| USpringArmComponent | 摇臂类，常用于辅助第三人称相机 | 一般绑定到角色 | bUsePawControlRotation |
+| UCameraComponent | 相机类型 | 常绑定到摇臂 | bUsePawnControlRotation |
 | UInputComponent | 输入组件，将输入事件绑定到具体函数 | | BindAxis、BindAction | 
+| UCharacterMovementComponent | 角色运动组件 | 在角色类中用Get函数获取 | 各种用于控制角色移动的参数 |
+| UAnimSequence | 动画序列 | 实际还是用动画蓝图更方便 | |
 
 
 ## 常用工具类/函数
@@ -77,6 +88,9 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
 
 ## 开发要点
 1. 由于C++代码带来的变化不能像蓝图一样，自动显示在编辑器中，因此需要使用**Live Coding**功能，在不重启编辑器的情况下，编译并应用C++的罪行修改。快捷键是Ctrl+Alt+F11。
+1. 常见的在项目设置中进行配置的内容：
+    - 输入的事件绑定，按键事件、轴事件
+    - 游戏模式
 
 
 ## 常见功能示例
@@ -104,3 +118,4 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
 1. [知乎专栏：UE从点Play开始](https://zhuanlan.zhihu.com/p/512249255)
 1. [Unreal Engine C++ Advanced Dark Souls Boss Fight System](https://www.youtube.com/watch?v=ANzEGECpd0g)
 1. [UE5 C++ Tutorial | Introduction to Unreal Engine 5 with C++ in less than 90 Minutes](https://www.youtube.com/watch?v=nvruYLgjKkk&list=PL-m4pn2uJvXHL5rxdudkhqrSRM5gN43YN)
+1. [UE4静态/动态加载资源方式](https://zhuanlan.zhihu.com/p/266859719)

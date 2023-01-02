@@ -131,7 +131,7 @@ thumbnailImage: /images/thumbnail/PS.jpg
 ## 头发
 1. 去除杂发
     1. 单根：直接用污点修补工具
-    1. 稍多且背景纯色：印章工具或修补工具（但过于考验手感）
+    1. 稍多且背景纯色：印章工具或修补工具（但过于考验手感），复制图层创建剪贴蒙版并变形（快速处理碎发问题)[https://www.bilibili.com/video/BV1ra411d77e]
     1. 更多：多次表面模糊，蒙板。[参考视频](https://www.bilibili.com/video/BV1zx41117ya)，也可以看看该up的其他视频。
 1. 补头发
     1. 深色头发浅色皮肤：可以利用图层的深色叠加模式，移动其他部位头发过来。[参考视频](https://www.bilibili.com/video/BV1Sb411n7vT)

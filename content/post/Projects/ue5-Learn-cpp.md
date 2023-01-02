@@ -83,6 +83,7 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
 | RotationMatrix::GetUnitAxis() | 获取旋转矩阵对单位轴向量旋转后的结果 | 参数是EAxis::X/Y/Z |
 | Cast<>() | UE5类型体系下的转型 | |
 | UE_LOG() | 日志宏 | 需要提供日志类型enum，日志级别enum |
+| FStatic | 常量大全 | 避免在代码中使用魔数 |
 > 注1：类型系统中，所有非Class的内容，都是一种UObject。万物皆是UObject。
 
 
@@ -115,7 +116,9 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
 ## 参考
 1. [【虚幻5】【不适合小白观看】用C++来进行基于UE5的游戏开发（含动画蓝图）](https://www.bilibili.com/video/BV17Q4y1Y7fr)
 1. [官网：C++编程 虚幻引擎编程开发的相关信息](https://docs.unrealengine.com/5.0/zh-CN/programming-with-cplusplus-in-unreal-engine/)
+1. [UE5-c++教程 01~05](https://www.bilibili.com/video/BV1be41137Kp)
 1. [知乎专栏：UE从点Play开始](https://zhuanlan.zhihu.com/p/512249255)
 1. [Unreal Engine C++ Advanced Dark Souls Boss Fight System](https://www.youtube.com/watch?v=ANzEGECpd0g)
 1. [UE5 C++ Tutorial | Introduction to Unreal Engine 5 with C++ in less than 90 Minutes](https://www.youtube.com/watch?v=nvruYLgjKkk&list=PL-m4pn2uJvXHL5rxdudkhqrSRM5gN43YN)
 1. [UE4静态/动态加载资源方式](https://zhuanlan.zhihu.com/p/266859719)
+1. [【教程】虚幻5教程 斯坦福专用课程 UE4 & C++ 专业游戏开发教程 24.5小时 中文字幕](https://www.bilibili.com/video/BV1nU4y1X7iQ)

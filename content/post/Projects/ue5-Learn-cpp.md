@@ -25,9 +25,16 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
 
 
 ## 常用宏
-| 名称 | 含义 | 参数 |
-| ----- | --- | --- |
-| UPROPERTY | 类成员属性设置 | (UP::XXXenum，Categor="在编辑器-细节面板中的名字") |
+1. UE中使用的修饰作用的宏，一般的语法都类似于：
+```c
+// 修饰在前，key&value在后
+MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
+```
+1. 一些重要的宏如下表
+| 名称 | 使用位置 | 意义 |参数 |
+| ----- | --- | --- | --- |
+| UPROPERTY | 对类成员进行属性设置 |  | (UP::XXXenum，Category="在编辑器-细节面板中的名字") |
+| UCLASS | 对类进行属性设置 | 用于创建被声明类的UClass | Transient、Blueprintable、BlueprintType |
 
 ## 核心基类
 1. ACharacter：角色类型通用的基类
@@ -122,3 +129,4 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
 1. [UE5 C++ Tutorial | Introduction to Unreal Engine 5 with C++ in less than 90 Minutes](https://www.youtube.com/watch?v=nvruYLgjKkk&list=PL-m4pn2uJvXHL5rxdudkhqrSRM5gN43YN)
 1. [UE4静态/动态加载资源方式](https://zhuanlan.zhihu.com/p/266859719)
 1. [【教程】虚幻5教程 斯坦福专用课程 UE4 & C++ 专业游戏开发教程 24.5小时 中文字幕](https://www.bilibili.com/video/BV1nU4y1X7iQ)
+1. [UE4 UCLASS宏和可用宏参数](https://zhuanlan.zhihu.com/p/148098617)

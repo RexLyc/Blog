@@ -36,17 +36,18 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 | UPROPERTY | 对类成员进行属性设置 |  | (UP::XXXenum，Category="在编辑器-细节面板中的名字") |
 | UCLASS | 对类进行属性设置 | 用于创建被声明类的UClass | Transient、Blueprintable、BlueprintType |
 
-## 核心基类
+## 一些核心基类
 1. ACharacter：角色类型通用的基类
 | 成员名称 | 成员类型 | 含义 | 
 | --- | --- | --- |
-| GetCapsuleComponent() | 继承函数 | 获取碰撞胶囊组件 |
+| GetCapsuleComponent() | 继承函数&emsp; | 获取碰撞胶囊组件 |
 | GetMesh() | 继承函数 |获取网格体，用于进一步设置SkeletalMesh等 |
 | bUseControllerRotationXXXX | 继承变量 | 指示变量：是否使用控制器的输入控制旋转角色 |
 | SetupPlayerInputComponent() | 重写函数 | 用于将输入事件绑定到用户输入组件 |
 | AutoPossessPlayer | 继承变量 | 用于记录该角色相机视角是否为初始视角（Player0） |
 | AddMovementInput() | 继承函数 | 用于提供橘色的移动方向和移动量 |
 | GetCharacterMovenent() | 继承函数 | 获取角色当前的运动组件 | 
+| Jump() | 继承函数 | 设置角色进行一次跳跃（只是对速度、高度计算，动画需要用户控制 |
 
 1. AController：角色控制通用的基类
 | 成员名称 | 成员类型 | 含义 | 
@@ -59,27 +60,32 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 | PlayerControllerClass | 继承变量 | 默认玩家控制器 |
 | DefaultPawnClass | 继承变量 | 默认角色 |
 
+1. UAnimInstance：动画实例，多用于和蓝图配合编写更好的动画效果
+| 成员名称 | 成员类型 | 含义 |
+| --- | --- | --- |
+| NativeInitializeAnimation | 继承函数 | 初始化动画 |
+| NativeUpdateAnimation | 继承函数 | 每帧动画更新 |
+
 ## 广泛继承的函数
 | 名称 | 继承来源 | 含义 |
 | --- | --- | --- |
-| StaticClass() | | 创建并返回所属类型的静态实例 |
+| XXX::StaticClass() | | 创建并返回所属类型的静态实例 |
 
-## 常用基本类型
+## 其他常用基本类型
 | 名称 | 含义 | 注意 | 常用成员 |
 | --- | --- | --- | --- |
 | UStaticMeshComponent&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; | 静态网格体组件，即一个UStaticMesh的实例 | 可能被垃圾回收，需要用UPROPERTY进行标记 | SetupAttachment、SetStaticMesh |
-| USkeletalMeshComponent&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; | 可动画化的网格体组件 | 也需用UPROPERTY标记 | SetAnimationMode、PlayAnimation |
+| USkeletalMeshComponent&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; | 可动画化的网格体组件 | 也需用UPROPERTY标记 | SetAnimationMode、PlayAnimation、SetAnimInstanceClass、IsPlaying |
 | UStaticMesh、USkeletalMesh | 静态、骨骼网格体底层存储类型 | 需设置给特定的component才能使用 | |
 | FVector、FRotator | 向量、旋转子 | 常在SetXXXRotation/Location中使用 | |
 | FString | 可变字符串 | 每个FString独立保存字符数组 | |
 | USpringArmComponent | 摇臂类，常用于辅助第三人称相机 | 一般绑定到角色 | bUsePawControlRotation |
 | UCameraComponent | 相机类型 | 常绑定到摇臂 | bUsePawnControlRotation |
 | UInputComponent | 输入组件，将输入事件绑定到具体函数 | | BindAxis、BindAction | 
-| UCharacterMovementComponent | 角色运动组件 | 在角色类中用Get函数获取 | 各种用于控制角色移动的参数 |
+| UCharacterMovementComponent | 角色运动组件 | 在角色类中用Get函数获取 | 各种用于控制角色移动的参数，IsFalling()等运动状态函数 |
 | UAnimSequence | 动画序列 | 实际还是用动画蓝图更方便 | |
 
-
-## 常用工具类/函数
+## 常用工具类/枚举类/函数
 | 名称 | 含义 | 注意 |
 | ------ | --- | --- |
 | ConstructorHelper::FObjectFinder()&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; | 加载某种Object资源 | 构造函数中需要给出目标名称 |
@@ -91,6 +97,9 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 | Cast<>() | UE5类型体系下的转型 | |
 | UE_LOG() | 日志宏 | 需要提供日志类型enum，日志级别enum |
 | FStatic | 常量大全 | 避免在代码中使用魔数 |
+| EInputEvent | 输入事件类型枚举类 | 在BindAction中使用，比如指定按键按下IE_Pressed还是松开IE_Released |
+| EAutoReceiveInput::Type | 指示会被传递给当前角色、组件的是哪个玩家 | |
+| EAnimationMode | 动画模式 | |
 > 注1：类型系统中，所有非Class的内容，都是一种UObject。万物皆是UObject。
 
 
@@ -119,6 +128,14 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
     - **尚未解决**
 1. UE体系内C++类型修改后，Live Coding后，运行仍然未更新：删除原对象，重新拖动对象到关卡内。
     - **是否有自动的办法**
+1. 继承函数一般都需要在函数刚开始时调用父类函数，例如
+    ```cpp
+    // 自定义动画类，动画更新
+    void UMyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+    {
+        Super::NativeUpdateAnimation(DeltaSeconds);
+    }
+    ```
 
 ## 参考
 1. [【虚幻5】【不适合小白观看】用C++来进行基于UE5的游戏开发（含动画蓝图）](https://www.bilibili.com/video/BV17Q4y1Y7fr)

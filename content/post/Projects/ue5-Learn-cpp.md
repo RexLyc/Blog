@@ -77,16 +77,17 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 | TickComponent | 继承函数 | Tick函数，每帧都会被调用 |
 
 1. AActor：任何可放置、可Spawn的类型的基类
-| 成员名称 | 成员类型 | 含义 |
-| AddActorWorldTransform() | 继承函数 | 用于对Actor做全局变换 |
-| AddActorLocalRotation() | 继承函数 | 用于对Actor做局部坐标系旋转 |
-| SetMaterial() | 继承函数 | 用于设置材质、材质实例 |
-| SetCollisionEnabled() | 继承函数 | 用于设置碰撞计算方式 |
+| 成员名称 | 成员类型 | 含义 | 注意 |
+| AddActorWorldTransform() | 继承函数 | 用于对Actor做全局变换 | |
+| AddActorLocalRotation() | 继承函数 | 用于对Actor做局部坐标系旋转 | |
+| SetMaterial() | 继承函数 | 用于设置材质、材质实例 | |
+| SetCollisionEnabled() | 继承函数 | 用于设置碰撞计算方式 | |
+| AttachToComponent | 函数 | 将当前Actor设置连接到指定Component | 常用于将某物品绑定到人物、其他物品身上 |
 
 1. UWorld：世界类型
 | 成员名称 | 成员类型 | 含义 |
-| SpawnActor | 泛型函数 | 创建一个Actor |
-|
+| SpawnActor() | 泛型函数 | 创建一个Actor |
+| DestroyActor() |  | 删除一个Actor |
 
 ## 广泛继承的函数
 | 名称 | 继承来源 | 含义 |
@@ -108,11 +109,13 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 | UCharacterMovementComponent | 角色运动组件 | 在角色类中用Get函数获取 | 各种用于控制角色移动的参数，IsFalling()等运动状态函数 |
 | UAnimSequence | 动画序列 | 实际还是用动画蓝图更方便 | |
 | UBoxComponent | 盒组件 | 常用于进行简单的碰撞检测 | InitBoxExtent、OnComponent(Begin/End)Overlap.AddDynamic设置碰撞检测回调 |
+| UParticleSystemComponent | 粒子系统组件 | 常用于烟雾、火焰等 | SetTemplate |
+| UPointLightComponent | 点光源组件 | | SetLightColor、SetIntensity、SetSourceXXXX |
 
 ## 常用工具类/枚举类/函数
 | 名称 | 含义 | 注意 |
 | ------ | --- | --- |
-| ConstructorHelper::FObjectFinder()&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; | 加载某种Object资源 | 构造函数中需要给出目标名称 |
+| ConstructorHelper::FObjectFinder()&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; | 加载某种Object资源 | 构造函数中需要给出目标名称，加载的是不带Component后缀的原始资源 |
 | LoadObject<>() | 加载某种object资源 | 构造函数中给出父类Outer（可null）、目标引用名或文件地址 |
 | TEXT() | 对原始代码中的文本做正确处理 | 用于静态文件路径、文字打印等多种场景，本质是添加字符串前缀L |
 | CreateDefaultSuboject<>() | 创建一个组件或者suboject | 构造函数中需要给出目标名称 |
@@ -128,6 +131,8 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 | ECollisionEnabled | 碰撞检测 | QueryOnly有一些bug，并不Only |
 | EComponentMobility | 组件可移动性 | 静态、部分动态、全动态 |
 | FMath | 数学工具类 | |
+| FName | 公开名称，全局可见 | 常用于对骨骼网格体的某一部分进行检索、绑定 |
+| FAttachmentTransformRules | 连接时的变换规则枚举类 | 用于连接时，指定连接运算方式 |
 
 > 注1：类型系统中，所有非Class的内容，都是一种UObject。万物皆是UObject。
 
@@ -200,6 +205,11 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
         , int32 OtherBody);
     ```
 1. GetBounds函数，在不同类型中名字可能不同，但是注意获取到的origin和boxIntent都是局部坐标系的值。并且都是包含当前节点及其子节点的所有组件在内的整体包围盒。使用前确认在哪一级组件上。
+1. Overlap检测，注意对应的Actor在创建时，关于碰撞盒和网格体的缩放的控制：**尚未很好的解决**
+    - BoxComponent的InitBoxIntent：只控制碰撞盒的大小（默认32，和坐标不是同一种单位），但同时也受BoxComponent的缩放参数的控制
+    - StaticMeshComponent的SetRelativeScale3D：作为BoxComponent的子组件时，只控制网格体的缩放
+    - 灵活使用UE编辑器，可以先在C++中编码，然后在场景中拖出来一个，之后在编辑器的细节窗口中调整参数，直到调整好之后，再将参数带回C++代码中。
+1. 如果一个物体Spawn时就和另一个物体重叠，无法触发Overlap重叠事件：**尚未解决**
 
 ## 参考
 1. [【虚幻5】【不适合小白观看】用C++来进行基于UE5的游戏开发（含动画蓝图）](https://www.bilibili.com/video/BV17Q4y1Y7fr)

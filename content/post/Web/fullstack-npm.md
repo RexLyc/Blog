@@ -70,7 +70,7 @@ Node.JS是基于Chrome V8开发的JS服务器端运行环境，NPM则是Node.JS�
     - [vue config/index.js配置详解](https://blog.csdn.net/qq_31964019/article/details/106186776)
 
 ### electron
-- 概述：一个用于生成跨平台程序的node.js库
+- 概述：一个用于生成跨平台程序的node.js库。分为主进程（main.js），渲染进程（各种html）
 - 实用工具：
     1. electron-forge：一个混合多种功能的cli，可以用于打包
     1. electron-package：打成安装包的工具，打包功能稍弱
@@ -94,10 +94,11 @@ Node.JS是基于Chrome V8开发的JS服务器端运行环境，NPM则是Node.JS�
     - [electron打包优化之路](https://segmentfault.com/a/1190000038574623)
     - [Electron 打包优化](https://www.jianshu.com/p/50043f485ec9/)
     - [使用electron-builder在windows上打包并自动更新](https://www.cxyzjd.com/article/weixin_34249678/89009487)
+    - [Electron 进程间通信](https://www.electronjs.org/zh/docs/latest/tutorial/ipc)
 ## Node.JS实用总结
 1. 版本变更
 1. 
 
 ## 参考资料
 - [菜鸟教程](https://www.runoob.com/nodejs/nodejs-tutorial.html)
-- []()
+- 

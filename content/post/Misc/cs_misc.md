@@ -141,3 +141,9 @@ thumbnailImage: /images/thumbnail/misc.jpg
     # 静默安装
     ./vc_redist.x64.exe /install /quiet
     ```
+
+
+## Ubuntu
+1. 系统没有网络配置中的有线设置
+    - network相关的配置问题，需要修改NetworkManager.conf、10-globally-managed-devices.conf文件，删除NetworkManager服务state文件，重新启动系统及服务
+    - 参考：[ubuntu18.04没有网络，网络中或者右上角没有有线设置](https://blog.csdn.net/lylg_ban/article/details/121657952)

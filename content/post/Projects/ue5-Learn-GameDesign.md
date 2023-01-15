@@ -24,3 +24,6 @@ thumbnailImage: /images/thumbnail/ue-logo.png
     - Roll：绕z轴旋转，滚转
     > 注1：一般的，对于旋转，以相机坐标系为参考，是以x轴为屏幕向右，y轴屏幕向上，z轴从屏幕指向外侧，具体看左右手坐标系
     > 注2：对于位移，则是以全局坐标系为参考，此时默认x是模型前方，y是右方，x&y构成地平面，z则指向天空
+1. HUD和UI：
+    - HUD：Head Up Display，一般来说是界面上绘制的只读内容，用来提示玩家方向、血量等信息
+    - UI：User Interface，所有可交互的界面，都可以称之为UI。

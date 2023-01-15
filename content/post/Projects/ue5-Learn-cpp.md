@@ -78,22 +78,26 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 
 1. AActor：任何可放置、可Spawn的类型的基类
 | 成员名称 | 成员类型 | 含义 | 注意 |
+| --- | --- | --- | --- |
 | AddActorWorldTransform() | 继承函数 | 用于对Actor做全局变换 | |
 | AddActorLocalRotation() | 继承函数 | 用于对Actor做局部坐标系旋转 | |
 | SetMaterial() | 继承函数 | 用于设置材质、材质实例 | |
 | SetCollisionEnabled() | 继承函数 | 用于设置碰撞计算方式 | |
-| AttachToComponent | 函数 | 将当前Actor设置连接到指定Component | 常用于将某物品绑定到人物、其他物品身上 |
+| AttachToComponent | 函数 | 将当前Actor设置连接到指定Component | 常用于将某物品绑定到人物、其他物品身上 | |
 
 1. UWorld：世界类型
-| 成员名称 | 成员类型 | 含义 |
-| SpawnActor() | 泛型函数 | 创建一个Actor |
-| DestroyActor() |  | 删除一个Actor |
+| 成员名称 | 成员类型 | 含义 | 注意 |
+| --- | --- | --- | --- |
+| SpawnActor() | 泛型函数 | 创建一个Actor | |
+| DestroyActor() |  | 删除一个Actor | |
+| LineTraceSingleByObjectType | bool函数 | 以类型区分，计算射线首个命中物体 | 类型如ECC_Static、ECC_Pawn等 |
 
 ## 广泛继承的函数
 | 名称 | 继承来源 | 含义 |
 | --- | --- | --- |
 | XXX::StaticClass() | | 创建并返回所属类型的静态实例 |
 | GetWorld() | | 获取世界指针，常用于Spawn |
+| GetComponentLocation（） | | 获取组件的位置 |
 
 ## 其他常用基本类型
 | 名称 | 含义 | 注意 | 常用成员 |
@@ -104,17 +108,19 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 | FVector、FRotator | 向量、旋转子 | 常在SetXXXRotation/Location中使用 | |
 | FString | 可变字符串 | 每个FString独立保存字符数组 | \*操作符 |
 | USpringArmComponent | 摇臂类，常用于辅助第三人称相机 | 一般绑定到角色 | bUsePawControlRotation |
-| UCameraComponent | 相机类型 | 常绑定到摇臂 | bUsePawnControlRotation |
+| UCameraComponent | 相机类型 | 常绑定到摇臂 | bUsePawnControlRotation、GetForwardVector、 |
 | UInputComponent | 输入组件，将输入事件绑定到具体函数 | | BindAxis、BindAction | 
 | UCharacterMovementComponent | 角色运动组件 | 在角色类中用Get函数获取 | 各种用于控制角色移动的参数，IsFalling()等运动状态函数 |
 | UAnimSequence | 动画序列 | 实际还是用动画蓝图更方便 | |
 | UBoxComponent | 盒组件 | 常用于进行简单的碰撞检测 | InitBoxExtent、OnComponent(Begin/End)Overlap.AddDynamic设置碰撞检测回调 |
 | UParticleSystemComponent | 粒子系统组件 | 常用于烟雾、火焰等 | SetTemplate |
 | UPointLightComponent | 点光源组件 | | SetLightColor、SetIntensity、SetSourceXXXX |
+| FHitResult | 命中结果类型 | 射线检测的结果类型 | Reset、GetActor、GetComponent |
+| FCollisionQueryParams | 碰撞查询参数类型 | 用于射线检测等场景 | AddIgnoredActor |
 
 ## 常用工具类/枚举类/函数
 | 名称 | 含义 | 注意 |
-| ------ | --- | --- |
+| --- | --- | --- |
 | ConstructorHelper::FObjectFinder()&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; | 加载某种Object资源 | 构造函数中需要给出目标名称，加载的是不带Component后缀的原始资源 |
 | LoadObject<>() | 加载某种object资源 | 构造函数中给出父类Outer（可null）、目标引用名或文件地址 |
 | TEXT() | 对原始代码中的文本做正确处理 | 用于静态文件路径、文字打印等多种场景，本质是添加字符串前缀L |
@@ -133,6 +139,9 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 | FMath | 数学工具类 | |
 | FName | 公开名称，全局可见 | 常用于对骨骼网格体的某一部分进行检索、绑定 |
 | FAttachmentTransformRules | 连接时的变换规则枚举类 | 用于连接时，指定连接运算方式 |
+| DrawDebugLine/Mesh/... | 绘制一个调试用的线、面 | 用于调试 |
+| FArguments | 参数包装类型 | 注意在不同类型中，都有这种子类型的定义 |
+| GetHUD() | 获取HUD实例 | 
 
 > 注1：类型系统中，所有非Class的内容，都是一种UObject。万物皆是UObject。
 
@@ -142,6 +151,250 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 | TArray | 泛型容器 | 动态数组 | |
 | TMap | 泛型容器 | 字典 | |
 | TSet | 泛型容器 | 集合 | |
+| TSharedRef | 泛型共享指针 | 智能指针 | |
+| TWeakObjectPtr | 泛型弱指针 | 智能指针 | |
+
+## 界面
+### HUD和SlateUI
+1. 开发流程：
+    - 编辑器中新建C++类型，继承HUD类型：实现自己的HUD类。HUD类是UI的入口，在这个类型中创建具体的SlateUI实例，并在适当的操作后删除SlateUI实例返回游戏界面
+    - 编辑器中新建C++类型（SlateUI），继承SCompoundWidget：实现自己的窗口，窗口是UI的具体绘制内容，在这个类型中，需要设计UI资源加载，并设计UI布局，UI控件，编写UI操作回调
+    - SlateUI，即SCompoundWidget为代表的一系列类型系统，使用一种相对特殊的C++语法，相关内容可以参考官网链接
+    > 注1：SlateUI类型在当前版本中，不在UE5引擎的垃圾回收机制内，因此需要自行管理，推荐使用智能指针的方式
+    > 注2：SlateUI类型，在定义、实现过程中，有大量不符合常规思路的代码、宏，需要加以理解
+1. 常用SlateUI：
+    - 控件：SOverlay、STextBlock、SCanvas、SVerticalBox、SEditableText、SButton
+    - 函数：HAlign、VAlign、Padding、Text、Font、ColorAndOpacity、Size、Position、OnXXXX
+1. 类型、函数、宏
+| 名称 | 类型 | 含义 | 注意 |
+| --- | --- | --- | --- |
+| SLATE_BEGIN_ARGS | 宏 | Slate固定范式 | |
+| SLATE_ARGUMENT | 宏 | Slate固定范式 | 输入一个类型，一个变量，提供到Construct的InArgs内 |
+| SLATE_END_ARGS| 宏 | Slate固定范式 | |
+| BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION | 宏 | Slate实现部分固定范式 | 将所有SlateUI窗口类的实现部分包含在内 |
+| END_SLATE_FUNCTION_BUILD_OPTIMIZATION | 宏 | Slate实现部分固定范式 | 将所有SlateUI窗口类的实现部分包含在内 |
+| Construct | SlateUI窗口类成员函数 | UI业务的真正构造函数 | 其参数内就包含这SLATE_ARGUMENT传递的变量 |
+| SCanvas | SlateUI控件类类型 | 一般用于定义一个UI区域，其内完成一个独立功能 | 一般使用TSharedRef\<\>来共享 |
+| ChildSlot | SlateUI窗口类成员变量 | UI描述起点 | 该类型已对operator[]进行重载 |
+| SNew | 宏 | 实例化一个UI控件、窗口 | 在ChildSlot下、HUD类内广泛使用 |
+| SAssignNew | 宏 | 实例化一个UI控件、窗口，并赋值给参数 | 在HUD类内广泛使用 |
+| XX::Slot() | SlateUI控件类成员函数 | 用于创建子槽，以定义子控件 |
+| GEngine->GameViewport | GEngine成员 | 获取视口 | 用于获取视口，后续绑定、删除UI |
+| (Add/Remove)ViewportWidgetContent | ViewPort成员函数 | 创建、删除UI窗口 | 内部一般使用智能指针 |
+| XXXXGameModeBase::HUDClass | 游戏模式成员变量 | 用于将HUD类型绑定给游戏模式 | 和玩家控制器、默认玩家一样，需要进行复制 |
+| FSlateBrush | 笔刷类型 | 用于画图 | |
+| FReply | 反馈类型 | 用于各类OnXXX绑定的回调函数的返回类型 | 回调最后必须调用handled以标记结束 |
+
+1. 代码示例
+    - 自定义窗口.h/.cpp
+    ```cpp
+    #pragma once
+
+    #include "CoreMinimal.h"
+    #include "MyHUD.h"
+    #include <Runtime/Slate/Public/Widgets/SCanvas.h>
+    #include <Runtime/Slate/Public/Widgets/Input/SEditableText.h>
+    #include <Runtime/Slate/Public/Widgets/SWeakWidget.h>
+    #include "Widgets/SCompoundWidget.h"
+    class CPPLEARN_API SMyCompoundWidget : public SCompoundWidget
+    {
+    public:
+        SLATE_BEGIN_ARGS(SMyCompoundWidget)
+        {}
+        SLATE_ARGUMENT(TWeakObjectPtr<class AMyHUD>, myHUD)
+        SLATE_END_ARGS()
+
+        /** Constructs this widget with InArgs */
+        void Construct(const FArguments& InArgs);
+
+        TWeakObjectPtr<AMyHUD> myHUD;
+
+        TSharedRef<SCanvas> LoginPanel();
+        TSharedRef<SCanvas> Passworld();
+        TSharedRef<SCanvas> Button();
+
+        FSlateBrush brush;
+
+        void PassworldChanged(const FText& text);
+
+        FReply PassWorldClick();
+    };
+
+    // ================================================= //
+    #include "SMyCompoundWidget.h"
+    #include "SlateOptMacros.h"
+
+    BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
+    void SMyCompoundWidget::Construct(const FArguments& InArgs)
+    {
+        /*
+        ChildSlot
+        [
+            // Populate the widget
+        ];
+        */
+        myHUD = InArgs._myHUD;
+
+        const FString path = FPaths::ProjectContentDir() + "MaoKenShiJinHei.ttf";
+        FSlateFontInfo robot(path, 30);
+        robot.LetterSpacing = 100;
+
+
+        brush.SetResourceObject(LoadObject<UTexture2D>(nullptr, TEXT("Texture2D'/Game/Poor.Poor'")));
+        
+
+        ChildSlot
+        [
+            SNew(SOverlay)
+            +SOverlay::Slot()
+                .HAlign(HAlign_Center)
+                .VAlign(VAlign_Top)
+                .Padding(0,10,0,0)
+                [
+                    SNew(STextBlock)
+                    .ColorAndOpacity(FLinearColor::Black)
+                    .ShadowColorAndOpacity(FLinearColor::Black)
+                    .ShadowOffset(FIntPoint(-1,0))
+                    .Font(robot)
+                    .Text(FText::FromString(TEXT("界面测试")))
+                ]
+            +SOverlay::Slot()
+                .HAlign(HAlign_Center)
+                .VAlign(VAlign_Center)
+                .Padding(10,0,0,55)
+                [
+                    LoginPanel()
+                ]
+        ];
+    }
+
+    TSharedRef<SCanvas> SMyCompoundWidget::LoginPanel() {
+        return SNew(SCanvas)
+               + SCanvas::Slot()
+                    .HAlign(HAlign_Center)
+                    .VAlign(VAlign_Center)
+                    .Size(FVector2D(550, 280))
+                    [
+                        SNew(SBorder).HAlign(HAlign_Fill).VAlign(VAlign_Fill).BorderImage(&brush)
+                        [
+                            SNew(SVerticalBox)
+                            + SVerticalBox::Slot().Padding(10, 20, 0, 10)
+                                [
+                                    Passworld()
+                                ]
+                            + SVerticalBox::Slot().Padding(10, 20, 0, 10)
+                                [
+                                Button()
+                                ]
+                        ]
+                    ];
+    }
+
+    TSharedRef<SCanvas> SMyCompoundWidget::Passworld() {
+        return SNew(SCanvas) + SCanvas::Slot().Position(FVector2D(0, 0)).Size(FVector2D(500, 80))
+            [
+                SNew(SEditableText)
+                .OnTextChanged(this,&SMyCompoundWidget::PassworldChanged)
+                .HintText(FText::FromString("TEXT"))
+                .ColorAndOpacity(FLinearColor::White)
+                .IsPassword(true)
+            ];
+    }
+    TSharedRef<SCanvas> SMyCompoundWidget::Button() {
+        return SNew(SCanvas) 
+               + SCanvas::Slot().Position(FVector2D(0,0)).Size(FVector2D(500, 80))
+                    [
+                        SNew(SButton)
+                        .HAlign(HAlign_Center)
+                        .VAlign(VAlign_Center)
+                        .Text(FText::FromString("Press Me"))
+                        .OnClicked(this,&SMyCompoundWidget::PassWorldClick)
+                    ];
+    }
+
+    void SMyCompoundWidget::PassworldChanged(const FText& text) {
+        UE_LOG(LogTemp, Log, TEXT("%s"), *text.ToString());
+    }
+
+
+    FReply SMyCompoundWidget::PassWorldClick() {
+        UE_LOG(LogTemp, Log, TEXT("pressed!"));
+        if (myHUD.IsValid()) {
+            if (APlayerController* pc = myHUD->PlayerOwner) {
+                pc->ConsoleCommand("quit");
+            }
+        }
+        return FReply::Handled();
+    }
+    END_SLATE_FUNCTION_BUILD_OPTIMIZATION
+    ```
+
+    - 自定义HUD的.h/.cpp
+    ```cpp
+    #include "CoreMinimal.h"
+    #include "GameFramework/HUD.h"
+    #include "SMyCompoundWidget.h"
+    #include "MyHUD.generated.h"
+
+    UCLASS()
+    class CPPLEARN_API AMyHUD : public AHUD
+    {
+        GENERATED_BODY()
+        
+    protected:
+        virtual void BeginPlay() override;
+    public:
+
+        TSharedPtr<class SMyCompoundWidget> myUI;
+        TSharedPtr<class SWidget> myUIContainter;
+
+        void OpenMenu();
+
+        void CloseMenu();
+    };
+
+    // ================================================= //
+    #include "MyHUD.h"
+
+    void AMyHUD::BeginPlay() {
+        Super::BeginPlay();
+        UE_LOG(LogTemp, Log, TEXT("BeginPlay Setup UI"));
+        OpenMenu();
+    }
+
+    void AMyHUD::OpenMenu()
+    {
+        if (GEngine && GEngine->GameViewport) {
+            myUI = SNew(SMyCompoundWidget).myHUD(this);
+
+            GEngine->GameViewport->AddViewportWidgetContent(
+                SAssignNew(myUIContainter, SWeakWidget).PossiblyNullContent(myUI.ToSharedRef())
+            );
+
+            myUI->SetVisibility(EVisibility::Visible);
+            if (PlayerOwner) {
+                PlayerOwner->bShowMouseCursor = true;
+                // 设置将输入仅挂载到UI
+                //PlayerOwner->SetInputMode(FInputModeUIOnly());
+            }
+        }
+    }
+
+    void AMyHUD::CloseMenu()
+    {
+        UE_LOG(LogTemp, Log, TEXT("Close Menu ing"));
+        if (GEngine && GEngine->GameViewport && myUIContainter.IsValid()) {
+            GEngine->GameViewport->RemoveViewportWidgetContent(myUIContainter.ToSharedRef());
+
+            if (PlayerOwner) {
+                PlayerOwner->bShowMouseCursor = false;
+                // 设置将输入仅挂载到游戏
+                //PlayerOwner->SetInputMode(FInputModeGameOnly());
+            }
+        }
+    }
+
+    ```
 
 ## 开发要点
 1. 由于C++代码带来的变化不能像蓝图一样，自动显示在编辑器中，因此需要使用**Live Coding**功能，在不重启编辑器的情况下，编译并应用C++的罪行修改。快捷键是Ctrl+Alt+F11。
@@ -150,6 +403,7 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
     - 游戏模式
 1. X轴正方向是默认的物体朝向、人脸朝向方向。因此在需要使用到面朝方向的计算时，也请使用GetUnitAxis(EAxis::X)。
 1. DebugGame Editor模式并不能使用断点，需要使用Development Editor模式才可以。但是实话说断点并不好用，还是打日志吧。
+1. 一些引擎特性在需要使用时，需要先在XXX.Build.cs中添加对应模块，比如：Slate、SlateCore、OnlineSubsystem
 
 
 ## 常见功能示例
@@ -214,6 +468,7 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 ## 参考
 1. [【虚幻5】【不适合小白观看】用C++来进行基于UE5的游戏开发（含动画蓝图）](https://www.bilibili.com/video/BV17Q4y1Y7fr)
 1. [官网：C++编程 虚幻引擎编程开发的相关信息](https://docs.unrealengine.com/5.0/zh-CN/programming-with-cplusplus-in-unreal-engine/)
+1. [官网：Slate UI编程](https://docs.unrealengine.com/5.0/zh-CN/slate-user-interface-programming-framework-for-unreal-engine/)
 1. [UE5-c++教程 01~05](https://www.bilibili.com/video/BV1be41137Kp)
 1. [知乎专栏：UE从点Play开始](https://zhuanlan.zhihu.com/p/512249255)
 1. [Unreal Engine C++ Advanced Dark Souls Boss Fight System](https://www.youtube.com/watch?v=ANzEGECpd0g)

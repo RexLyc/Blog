@@ -324,12 +324,18 @@ String getBuildDate() {
     adb connect x.x.x.x # 连接置顶ip的安卓设备
     adb tcpip 5555 # 尝试打开对端5555端口连接
     adb install -r xxx.apk # 覆盖安装
-    adb shell am start com.你的包路径/com.你的Activity或Service路径 # 启动
+    adb shell am start com.你的包路径/com.你的Activity # 启动普通程序
+    adb shell am startservice com.你的包路径/com.你的Service # 启动服务
     adb shell screenrecord /存储/路径.mp4 # 录制屏幕
     adb shell input ... # 模拟各类输入事件（键鼠等）
+    adb shell logcat >> xxx.txt # 将日志追加输出到指定文件
 
     # 安卓shell侧
     setprop service.adb.tcp.port 5555
+    pm list packages # 查看已安装的包
+    pm install 你的包路径 # 安装
+    pm uninstall 包名 # 卸载
+    am force-stop 包名 # 杀程序
 
     # adb shell命令也都可以用在这里
     # .. 可以使用其他部分linux指令

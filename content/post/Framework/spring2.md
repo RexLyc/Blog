@@ -21,6 +21,7 @@ thumbnailImage: /images/thumbnail/spring.jpg
     1. main类中添加注解：@EnableConfigurationProperties
     2. 需要注入的地方添加注解形如：@Value("${file-storage.path}")，花括号内为配置名称后缀，和ConfigurationProperties结合就是完整的配置名称。
         - 当使用#号时，是SpEL表达式写法。例如@Value("#{fileStorage['path']}")。Spring Expression Language，[知乎：玩转Spring中强大的spel表达式！](https://zhuanlan.zhihu.com/p/174786047)。
+        - 可以添加默认值，如@Value("${xxx:default-value}")，代表默认为default-value。
 1. 一种Map类型配置注入步骤：
     1. 入口类仍然添加注解：@EnableConfigurationProperties
     2. 注入位置所在类型添加注解：
@@ -412,6 +413,8 @@ thumbnailImage: /images/thumbnail/spring.jpg
         - 更安全的互斥锁注解：@Synchronized
     - [官方网站](https://projectlombok.org/)
 
+### 坑
+1. 配置文件中，如果是#、*等特殊字符，则必须添加双引号，否则可能无法正确加载
 
 ## 参考资料
 - [Spring常见注解大全](https://blog.csdn.net/lixiaolian123/article/details/108090499)

@@ -15,7 +15,7 @@ thumbnailImage: /images/thumbnail/misc.jpg
 ## 开发工具
 ### Python：
 - Mock服务器搭建
-    - 参考：[用flask搭建Python Mock服务器](http://t.zoukankan.com/xiaobaibailongma-p-12992802.html)
+    - 参考：[用flask搭建Python Mock服务器](http://t.zoukankan.com/xiaobaibailongma-p-12992802.html)、[Postman搭建Mock服务器](https://www.cnblogs.com/quchunhui/p/11881185.html)
 ### IDEA
 - 自动添加注释
     - 参考: [IDEA类和方法注释模板设置（非常详细）](https://blog.csdn.net/xiaoliulang0324/article/details/79030752)

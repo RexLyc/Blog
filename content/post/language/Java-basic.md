@@ -9,7 +9,7 @@ tags:
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/java.jpg
 ---
-
+本文总结一些常见的较为特别的Java基础要点
 <!--more-->
 ## 语言特性
 1. 序列化：

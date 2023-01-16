@@ -17,6 +17,13 @@ thumbnailImage: /images/thumbnail/todo.jpg
 <!--more-->
 ## 加更
 1. [ ] 一个测试框架
+    - 开发语言和图形接口选择（建议前后端分离）
+        - vue+js+electron：[DrawFlow](https://github.com/jerosoler/Drawflow)
+        - 后端python/cpp/java
+    - 可视化测试进度
+    - UI测试，同步、异步接口的测试处理
+    - 测试中的异常处理
+    - 网络化、批量化
 1. [ ] Android
 
 ## 更新一

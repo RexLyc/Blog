@@ -190,5 +190,5 @@ math: true
 1. [C89和C99区别](https://www.cnblogs.com/xiaoyoucai/p/6146784.html)
 1. 《C++17 the complete guide》，[中文翻译版](https://github.com/MeouSker77/Cpp17)
 1. 《Modern C++ tutorial：C++11/14/17/20》，[Github地址](https://github.com/changkun/modern-cpp-tutorial)
-
+1. [isocpp/CppCoreGuidelines](https://github.com/isocpp/CppCoreGuidelines)
 > 如果不能理解翻译的含义，建议切换到英文版本的网页

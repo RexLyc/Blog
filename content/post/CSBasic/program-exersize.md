@@ -202,6 +202,7 @@ math: true
 1. :red_circle: 675：[为高尔夫比赛砍树](https://leetcode-cn.com/problems/cut-off-trees-for-golf-event/)。思路很简单，排序后找最短路。但复杂度也奇高。[官方题解](https://leetcode-cn.com/problems/cut-off-trees-for-golf-event/solution/wei-gao-er-fu-bi-sai-kan-shu-by-leetcode/)和[民间题解](https://leetcode-cn.com/problems/cut-off-trees-for-golf-event/solution/c-160ms-ti-jie-xi-shuo-chang-shu-you-hua-na-xie-sh/)都提到了优化问题，尤其是**间隔搜索**值得思考。更厉害的是[分治法优化思路](https://leetcode-cn.com/problems/cut-off-trees-for-golf-event/solution/on3fen-zhi-c-48ms-100-by-hqztrue-jhxz/)。**值得二刷**。
 1. :red_circle: 854：[相似度为K的字符串](https://leetcode-cn.com/problems/k-similar-strings/)。又是字符串变换转为图论变换的题目。本题的[题解](https://leetcode-cn.com/problems/k-similar-strings/solution/xiang-si-du-wei-k-de-zi-fu-chuan-by-leetcode/)把字符移动理解为对边的变换。
 1. :red_circle: 1197：[进击的骑士](https://leetcode-cn.com/problems/minimum-knight-moves/)。[非会员传送门](https://blog.csdn.net/qq_17550379/article/details/101195668)。使用[A*算法](https://zhuanlan.zhihu.com/p/54510444)，给搜索添加启发式估计值作为排序规则的一部分。这个规则的主要目的是，不让100%恶化的情况入队。
+1. :red_circle: 2493：[将节点分成尽可能多的组](https://leetcode.cn/problems/divide-nodes-into-the-maximum-number-of-groups/description/)。本质上是求若干个连通子图各自的图直径。图的直径的算法就是两次BFS，第一次随机，第二次从第一次BFS最后入队节点开始。可以先用并查集对图做分割。
 
 ###  数据结构
 1. :red_circle: 2179：[统计数组中好三元组数目](https://leetcode-cn.com/problems/count-good-triplets-in-an-array/)。核心题解思路是，以变量y遍历第一个列表，视作三元组的中间元素，并统计第二个列表中，位于y前面的变量中，有多少也在第一个列表中y位置之前出现过。这个统计的信息，恰好可以用[树状数组](https://zhuanlan.zhihu.com/p/93795692)来进行维护。由此达到$O(nlogn)$。

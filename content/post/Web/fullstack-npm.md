@@ -70,12 +70,13 @@ Node.JS是基于Chrome V8开发的JS服务器端运行环境，NPM则是Node.JS�
     - [vue config/index.js配置详解](https://blog.csdn.net/qq_31964019/article/details/106186776)
 
 ### electron
-- 概述：一个用于生成跨平台程序的node.js库
+- 概述：一个用于生成跨平台程序的node.js库。分为主进程（main.js），渲染进程（各种html）
+- 进程间通信：electron内最重要的事情之一，就是主进程到渲染进程之间的通信。这个通信一般使用ipcMain、ipcRenderer来完成，详见参考中的官网链接。需要注意的是只有在加载某个页面时指定preload文件，才能将通信的函数正常配置，区分node环境和浏览器环境，preload还是node环境，但是页面和页面引用到的js都是浏览器环境了。
 - 实用工具：
     1. electron-forge：一个混合多种功能的cli，可以用于打包
     1. electron-package：打成安装包的工具，打包功能稍弱
     1. electron-builder：打成安装包的工具，打包功能更为强大
-- 注：
+- 注意：
     1. npm设置代理或镜像的方式都不够稳定，怎么解决？
     1. electron-builder据说可以设置ELECTRON_MIRROR环境变量，未验证是否真的有效。否则builder也经常去拉github上的资源，容易失败。
         ```sh
@@ -94,10 +95,11 @@ Node.JS是基于Chrome V8开发的JS服务器端运行环境，NPM则是Node.JS�
     - [electron打包优化之路](https://segmentfault.com/a/1190000038574623)
     - [Electron 打包优化](https://www.jianshu.com/p/50043f485ec9/)
     - [使用electron-builder在windows上打包并自动更新](https://www.cxyzjd.com/article/weixin_34249678/89009487)
+    - [官网：Electron 进程间通信](https://www.electronjs.org/zh/docs/latest/tutorial/ipc)
 ## Node.JS实用总结
 1. 版本变更
 1. 
 
 ## 参考资料
 - [菜鸟教程](https://www.runoob.com/nodejs/nodejs-tutorial.html)
-- []()
+- 

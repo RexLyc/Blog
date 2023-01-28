@@ -17,6 +17,13 @@ thumbnailImage: /images/thumbnail/todo.jpg
 <!--more-->
 ## 加更
 1. [ ] 一个测试框架
+    - 开发语言和图形接口选择（建议前后端分离）
+        - vue+js+electron：[DrawFlow](https://github.com/jerosoler/Drawflow)
+        - 后端python/cpp/java
+    - 可视化测试进度
+    - UI测试，同步、异步接口的测试处理
+    - 测试中的异常处理
+    - 网络化、批量化
 1. [ ] Android
 
 ## 更新一
@@ -30,9 +37,9 @@ thumbnailImage: /images/thumbnail/todo.jpg
     - [x] linux gcc & windows vs
     - [x] gdb
     - [x] cmake
-1. [ ] cpp-standard - 16h
-    - [ ] C & C++
-    - [ ] C++ 98 03 11 14 17 20
+1. [X] cpp-standard - 16h
+    - [X] C & C++
+    - [X] C++ 98 03 11 14 17 20
 1. [ ] qt-all-in-one - 8h(后续可以再补充，尤其是针对嵌入式、针对模块的单独使用)
 1. [x] jmeter-all-in-one - 2h(稍加补充)
 1. [ ] ibmmq-all-in-one - 2h(稍加补充)
@@ -88,7 +95,7 @@ thumbnailImage: /images/thumbnail/todo.jpg
 
 ## 影剧清单
 - [ ] 海边的曼彻斯特
-- [ ] 白日梦想家
+- [x] 白日梦想家
 - [ ] Rebeeca
 - [ ] 堕落天使
 - [ ] 死亡诗社
@@ -113,7 +120,7 @@ thumbnailImage: /images/thumbnail/todo.jpg
     - 架子鼓
     - 射箭
 
-## 日常想法：
+## 日常想法
 1. 对于着混合服务器、PC工作站、物联网终端设备的一个网络模型，建立一个可以动态感知设备、服务生存状态的基础服务。是否已经有类似的开源项目。本质上应该也是类似于服务发现的一种模块，但是是双向的（两侧都要感知到自己、对方掉线）。业界的开源方案是如何实现的。
 1. 一个通用的测试框架，能够完成按流程的，多种接口、设备的测试，支持扩展，支持图形化流程图式操作。可以参考看看VOFA+。
 
@@ -122,8 +129,8 @@ thumbnailImage: /images/thumbnail/todo.jpg
 1. [x] 博文置顶功能，将本文ToDoList置顶
 1. [x] 手机端配置隐藏目录的css
 1. [x] 修正文字和公式不换行的css错误
-1. [] 设置固定最小宽度，在此宽度之下，必须水平滚动，不再进行换行
-1. [] 左侧侧边栏css不对（图标不够展开时,870px左右，应当隐藏）
+1. [ ] 设置固定最小宽度，在此宽度之下，必须水平滚动，不再进行换行
+1. [ ] 左侧侧边栏css不对（图标不够展开时,870px左右，应当隐藏）
 
 ## 待整理博客
 1. CSS学习：https://zhuanlan.zhihu.com/p/124284328

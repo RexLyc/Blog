@@ -15,7 +15,7 @@ thumbnailImage: /images/thumbnail/misc.jpg
 ## 开发工具
 ### Python：
 - Mock服务器搭建
-    - 参考：[用flask搭建Python Mock服务器](http://t.zoukankan.com/xiaobaibailongma-p-12992802.html)
+    - 参考：[用flask搭建Python Mock服务器](http://t.zoukankan.com/xiaobaibailongma-p-12992802.html)、[Postman搭建Mock服务器](https://www.cnblogs.com/quchunhui/p/11881185.html)
 ### IDEA
 - 自动添加注释
     - 参考: [IDEA类和方法注释模板设置（非常详细）](https://blog.csdn.net/xiaoliulang0324/article/details/79030752)
@@ -48,6 +48,11 @@ thumbnailImage: /images/thumbnail/misc.jpg
         }
         ```
     - 参考:[精灵加载去缓存](https://segmentfault.com/a/1190000022280843)
+1. CSS：
+    - 国家哀悼日等情况时，设置全站灰色的办法，在顶层添加
+        ```css
+        -webkit-filter: grayscale(.95);
+        ```
 
 1. WebSocket并发问题
     - 当并发量较大时，调用session.getAsyncRemote/getBasicRemote.send()，均会报错误“TEXT_FULL_WRITING”。
@@ -92,6 +97,12 @@ thumbnailImage: /images/thumbnail/misc.jpg
         ```
 3. 参考：[Ubuntu18.04安装并美化zsh](https://www.sysgeek.cn/install-zsh-shell-ubuntu-18-04/)
 
+### Powershell
+1. 更换当前终端的字符编码（从GBK变为UTF8）
+    ```bash
+    chcp 65001
+    ```
+
 ## 小飞机
 ### hostwinds
 - 比较靠谱的供货商，但是其无管理（就是需要用户自己管理）的套餐，管理起来确实有些坑，在这里记录一下。
@@ -130,3 +141,9 @@ thumbnailImage: /images/thumbnail/misc.jpg
     # 静默安装
     ./vc_redist.x64.exe /install /quiet
     ```
+
+
+## Ubuntu
+1. 系统没有网络配置中的有线设置
+    - network相关的配置问题，需要修改NetworkManager.conf、10-globally-managed-devices.conf文件，删除NetworkManager服务state文件，重新启动系统及服务
+    - 参考：[ubuntu18.04没有网络，网络中或者右上角没有有线设置](https://blog.csdn.net/lylg_ban/article/details/121657952)

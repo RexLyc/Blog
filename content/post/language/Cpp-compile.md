@@ -246,6 +246,9 @@ math: true
     | delete breakpoints 断点编号 | | 删除断点 |
     | enable/disable breakpoints 断点编号 | | 启用/禁用断点 |
     | quit | q | 推出gdb |
+1. gdb命令行选项：
+    | 选项 | 简写 | 功能 |
+    | -tui | - | 用tui展示调试页面 |
 1. 条件断点的使用说明
     ```sh
     # 创建普通断点

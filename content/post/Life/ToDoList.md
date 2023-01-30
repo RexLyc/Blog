@@ -106,7 +106,7 @@ thumbnailImage: /images/thumbnail/todo.jpg
 - [ ] 时间规划局
 - [ ] 闻香识女人
 - [ ] 爱情与灵药
-- [ ] 太空救援
+- [x] 太空救援
 
 ## 去哪儿试玩
 - 户外：

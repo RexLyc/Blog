@@ -36,7 +36,7 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 | UPROPERTY | 对类成员进行属性设置 |  | (UP::XXXenum，Category="在编辑器-细节面板中的名字") |
 | UCLASS | 对类进行属性设置 | 用于创建被声明类的UClass | Transient、Blueprintable、BlueprintType等 |
 | USTRUCT | 对结构体进行属性设置 | 用于创建被声明的类的UStruct | Blueprintable等
-| UFUNCTION | 回调函数声明 | 回调类型的函数必须添加 | |
+| UFUNCTION | 回调函数声明 | 回调类型的函数必须添加，使其拥有反射能力 | |
 
 ## 一些核心基类
 1. ACharacter：角色类型通用的基类
@@ -106,7 +106,7 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 | USkeletalMeshComponent&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; | 可动画化的网格体组件 | 也需用UPROPERTY标记 | SetAnimationMode、PlayAnimation、SetAnimInstanceClass、IsPlaying |
 | UStaticMesh、USkeletalMesh | 静态、骨骼网格体底层存储类型 | 需设置给特定的component才能使用 | |
 | FVector、FRotator | 向量、旋转子 | 常在SetXXXRotation/Location中使用 | |
-| FString | 可变字符串 | 每个FString独立保存字符数组 | \*操作符 |
+| FString | 可变字符串 | 每个FString独立保存字符数组 | \*操作符获取保管字符串 |
 | USpringArmComponent | 摇臂类，常用于辅助第三人称相机 | 一般绑定到角色 | bUsePawControlRotation |
 | UCameraComponent | 相机类型 | 常绑定到摇臂 | bUsePawnControlRotation、GetForwardVector、 |
 | UInputComponent | 输入组件，将输入事件绑定到具体函数 | | BindAxis、BindAction | 
@@ -138,10 +138,37 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 | EComponentMobility | 组件可移动性 | 静态、部分动态、全动态 |
 | FMath | 数学工具类 | |
 | FName | 公开名称，全局可见 | 常用于对骨骼网格体的某一部分进行检索、绑定 |
-| FAttachmentTransformRules | 连接时的变换规则枚举类 | 用于连接时，指定连接运算方式 |
+| FAttachmentTransformRules | 连接时的变换规则枚举类 | 用于组件进行物理连接时，指定连接的运算方式 |
 | DrawDebugLine/Mesh/... | 绘制一个调试用的线、面 | 用于调试 |
 | FArguments | 参数包装类型 | 注意在不同类型中，都有这种子类型的定义 |
-| GetHUD() | 获取HUD实例 | 
+| GetHUD() | 获取HUD实例 | 在主程序中必须用该函数才能获取，而不能用GetWorld()->HUDClass |
+| FLatentActionInfo | 延迟动作信息 | 用于登记延迟调用的函数的一些基础信息 |
+| FDateTime | 获取时间信息 | |
+| FModuleManager | 模块加载器 | 可以对模块进行加载判断、动态加载 |
+| FActorSpawnParameters | 角色创建参数 | 配置对SpawnActor函数进行调节的参数 |
+
+
+## UKismetSystemLibrary
+- 一个丰富的类库，提供了从几何运算、绘制调试信息、延迟函数调用等多种不同种类的实用功能
+| 名称 | 含义 | 注意 |
+| --- | --- | --- |
+| Delay | 提供延迟运行 | 传递被调用的类对象实例、延迟时间、调用的函数信息封装 |
+
+
+## 网络通信常用工具类/函数
+| 名称 | 含义 | 注意 |
+| --- | --- | --- |
+| FHttpModule | HTTP模块 | 使用Get静态函数获取实例 |
+| FHttpRequestRef | HTTP请求实例 | 由FHttpModule::CreateRequest()产生 |
+| FHttpRequestCompleteDelegate | HTTP回调接口 | 用BindUObject来绑定具体的回调函数 |
+| FJsonObjectConverter | Json实用工具 | |
+| FJsonSerializer | Json序列化反序列化工具 | 分别操作TJsonReader、TJsonWriter |
+| TJsonReaderFactory | JsonReader工厂 | 用Create成员函数将FString转为TJsonReader |
+| FJsonObject | Json对象 | 是以哦那个GetXXXXField获取指定的Json成员 |
+| UStructToJsonObjectString | 结构体转Json | FJsonObjectConverter静态函数 |
+| FWebSocketsModule | WebSocket模块 | 实用Get获得实例 |
+| IWebSocket | WebSocket接口 | 由FWebSocketModule::CreateWebSocket产生 |
+| FWebSocketXXXEvent | IWebSocket中的各类事件接口 | 用AddUObject绑定具体回调 |
 
 > 注1：类型系统中，所有非Class的内容，都是一种UObject。万物皆是UObject。
 
@@ -446,7 +473,7 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 		staticMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	}
     ```
-1. 回调函数必须添加宏描述UFUNCTION()，例如碰撞检测回调
+1. 回调函数必须添加宏描述UFUNCTION()，例如碰撞检测回调（此举实际上将其加入反射系统）
     ```cpp
     UFUNCTION()
 	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp
@@ -476,3 +503,4 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 1. [UE4静态/动态加载资源方式](https://zhuanlan.zhihu.com/p/266859719)
 1. [【教程】虚幻5教程 斯坦福专用课程 UE4 & C++ 专业游戏开发教程 24.5小时 中文字幕](https://www.bilibili.com/video/BV1nU4y1X7iQ)
 1. [UE4 UCLASS宏和可用宏参数](https://zhuanlan.zhihu.com/p/148098617)
+1. [UE5.1 Networking Overview](https://docs.unrealengine.com/5.1/en-US/networking-overview-for-unreal-engine/)

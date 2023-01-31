@@ -422,6 +422,90 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
     }
 
     ```
+### UMG
+1. UMG是基于SlateUI开发的一套UI框架，相对来说更容易使用
+1. 使用流程：
+    1. 在Build.cs中添加UMG模块
+    1. 创建以UserWidget为父类的自定义子类A
+    1. 创建继承了子类A的控件蓝图（用户界面->控件蓝图）
+    1. 必要的时候将子类A的成员变量和蓝图中的控件进行过绑定
+    1. 在蓝图中编辑界面，或在C++代码中编辑界面
+    1. 在BeginPlay中LoadClass、CreateWidget
+1. 相关类型、函数、宏
+| 名称 | 类型 | 含义 | 注意 |
+| --- | --- | --- | --- |
+| UUserWidget | UMG基类 | 提供UMG框架的基础功能 | 继承该类来实现自己的UI |
+| UPROPERTY(meta=(BindWidget)) | 宏 | 惯用写法，将C++成员变量和蓝图控件绑定 | 必须完全同名 |
+| UButton | 按钮类型 | 按钮 | |
+| FInputModeUIOnly | 类 | 输入模式参数 | 设置输入模式的各类可配置参数（如仅UI，仅游戏） |
+| AddToViewport() | 函数 | 将当前UI实例添加到视口 | CreateWidget后调用 |
+1. 示例代码
+    - 自定义UMG类型的.h/.cpp
+    ```cpp
+    // MyUserWidget.h
+    #pragma once
+
+    #include "CoreMinimal.h"
+    #include "Blueprint/UserWidget.h"
+    #include <Runtime/UMG/Public/Components/Button.h>
+    #include "MyUserWidget.generated.h"
+
+    /**
+    * 
+    */
+    UCLASS()
+    class CPPLEARN_API UMyUserWidget : public UUserWidget
+    {
+        GENERATED_BODY()
+
+    public:
+
+        // 以相同的名字和BindWidget来和蓝图双向绑定
+        UPROPERTY(meta=(BindWidget))
+        UButton* Button_0;
+
+        void Open();
+    };
+
+    // MyUserWidget.cpp
+    #include "MyUserWidget.h"
+    void UMyUserWidget::Open()
+    {
+        FSlateBrush brush;
+        brush.SetResourceObject(LoadObject<UTexture2D>(nullptr, TEXT("Texture2D'/Game/Poor.Poor'")));
+        FButtonStyle style;
+        style.SetNormal(brush);
+
+        Button_0->SetStyle(style);
+
+        AddToViewport();
+        SetVisibility(ESlateVisibility::Visible);
+        bIsFocusable = true;
+        APlayerController* playerController = GetWorld()->GetFirstPlayerController();
+        if (!playerController) {
+            return;
+        }
+        FInputModeUIOnly uiOnly;
+        uiOnly.SetWidgetToFocus(TakeWidget());
+        uiOnly.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+        playerController->SetInputMode(uiOnly);
+        playerController->SetShowMouseCursor(true);
+    }
+    ```
+    - 主角色，或GameMode子类的BeginPlay：
+    ```cpp
+    void XXXX:BeginPlay() {
+        // UMG UI, 必须添加_C后缀
+        FString path = "/Game/UI/Your_WBP.Your_WBP_C";
+        UClass* widget = LoadClass<UUserWidget>(nullptr, *path);
+        UMyUserWidget* myWidget = CreateWidget<UMyUserWidget>(GetWorld(), widget);
+        if(myWidget!=nullptr)
+            login->Open();
+        else
+            UE_LOG(LogTemp, Log, TEXT("widget create failed"));
+    }
+    ```
+
 
 ## 开发要点
 1. 由于C++代码带来的变化不能像蓝图一样，自动显示在编辑器中，因此需要使用**Live Coding**功能，在不重启编辑器的情况下，编译并应用C++的罪行修改。快捷键是Ctrl+Alt+F11。
@@ -429,8 +513,8 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
     - 输入的事件绑定，按键事件、轴事件
     - 游戏模式
 1. X轴正方向是默认的物体朝向、人脸朝向方向。因此在需要使用到面朝方向的计算时，也请使用GetUnitAxis(EAxis::X)。
-1. DebugGame Editor模式并不能使用断点，需要使用Development Editor模式才可以。但是实话说断点并不好用，还是打日志吧。
-1. 一些引擎特性在需要使用时，需要先在XXX.Build.cs中添加对应模块，比如：Slate、SlateCore、OnlineSubsystem
+1. 想要使用断点，需要在DebugGame Editor等模式下，以调试方式启动
+1. 一些引擎特性在需要使用时，需要先在XXX.Build.cs中添加对应模块，比如：Slate、SlateCore、OnlineSubsystem、UMG
 
 
 ## 常见功能示例

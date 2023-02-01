@@ -37,6 +37,8 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 | UCLASS | 对类进行属性设置 | 用于创建被声明类的UClass | Transient、Blueprintable、BlueprintType等 |
 | USTRUCT | 对结构体进行属性设置 | 用于创建被声明的类的UStruct | Blueprintable等
 | UFUNCTION | 回调函数声明 | 回调类型的函数必须添加，使其拥有反射能力 | |
+| TEXT | 任何需要使用多字节字符串的位置 | 避免乱码 | 参数就是你想要使用的字符串 |
+| DECLARE_MULTICAST_DELEGATE_XXXX | 一系列宏 | 自定义事件 | 为指定类型提供广播事件机制 |
 
 ## 一些核心基类
 1. ACharacter：角色类型通用的基类
@@ -431,16 +433,71 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
     1. 必要的时候将子类A的成员变量和蓝图中的控件进行过绑定
     1. 在蓝图中编辑界面，或在C++代码中编辑界面
     1. 在BeginPlay中LoadClass、CreateWidget
+    > 注1：蓝图编辑时，需要先添加一个画布面板，才能添加各类具体的UI控件
 1. 相关类型、函数、宏
 | 名称 | 类型 | 含义 | 注意 |
 | --- | --- | --- | --- |
 | UUserWidget | UMG基类 | 提供UMG框架的基础功能 | 继承该类来实现自己的UI |
 | UPROPERTY(meta=(BindWidget)) | 宏 | 惯用写法，将C++成员变量和蓝图控件绑定 | 必须完全同名 |
-| UButton | 按钮类型 | 按钮 | |
+| UButton | 按钮类型 | 按钮 | 各种控件的类型可以在蓝图中查看（右上角） |
 | FInputModeUIOnly | 类 | 输入模式参数 | 设置输入模式的各类可配置参数（如仅UI，仅游戏） |
 | AddToViewport() | 函数 | 将当前UI实例添加到视口 | CreateWidget后调用 |
+| RemoveFromParent() | 函数 | 将当前UI实例从托管的父类中移除 | 一般搭配对控制输入模式的恢复 |
+| IUserObjectListEntry | 类 | 用于自定义列表单元项 | 自定义时需要继承该类 |
+| NativeXXXXX | 继承函数 | 各类UI控件类型内存在的回调函数 | 在自定义的子类型中重写该类型的函数 |
+
 1. 示例代码
-    - 自定义UMG类型的.h/.cpp
+    - 自定义列表单元项.h/.cpp
+    ```cpp
+    // MyListEntry.h
+    #include "CoreMinimal.h"
+    #include "Blueprint/UserWidget.h"
+    #include "Blueprint/IUserObjectListEntry.h"
+    #include <Runtime/UMG/Public/Components/Button.h>
+    #include <Runtime/UMG/Public/Components/TextBlock.h>
+    #include "MyListEntry.generated.h"
+
+    /**
+    * 
+    */
+    UCLASS()
+    class CPPLEARN_API UMyListEntry : public UUserWidget, public IUserObjectListEntry
+    {
+        GENERATED_BODY()
+    public:
+        virtual void NativeOnListItemObjectSet(UObject* item);
+
+        virtual void NativeOnItemSelectionChanged(bool isSelected);
+
+        UPROPERTY(meta = (BindWidget))
+        UButton* Button_0;
+
+        UPROPERTY(meta = (BindWidget))
+        UTextBlock* Text_0;
+    };
+
+
+    // MyListEntry.cpp
+        
+    #include "MyListEntry.h"
+    #include "MyListEntryContent.h"
+
+    void UMyListEntry::NativeOnListItemObjectSet(UObject* item) {
+
+        const FString path = FPaths::ProjectContentDir() + "MaoKenShiJinHei.ttf";
+        FSlateFontInfo robot(path, 30);
+        robot.LetterSpacing = 100;
+        UMyListEntryContent* content = Cast<UMyListEntryContent>(item);
+        Text_0->SetText(FText::FromString(content->title));
+        Text_0->SetFont(robot);
+    }
+
+    void UMyListEntry::NativeOnItemSelectionChanged(bool isSelected) {
+
+    }
+
+    ```
+    - 自定义UI窗口.h/.cpp
     ```cpp
     // MyUserWidget.h
     #pragma once
@@ -448,6 +505,9 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
     #include "CoreMinimal.h"
     #include "Blueprint/UserWidget.h"
     #include <Runtime/UMG/Public/Components/Button.h>
+    #include <Runtime/UMG/Public/Components/ListView.h>
+    #include "MyListEntryContent.h"
+    #include "HTTPRequest.h"
     #include "MyUserWidget.generated.h"
 
     /**
@@ -465,6 +525,16 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
         UButton* Button_0;
 
         void Open();
+
+        UPROPERTY(meta = (BindWidget))
+        UListView* ListView_0;
+        
+        // 为了使用内部的事件
+        UPROPERTY(EditInstanceOnly, Category = "Basic Config")
+        UHTTPRequest* httpRequest;
+       	
+        UFUNCTION()
+        void ShowLogin(FString result);
     };
 
     // MyUserWidget.cpp
@@ -490,6 +560,29 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
         uiOnly.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
         playerController->SetInputMode(uiOnly);
         playerController->SetShowMouseCursor(true);
+
+        httpRequest = NewObject<UHTTPRequest>();
+
+        TArray<FString> itemNames;
+        itemNames.Emplace("ABC");
+        // 自定义的一个继承UObject的专用列表单元数据类型
+        TArray<UMyListEntryContent*> list;
+        for (FString item : itemNames) {
+            UMyListEntryContent* temp = NewObject<UMyListEntryContent>();
+            temp->title = item;
+            list.Emplace(temp);
+        }
+        ListView_0->SetListItems(list);
+
+        // loginResult是由DECLARE_MULTICAST_DELEGATE_OneParam(FLoginResult,FString)定义
+        httpRequest->loginResult.AddUObject(this, &UMyUserWidget::ShowLogin);
+        // 网络通信示例，其对应注册的Receive中应当调用loginResult.BroadCast(...)
+        httpRequest->Send("http://127.0.0.1:8080/weblab/remote/echo", "hello world");
+    }
+
+    void UMyUserWidget::ShowLogin(FString result) 
+    {
+        UE_LOG(LogTemp, Log, TEXT("Login : %s"),*result);
     }
     ```
     - 主角色，或GameMode子类的BeginPlay：
@@ -575,6 +668,7 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
     - StaticMeshComponent的SetRelativeScale3D：作为BoxComponent的子组件时，只控制网格体的缩放
     - 灵活使用UE编辑器，可以先在C++中编码，然后在场景中拖出来一个，之后在编辑器的细节窗口中调整参数，直到调整好之后，再将参数带回C++代码中。
 1. 如果一个物体Spawn时就和另一个物体重叠，无法触发Overlap重叠事件：**尚未解决**
+1. CreateDefaultSubobject函数只能在构造函数内调用，不能在BeginPlay等函数中使用（包括间接使用）。想要动态创建，只能使用NewObject，并进一步使用AttachTo等方式绑定父组件。
 
 ## 参考
 1. [【虚幻5】【不适合小白观看】用C++来进行基于UE5的游戏开发（含动画蓝图）](https://www.bilibili.com/video/BV17Q4y1Y7fr)

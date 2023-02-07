@@ -33,10 +33,10 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 1. 一些重要的宏如下表
 | 名称 | 使用位置 | 意义 |参数 |
 | ----- | --- | --- | --- |
-| UPROPERTY | 对类成员进行属性设置 |  | (UP::XXXenum，Category="在编辑器-细节面板中的名字") |
+| UPROPERTY | 对类成员进行属性设置 |  | BlueprintReadOnly、replicated等 |
 | UCLASS | 对类进行属性设置 | 用于创建被声明类的UClass | Transient、Blueprintable、BlueprintType等 |
-| USTRUCT | 对结构体进行属性设置 | 用于创建被声明的类的UStruct | Blueprintable等
-| UFUNCTION | 回调函数声明 | 回调类型的函数必须添加，使其拥有反射能力 | |
+| USTRUCT | 对结构体进行属性设置 | 用于创建被声明的类的UStruct | Blueprintable等 |
+| UFUNCTION | 回调函数声明 | 回调类型的函数必须添加，使其拥有反射能力 | Client等 |
 | TEXT | 任何需要使用多字节字符串的位置 | 避免乱码 | 参数就是你想要使用的字符串 |
 | DECLARE_MULTICAST_DELEGATE_XXXX | 一系列宏 | 自定义事件 | 为指定类型提供广播事件机制 |
 

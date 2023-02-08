@@ -25,6 +25,8 @@ thumbnailImage: /images/thumbnail/todo.jpg
     - 测试中的异常处理
     - 网络化、批量化
 1. [ ] Android
+1. [ ] 基于UE5的地铁数字孪生系统
+    - 智能维修、[爆炸动画](https://docs.unrealengine.com/5.1/zh-CN/setting-up-xr-explode-animations-in-unreal-engine/)
 
 ## 更新一
 每天去看一下待博客化笔记.docx
@@ -42,6 +44,7 @@ thumbnailImage: /images/thumbnail/todo.jpg
     - [X] C++ 98 03 11 14 17 20
 1. [ ] qt-all-in-one - 8h(后续可以再补充，尤其是针对嵌入式、针对模块的单独使用)
 1. [x] jmeter-all-in-one - 2h(稍加补充)
+1. [x] Unreal Engine5 入门 - 48h
 1. [ ] ibmmq-all-in-one - 2h(稍加补充)
 1. [ ] linux-file - 30h
 1. [ ] linux-system-run - 16h 
@@ -84,7 +87,7 @@ thumbnailImage: /images/thumbnail/todo.jpg
 
 ## 长期型
 1. 参加一些线下技术论坛、创业论坛
-1. Unreal Engine5 (五一假期)
+
 1. read&write (可以写一些有意义的活动心得、感悟)
 1. 玩一下历年的年度游戏
 

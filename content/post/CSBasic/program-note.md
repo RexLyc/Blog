@@ -81,7 +81,14 @@ math: true
 - 参考：[图算法总结](https://www.cnblogs.com/Ace-Monster/p/9439557.html)
 
 ## 字符串匹配：
-- 参考：[BF、KMP、BM、Sunday详解](https://www.cnblogs.com/Syhawk/p/4077295.html)、[从头到尾彻底理解KMP](https://blog.csdn.net/v_july_v/article/details/7041827)、[BF、RK、BM、KMP、Trie树、AC自动机](https://blog.csdn.net/weixin_40805537/article/details/89044710)
+- 总结：
+    - KMP：构造next数组，最长的相等前缀、后缀
+    - BM：过于复杂，而且很长
+    - Sunday：启发式，好写又好用，两个条件：适配时先看目标串的下一个待匹配字符，如果不存在于模式串中，则直接大跳，否则移动模式串到最右侧第一个能匹配到该待匹配字符的位置。
+- 参考：
+    - [BF、KMP、BM、Sunday详解](https://www.cnblogs.com/Syhawk/p/4077295.html)
+    - [从头到尾彻底理解KMP](https://blog.csdn.net/v_july_v/article/details/7041827)
+    - [BF、RK、BM、KMP、Trie树、AC自动机](https://blog.csdn.net/weixin_40805537/article/details/89044710)
 
 ## 回文字符串Manacher算法：
 - 概述：$O(n)$时间求字符串的全部回文子串

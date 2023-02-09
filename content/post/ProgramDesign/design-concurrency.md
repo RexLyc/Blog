@@ -21,7 +21,7 @@ thumbnailImage: /images/thumbnail/design-pattern.svg
 ## 常用并发编程模式
 1. 
 ## 常见问题
-1. 伪共享（False Sharing）：先看一段受害者代码
+1. 伪共享/假共享（False Sharing）：先看一段受害者代码
     ```cpp
     void f(unsigned __int64 begin, unsigned __int64 end, unsigned __int64 &result) noexcept {
         result = 0;

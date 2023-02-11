@@ -84,10 +84,12 @@ thumbnailImage: /images/thumbnail/todo.jpg
     - [ ] 数据标注和预处理
 1. [ ] 运维
     - [ ] google sre、docker、k8s
+1. [ ] 面试
+    - [ ] orm框架原理（mybatis）
+    - [ ] rabbitmq & kafka
 
 ## 长期型
 1. 参加一些线下技术论坛、创业论坛
-
 1. read&write (可以写一些有意义的活动心得、感悟)
 1. 玩一下历年的年度游戏
 
@@ -104,7 +106,6 @@ thumbnailImage: /images/thumbnail/todo.jpg
 - [ ] 死亡诗社
 - [ ] 重庆森林
 - [x] 本杰明巴顿奇事
-- [ ] 后会无期
 - [ ] 心灵捕手
 - [ ] 时间规划局
 - [ ] 闻香识女人

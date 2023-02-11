@@ -99,9 +99,9 @@ math: true
 - 参考：[正则表达引擎的原理](https://www.cnblogs.com/snake-hand/p/3153396.html)
 
 ## 大数乘法：
-- 小于10w数据可以使用竖式乘法，大于10w可以使用快速傅里叶变换
+- 小于10w数据可以使用竖式乘法，大于10w可以使用快速傅里叶变换(FFT)
 - FFT关键词：
-    - 参考：https://www.youtube.com/watch?v=iTMn0Kt18tg MIT公开课（分治法和FFT）、https://www.cnblogs.com/wangyh1008/p/9325715.html、http://picks.logdown.com/posts/177631-fast-fourier-transform、以及一个比较好的迭代：https://leetcode-cn.com/problems/multiply-strings/solution/fftjie-fa-by-kuai-xue-shi-qing-2/
+    - 参考：[MIT公开课（分治法和FFT）](https://www.youtube.com/watch?v=iTMn0Kt18tg) 、[博客园-快速傅里叶变换（FFT）详解](https://www.cnblogs.com/wangyh1008/p/9325715.html)、http://picks.logdown.com/posts/177631-fast-fourier-transform、以及[一个比较好的迭代](https://leetcode-cn.com/problems/multiply-strings/solution/fftjie-fa-by-kuai-xue-shi-qing-2/)
 - 参考：[大数乘法高效算法](https://blog.csdn.net/u010983881/article/details/77503519)
 
 ## 海量数据处理

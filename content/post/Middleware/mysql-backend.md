@@ -12,6 +12,12 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
 ---
 想要良好的使用MySQL，对底层原理一定要有一定的掌握。本文致力于讲解实用的底层技术。
 <!--more-->
+## 概述
+1. 架构关键词：
+    - 客户端层面：连接池、shell
+    - 服务器层面：服务器进程、NoSQL接口、SQL接口、解析器Parser、优化器Optimizer、缓存和缓冲区、存储引擎、文件系统
+1. 适用场景：需要事务支持、高并发需求、数据一致性要求较高、时延和稳定性有一定要求
+
 ## 客户端和服务器端
 1. 连接
     1. 连接池：降低连接延迟、连接复用
@@ -33,6 +39,7 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
     | 读已提交（Read committed）| × | √ | √ |
     | 可重复读（Repeatable read） | × | × | √ |
     | 可串行化（Serializable） | × | × | × |
+    > 注：不可重复读侧重于对单行数据的修改，幻读则是说明了此时有行增加删除，不仅需要行锁，还需要区间锁甚至表级锁才能避免
 1. 锁机制
     
 ## 存储引擎
@@ -44,6 +51,10 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
 1. 其他关键词：
     1. 多引擎支持
 ## 查询计划
+## MVCC
+- 多版本并发控制机制（Mutil-Version Concurrency Control MVCC），用于实现事务隔离级别的底层机制，以更好的支持对数据库的并发访问
+- InooDB的实现：
+    - 基本原理：每行添加两个值，修改该行的事务id（trx_id）、指向上一个版本的指针（roll_pointer），再结合事务执行时创建的ReadView（主要包含当前事务id、活跃事务id列表），通过不同的ReadView生成策略，完成对读已提交和可重复读的区分支持
 ## 多机
 1. 分片（sharding）：
     1. 出现原因：
@@ -66,3 +77,8 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
         - 机器切换
         - 状态通知
     - 参考：[Orchestrator介绍](https://www.cnblogs.com/zhoujinyi/p/10387581.html)、[官方Github链接](https://github.com/openark/orchestrator)
+
+## 参考
+1. [Mysql中MVCC的使用及原理详解](https://www.cnblogs.com/shujiying/p/11347632.html)
+1. [对MySQL中MVCC理解](https://baijiahao.baidu.com/s?id=1629409989970483292&wfr=spider&for=pc)
+1. [MVCC原理之ReadView](https://juejin.cn/post/7154701807694905351)

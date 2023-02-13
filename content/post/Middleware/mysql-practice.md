@@ -12,6 +12,13 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
 ---
 本文总结一些MySQL的最佳实践案例
 <!--more-->
+## 纸上谈兵
+1. 范式：
+    - 第一范式：当关系模式R的所有属性都不能再分解为更基本的数据单位时，称R是满足第一范式，即属性不可分
+    - 第二范式：如果关系模式R满足第一范式，并且R得所有非主属性都完全函数依赖于R的每一个候选关键属性，称R满足第二范式
+    - 第三范式：设R是一个满足第一范式条件的关系模式，X是R的任意属性集，如果X非传递依赖于R的任意一个候选关键字，称R满足第三范式，即非主属性不传递依赖于键码。
+
+
 ## 建库建表
 1. 默认使用InnoDB、mb4utf8字符集
 1. 不使用触发器等拖累MySQL计算资源的特性
@@ -43,3 +50,4 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
 
 ## 参考
 1. [实践中如何优化MySQL（精）](https://blog.csdn.net/qq_35642036/article/details/82820129)
+1. [详解第一范式、第二范式、第三范式、BCNF范式](https://blog.csdn.net/wenco1/article/details/88077279)

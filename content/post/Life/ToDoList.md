@@ -67,6 +67,9 @@ thumbnailImage: /images/thumbnail/todo.jpg
 1. [ ] algo1 - 4h(重看一遍视频，把这部分博客补了)
 - 合计：270h，预计需花费90天
 ## 更新二
+1. [ ] 权限系统相关：
+    - [ ] RBAC等模型
+    - [ ] OAuth2.0
 1. [ ] 计算机网络进阶
     - [ ] dhcp原理
     - [ ] dns

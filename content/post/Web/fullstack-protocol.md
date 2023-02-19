@@ -75,8 +75,22 @@ thumbnailImage: /images/thumbnail/fullstack.jpg
 | 401 | Unauthorized | 实际是unauthenticated，意味着客户端未能认证自己的身份 |
 | 403 | Forbidden | 客户认证了身份，但是不具备该请求所需的权限 |
 | 404 | Not Found | 资源不存在，或者不便于向客户端公开 |
-| 
-> 注：HTTP响应码大致分为1xx（信息响应）、2xx（成功响应）、3xx（重定向消息）、4xx（客户端错误）、5xx（服务器错误）
+| 405 | Method Not Allowed | 该资源不支持该方法 |
+| 408 | Request Timeout | 由服务器在空闲链接上发送，代表因客户端长期无请求，服务器将关闭连接 |
+| 409 | Conflict | 代表此请求和服务器上的资源状态相冲突 |
+| 413 | Payload Too Large | 请求实体大于服务器限制 |
+| 414 | URI Too Long | URI长于服务器要求 |
+| 415 | Unsupported Media Type | 不支持的媒体类型 |
+| 429 | Too Many Requests | 用户在给定时间内发送了太多请求（限流） |
+| 500 | Internal Server Error | 服务器内部错误 |
+| 501 | Not Implemented | 不支持的请求方法，除了GET/HEAD是必须实现的，其他方法都可以返回501 |
+| 502 | Bad Gateway | 网关/代理服务器从上游服务器得到了错误的响应 |
+| 503 | Service Unavailable | 服务器未准备好 |
+| 504 | Gateway Timeout | 网关超时 |
+| 511 | Network Authentication Required | 由控制网络访问的拦截代理服务器生成，提示客户端需要验证 |
+> 注1：HTTP响应码大致分为1xx（信息响应）、2xx（成功响应）、3xx（重定向消息）、4xx（客户端错误）、5xx（服务器错误）
+> 注2：纠结是否仅使用标准HTTP响应码没有太大意义，以双方约定为主，实际上很多时候使用标准响应码反而会束缚住业务需求
+> 注3：511常用于各类网络接入时，网络服务商提示客户端进行登录网络的身份验证
 1. HTTP扩展内容：
     - WebDAV：Web Distributed Authoring and Versioning，是一种允许客户端远程更新服务器内容的扩展，常用于实现增删改网页元数据（作者、创建时间）、复制移动网页、锁定文档禁止多人编辑等。
     - CalDAV：WebDAV的日历扩展

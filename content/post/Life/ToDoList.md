@@ -114,6 +114,8 @@ thumbnailImage: /images/thumbnail/todo.jpg
 - [ ] 闻香识女人
 - [ ] 爱情与灵药
 - [x] 太空救援
+- [ ] 旅行终点
+- [ ] 唐顿庄园
 
 ## 去哪儿试玩
 - 户外：

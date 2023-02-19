@@ -921,5 +921,18 @@ cat /proc/cpuinfo
     - sa1：收集、存储二进制数据到系统日常数据文件，是sadc的前端，常用于定时调用
     - sa2：收集统计报告，是sar的前端，常用于定时调用
     - sadf：对sar采集的数据进行格式化，支持CSV、XML、Json，也可以继续接入图形化程序
+- JVM性能调优工具：[详解](https://www.cnblogs.com/baihuitestsoftware/articles/6382733.html)
+    - jps：查看java虚拟机进程，可以理解为java的ps命令
+    - jinfo：查看某个当前执行中的java虚拟机环境的参数，可以读取core文件了解当时的jvm配置
+        - 虚拟机的可配置参数可以通过以下指令查看
+            ```bash
+            java -XX:+PrintFlagsFinal -version | grep managable
+            ```
+    - jstack：观察所有线程的运行情况和状态，可以读取core文件复原内存信息、可以attach到java程序查看内存信息，查看的内存信息以栈区为主
+    - jstat：内存监视工具，查看JVM内各种内存使用
+    - jmap：查看物理内存的占用情况
+    - jconsole：一个java GUI监视工具，甚至支持X远程图形
+- telnet：查询对指定端口
+- nc：[netcat](https://learnku.com/articles/59416)，一个非常全面的网络指令，可以用于端口扫描、文件传输、创建IM会话
 ## 一些建议
 1. 对于rm，可以替换为mv到临时文件夹，并定期清理，尽量避免使用rm，尤其禁止使用rm -rf

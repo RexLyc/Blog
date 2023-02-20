@@ -9,7 +9,6 @@ tags:
 - 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/linux.jpg
-draft: true
 
 ---
 部分Linux源代码赏析

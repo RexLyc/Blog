@@ -5,7 +5,6 @@ categories:
 - 计算机科学与技术
 - 全栈
 tags:
-- 系列开坑
 - 全栈
 - 施工中
 thumbnailImagePosition: left

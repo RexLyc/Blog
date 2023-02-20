@@ -97,6 +97,6 @@ thumbnailImage: /images/thumbnail/fullstack.jpg
     - CardDAV：WebDAV的通讯录同步扩展
 ## 参考
 - [tcp 为什么要三次握手，两次不行吗？为什么？ - 小林coding的回答 - 知乎](https://www.zhihu.com/question/429915921/answer/2682855827)
-1. [RESTFUL Tutorial](https://restfulapi.net/)
-1. [HTTP响应状态码](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status)
-1. [RESTful API设计指南](https://www.ruanyifeng.com/blog/2014/05/restful_api.html)
+- [RESTFUL Tutorial](https://restfulapi.net/)
+- [HTTP响应状态码](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status)
+- [RESTful API设计指南](https://www.ruanyifeng.com/blog/2014/05/restful_api.html)

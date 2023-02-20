@@ -6,7 +6,7 @@ categories:
 - 随笔
 tags:
 - 随笔
-- 持续施工
+- 滚动更新
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/diary.jpg
 ---

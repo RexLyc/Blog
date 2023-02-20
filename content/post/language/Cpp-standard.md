@@ -6,7 +6,7 @@ categories:
 - 编程语言
 tags:
 - C/C++系列
-- 持续施工
+- 滚动更新
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/cpp.png
 math: true

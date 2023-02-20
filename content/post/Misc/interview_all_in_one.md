@@ -5,9 +5,9 @@ categories:
 - 求职面试
 tags:
 - 求职面试
+- 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/interview.jpg
-# draft: true
 ---
 这篇笔记总结历次求职面试的经历，对笔试、面试题目进行总结，也会对非专业考察内容进行一定的梳理。
 <!--more-->

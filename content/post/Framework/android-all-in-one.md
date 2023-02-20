@@ -5,7 +5,7 @@ categories:
 - 计算机科学与技术
 - 安卓
 tags:
-- 持续施工
+- 滚动更新
 - 安卓
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/android.jpeg

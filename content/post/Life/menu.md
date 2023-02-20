@@ -5,7 +5,7 @@ categories:
 - 生活
 - 料理
 tags:
-- 持续施工
+- 滚动更新
 - 自己动手丰衣足食
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/braveCattle.jpg

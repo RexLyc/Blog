@@ -921,6 +921,8 @@ cat /proc/cpuinfo
     - sa1：收集、存储二进制数据到系统日常数据文件，是sadc的前端，常用于定时调用
     - sa2：收集统计报告，是sar的前端，常用于定时调用
     - sadf：对sar采集的数据进行格式化，支持CSV、XML、Json，也可以继续接入图形化程序
+    - nfsiostat：NFS（Network File System）的I/O统计信息
+    - cifsiostat：CIFS（Common Internet File System）的I/O统计信息
 - JVM性能调优工具：[详解](https://www.cnblogs.com/baihuitestsoftware/articles/6382733.html)
     - jps：查看java虚拟机进程，可以理解为java的ps命令
     - jinfo：查看某个当前执行中的java虚拟机环境的参数，可以读取core文件了解当时的jvm配置

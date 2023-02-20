@@ -25,6 +25,8 @@ thumbnailImage: /images/thumbnail/todo.jpg
     - 测试中的异常处理
     - 网络化、批量化
 1. [ ] Android
+1. [ ] 基于UE5的地铁数字孪生系统
+    - 智能维修、[爆炸动画](https://docs.unrealengine.com/5.1/zh-CN/setting-up-xr-explode-animations-in-unreal-engine/)
 
 ## 更新一
 每天去看一下待博客化笔记.docx
@@ -42,6 +44,7 @@ thumbnailImage: /images/thumbnail/todo.jpg
     - [X] C++ 98 03 11 14 17 20
 1. [ ] qt-all-in-one - 8h(后续可以再补充，尤其是针对嵌入式、针对模块的单独使用)
 1. [x] jmeter-all-in-one - 2h(稍加补充)
+1. [x] Unreal Engine5 入门 - 48h
 1. [ ] ibmmq-all-in-one - 2h(稍加补充)
 1. [ ] linux-file - 30h
 1. [ ] linux-system-run - 16h 
@@ -64,6 +67,9 @@ thumbnailImage: /images/thumbnail/todo.jpg
 1. [ ] algo1 - 4h(重看一遍视频，把这部分博客补了)
 - 合计：270h，预计需花费90天
 ## 更新二
+1. [ ] 权限系统相关：
+    - [ ] RBAC等模型
+    - [ ] OAuth2.0
 1. [ ] 计算机网络进阶
     - [ ] dhcp原理
     - [ ] dns
@@ -81,10 +87,12 @@ thumbnailImage: /images/thumbnail/todo.jpg
     - [ ] 数据标注和预处理
 1. [ ] 运维
     - [ ] google sre、docker、k8s
+1. [ ] 面试
+    - [ ] orm框架原理（mybatis）
+    - [ ] rabbitmq & kafka
 
 ## 长期型
 1. 参加一些线下技术论坛、创业论坛
-1. Unreal Engine5 (五一假期)
 1. read&write (可以写一些有意义的活动心得、感悟)
 1. 玩一下历年的年度游戏
 
@@ -101,12 +109,13 @@ thumbnailImage: /images/thumbnail/todo.jpg
 - [ ] 死亡诗社
 - [ ] 重庆森林
 - [x] 本杰明巴顿奇事
-- [ ] 后会无期
 - [ ] 心灵捕手
 - [ ] 时间规划局
 - [ ] 闻香识女人
 - [ ] 爱情与灵药
-- [ ] 太空救援
+- [x] 太空救援
+- [ ] 旅行终点
+- [ ] 唐顿庄园
 
 ## 去哪儿试玩
 - 户外：

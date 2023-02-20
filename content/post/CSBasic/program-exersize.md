@@ -5,7 +5,7 @@ categories:
 - 求职
 - 习题
 tags:
-- 持续施工
+- 滚动更新
 - 习题
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/algo-exercises.jpg
@@ -120,7 +120,7 @@ math: true
 1. :yellow_circle: 309：[最佳买卖股票时机含冷冻期](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/)。$dp[i][j]$代表第i天结束，手中有j支股票的最大收益。
 1. :yellow_circle: 877：[石子游戏](https://leetcode-cn.com/problems/stone-game)。博弈类问题的DP。但实际上，本题先手必胜。**值得二刷**。
 1. :yellow_circle: 241：[为运算表达式设计优先级](https://leetcode-cn.com/problems/different-ways-to-add-parentheses/)。感觉可以dp。**好像没自己写？**
-1. :yellow_circle: 300：[最长递增子序列](https://leetcode-cn.com/problems/longest-increasing-subsequence/)。$O(n^2)$的好写。思考一下$O(nlogn)$的。[题解](https://leetcode-cn.com/problems/longest-increasing-subsequence/solution/zui-chang-shang-sheng-zi-xu-lie-by-leetcode-soluti/)精妙之处在于状态的设计。dp的优化方向之一，让状态具备单调性。
+1. :yellow_circle: 300：[最长递增子序列](https://leetcode-cn.com/problems/longest-increasing-subsequence/)。$O(n^2)$的好写。思考一下$O(nlogn)$的。[题解](https://leetcode-cn.com/problems/longest-increasing-subsequence/solution/zui-chang-shang-sheng-zi-xu-lie-by-leetcode-soluti/)精妙之处在于状态的设计。dp的优化方向之一，让状态具备单调性。也叫做LIS问题（最长不下降子序列）
 1. :yellow_circle: 96：[不同的二叉搜索树](https://leetcode-cn.com/problems/unique-binary-search-trees/)。dp就可以。也了解一下[卡塔兰数](https://leetcode-cn.com/problems/unique-binary-search-trees/solution/bu-tong-de-er-cha-sou-suo-shu-by-leetcode-solution/)。
 1. :yellow_circle: 95：[不同的二叉搜索树II](https://leetcode-cn.com/problems/unique-binary-search-trees-ii/)。本题需要直接返回所有的树，需要快速且不重复的生成。[题解](https://leetcode-cn.com/problems/unique-binary-search-trees-ii/solution/xiang-xi-tong-su-de-si-lu-fen-xi-duo-jie-fa-by-2-7/)中提到了树的同构问题。**值得二刷**
 1. :yellow_circle: 918：[环形子数组的最大和](https://leetcode-cn.com/problems/maximum-sum-circular-subarray/)。注意子数组（必连续）和子序列（不必连续）的区别。[题解](https://leetcode-cn.com/problems/maximum-sum-circular-subarray/solution/huan-xing-zi-shu-zu-de-zui-da-he-by-leetcode/)为kadane算法及其变种。**值得二刷**。

@@ -12,6 +12,12 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
 ---
 本文总结一些MySQL的最佳实践案例
 <!--more-->
+## 纸上谈兵
+1. 范式：
+    - 第一范式：当关系模式R的所有属性都不能再分解为更基本的数据单位时，称R是满足第一范式，即属性不可分
+    - 第二范式：关系模式R满足第一范式，并且R的所有非主属性都完全函数依赖于R的每一个候选码，称R满足第二范式（不存在部分函数依赖）
+    - 第三范式：关系模式R满足第一范式，X是R的任意属性集，如果X非传递依赖于R的任意一个候选码，称R满足第三范式，即非主属性不传递依赖于候选码。
+    - BCNF范式：关系模式R满足第一范式。若R中的所有非平凡函数依赖X→Y（Y不包含于X）的左部都包含R的任一候选键，则R∈BCNF。换言之，BCNF中的所有依赖的左部都必须包含候选码。（任何属性不能依赖于非候选码）
 ## 建库建表
 1. 默认使用InnoDB、mb4utf8字符集
 1. 不使用触发器等拖累MySQL计算资源的特性
@@ -43,3 +49,6 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
 
 ## 参考
 1. [实践中如何优化MySQL（精）](https://blog.csdn.net/qq_35642036/article/details/82820129)
+1. [详解第一范式、第二范式、第三范式、BCNF范式](https://blog.csdn.net/wenco1/article/details/88077279)
+1. [数据库基础（3）函数依赖-平凡依赖，完全依赖，部分依赖，传递依赖](https://blog.csdn.net/Candle_light/article/details/84424505)
+1. [什么是码，主码，主属性，非主属性](https://blog.csdn.net/QQ1449301756/article/details/40345799)

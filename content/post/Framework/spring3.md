@@ -6,7 +6,7 @@ categories:
 - Spring
 tags:
 - Spring
-- 持续更新
+- 滚动更新
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/spring.jpg
 draft: true

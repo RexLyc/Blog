@@ -44,6 +44,9 @@ thumbnailImage: /images/thumbnail/ue-logo.png
         - 体积Volumes：带有边界的3D空间，
         - 关卡Level：定义的gameplay区域，包含玩家可以看到并与其交互的所有内容。关卡保存为.umap文件，也被称为地图Map
         - 世界World：构成游戏的所有关卡的容器，处理关卡流送和Actor的动态生成
+1. 开发术语：
+    - PIE：在编辑器中运行
+    - SIE：在编辑器中模拟
 ## 基本操作
 1. 视图：
     - 鼠标左键、中键、右键均可以控制不同方式的视图变换

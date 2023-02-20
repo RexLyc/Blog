@@ -12,6 +12,13 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
 ---
 想要良好的使用MySQL，对底层原理一定要有一定的掌握。本文致力于讲解实用的底层技术。
 <!--more-->
+## 概述
+1. 架构关键词：
+    - 客户端层面：连接池、shell
+    - 服务器层面：服务器进程、NoSQL接口、SQL接口、解析器Parser、优化器Optimizer、缓存和缓冲区、存储引擎、文件系统
+1. 适用场景：需要事务支持、高并发需求、数据一致性要求较高、时延和稳定性有一定要求
+1. 由于目前（截止2023年2月）MySQL仍以InnoDB为默认引擎，因此底层篇未经说明，一律以InnoDB实现为主。
+
 ## 客户端和服务器端
 1. 连接
     1. 连接池：降低连接延迟、连接复用
@@ -19,6 +26,7 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
 ### Binlog
 1. 参考：
     1. [研发应该懂的binlog知识（上）](https://www.cnblogs.com/rjzheng/p/9721765.html)
+### Undo Log
 ## 事务
 1. 事务特性：ACID
     - A（Atomic）：原子性
@@ -33,17 +41,46 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
     | 读已提交（Read committed）| × | √ | √ |
     | 可重复读（Repeatable read） | × | × | √ |
     | 可串行化（Serializable） | × | × | × |
+    > 注：不可重复读侧重于对单行数据的修改，幻读则是说明了此时有行增加删除，不仅需要行锁，还需要区间锁甚至表级锁才能避免
 1. 锁机制
     
 ## 存储引擎
+1. 引擎对比：
+    - InnoDB：InnoDB是一个事务型的存储引擎，有行级锁定和外键约束。适合处理**经常更新**的高并发的表。使用B+Tree索引结构。Innodb的索引文件本身就是数据文件，即B+Tree的数据域存储的就是实际的数据，这种索引就是聚集索引（聚簇索引）。这个索引的key就是数据表的主键，因此InnoDB表数据文件本身就是主索引。InnoDB的辅助索引数据域存储的也是相应记录主键的值而不是地址，所以当以辅助索引查找时，会先根据辅助索引找到主键，再根据主键索引找到实际的数据。所以Innodb不建议使用过长的主键，否则会使辅助索引变得过大。建议使用自增的字段作为主键，这样B+Tree的每一个结点都会被顺序的填满，而不会频繁的分裂调整，会有效的提升插入数据的效率。
+    - MyISAM：曾经的默认引擎。没有提供对数据库事务的支持，也不支持行级锁和外键。也是使用的B+Tree来储存数据，MyISAM索引的指针指向的是键值的地址，地址存储的是数据。B+Tree的数据域存储的内容为实际数据的地址，也就是说它的索引和实际的数据是分开的，只不过是用索引指向了实际的数据，这种索引就是所谓的非聚集索引。
+1. 表空间（TableSpace）：InnoDB用于存储一个数据的一个逻辑容器，管理上分为系统表空间、用户表空间、撤销表空间、临时表空间，从关系上又可分为共享表空间（多表共享一个表空间）、独立表空间
+    - 段（Segment）：由若干个区构成，区之间**不一定连续**，是数据库的基本分配单位，不通类型的数据会创建不同的段，如表段、索引段
+    - 区（Extent）：由**连续的页**构成（默认64个），实际上为了性能，一般也会连续申请多个连续的区。
+    - 页（Page）：磁盘管理的最小单位（默认16KB），页也对应着所属段的一个数据节点，常见类型有：
+        - 数据页（B-tree Node)
+        - undo页（undo Log Page）
+        - 系统页 （System Page）
+        - 事物数据页 （Transaction System Page）
+        - 插入缓冲位图页（Insert Buffer Bitmap）
+        - 插入缓冲空闲列表页（Insert Buffer Free List）
+        - 未压缩的二进制大对象页（Uncompressed BLOB Page）
+        - 压缩的二进制大对象页 （compressed BLOB Page）
+    - 行（Row）：表数据以行的形式进行存储。
+        - 以数据页为例，其结构为：文件头（描述页信息）、页头（描述页状态信息）、最大最小记录（虚拟）、用户记录（若干条）、空闲空间、页目录、文件尾。
+            - 文件头：包含数据页的前驱、后继指针、以组成B+树结构。
+            - 页目录：用户记录实际上是以有序链表的形式存放在页中，页目录存储了用于二分查找的索引值，当查找时，先和页目录中的各个索引值进行比较（超出范围的会被映射到最大最小记录），先确定索引值，最后去该索引值所映射的区间上遍历查找。
 1. 索引：
     1. 优点：减少扫描量、避免表锁、随机IO变顺序IO
     1. 缺点：占用存储、单个存储元素修改时间变长
-    1. 索引类型：主键索引、唯一索引、联合索引、普通索引
+    1. 索引类型：主键索引、唯一索引、联合索引、普通索引、全文索引（InnoDB后期也支持了，常用于大文本like等模糊查询）
     1. 数据结构：B+树、Hash索引
+    1. 实现：聚簇索引、非聚簇索引
+1. 索引和页的配合：使用索引最终的目的时找到数据所在的数据页，然后系统会将数据页加载进内存，最终通过对数据页的页目录进行搜索，定位到具体的记录行。
 1. 其他关键词：
     1. 多引擎支持
 ## 查询计划
+## MVCC
+- 多版本并发控制机制（Mutil-Version Concurrency Control MVCC），用于实现事务隔离级别的底层机制，以更好的支持对数据库的并发访问
+- InooDB的实现：
+    - 基本原理：每行添加两个值，修改该行的事务id（trx_id）、指向上一个版本的指针（roll_pointer），再结合事务执行时创建的ReadView（主要包含当前事务id、活跃事务id列表），通过不同的ReadView生成策略，去读最新数据或者是Undo Log中记录的旧版本数据，完成对读已提交和可重复读的区分支持
+    - ReadView策略
+        - 读已提交RC：在**每一次**进行快照读的时候生成ReadView，因此在事务内每次快照读，都有可能有其他事务提交新的修改（单行数据在前后的读取过程中可能变动）
+        - 可重复读RR：在**第一次**进行快照读的时候生成ReadView，在事务未提交之前的所有快照读都会使用这个ReadView，因此事务执行期间其他事务的提交不可见
 ## 多机
 1. 分片（sharding）：
     1. 出现原因：
@@ -66,3 +103,11 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
         - 机器切换
         - 状态通知
     - 参考：[Orchestrator介绍](https://www.cnblogs.com/zhoujinyi/p/10387581.html)、[官方Github链接](https://github.com/openark/orchestrator)
+
+## 参考
+1. [Mysql中MVCC的使用及原理详解](https://www.cnblogs.com/shujiying/p/11347632.html)
+1. [对MySQL中MVCC理解](https://baijiahao.baidu.com/s?id=1629409989970483292&wfr=spider&for=pc)
+1. [MVCC原理之ReadView](https://juejin.cn/post/7154701807694905351)
+1. [Java全栈知识体系：InnoDB的MVCC实现机制](https://pdai.tech/md/db/sql-mysql/sql-mysql-mvcc.html)
+1. [MySQL的InnoDB索引原理详解](https://www.cnblogs.com/williamjie/p/11081081.html)
+1. [一文理解 MySQL 中的 page 页](https://cloud.tencent.com/developer/article/1818381)

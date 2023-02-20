@@ -6,7 +6,6 @@ categories:
 - 技术书
 tags:
 - 施工中
-- 
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/book/apue.png
 ---

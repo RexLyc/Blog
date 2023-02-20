@@ -5,7 +5,7 @@ categories:
 - 求职
 - 习题
 tags:
-- 持续施工
+- 滚动更新
 - 习题
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/algo-exercises.jpg
@@ -81,7 +81,14 @@ math: true
 - 参考：[图算法总结](https://www.cnblogs.com/Ace-Monster/p/9439557.html)
 
 ## 字符串匹配：
-- 参考：[BF、KMP、BM、Sunday详解](https://www.cnblogs.com/Syhawk/p/4077295.html)、[从头到尾彻底理解KMP](https://blog.csdn.net/v_july_v/article/details/7041827)、[BF、RK、BM、KMP、Trie树、AC自动机](https://blog.csdn.net/weixin_40805537/article/details/89044710)
+- 总结：
+    - KMP：构造next数组，最长的相等前缀、后缀
+    - BM：过于复杂，而且很长
+    - Sunday：启发式，好写又好用，两个条件：适配时先看目标串的下一个待匹配字符，如果不存在于模式串中，则直接大跳，否则移动模式串到最右侧第一个能匹配到该待匹配字符的位置。
+- 参考：
+    - [BF、KMP、BM、Sunday详解](https://www.cnblogs.com/Syhawk/p/4077295.html)
+    - [从头到尾彻底理解KMP](https://blog.csdn.net/v_july_v/article/details/7041827)
+    - [BF、RK、BM、KMP、Trie树、AC自动机](https://blog.csdn.net/weixin_40805537/article/details/89044710)
 
 ## 回文字符串Manacher算法：
 - 概述：$O(n)$时间求字符串的全部回文子串
@@ -92,9 +99,9 @@ math: true
 - 参考：[正则表达引擎的原理](https://www.cnblogs.com/snake-hand/p/3153396.html)
 
 ## 大数乘法：
-- 小于10w数据可以使用竖式乘法，大于10w可以使用快速傅里叶变换
+- 小于10w数据可以使用竖式乘法，大于10w可以使用快速傅里叶变换(FFT)
 - FFT关键词：
-    - 参考：https://www.youtube.com/watch?v=iTMn0Kt18tg MIT公开课（分治法和FFT）、https://www.cnblogs.com/wangyh1008/p/9325715.html、http://picks.logdown.com/posts/177631-fast-fourier-transform、以及一个比较好的迭代：https://leetcode-cn.com/problems/multiply-strings/solution/fftjie-fa-by-kuai-xue-shi-qing-2/
+    - 参考：[MIT公开课（分治法和FFT）](https://www.youtube.com/watch?v=iTMn0Kt18tg) 、[博客园-快速傅里叶变换（FFT）详解](https://www.cnblogs.com/wangyh1008/p/9325715.html)、http://picks.logdown.com/posts/177631-fast-fourier-transform、以及[一个比较好的迭代](https://leetcode-cn.com/problems/multiply-strings/solution/fftjie-fa-by-kuai-xue-shi-qing-2/)
 - 参考：[大数乘法高效算法](https://blog.csdn.net/u010983881/article/details/77503519)
 
 ## 海量数据处理

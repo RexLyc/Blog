@@ -33,10 +33,12 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 1. 一些重要的宏如下表
 | 名称 | 使用位置 | 意义 |参数 |
 | ----- | --- | --- | --- |
-| UPROPERTY | 对类成员进行属性设置 |  | (UP::XXXenum，Category="在编辑器-细节面板中的名字") |
+| UPROPERTY | 对类成员进行属性设置 |  | BlueprintReadOnly、replicated等 |
 | UCLASS | 对类进行属性设置 | 用于创建被声明类的UClass | Transient、Blueprintable、BlueprintType等 |
-| USTRUCT | 对结构体进行属性设置 | 用于创建被声明的类的UStruct | Blueprintable等
-| UFUNCTION | 回调函数声明 | 回调类型的函数必须添加 | |
+| USTRUCT | 对结构体进行属性设置 | 用于创建被声明的类的UStruct | Blueprintable等 |
+| UFUNCTION | 回调函数声明 | 回调类型的函数必须添加，使其拥有反射能力 | Client等 |
+| TEXT | 任何需要使用多字节字符串的位置 | 避免乱码 | 参数就是你想要使用的字符串 |
+| DECLARE_MULTICAST_DELEGATE_XXXX | 一系列宏 | 自定义事件 | 为指定类型提供广播事件机制 |
 
 ## 一些核心基类
 1. ACharacter：角色类型通用的基类
@@ -106,7 +108,7 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 | USkeletalMeshComponent&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; | 可动画化的网格体组件 | 也需用UPROPERTY标记 | SetAnimationMode、PlayAnimation、SetAnimInstanceClass、IsPlaying |
 | UStaticMesh、USkeletalMesh | 静态、骨骼网格体底层存储类型 | 需设置给特定的component才能使用 | |
 | FVector、FRotator | 向量、旋转子 | 常在SetXXXRotation/Location中使用 | |
-| FString | 可变字符串 | 每个FString独立保存字符数组 | \*操作符 |
+| FString | 可变字符串 | 每个FString独立保存字符数组 | \*操作符获取保管字符串 |
 | USpringArmComponent | 摇臂类，常用于辅助第三人称相机 | 一般绑定到角色 | bUsePawControlRotation |
 | UCameraComponent | 相机类型 | 常绑定到摇臂 | bUsePawnControlRotation、GetForwardVector、 |
 | UInputComponent | 输入组件，将输入事件绑定到具体函数 | | BindAxis、BindAction | 
@@ -138,10 +140,37 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 | EComponentMobility | 组件可移动性 | 静态、部分动态、全动态 |
 | FMath | 数学工具类 | |
 | FName | 公开名称，全局可见 | 常用于对骨骼网格体的某一部分进行检索、绑定 |
-| FAttachmentTransformRules | 连接时的变换规则枚举类 | 用于连接时，指定连接运算方式 |
+| FAttachmentTransformRules | 连接时的变换规则枚举类 | 用于组件进行物理连接时，指定连接的运算方式 |
 | DrawDebugLine/Mesh/... | 绘制一个调试用的线、面 | 用于调试 |
 | FArguments | 参数包装类型 | 注意在不同类型中，都有这种子类型的定义 |
-| GetHUD() | 获取HUD实例 | 
+| GetHUD() | 获取HUD实例 | 在主程序中必须用该函数才能获取，而不能用GetWorld()->HUDClass |
+| FLatentActionInfo | 延迟动作信息 | 用于登记延迟调用的函数的一些基础信息 |
+| FDateTime | 获取时间信息 | |
+| FModuleManager | 模块加载器 | 可以对模块进行加载判断、动态加载 |
+| FActorSpawnParameters | 角色创建参数 | 配置对SpawnActor函数进行调节的参数 |
+
+
+## UKismetSystemLibrary
+- 一个丰富的类库，提供了从几何运算、绘制调试信息、延迟函数调用等多种不同种类的实用功能
+| 名称 | 含义 | 注意 |
+| --- | --- | --- |
+| Delay | 提供延迟运行 | 传递被调用的类对象实例、延迟时间、调用的函数信息封装 |
+
+
+## 网络通信常用工具类/函数
+| 名称 | 含义 | 注意 |
+| --- | --- | --- |
+| FHttpModule | HTTP模块 | 使用Get静态函数获取实例 |
+| FHttpRequestRef | HTTP请求实例 | 由FHttpModule::CreateRequest()产生 |
+| FHttpRequestCompleteDelegate | HTTP回调接口 | 用BindUObject来绑定具体的回调函数 |
+| FJsonObjectConverter | Json实用工具 | |
+| FJsonSerializer | Json序列化反序列化工具 | 分别操作TJsonReader、TJsonWriter |
+| TJsonReaderFactory | JsonReader工厂 | 用Create成员函数将FString转为TJsonReader |
+| FJsonObject | Json对象 | 是以哦那个GetXXXXField获取指定的Json成员 |
+| UStructToJsonObjectString | 结构体转Json | FJsonObjectConverter静态函数 |
+| FWebSocketsModule | WebSocket模块 | 实用Get获得实例 |
+| IWebSocket | WebSocket接口 | 由FWebSocketModule::CreateWebSocket产生 |
+| FWebSocketXXXEvent | IWebSocket中的各类事件接口 | 用AddUObject绑定具体回调 |
 
 > 注1：类型系统中，所有非Class的内容，都是一种UObject。万物皆是UObject。
 
@@ -395,6 +424,181 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
     }
 
     ```
+### UMG
+1. UMG是基于SlateUI开发的一套UI框架，相对来说更容易使用
+1. 使用流程：
+    1. 在Build.cs中添加UMG模块
+    1. 创建以UserWidget为父类的自定义子类A
+    1. 创建继承了子类A的控件蓝图（用户界面->控件蓝图）
+    1. 必要的时候将子类A的成员变量和蓝图中的控件进行过绑定
+    1. 在蓝图中编辑界面，或在C++代码中编辑界面
+    1. 在BeginPlay中LoadClass、CreateWidget
+    > 注1：蓝图编辑时，需要先添加一个画布面板，才能添加各类具体的UI控件
+1. 相关类型、函数、宏
+| 名称 | 类型 | 含义 | 注意 |
+| --- | --- | --- | --- |
+| UUserWidget | UMG基类 | 提供UMG框架的基础功能 | 继承该类来实现自己的UI |
+| UPROPERTY(meta=(BindWidget)) | 宏 | 惯用写法，将C++成员变量和蓝图控件绑定 | 必须完全同名 |
+| UButton | 按钮类型 | 按钮 | 各种控件的类型可以在蓝图中查看（右上角） |
+| FInputModeUIOnly | 类 | 输入模式参数 | 设置输入模式的各类可配置参数（如仅UI，仅游戏） |
+| AddToViewport() | 函数 | 将当前UI实例添加到视口 | CreateWidget后调用 |
+| RemoveFromParent() | 函数 | 将当前UI实例从托管的父类中移除 | 一般搭配对控制输入模式的恢复 |
+| IUserObjectListEntry | 类 | 用于自定义列表单元项 | 自定义时需要继承该类 |
+| NativeXXXXX | 继承函数 | 各类UI控件类型内存在的回调函数 | 在自定义的子类型中重写该类型的函数 |
+
+1. 示例代码
+    - 自定义列表单元项.h/.cpp
+    ```cpp
+    // MyListEntry.h
+    #include "CoreMinimal.h"
+    #include "Blueprint/UserWidget.h"
+    #include "Blueprint/IUserObjectListEntry.h"
+    #include <Runtime/UMG/Public/Components/Button.h>
+    #include <Runtime/UMG/Public/Components/TextBlock.h>
+    #include "MyListEntry.generated.h"
+
+    /**
+    * 
+    */
+    UCLASS()
+    class CPPLEARN_API UMyListEntry : public UUserWidget, public IUserObjectListEntry
+    {
+        GENERATED_BODY()
+    public:
+        virtual void NativeOnListItemObjectSet(UObject* item);
+
+        virtual void NativeOnItemSelectionChanged(bool isSelected);
+
+        UPROPERTY(meta = (BindWidget))
+        UButton* Button_0;
+
+        UPROPERTY(meta = (BindWidget))
+        UTextBlock* Text_0;
+    };
+
+
+    // MyListEntry.cpp
+        
+    #include "MyListEntry.h"
+    #include "MyListEntryContent.h"
+
+    void UMyListEntry::NativeOnListItemObjectSet(UObject* item) {
+
+        const FString path = FPaths::ProjectContentDir() + "MaoKenShiJinHei.ttf";
+        FSlateFontInfo robot(path, 30);
+        robot.LetterSpacing = 100;
+        UMyListEntryContent* content = Cast<UMyListEntryContent>(item);
+        Text_0->SetText(FText::FromString(content->title));
+        Text_0->SetFont(robot);
+    }
+
+    void UMyListEntry::NativeOnItemSelectionChanged(bool isSelected) {
+
+    }
+
+    ```
+    - 自定义UI窗口.h/.cpp
+    ```cpp
+    // MyUserWidget.h
+    #pragma once
+
+    #include "CoreMinimal.h"
+    #include "Blueprint/UserWidget.h"
+    #include <Runtime/UMG/Public/Components/Button.h>
+    #include <Runtime/UMG/Public/Components/ListView.h>
+    #include "MyListEntryContent.h"
+    #include "HTTPRequest.h"
+    #include "MyUserWidget.generated.h"
+
+    /**
+    * 
+    */
+    UCLASS()
+    class CPPLEARN_API UMyUserWidget : public UUserWidget
+    {
+        GENERATED_BODY()
+
+    public:
+
+        // 以相同的名字和BindWidget来和蓝图双向绑定
+        UPROPERTY(meta=(BindWidget))
+        UButton* Button_0;
+
+        void Open();
+
+        UPROPERTY(meta = (BindWidget))
+        UListView* ListView_0;
+        
+        // 为了使用内部的事件
+        UPROPERTY(EditInstanceOnly, Category = "Basic Config")
+        UHTTPRequest* httpRequest;
+       	
+        UFUNCTION()
+        void ShowLogin(FString result);
+    };
+
+    // MyUserWidget.cpp
+    #include "MyUserWidget.h"
+    void UMyUserWidget::Open()
+    {
+        FSlateBrush brush;
+        brush.SetResourceObject(LoadObject<UTexture2D>(nullptr, TEXT("Texture2D'/Game/Poor.Poor'")));
+        FButtonStyle style;
+        style.SetNormal(brush);
+
+        Button_0->SetStyle(style);
+
+        AddToViewport();
+        SetVisibility(ESlateVisibility::Visible);
+        bIsFocusable = true;
+        APlayerController* playerController = GetWorld()->GetFirstPlayerController();
+        if (!playerController) {
+            return;
+        }
+        FInputModeUIOnly uiOnly;
+        uiOnly.SetWidgetToFocus(TakeWidget());
+        uiOnly.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+        playerController->SetInputMode(uiOnly);
+        playerController->SetShowMouseCursor(true);
+
+        httpRequest = NewObject<UHTTPRequest>();
+
+        TArray<FString> itemNames;
+        itemNames.Emplace("ABC");
+        // 自定义的一个继承UObject的专用列表单元数据类型
+        TArray<UMyListEntryContent*> list;
+        for (FString item : itemNames) {
+            UMyListEntryContent* temp = NewObject<UMyListEntryContent>();
+            temp->title = item;
+            list.Emplace(temp);
+        }
+        ListView_0->SetListItems(list);
+
+        // loginResult是由DECLARE_MULTICAST_DELEGATE_OneParam(FLoginResult,FString)定义
+        httpRequest->loginResult.AddUObject(this, &UMyUserWidget::ShowLogin);
+        // 网络通信示例，其对应注册的Receive中应当调用loginResult.BroadCast(...)
+        httpRequest->Send("http://127.0.0.1:8080/weblab/remote/echo", "hello world");
+    }
+
+    void UMyUserWidget::ShowLogin(FString result) 
+    {
+        UE_LOG(LogTemp, Log, TEXT("Login : %s"),*result);
+    }
+    ```
+    - 主角色，或GameMode子类的BeginPlay：
+    ```cpp
+    void XXXX:BeginPlay() {
+        // UMG UI, 必须添加_C后缀
+        FString path = "/Game/UI/Your_WBP.Your_WBP_C";
+        UClass* widget = LoadClass<UUserWidget>(nullptr, *path);
+        UMyUserWidget* myWidget = CreateWidget<UMyUserWidget>(GetWorld(), widget);
+        if(myWidget!=nullptr)
+            login->Open();
+        else
+            UE_LOG(LogTemp, Log, TEXT("widget create failed"));
+    }
+    ```
+
 
 ## 开发要点
 1. 由于C++代码带来的变化不能像蓝图一样，自动显示在编辑器中，因此需要使用**Live Coding**功能，在不重启编辑器的情况下，编译并应用C++的罪行修改。快捷键是Ctrl+Alt+F11。
@@ -402,8 +606,8 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
     - 输入的事件绑定，按键事件、轴事件
     - 游戏模式
 1. X轴正方向是默认的物体朝向、人脸朝向方向。因此在需要使用到面朝方向的计算时，也请使用GetUnitAxis(EAxis::X)。
-1. DebugGame Editor模式并不能使用断点，需要使用Development Editor模式才可以。但是实话说断点并不好用，还是打日志吧。
-1. 一些引擎特性在需要使用时，需要先在XXX.Build.cs中添加对应模块，比如：Slate、SlateCore、OnlineSubsystem
+1. 想要使用断点，需要在DebugGame Editor等模式下，以调试方式启动
+1. 一些引擎特性在需要使用时，需要先在XXX.Build.cs中添加对应模块，比如：Slate、SlateCore、OnlineSubsystem、UMG
 
 
 ## 常见功能示例
@@ -446,7 +650,7 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 		staticMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	}
     ```
-1. 回调函数必须添加宏描述UFUNCTION()，例如碰撞检测回调
+1. 回调函数必须添加宏描述UFUNCTION()，例如碰撞检测回调（此举实际上将其加入反射系统）
     ```cpp
     UFUNCTION()
 	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp
@@ -464,6 +668,7 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
     - StaticMeshComponent的SetRelativeScale3D：作为BoxComponent的子组件时，只控制网格体的缩放
     - 灵活使用UE编辑器，可以先在C++中编码，然后在场景中拖出来一个，之后在编辑器的细节窗口中调整参数，直到调整好之后，再将参数带回C++代码中。
 1. 如果一个物体Spawn时就和另一个物体重叠，无法触发Overlap重叠事件：**尚未解决**
+1. CreateDefaultSubobject函数只能在构造函数内调用，不能在BeginPlay等函数中使用（包括间接使用）。想要动态创建，只能使用NewObject，并进一步使用AttachTo等方式绑定父组件。
 
 ## 参考
 1. [【虚幻5】【不适合小白观看】用C++来进行基于UE5的游戏开发（含动画蓝图）](https://www.bilibili.com/video/BV17Q4y1Y7fr)
@@ -476,3 +681,4 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 1. [UE4静态/动态加载资源方式](https://zhuanlan.zhihu.com/p/266859719)
 1. [【教程】虚幻5教程 斯坦福专用课程 UE4 & C++ 专业游戏开发教程 24.5小时 中文字幕](https://www.bilibili.com/video/BV1nU4y1X7iQ)
 1. [UE4 UCLASS宏和可用宏参数](https://zhuanlan.zhihu.com/p/148098617)
+1. [UE5.1 Networking Overview](https://docs.unrealengine.com/5.1/en-US/networking-overview-for-unreal-engine/)

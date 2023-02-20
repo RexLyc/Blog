@@ -5,7 +5,7 @@ categories:
 - 计算机科学与技术
 - Qt
 tags:
-- 持续施工
+- 滚动更新
 - Qt
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/qt-logo.svg
@@ -14,9 +14,16 @@ Qt是一个非常好用的C++框架，最主要的用途是用来开发跨平台
 <!--more-->
 本文主要记录一些开发过程中遇到的经典坑和关键理解。以高版本（不低于5.4）为例。
 ## 最佳实践
-## 核心机制
+## 核心机制关键词
 1. 信号和槽
+    1. 观察者模式：信号和槽本质上就是观察者模式的一种实现
+    1. 转换：在moc过程中转换为标准的C++代码
+    1. QObject：只有QObject派生类，且添加了Q_OBJECT宏才可以使用该机制
+    1. public：signals不能添加限定符，默认就是public的，信号只能声明，不能定义，返回值必须为void
+    1. 参数：信号的参数量不能小于槽函数的参数量
+    1. 级联：信号可以级联，信号将会连接顺序进行传递
 1. MOC
+    1. Meta-Object Compiler：元对象编译器
 1. UIC
 1. QMake
 1. 国际化
@@ -86,6 +93,7 @@ cd qt5130build
     - [Qt打包发布程序，解决找不到msvcp140.dll等动态库问题正确方案](https://blog.csdn.net/no_say_you_know/article/details/126360830)
     - [OpenGL环境检测和设置](https://blog.csdn.net/mvmmvm/article/details/122177404)
 ### linux
+- Linux下并没有自带部署工具，但由于Linux的特殊性，只需实用ldd查看依赖项并进行拷贝即可，拷贝步骤可以放在CMake种进行
 
 ## 参考资料
 [Qt5官方文档](https://doc.qt.io/qt-5/classes.html)

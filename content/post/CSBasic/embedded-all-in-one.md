@@ -5,7 +5,7 @@ categories:
 - 计算机科学与技术
 - 嵌入式
 tags:
-- 持续施工
+- 滚动更新
 - 合集
 - 嵌入式
 thumbnailImagePosition: left

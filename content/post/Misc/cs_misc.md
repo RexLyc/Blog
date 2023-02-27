@@ -147,3 +147,26 @@ thumbnailImage: /images/thumbnail/misc.jpg
 1. 系统没有网络配置中的有线设置
     - network相关的配置问题，需要修改NetworkManager.conf、10-globally-managed-devices.conf文件，删除NetworkManager服务state文件，重新启动系统及服务
     - 参考：[ubuntu18.04没有网络，网络中或者右上角没有有线设置](https://blog.csdn.net/lylg_ban/article/details/121657952)
+
+## 关键词
+1. 蜜罐技术：蜜罐技术是一种主动防御技术，通过部署没有真实业务数据的系统来诱骗攻击者实施攻击，记录其攻击行为从而学习攻击者的攻击目的和攻击手段，以此不断提升真实业务系统的安全防护能力。[蜜罐WIKI](https://zh.wikipedia.org/zh-hans/%E8%9C%9C%E7%BD%90_(%E9%9B%BB%E8%85%A6%E7%A7%91%E5%AD%B8))
+1. N-S图：也被称为盒图或者NS图，是结构化编程（即以while、if等取代goto）种的一种可视化模型
+1. SQL注入：永远不要信任用户，具体有以下办法
+    - 以正则表达式等方式对用户输入进行校验，限制长度，对单引号、双引号等特殊字符进行转义或限制
+    - 不动态拼装sql
+    - 不使用管理员权限处理业务，为专门的服务配置专门的角色
+    - 不直接存放机密信息，加密、hash、脱敏
+    - 异常信息给出尽可能少的提示
+    - 使用注入检测工具进行检测
+1. 基本路径测试（独立路径测试）：在程序控制流图的基础上（仅包含单一控制条件节点的流程图），分析控制结构的环路复杂性（统计所有可达的不同路径），导出独立路径设计响应的测试用例
+    - 程序控制流图：Control-Flow Graph，表示程序执行中所经过的所有路径，是许多编译器优化和静态分析的核心技术。[控制流图WIKI](https://zh.wikipedia.org/zh-hans/%E6%8E%A7%E5%88%B6%E6%B5%81%E5%9C%96)
+    - 线性独立路径：一个路径是连接起点到终点的一系列边，线性独立路径是包含至少一个在其他线性无关路径中从未出现过的边的路径
+    - 圈复杂度(Cyclomatic Complexity)：覆盖所有可能情况的最小测试用例个数，有点边计算法和节点及算法两种。[圈复杂度WIKI](https://zh.wikipedia.org/zh-hans/%E5%BE%AA%E7%92%B0%E8%A4%87%E9%9B%9C%E5%BA%A6)
+1. 白盒测试：测试应用程序的内部结构和运作，测试者了解程序的内部结构和算法等信息。[白盒测试WIKI](https://zh.wikipedia.org/zh-cn/%E7%99%BD%E7%9B%92%E6%B5%8B%E8%AF%95)。主要包括以下测试：
+    - 控制流、数据流测试
+    - 分支测试、语句覆盖、判定覆盖
+    - 路径测试
+1. XSS漏洞：类似SQL注入，攻击者向Web页面内插入恶意Script代码，当用户浏览时将会执行。扩展阅读：
+    - [Web安全头号大敌XSS漏洞解决最佳实践](https://cloud.tencent.com/developer/article/1790802)
+    - [浅谈XSS攻击的那些事（附常用绕过姿势）](https://zhuanlan.zhihu.com/p/26177815)
+1. ER图转关系模式的计算：ER图是由实体、实体属性、实体联系三种要素组成的图，连接中的数字代表联系中的关系(如1:1、1:n、m:n)，将其转为关系模式是非常基本的开发操作。参考[ER图转换关系模型](https://www.cnblogs.com/vvlj/p/12750853.html)

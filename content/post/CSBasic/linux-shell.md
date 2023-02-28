@@ -598,6 +598,7 @@ math: true
         | -P port | 特定端口，也可以直接ip:port |
         | -l limit 小写的L | 指定带宽限制Kb/s |
     - 网络状态netstat
+        > netstat无法看见全部端口，或者一些进程的pid的原因：进程不属于当前用户（可以通过sudo查看）
 1. 终端复用tmux
     1. 基本用法
         ```bash

@@ -170,3 +170,10 @@ thumbnailImage: /images/thumbnail/misc.jpg
     - [Web安全头号大敌XSS漏洞解决最佳实践](https://cloud.tencent.com/developer/article/1790802)
     - [浅谈XSS攻击的那些事（附常用绕过姿势）](https://zhuanlan.zhihu.com/p/26177815)
 1. ER图转关系模式的计算：ER图是由实体、实体属性、实体联系三种要素组成的图，连接中的数字代表联系中的关系(如1:1、1:n、m:n)，将其转为关系模式是非常基本的开发操作。参考[ER图转换关系模型](https://www.cnblogs.com/vvlj/p/12750853.html)
+1. Servlet、Cookie、Session：
+    - Servlet：一套Java语言下的Web开发规范，避免了使用原生JavaAPI编写服务器程序的繁琐步骤，更细一些的概念
+        - Servlet：实现业务的类，这些实现必须遵守Servlet接口
+        - Servlet容器：负责创建、使用、维护Servlet示例
+        - Web容器：HTTP服务器+Servlet容器（如Tomcat、Jetty）
+    - Session：在HTTP协议中使用唯一ID标识用户身份的机制
+    - Cookie：由服务器创建并由浏览器存储在本地的小文本文件，其存在时间长度可能超过一次会话（会话cookie、持久性cookie、安全cookie）

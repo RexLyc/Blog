@@ -20,6 +20,10 @@ thumbnailImage: /images/thumbnail/linux.jpg
     - T（TASK_STOPPED、TASK_TRACED)：暂停状态、跟踪状态
     - Z（TASK_DEAD、EXIT_ZOMBIE）：退出状态，僵尸进程
     - X（TASK_DEAD、EXIT_DEAD）：退出状态，即将销毁
+1. 示意图
+    <center>
+    <img src="/images/Linux/process-state-change.jpg" style="max-width:70%">
+    </center>
 ## 部分源代码
 ```cpp
 // 部分字段

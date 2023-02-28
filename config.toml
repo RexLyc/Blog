@@ -15,7 +15,7 @@
 baseURL = "https://www.lyclife.com"
 languageCode = "zh-cn"
 defaultContentLanguage = "zh-cn"
-title = "奕成的个人空间"
+title = "技术笔记本"
 theme = "hugo-tranquilpeak-theme"
 # disqusShortname = "hugo-tranquilpeak-theme"
 # googleAnalytics = "UA-123-45"

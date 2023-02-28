@@ -93,7 +93,7 @@ C/C++中有一些经常会出现的难点，也是考研功底的要点。本文
         - [std::streambuf从示例到应用](https://izualzhy.cn/stream-buffer)
 
 ## 右值
-1. [右值详解](https://www.cnblogs.com/jiu0821/p/7920837.html)
+1. [右值详解](https://www.cnblogs.com/jiu0821/p/7920837.html)、[为什么C/C++等少数编程语言要区分左右值](https://www.zhihu.com/question/428340896/answer/2913419725)
 1. 右值相关的重载：先看一段程序
     ```cpp
     void print(string a) {}             // 1

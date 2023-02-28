@@ -220,7 +220,7 @@ enableEmoji = true
   # [params.footer]
   #   copyright = "<a href=\"https://github.com/kakawait\">kakawait</a>"
 [params.footer]
-  beian = "吉ICP备2021004867号-1"
+  beian = "京ICP备2023003756号-1"
   PoliceBeiAn = "11010502045148"
 
 [outputs]

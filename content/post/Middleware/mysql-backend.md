@@ -43,7 +43,23 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
     | 可串行化（Serializable） | × | × | × |
     > 注：不可重复读侧重于对单行数据的修改，幻读则是说明了此时有行增加删除，不仅需要行锁，还需要区间锁甚至表级锁才能避免
 1. 锁机制
-    
+    - 从共享性看锁类型：
+        | 锁名称 | 缩写 | 粒度 | 互斥性 | 含义 |
+        | --- | --- | --- | --- | --- |
+        | 共享锁 | S |  |  |  |
+        | 排他锁 | X |  |  |  |
+        | 意向共享锁 | IS |  |  |  |
+        | 意向排他锁 | IX |  |  |  |
+    - 行级锁的具体类型
+        - 记录锁
+        - 间隙锁
+        - 临键锁
+    - 封锁协议：
+        - 一级封锁协议：修改前加X锁
+        - 二级封锁协议：读取前加S锁，读完释放
+        - 三级封锁协议：读取前加S锁，事务结束后释放
+        - 一次性封锁协议：要求事务一次性获取所有需要的锁，或者失败全部不获取（避免死锁）
+        - 二阶段封锁协议：事务分为获取锁的阶段和释放锁的阶段，且一旦开始释放就不再申请（仍不能避免死锁）
 ## 存储引擎
 1. 引擎对比：
     - InnoDB：InnoDB是一个事务型的存储引擎，有行级锁定和外键约束。适合处理**经常更新**的高并发的表。使用B+Tree索引结构。Innodb的索引文件本身就是数据文件，即B+Tree的数据域存储的就是实际的数据，这种索引就是聚集索引（聚簇索引）。这个索引的key就是数据表的主键，因此InnoDB表数据文件本身就是主索引。InnoDB的辅助索引数据域存储的也是相应记录主键的值而不是地址，所以当以辅助索引查找时，会先根据辅助索引找到主键，再根据主键索引找到实际的数据。所以Innodb不建议使用过长的主键，否则会使辅助索引变得过大。建议使用自增的字段作为主键，这样B+Tree的每一个结点都会被顺序的填满，而不会频繁的分裂调整，会有效的提升插入数据的效率。
@@ -81,6 +97,7 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
     - ReadView策略
         - 读已提交RC：在**每一次**进行快照读的时候生成ReadView，因此在事务内每次快照读，都有可能有其他事务提交新的修改（单行数据在前后的读取过程中可能变动）
         - 可重复读RR：在**第一次**进行快照读的时候生成ReadView，在事务未提交之前的所有快照读都会使用这个ReadView，因此事务执行期间其他事务的提交不可见
+
 ## 多机
 1. 分片（sharding）：
     1. 出现原因：
@@ -111,3 +128,5 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
 1. [Java全栈知识体系：InnoDB的MVCC实现机制](https://pdai.tech/md/db/sql-mysql/sql-mysql-mvcc.html)
 1. [MySQL的InnoDB索引原理详解](https://www.cnblogs.com/williamjie/p/11081081.html)
 1. [一文理解 MySQL 中的 page 页](https://cloud.tencent.com/developer/article/1818381)
+1. [锁的分类](https://www.cnblogs.com/myitnews/p/13698029.html)
+1. [深入理解MySQL锁类型和加锁原理](https://ost.51cto.com/posts/11812)

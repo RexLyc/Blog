@@ -937,5 +937,6 @@ cat /proc/cpuinfo
     - jconsole：一个java GUI监视工具，甚至支持X远程图形
 - telnet：查询对指定端口
 - nc：[netcat](https://learnku.com/articles/59416)，一个非常全面的网络指令，可以用于端口扫描、文件传输、创建IM会话
+- last：查看最近的登录信息
 ## 一些建议
 1. 对于rm，可以替换为mv到临时文件夹，并定期清理，尽量避免使用rm，尤其禁止使用rm -rf

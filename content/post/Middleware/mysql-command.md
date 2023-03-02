@@ -12,13 +12,14 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
 ---
 本章以MySQL的SQL指令为主，也会结合其他的DBMS。
 <!--more-->
-## C - Create增
+## DML和DQL
+### C - Create增
 1. 用已有数据创建表
     ```sql
     -- MySQL写法
     CREATE TABLE temp_record SELECT * FROM record LIMIT 10;
     ```
-## R - Retrieve查
+### R - Retrieve查
 1. 对列的值进行翻译
     ```sql
     -- 关键字 case when then else end
@@ -26,7 +27,7 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
 	( CASE WHEN 列名 = "条件1" THEN '翻译名1' ELSE '翻译名2' END ) AS 新列名
     FROM 你的表名;
     ```
-## U - Update改
+### U - Update改
 1. 用b表数据更新a表
 ```sql
 -- MySQL
@@ -36,14 +37,26 @@ ON a.id = b.id
 SET a.content = b.content; 
 ```
 
-## D - Delete删
+### D - Delete删
 
 
-## 混合
+### 混合
 1. 用查询结果插入
 ```sql
 INSERT INTO my_table(column1) SELECT column1 from table2;
 ```
+
+## DDL
+1. 修改表
+```sql
+-- 删除某列
+alter table xxx drop column xxx;
+```
+
+## DCL
+1. revoke
+1. grant
+
 ## 其他
 - 命令行
     1. 登录指定的MySQL数据库
@@ -66,4 +79,3 @@ INSERT INTO my_table(column1) SELECT column1 from table2;
     -- 如出现权限禁止，则需要设定secure_file_priv为保存路径
     -- 并重启MySQL
     ```
-- 

@@ -43,6 +43,9 @@ thumbnailImage: /images/thumbnail/interview.jpg
     1. 聚簇索引优势在哪儿？辅助索引为什么使用主键作为值域？
         - 由于行数据和叶子节点存储在一起，这样主键和行数据是一起被载入内存的，找到叶子节点就可以立刻将行数据返回了，如果按照主键Id来组织数据，获得数据更快。
         - 辅助索引使用主键作为"指针" 而不是使用地址值作为指针的好处是，减少了当出现行移动或者数据页分裂时辅助索引的维护工作，使用聚簇索引就可以保证不管这个主键B+树的节点如何变化，辅助索引树都不受影响。
+1. 操作系统：
+    1. 什么是进程优先级反转？
+        - 高、中、低优先级在高等待低时，出现的中先运行的情况，解决方法：优先级继承，高等待低时，将低优先级提高优先级，先执行，之后再恢复；优先级天花板：当进程申请某项共享资源时，都直接默认将所有可以访问到该资源的任务优先级提到最高，简单粗暴，等执行结束再恢复。
 
 ## 非专业内容考察
 
@@ -50,3 +53,4 @@ thumbnailImage: /images/thumbnail/interview.jpg
 1. [知乎：后端都要学习什么？](https://www.zhihu.com/question/24952874/answer/518162706)
 1. [MyBatis官网](https://mybatis.org/mybatis-3/zh/index.html)
 1. [MySQL8.0 存储引擎综述](https://dev.mysql.com/doc/refman/8.0/en/pluggable-storage-overview.html)
+1. [优先级反转](https://blog.51cto.com/u_15478392/4912194)

@@ -14,5 +14,9 @@ thumbnailImage: /images/thumbnail/cpp.png
 本篇记录一些C/Cpp开发中的一些最佳实践。
 <!--more-->
 
+## STL
+1. 智能指针：
+    - weak_ptr：A、B类内各用weak_ptr保存对方，在其他地方使用A、B时可以随意使用shared_ptr、unique_ptr
+
 ## 参考
 1. [360 安全规则集合](https://github.com/Qihoo360/safe-rules)

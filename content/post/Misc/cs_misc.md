@@ -204,4 +204,7 @@ thumbnailImage: /images/thumbnail/misc.jpg
     - 镜像（Mirroring）
     - 数据条带（Data Stripping）
     - 数据校验（Data Parity）
-1. 
+1. 死锁：
+    - 死锁避免算法：银行家算法，只能避免死锁，即不允许死锁发生
+    - 死锁检测算法：
+    - 死锁恢复算法：

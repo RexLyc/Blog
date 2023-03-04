@@ -13,6 +13,10 @@ thumbnailImage: /images/thumbnail/fullstack.jpg
 本文整理在全栈开发过程中的一些经典协议和常见问题。
 <!--more-->
 ## TCP/IP协议族
+1. OSI各层都有自己逻辑上的业务，底层暂略
+    - 应用层：为应用程序提供服务
+    - 表示层：数据格式转换和加密
+    - 会话层：建立、维持、管理会话
 1. IP
 1. UDP
 1. TCP

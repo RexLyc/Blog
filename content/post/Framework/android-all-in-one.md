@@ -130,6 +130,13 @@ String getBuildDate() {
 ## 原理
 1. 四大组件：活动（Activity）、服务（Service）、广播接收者（BroadCast Receiver）、内容提供者（Content Provider）
 ## 代码应用
+### 数据存储
+- 五种主要方式
+    - SharePreferences：本质是xml文件
+    - SQLite
+    - Content Provider：唯一可以用于共享的办法，用一个uri标记资源，如content://路径/id
+    - File：一般用于大文件
+    - 网络存储
 ### ListView
 - ListView容易出现卡顿问题，一定要做其中的View优化
 - 最好准备完整的数据之后再进行setAdapter，减少触发数据变动

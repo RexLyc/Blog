@@ -24,6 +24,13 @@ thumbnailImage: /images/thumbnail/linux.jpg
     <center>
     <img src="/images/Linux/process-state-change.jpg" style="max-width:70%">
     </center>
+
+## 进程间通信
+1. 按所处空间分类：
+    - 内核空间：消息队列、信号
+    - 用户空间：共享内存
+
+
 ## 部分源代码
 ```cpp
 // 部分字段

@@ -64,11 +64,11 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
 1. 引擎对比：
     - InnoDB：InnoDB是一个事务型的存储引擎，有行级锁定和外键约束。适合处理**经常更新**的高并发的表。使用B+Tree索引结构。Innodb的索引文件本身就是数据文件，即B+Tree的数据域存储的就是实际的数据，这种索引就是聚集索引（聚簇索引）。这个索引的key就是数据表的主键，因此InnoDB表数据文件本身就是主索引。InnoDB的辅助索引数据域存储的也是相应记录主键的值而不是地址，所以当以辅助索引查找时，会先根据辅助索引找到主键，再根据主键索引找到实际的数据。所以Innodb不建议使用过长的主键，否则会使辅助索引变得过大。建议使用自增的字段作为主键，这样B+Tree的每一个结点都会被顺序的填满，而不会频繁的分裂调整，会有效的提升插入数据的效率。
     - MyISAM：曾经的默认引擎。没有提供对数据库事务的支持，也不支持行级锁和外键。也是使用的B+Tree来储存数据，MyISAM索引的指针指向的是键值的地址，地址存储的是数据。B+Tree的数据域存储的内容为实际数据的地址，也就是说它的索引和实际的数据是分开的，只不过是用索引指向了实际的数据，这种索引就是所谓的非聚集索引。
-1. 表空间（TableSpace）：InnoDB用于存储一个数据的一个逻辑容器，管理上分为系统表空间、用户表空间、撤销表空间、临时表空间，从关系上又可分为共享表空间（多表共享一个表空间）、独立表空间
+1. 表空间（TableSpace）：InnoDB用于存储一个数据的一个逻辑容器，从内容管理上分为系统表空间、用户表空间、撤销表空间、临时表空间；从关系上又可分为共享表空间（多表共享一个表空间）、独立表空间
     - 段（Segment）：由若干个区构成，区之间**不一定连续**，是数据库的基本分配单位，不通类型的数据会创建不同的段，如表段、索引段
     - 区（Extent）：由**连续的页**构成（默认64个），实际上为了性能，一般也会连续申请多个连续的区。
     - 页（Page）：磁盘管理的最小单位（默认16KB），页也对应着所属段的一个数据节点，常见类型有：
-        - 数据页（B-tree Node)
+        - 数据页（B-tree Node）
         - undo页（undo Log Page）
         - 系统页 （System Page）
         - 事物数据页 （Transaction System Page）
@@ -130,3 +130,4 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
 1. [一文理解 MySQL 中的 page 页](https://cloud.tencent.com/developer/article/1818381)
 1. [锁的分类](https://www.cnblogs.com/myitnews/p/13698029.html)
 1. [深入理解MySQL锁类型和加锁原理](https://ost.51cto.com/posts/11812)
+1. [MySQL（九）：InnoDB 表空间（Tables）](https://blog.csdn.net/u010647035/article/details/105009979)

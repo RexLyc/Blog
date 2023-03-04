@@ -27,37 +27,65 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
 	( CASE WHEN 列名 = "条件1" THEN '翻译名1' ELSE '翻译名2' END ) AS 新列名
     FROM 你的表名;
     ```
+1. 各种连接
+    ```sql
+    -- 左、右外连接（左右外连接）
+    SELECT * FROM A LEFT JOIN B ON A.KEYA=B.KEYB;
+    SELECT * FROM A RIGHT JOIN B ON A.KEYA=B.KEYB;
+    -- 左、右内连接通过判断非NULL实现
+    SELECT * FROM A LEFT JOIN B ON A.KEYA=B.KEYB where B.KEYB IS NOT NULL
+    SELECT * FROM A RIGHT JOIN B ON A.KEYA=B.KEYB where A.KEYA IS NOT NULL
+
+    -- 内连接（MYSQL默认内连接）
+    SELECT * FROM A INNER JOIN B ON A.KEYA=B.KEYB;
+    SELECT * FROM A JOIN B ON A.KEYA=B.KEYB;
+
+    -- 外连接用UNION（UNION默认去重）
+    SELECT * FROM A LEFT JOIN B ON A.KEYA=B.KEYB
+    UNION
+    SELECT * FROM A RIGHT JOIN B ON A.KEYA=B.KEYB;
+    ```
+> 不同语言支持的SQL查询标准不同，当语法不兼容的时候，考虑用其他办法
 ### U - Update改
 1. 用b表数据更新a表
-```sql
--- MySQL
-UPDATE a
-INNER JOIN b
-ON a.id = b.id
-SET a.content = b.content; 
-```
+    ```sql
+    -- MySQL
+    UPDATE a
+    INNER JOIN b
+    ON a.id = b.id
+    SET a.content = b.content; 
+    ```
 
 ### D - Delete删
 
 
 ### 混合
 1. 用查询结果插入
-```sql
-INSERT INTO my_table(column1) SELECT column1 from table2;
-```
+    ```sql
+    INSERT INTO my_table(column1) SELECT column1 from table2;
+    ```
 
 ## DDL
 1. 修改表
-```sql
--- 删除某列
-alter table xxx drop column xxx;
-```
+    ```sql
+    -- 删除某列
+    alter table xxx drop column xxx;
+    ```
 
 ## DCL
 1. revoke
 1. grant
 
+## 坑
+1. count：count(*)或count(1)都不会跳过null，但如果count(column)，即指定列名，则会跳过null
+
 ## 其他
+- 表空间优化
+    - optimize命令，优化表，有使用限制，且不同存储引擎的实现不同，如InnoDB将会重建表
+    ```sql
+    -- 优化表A（此时磁盘剩余控件必须大于A所需的表空间）
+    optimize table A;
+    ```
 - 命令行
     1. 登录指定的MySQL数据库
     ```bash

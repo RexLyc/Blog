@@ -24,15 +24,22 @@ MySQL是当前一种主流的关系型数据库，本系列从原理和高性能
 - 2008年，MySQL AB被Sun收购。Sun则随后被Oracle收购。
 - 2010年，MySQL 5.5发布，该版本非常经典，加强了企业级的各种特性。此版中InnoDB正式称为MySQL的默认存储引擎。
 ## 安装
-- Linux/Ubuntu 18.04
-```bash
-sudo apt install mysql-server
-mysql_secure_installation # 进行一些安全配置
-mysql -u root -p # 登录root账户
-# 输入密码
-mysql>> # 开始数据库操作
-        ...
-```
+- 操作系统
+    - Linux/Ubuntu 18.04
+        ```bash
+        sudo apt install mysql-server
+        mysql_secure_installation # 进行一些安全配置
+        mysql -u root -p # 登录root账户
+        # 输入密码
+        mysql>> # 开始数据库操作
+        ```
+    - Raspberry
+        ```bash
+        # 树莓派等系统在默认源中已经放弃使用mysql，而使用其社区开源分支mariadb
+        sudo apt install mariadb-server mariadb-client
+        # 但是安装后仍然是使用mysql的各类指令
+        mysql_secure_installation
+        ```
 - 可能出现的问题
     1. 安全配置之后无法登录，提示ERROR 1698
         - 目前发现，使用如下写法，是可以通过的
@@ -44,6 +51,11 @@ mysql>> # 开始数据库操作
         - ***未知原因？***
     1. 无法远程访问，可参考[MySQL远程连接失败(错误码:2003)](https://blog.csdn.net/weixin_43025071/article/details/88603053)。
         - 检查端口、防火墙
+        - 确认my.cnf里配置了绑定ip
+            ```conf
+            [mysqld]
+            bind-address=::
+            ```
         - 检查mysql库，user表，host & user字段：host应当是符号“%”才允许任意ip访问。
         - ***仍然失败？***
     1. 想修改默认编码，参考[MySQL修改默认编码](http://www.3qphp.com/mysql/sqlquest/2240.html)。

@@ -14,4 +14,9 @@ thumbnailImage: /images/thumbnail/ue-logo.png
 <!--more-->
 ## 图形图像篇
 1. 模型重叠时的闪烁问题：
+    - 当两个面共面时，会出现闪面现象。使用UE4材质中 Pixel Depth Offset 节点，进行像素偏移，达到共面不闪面的效果。
     - **待解决**
+    
+
+## 参考
+1. [UE4/5 开发面试题：UE & 图形学 - Wychao09的文章 - 知乎](https://zhuanlan.zhihu.com/p/579078025)

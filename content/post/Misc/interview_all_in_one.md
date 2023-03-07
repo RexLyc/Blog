@@ -38,7 +38,8 @@ thumbnailImage: /images/thumbnail/interview.jpg
         - 引用是一个别名，必须在定义处进行初始化。而指针是一个变量，可以有控制，可以被修改
         - 引用只有一级，指针可以有多级
         - 在const、sizeof、自增自减运算符等使用上均有不同的意义
-    1. 
+    1. C++三种时钟的使用区别？
+        - steady_clock是启动时间，不可修改，high_resolution_clock是高精度时钟，system_clock是系统时间
 1. 网络：
     1. IP协议的主要功能？
         - 定义了在TCP/IP 互联网上数据传送的基本单元。为克服数据链路层最大帧长的限制，提供数据分段和重组的功能。

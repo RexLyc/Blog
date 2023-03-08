@@ -160,9 +160,43 @@ math: true
             }
         }
         ```
-
 1. 参考
     1. [算法学习笔记(14): 线段树](https://zhuanlan.zhihu.com/p/106118909)
+    1. [史上最详细的线段树教程](https://zhuanlan.zhihu.com/p/34150142)
+
+### 前缀树：
+- 一个小技巧是给字符串添加一个终止字符’$’，便于标记字符串的终止。
+- 参考：[前缀树(字典树、Trie树)](https://www.cnblogs.com/zhouzhiyao/p/12547142.html) 。
+
+### 后缀树：
+- 讲的比较好的几篇：https://www.cnblogs.com/xubenben/p/3484988.html 、 https://www.cnblogs.com/xubenben/p/3486007.html 、 https://blog.csdn.net/aiphis/article/details/48489709 、https://www.cnblogs.com/gaochundong/p/suffix_tree.html。
+- 几个关键点:
+    - 活跃节点的理解（当前能够重叠的部分的起始位置）
+    - 活跃半径（重叠长度）
+    - 活跃边（可能没有，或者就是重叠的起始字符
+    - 每次的三个规则
+- 参考：
+    1. [后缀树详解及其具体应用](https://blog.csdn.net/Yuzhiyuxia/article/details/24305683)
+    1. [后缀树Ukkonen构造法](https://blog.csdn.net/smbroe/article/details/42362347)
+    1. [后缀树系列一:概念以及Ukk实现原理](https://blog.csdn.net/fjsd155/article/details/80211145)
+
+### 后缀数组：
+- 实现起来比较好理解，而且速度也不慢（不过一般需要引入额外的信息来解题）。https://www.cnblogs.com/jianglangcaijin/p/6035937.html 这里有一篇很好的博客。DC3算法是比较好的实现方式（比较严格的O(3n)），对基数排序的理解。尤其是字符串的特点，导致划分完的2各部分，内部一定是有序的（长度都不一样，不可能出现完全相等）。而网上的对比可以看一下，起始倍增法也算够优秀（实际运行速度）。
+- 参考：[后缀数组解析及应用](https://blog.csdn.net/yxuanwkeith/article/details/50636898?_=_)
+
+### RMQ区间最大值最小值查询
+- Tarjan的Sparse-Table算法
+    - 构建：$dp[i][j]$表示i为起点，长度为$2^j$的区间的最值。状态转移方程（可以理解为二分）为$dp[i][j]=min/max(dp[i][j-1]+dp[i+(1<<(j-1))][j-1])$。注意二层循环，j为外层（按照区间长度分治）。
+    - 查询：寻找小于等于区间范围的区间（或多个区间，可以重叠）。
+- 线段树：$O(n)$建立，$O(logn)$查询
+- 笛卡尔树+LCA+DP：$O(n)$建立，$O(1)$查询
+
+### 树状数组
+- 参考：[树状数组详解](https://www.cnblogs.com/xenny/p/9739600.html)
+
+### 其他树：
+- 参考：[二叉树最近公共祖先（LCA）详解](https://www.hrwhisper.me/algorithm-lowest-common-ancestor-of-a-binary-tree/)
+
 ## 后端
 ### 流量限制算法
 1. 漏桶：以绝对固定的速率接受请求并进行处理，像是一个桶以固定的速率漏水一样

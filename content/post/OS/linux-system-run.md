@@ -19,7 +19,111 @@ thumbnailImage: /images/thumbnail/linux.jpg
     1. 内核启动
     1. 服务启动：
         - systemctl是systemd风格的服务启动方式。用于替换init风格的服务启动方式。
-## 重要模块
+
+## 中断
+- 中断请求（Interrupt Request），缩写为IRQ，是发送到处理器的信号，可以临时停止正在处理的任务，转而去运行中断处理程序。中断分为硬中断和软中断两种方式，其对比如下
+| 性质 | 硬中断 | 软中断 |
+| --- | --- | --- |
+| 嵌套 | 高优先级可以抢断低优先级 | 只能被硬件中断抢断 |
+| 子类型 | 可屏蔽中断、不可屏蔽中断 | |
+| 发起者 | 硬件设备（经由中断控制器） | 软件（进程）|
+| 流程位置 | 上半部，追求尽快结束 | 下半部，处理硬中断未完成的耗时任务 |
+- 基础关键词：
+    - IRQ编号：系统中每一个注册的中断源，都有一个的编号用于标记
+    - 触发：硬件信号可能存在多种，电平触发、边沿触发
+    - 中断流控：正确控制连续发生的中断，尤其是同种中断将要发生嵌套时，一般是将中断控制权交给驱动程序处理
+    - /proc/irq、/proc/softirq、/proc/interrupt：运行时可以查看中断处理相关情况
+    - NMI：不可屏蔽中断，比较特殊，该中断发生时CPU必须无条件响应，不能挂起，不能屏蔽
+- 基本流程
+    1. 硬件中断：
+        1. 系统启动阶段初始化相关硬件，尤其是中断控制器
+        1. 配置各软件部分，驱动程序申请中断编号，
+        1. 设备发出中断信号
+        1. 中断控制器判断中断是否响应，以及通知哪些CPU
+        1. 某个或某些CPU响应该中断，进入中断入口
+        1. CPU通过中断控制器的中断请求获取到IRQ，将该处理流转到中断流控，取出合适的中断响应函数（或线程）
+    1. 软中断：
+        - 在软中断触发之后，将会依次
+            1. 关闭CPU中断，避免竞争
+            1. 修改软中断位图（bitmap），标记当前有对应的软中断需要处理
+            1. 如果当前不在中断上下文中，可以唤醒守护进程，否则只能等待当前中断上下文执行到退出阶段
+            1. 恢复CPU中断
+        - 软中断处理
+            - 当调用local_bh_enable函数，激活本地CPU软中断，满足条件下会调用do_softirq来处理软中断
+            - 当硬中断处理完成后调用irq_exit时，会调用do_softirq来处理软中断
+            - 当守护线程ksoftirq被唤醒时，处理软中断
+            > 前两种情况，在do_softirq中会循环处理，但是如果超出一定次数限制，则会将任务转交给守护线程执行，保证性能
+- 部分代码
+    ```c
+    //判断当前CPU的中断状态
+    #define in_interrupt() (irq_count())
+    #define irq_count() (preempt_count() & (HARDIRQ_MASK | SOFTIRQ_MASK | NMI_MASK))
+
+    // -------------------------- 硬中断 --------------------------
+    // 驱动程序申请中断注册
+    int request_threaded_irq(
+        unsigned int        irq,                //申请的IRQ编号
+        irq_handler_t       handler,            //中断上下文处理器
+        irq_handler_t       thread_fn,          //中断回调线程
+        unsigned long       irqflags,           //中断标志
+        const char          *devname,           //中断名称
+        void                *dev_id);
+
+    // 可能使用连续的irq描述结构体数组，简单粗暴
+    #ifndef CONFIG_SPARSE_IRQ
+        struct irq_desc irq_desc[NR_IRQS] __cacheline_aligned_in_smp = {
+            [0 ... NR_IRQS-1] = {
+                .handle_irq = handle_bad_irq,
+                .depth      = 1,
+                .lock       = __RAW_SPIN_LOCK_UNLOCKED(irq_desc->lock),
+            }
+        };
+    #else
+    // 也可能使用基数树（radix tree），可以动态分配，可以编号不连续
+    struct irq_data {
+        unsigned int    irq;            //系统irq号
+        unsigned long   hwirq;          //硬件irq号
+        struct irq_chip *chip;          //
+        void            *handler_data;  //irq私有数据
+        void            *chip_data;     //中断处理器私有数据
+        cpumask_var_t   affinity:       //CPU处理映射关系
+    };
+    struct irq_desc {
+        struct irq_data     irq_data;
+        irq_flow_handler_t  handle_irq;         //中断流控制
+        struct irqaction    *action;            //中断响应链表（多个设备可能共享同一个irq）
+        raw_spinlock_t      lock;               //保护irq_desc自身的锁
+        const char          *name;
+        wait_queue_head_t   wait_for_threads;   //等待当前irq所有线程
+        // ... 其他
+    };
+    #endif
+
+    // -------------------------- 软中断 --------------------------
+    struct softirq_action {
+        // 用于回调的函数指针
+        void (*action)(struct softirq_action*);
+        void *data;
+    };
+    // 软中断的类型数量很有限，而且也不建议增加
+    enum {
+        HI_SOFTIRQ=0,
+        TIMER_SOFTIRQ,
+        // ... 一些
+        TASKLET_SOFTIRQ,        // 微任务，建议用户广泛使用这个处理自定义任务
+        SCHED_SOFTIRQ,          //
+        HRTIMER_SOFTIRQ,        // 高精度时钟软中断
+        RCU_SOFTIRQ,            // RCU操作软中断
+    };
+    static struct softirq_action softirq_vec[NR_SOFTIRQS] __cacheline_aligned_in_smp;
+
+    //触发软中断
+    void raise_softirq(unsigned int nr);
+    ```
+
+## 重要模块&机制
+### CFS
+### CGroups
 ### 时间
 1. 基础关键词：
     - timekeeper：内核中用于组织和时间相关的数据结构
@@ -87,3 +191,7 @@ thumbnailImage: /images/thumbnail/linux.jpg
 - [init systemd](https://www.ruanyifeng.com/blog/2016/03/systemd-tutorial-commands.html)
 - [init service systemctl区别](https://blog.csdn.net/lineuman/article/details/52578399)
 - [Linux时间管理系统](https://blog.csdn.net/droidphone/category_1263459.html)
+- [软中断和硬中断](https://www.jianshu.com/p/52a3ee40ea30)
+- [Linux中断子系统](https://blog.csdn.net/droidphone/category_1118447.html)
+- [深入理解Linux中断机制](https://heapdump.cn/article/4514433)
+- [Linux软中断过程详细总结](https://blog.csdn.net/Luckiers/article/details/123868625)

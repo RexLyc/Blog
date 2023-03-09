@@ -208,3 +208,4 @@ thumbnailImage: /images/thumbnail/misc.jpg
     - 死锁避免算法：银行家算法，只能避免死锁，即不允许死锁发生
     - 死锁检测算法：
     - 死锁恢复算法：
+1. NoSQL：Not Only SQL

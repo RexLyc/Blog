@@ -74,11 +74,25 @@ thumbnailImage: /images/thumbnail/interview.jpg
     1. 1个袋子、有100个黑球、100个白球，每次取出两个，如果颜色相同，则放回一个黑球，颜色不同，则放回一个白球，问最后剩下一个黑球的概率？
         - 看似复杂，但只要**分析一次操作的所有情况**就能进行总结：即每次操作，减少一个黑球，或者少两个白球但多一个黑球。从计算机的角度来看，这是归纳出了一个原子操作。
         - 在这个前提下，实际上很快就能发现，游戏存在两种结束情况：只要白球初始值是偶数，则袋子内最后的球数是一定可以归零的；否则最后会剩余一个白球
+1. 硬件：
+    1. 什么是local apic？
+        - PIC（Programmable Interrupt Controller可编程中断控制器）是一个有相当久历史的硬件，它对外负责连接外部各种容易产生中断的设备，对内和CPU相连。
+        - 随着中断类型的增加和多CPU的出现，推出了更高级的APIC技术（Advanced PIC），它分为IO APIC和Local APIC两部分，前者就一个，仍然负责和外设通信，后者每个CPU内部集成一个，各个Local APIC、IO APIC一起通过系统总线相连。
+        - IO APIC可以发送中断给指定的Local APIC，Local APIC之间也可以相互发送中断
+        > 注意多CPU和多核心并不完全一样，多CPU指的是有多块CPU芯片，多核心则是一个CPU芯片中集成多个物理核心。服务器上经常有多路CPU。
+    1. x86架构的内存管理？
+        - x86架构的内存管理是段页式内存，这里的段对应的是原本的分段式内存管理（程序段、数据段）、页则是代表内存分页管理，这两者结合起来就是段页式。按照从段到页的阶段，地址也分为虚拟地址、线性地址、物理地址。
+        - 逻辑地址包含段选择器和偏移两个部分，用这两部分去描述符表（有全局和局部两种）中查找对应的线性地址，用线性地址查找到属于自己的页表，随后进行页式存储管理
+        - 但对于不同的操作系统，也未必真的按照段页式编写内存管理部分，比如Linux就选择将所有的内存编入同一个段，也就是地址从一开始就是线性地址，完全使用分页管理
 1. 其他：
     1. 大尾端是什么？如何判断？
         - 大地址在数字尾端。0x12345678，如果大地址位是0x78，则是大尾端
+    1. OLAP和OLTP是什么，有什么区别？
+        - OLTP（on-line transaction processing）翻译为联机事务处理， OLAP（On-Line Analytical Processing）翻译为联机分析处理，从字面上来看OLTP是做事务处理，OLAP是做分析处理。从对数据库操作来看，OLTP主要是对数据的增删改，OLAP是对数据的查询。二者在技术栈、系统目标、服务对象、时间敏感度、业务阶段都有一定区别。
 
 ## 非专业内容考察
+1. 兴趣爱好
+1. 职业规划
 
 ## 参考
 1. [知乎：后端都要学习什么？](https://www.zhihu.com/question/24952874/answer/518162706)
@@ -88,3 +102,9 @@ thumbnailImage: /images/thumbnail/interview.jpg
 1. [内存访问全过程](https://blog.csdn.net/zhouzhiyao960211/article/details/106038416)
 1. [操作系统——页表寻址](https://blog.csdn.net/qq_16775293/article/details/107855301)
 1. [MySQL中NULL对索引的影响](https://www.jianshu.com/p/3cae3e364946)
+1. [OLTP与OLAP的关系是什么？ - Kyligence的回答 - 知乎](https://www.zhihu.com/question/24110442/answer/851671343)
+1. [【x86架构】内存管理](https://blog.csdn.net/jiangwei0512/article/details/63687977)
+1. [理解X86的内存管理](https://www.cnblogs.com/kongchung/p/15322175.html)
+1. [段式、页式内存管理以及linux采用的方案图解](https://blog.csdn.net/jinking01/article/details/107098437)
+1. [知乎专栏：计算机中断体系一：历史和原理](https://zhuanlan.zhihu.com/p/26464793)
+1. [APIC的那些事儿](https://www.binss.me/blog/what-is-apic/)

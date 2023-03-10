@@ -57,6 +57,11 @@ thumbnailImage: /images/thumbnail/lycStamp.png
     - 公安备案：需要去公安信息管理系统中备案，需要一个手持身份证的拍照，唯一离谱的地方是不让自拍（不能是镜像）。
 - 扩展内容
     1. 安全性：由于https协议（安全的超文本传输协议）具有明显优势，因此不建议还使用普通的http协议来发布网站。
+## Markdown实用
+- 添加右上角页内引用[<sup>1</sup>](#参考资料)，让文档和参考引用看起来更整洁：
+    ```md
+    [<sup>1</sup>](#参考资料)
+    ```
 ## Hugo进阶
 - 添加内嵌html支持，需要修改toml，令markdown引擎支持内嵌html（开启unsafe模式）
     ```toml

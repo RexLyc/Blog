@@ -20,6 +20,9 @@ thumbnailImage: /images/thumbnail/linux.jpg
     1. 服务启动：
         - systemctl是systemd风格的服务启动方式。用于替换init风格的服务启动方式。
 
+## 内核态和用户态
+1. **To Be Continue**
+
 ## 中断
 - 中断请求（Interrupt Request），缩写为IRQ，是发送到处理器的信号，可以临时停止正在处理的任务，转而去运行中断处理程序。中断分为硬中断和软中断两种方式，其对比如下
 | 性质 | 硬中断 | 软中断 |
@@ -195,3 +198,4 @@ thumbnailImage: /images/thumbnail/linux.jpg
 - [Linux中断子系统](https://blog.csdn.net/droidphone/category_1118447.html)
 - [深入理解Linux中断机制](https://heapdump.cn/article/4514433)
 - [Linux软中断过程详细总结](https://blog.csdn.net/Luckiers/article/details/123868625)
+- [linux内核学习资料大全整理-Github](https://github.com/0voice/linux_kernel_wiki)

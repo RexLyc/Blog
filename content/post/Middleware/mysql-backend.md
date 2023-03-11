@@ -27,12 +27,15 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
 1. 参考：
     1. [研发应该懂的binlog知识（上）](https://www.cnblogs.com/rjzheng/p/9721765.html)
 ### Undo Log
+
+### Redo Log
+
 ## 事务
 1. 事务特性：ACID
-    - A（Atomic）：原子性
-    - C（Consistency）：一致性
-    - I（Isolation）：隔离性
-    - D（Durability）：持久性
+    - A（Atomic）：原子性，事务内的所有操作要么全部完成，要么全部失败
+    - C（Consistency）：一致性，事务结束后，数据库的完整性不会被破坏
+    - I（Isolation）：隔离性，允许多个并发事务同时对其数据进行读写和修改的能力，不会因为多个事务并发执行时由于交叉执行而导致数据的不一致
+    - D（Durability）：持久性：对数据的修改就是永久的，即便系统故障也不会丢失
 1. 事务隔离级别：
     - 事务的不同隔离级别中，主要有三种情况不同，见下表
     | 隔离级别 | 脏读 | 不可重复读 | 幻读 |

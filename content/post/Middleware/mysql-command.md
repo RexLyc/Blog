@@ -83,6 +83,13 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
 1. revoke
 1. grant
 
+## ORM
+1. ORM（Object/Relational Mapping）就是一种能通过对实例对象的操作，直接完成数据库的数据操作的框架。
+    - 优点：封装程度高，安全，不用自己写SQL
+    - 缺点：难以控制SQL语句生成，复杂查询效率不如原生SQL
+1. 常见ORM框架：Hibernate
+    > MyBatis并不是一个全自动化的持久层框架，它仍然需要开发者维护SQL和结果映射
+
 ## 坑
 1. count：count(*)或count(1)都不会跳过null，但如果count(column)，即指定列名，则会跳过null
 
@@ -116,3 +123,4 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
     ```
 ## 参考
 1. [MySQL的执行顺序](https://www.jianshu.com/p/88c1b5e19cd8)
+1. [ORM 实例教程](https://www.ruanyifeng.com/blog/2019/02/orm-tutorial.html)

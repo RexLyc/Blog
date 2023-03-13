@@ -20,6 +20,10 @@ thumbnailImage: /images/thumbnail/fullstack.jpg
 1. IP
 1. UDP
 1. TCP
+    1. 特殊状态：
+        - PSH：表示该数据不等数据包填充满，直接发送
+        - URG：不走缓冲区，直接发送
+        - RST：第三次握手失败，如果此时接收到数据，则会回复RST，强行断开连接
     1. 异常情况处理
     1. 优化：
         1. 高并发

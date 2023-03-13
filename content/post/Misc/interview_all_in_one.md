@@ -66,9 +66,16 @@ thumbnailImage: /images/thumbnail/interview.jpg
         A* pA = &obj;
         B* pB = &obj;
         C* pC = &obj;
-        // pA、pB、pC的虚表是怎样的
+        
+        // 值是否相等
+        cout << pA << endl;
+        cout << pB << endl;
+        cout << pC << endl;
         ```
-        - 多继承的派生类指针向基类转型时，会丢掉其虚表中，在继承时顺序位于当前基类之前的其他基类的虚表内容
+        - 多继承的派生类指针向基类转型时，会丢掉其虚表中，在继承时顺序位于当前基类之前的其他基类的虚表内容。因此pA和pC相等、而pB和pA、pC不相等。
+    1. C++的多态有哪些
+        - 静态多态：模板、重载函数
+        - 动态多态：虚函数
 1. 网络：
     1. IP协议的主要功能？
         - 定义了在TCP/IP 互联网上数据传送的基本单元。为克服数据链路层最大帧长的限制，提供数据分段和重组的功能。
@@ -82,6 +89,11 @@ thumbnailImage: /images/thumbnail/interview.jpg
     1. 如何优化TCP连接的大量TIME_WAIT状态？
         - 优化内核参数：允许TIME_WAIT状态套接字直接用于新TCP连接，快速回收TIME_WAIT套接字，缩短MSL超时时间，减少允许处于TIME_WAIT的套接字数量、增加可用端口范围
         - 在系统的各个部分连接中，尽量使用长连接（客户端-网关-后端）
+    1. 负载均衡的底层实现？
+        - 在数据链路层：通过伪MAC地址接收，再分发给实际MAC
+        - 在网络层：通过伪IP接收，再分发给实际IP
+        - 在传输层：伪（IP+端口），再分发
+        - 在业务层：使用虚拟URL，再分发给不通的业务主机
 1. 数据库
     1. 聚簇索引优势在哪儿？辅助索引为什么使用主键作为值域？
         - 由于行数据和叶子节点存储在一起，这样主键和行数据是一起被载入内存的，找到叶子节点就可以立刻将行数据返回了，如果按照主键Id来组织数据，获得数据更快。
@@ -124,7 +136,11 @@ thumbnailImage: /images/thumbnail/interview.jpg
     1. 内核对象资源是什么？
         - 操作系统内核需要维护的一些对象，比如进程、线程、信号量、文件描述符，这些内容可能在不同的内核模块、用户进程中都有引用，内核使用引用计数来维护，当计数归0才会将其删除。
 1. 数据结构：
-    1. 散列冲突如何解决？链表法、开放寻址法、再散列
+    1. 散列冲突如何解决？
+        - 链表法、开放寻址法、再散列
+    1. AVL和红黑树的优缺点？
+        - AVL树平衡性更高，因此查询有一定优势。但是其平衡维护时最坏的情况可能需要调整到根节点，删除操作性能一般，适合查询极为频繁，而插入删除修改很少的数据场景
+        - 红黑树平衡性稍差，因此查询有一定劣势。但其平衡维护最差也是固定调整次数，删除操作性能较好，更稳定。在Linux内核、STL等多个场景下使用。
 1. 算法/数学题：
     1. 1000瓶药，1瓶有毒，会在24h时死亡，需要多少小白鼠才能在第24h的时候找出来？
         - 串行：如果不考虑第24h找到这个要求，可以用传统的查找方式，即串行的二分查找，首次让小白鼠喝500瓶，然后根据结果选择下250瓶喝哪些。
@@ -154,6 +170,9 @@ thumbnailImage: /images/thumbnail/interview.jpg
 1. 其他：
     1. 大尾端是什么？如何判断？
         - 大地址在数字尾端。0x12345678，如果大地址位是0x78，则是大尾端
+        - 网络续默认都是大尾端
+        - 常用的CPU中，x86是小尾端、arm是大尾端
+        - 另一种标准翻译是大端序（Big Endian）、小端序（Little Endian），大端序就是大尾端，小端序就是小尾端。
     1. OLAP和OLTP是什么，有什么区别？
         - OLTP（on-line transaction processing）翻译为联机事务处理， OLAP（On-Line Analytical Processing）翻译为联机分析处理，从字面上来看OLTP是做事务处理，OLAP是做分析处理。从对数据库操作来看，OLTP主要是对数据的增删改，OLAP是对数据的查询。二者在技术栈、系统目标、服务对象、时间敏感度、业务阶段都有一定区别。
     1. 谈谈秒杀系统的设计？
@@ -196,3 +215,5 @@ thumbnailImage: /images/thumbnail/interview.jpg
 1. [内核笔记（七）——内核对象（Kernel object）机制](https://developer.aliyun.com/article/1148764)
 1. [并行计算模型](https://blog.csdn.net/Shockang/article/details/115987113)
 1. [static_cast, dynamic_cast和reinterpret_cast的区别](https://blog.51cto.com/mingtangduyao/1832128)
+1. [红黑树与AVL树，各自的优缺点总结](https://www.jianshu.com/p/37436ed14cc6)
+1. [关于AVL树和红黑树的一点看法](https://zhuanlan.zhihu.com/p/93369069)

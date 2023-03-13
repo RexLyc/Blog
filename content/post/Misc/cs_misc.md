@@ -205,7 +205,8 @@ thumbnailImage: /images/thumbnail/misc.jpg
     - 数据条带（Data Stripping）
     - 数据校验（Data Parity）
 1. 死锁：
-    - 死锁避免算法：银行家算法，只能避免死锁，即不允许死锁发生
+    - 死锁的发生条件：互斥、请求与保持、不剥夺、循环等待
+    - 死锁避免算法：银行家算法，只能避免死锁，即不允许死锁发生。通过记录四种属性（Available、Max、Allocation、Need）
     - 死锁检测算法：
     - 死锁恢复算法：
 1. NoSQL：Not Only SQL

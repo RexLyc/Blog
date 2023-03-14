@@ -95,5 +95,27 @@ cd qt5130build
 ### linux
 - Linux下并没有自带部署工具，但由于Linux的特殊性，只需实用ldd查看依赖项并进行拷贝即可，拷贝步骤可以放在CMake种进行
 
+## Qt-Android
+1. Qt作为跨平台开发框架，也可以用于Android开发，这里面有一些小坑，在这里记录一下
+1. 环境搭建：
+    - 先安装好Android Studio，Java JDK，Android SDK Commandline Tool这三样东西。注意SDK CMD Tools和JDK版本有依赖，如果使用较低版本的JDK，则最新的工具可能会报错。前两者作用自不必说，第三个的工具作用是让Qt Creator有下载、安装、检查安卓各项依赖的能力
+    - 安装Qt，注意一定要安装其Android依赖，如果不确定，就全安装了吧
+1. 开发
+    - 引入第三方so、jar
+        - 在Qt开始编译后，会生成一个Android构建目录，在那下面有libs文件夹，直接拷进去就行
+    - 自定义AndroidMenifest.xml
+        - 在Qt的CMakeLists中，添加配置，然后在该配置项指向的目录中编写一个AndroidMenifest，将优先使用该配置
+            ```cmake
+            set_target_properties(PalmRegistry PROPERTIES
+                QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android"
+            )
+            ```
+1. 坑：
+    1. Qt安装路径下的：.\Qt\Tools\QtCreator\share\qtcreator\android\sdk_definitions.json，文件内记载了对安卓依赖的一些版本要求，这个要求很死板，必要的时候可以进行修改。要不然总会提示更新依赖包，实际上更新反而会导致错误。（比如升级了SDK，和JDK版本不兼容）
+    1. 创建工程后，可能会发生Gradle与JDK版本不兼容，这里参照Android Studio，对构建目录下的gradle.properties进行修改，添加如下项
+        ```properties
+        org.gradle.java.home=C:/Program Files/Android/Android Studio/jre
+        ```
+    1. 提示qmlimportscanner不存在。**尚未解决**
 ## 参考资料
 [Qt5官方文档](https://doc.qt.io/qt-5/classes.html)

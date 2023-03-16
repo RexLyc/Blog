@@ -1,6 +1,7 @@
 ---
 title: "Go：合集篇"
-date: 2023-03-15T22:33:17+08:00categories:
+date: 2023-03-15T22:33:17+08:00
+categories:
 - 计算机科学与技术
 - 编程语言
 tags:

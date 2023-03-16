@@ -96,7 +96,7 @@ cd qt5130build
 - Linux下并没有自带部署工具，但由于Linux的特殊性，只需实用ldd查看依赖项并进行拷贝即可，拷贝步骤可以放在CMake种进行
 
 ## Qt-Android
-1. Qt作为跨平台开发框架，也可以用于Android开发，这里面有一些小坑，在这里记录一下
+1. 首先，不推荐用Qt做这个开发，还是用原生的开发，资料多，坑少。其次，非用不可的情况下，Qt作为跨平台开发框架，也可以用于Android开发，在这里记录一下。
 1. 环境搭建：
     - 先安装好Android Studio，Java JDK，Android SDK Commandline Tool这三样东西。注意SDK CMD Tools和JDK版本有依赖，如果使用较低版本的JDK，则最新的工具可能会报错。前两者作用自不必说，第三个的工具作用是让Qt Creator有下载、安装、检查安卓各项依赖的能力
     - 安装Qt，注意一定要安装其Android依赖，如果不确定，就全安装了吧

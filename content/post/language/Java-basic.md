@@ -27,3 +27,7 @@ thumbnailImage: /images/thumbnail/java.jpg
         private static final long serialVersionUID=1L;
     }
     ```
+## 泛型
+1. Java的泛型和C++的是两种实现方式
+1. 如何保留完整的泛型类型？
+    - 使用Type、TypeToken

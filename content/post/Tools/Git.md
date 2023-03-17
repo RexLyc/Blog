@@ -44,7 +44,7 @@ thumbnailImage: /images/thumbnail/git.png
         - git write-tree：将暂存区内容写入到一个树对象
         - git read-tree：读取树对象
         > 使用上层指令时，对于没有变动的文件，git也会一并存储到树对象中，以保存目录结构的完整。其哈希值不变。
-1. commit：将树对象和一些提交相关的元信息保存并串联起来
+1. commit：将树对象（保存起来的blob）和一些提交相关的元信息保存并串联起来
     - git commit-tree：输入指定的树对象、父commit、元信息（commit message等）创建一个新的commit对象
 1. 标签：一个固定的哈希值和引用名
 1. 分支：其本质就是记录在.git/refs中的若干个commit及其引用名

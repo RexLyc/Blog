@@ -341,6 +341,7 @@ String getBuildDate() {
     adb shell screenrecord /存储/路径.mp4 # 录制屏幕
     adb shell input ... # 模拟各类输入事件（键鼠等）
     adb shell logcat >> xxx.txt # 将日志追加输出到指定文件
+    adb -s (ip):5555 shell # 指定连接
 
     # 安卓shell侧
     setprop service.adb.tcp.port 5555
@@ -352,7 +353,7 @@ String getBuildDate() {
     # adb shell命令也都可以用在这里
     # .. 可以使用其他部分linux指令
     ```
-1. 设置永久网络调试接口：
+1. 设置永久网络调试接口：adb实际上默认就是开启的，网络端口也是，可以直接尝试连接（首次连接也会需要安卓端确认）
     - 参考：[adb网络连接调试，重启之后失效](https://blog.csdn.net/ezconn/article/details/103358710)
 
 ## 实用第三方库

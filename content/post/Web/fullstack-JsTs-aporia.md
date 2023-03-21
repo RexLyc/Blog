@@ -22,3 +22,10 @@ thumbnailImage: /images/thumbnail/fullstack.jpg
 ## 兼容性问题
 1. 概述：兼容性问题目前主要体现在es5和es6上，虽然es6的特性非常好，但是并不能保证所有的浏览器都支持了es6，事实上很多浏览器可能支持的标准更低、更不完善。
 1. babel
+
+## Interface
+1. interface是ts中非常灵活的一个种类，提供了非常强大的泛型能力，可以用来限定实现者必须具备的静态、普通成员变量、函数
+
+
+## 参考
+1. [TypeScript 中文手册接口(interface)](https://typescript.bootcss.com/interfaces.html)

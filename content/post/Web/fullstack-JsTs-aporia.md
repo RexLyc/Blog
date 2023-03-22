@@ -26,6 +26,22 @@ thumbnailImage: /images/thumbnail/fullstack.jpg
 ## Interface
 1. interface是ts中非常灵活的一个种类，提供了非常强大的泛型能力，可以用来限定实现者必须具备的静态、普通成员变量、函数
 
+## 类类型
+1. C++中有模板元编程可以对类类型进行运算，Java则更是提供了完整的关于类类型的表示、处理、反射等内容，Typescript中也有类似功能，但是其实现相对更trick
+1. 基本原理：利用interface、extends、Function共同完成
+```ts
+// 同时限定，返回值类型是T，而且是一个具有new构造函数能力的东西，也就是一种类型
+export interface Type<T = any> extends Function {
+    new (...args: any[]): T;
+}
+
+// 搭配InstanceOf使用，用于获取构造函数类型所构造出的实例类型
+function f(t:Type){
+    const a: InstanceType<Type> = new t();
+}
+```
+> TypeScript中所谓的类，其实就是一种构造函数，因此所谓类类型，也可以叫做构造函数类型
 
 ## 参考
 1. [TypeScript 中文手册接口(interface)](https://typescript.bootcss.com/interfaces.html)
+1. [同事问我：TypeScript中的new () => Xxx 究竟是什么惊喜？ ](https://juejin.cn/post/7032280251119960078)

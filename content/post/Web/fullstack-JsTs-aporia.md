@@ -25,6 +25,37 @@ thumbnailImage: /images/thumbnail/fullstack.jpg
 
 ## Interface
 1. interface是ts中非常灵活的一个种类，提供了非常强大的泛型能力，可以用来限定实现者必须具备的静态、普通成员变量、函数
+1. 限定必须具备的常规成员、静态成员
+    ```ts
+    interface NormalMember {
+        props3:string;
+    }
+
+    interface StaticMember {
+        prop1:string;
+        build():string;
+        // 而这里又要求构造产生一个NormalMember类型
+        // 相当于限制了常规的非静态成员
+        new():NormalMember
+    }
+
+    interface Type {
+        static prop1:string="Type";
+        static build(): string {
+            return "";
+        }
+        prop3:string;
+        constructor() {
+            this.prop3="h";
+        }
+    }
+
+    buildType(type:StaticMember){
+        // 在这一行，会检查，type必须具备StaticMember里要求的成员
+        // 因为是属于类的成员，所以只能是静态成员（构造函数也是）
+        return new type();
+    }
+    ```
 
 ## 类类型
 1. C++中有模板元编程可以对类类型进行运算，Java则更是提供了完整的关于类类型的表示、处理、反射等内容，Typescript中也有类似功能，但是其实现相对更trick

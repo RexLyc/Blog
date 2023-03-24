@@ -86,8 +86,28 @@ thumbnailImage: /images/thumbnail/fullstack.jpg
             word-break: break-all;
         }
         ```
+1. CSS变量：CSS官方提供的用于从JS控制CSS的方式，以两个横线开头
+    1. 基本用法示例
+        ```css
+        .div {
+            width: --myVariable
+        }
+        ```
+    1. 相关js用法
+        ```js
+        // 检查是否受支持
+        const isSupported =
+            window.CSS &&
+            window.CSS.supports &&
+            window.CSS.supports('--a', 0);
+        
+        document.body.style.setProperty('--myVariable','20px');
+        document.body.style.getPropertyValue('--myVariable').trim();
+        document.body.style.removeProperty('--myVariable');
+        ```
 ### 不建议
 1. !important标记：用于声明某一个样式无视级联规则，固定为最高优先级
 
 ## 参考
 1. [菜鸟教程CSS](https://www.runoob.com/css/css-tutorial.html)
+1. [阮一峰：CSS 变量教程](https://www.ruanyifeng.com/blog/2017/05/css-variables.html)

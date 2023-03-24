@@ -100,6 +100,10 @@ thumbnailImage: /images/thumbnail/todo.jpg
 1. 3D数学基础：图形和游戏开发
 1. Physically Based Rendering: From Theory to Implemention 3rd
 1. 点石成金：访客至上的Web和移动可用性设计秘笈 原书第3版
+1. SRE谷歌运维解密
+1. 面向模式的软件架构
+1. 黑客与画家
+1. 分布式系统原理与泛型
 
 ## 影剧清单
 - [ ] 海边的曼彻斯特
@@ -116,6 +120,7 @@ thumbnailImage: /images/thumbnail/todo.jpg
 - [x] 太空救援
 - [ ] 旅行终点
 - [ ] 唐顿庄园
+- [ ] 侧耳倾听
 
 ## 去哪儿试玩
 - 户外：

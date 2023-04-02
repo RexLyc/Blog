@@ -27,3 +27,11 @@ thumbnailImage: /images/thumbnail/ue-logo.png
 1. HUD和UI：
     - HUD：Head Up Display，一般来说是界面上绘制的只读内容，用来提示玩家方向、血量等信息
     - UI：User Interface，所有可交互的界面，都可以称之为UI。
+
+## 优秀设计参考
+1. 《传送门》的效果是如何实现的？
+    - 用两个不同的相机拍摄画面，一个相机是用户实际看到的，另一个相机用于渲染另一个传送门内的画面
+    - 玩家、物体，**正在穿越传送门**时对碰撞检测算法做特别处理，关闭墙壁碰撞，仅保留门框
+    - 玩家、物体穿过传送门时、可能需要在两个地方同时渲染一个该物体
+    - 穿过传送门本质就是将玩家坐标迅速传送，并且保留速度、方向
+    - 参考：[How were the portals in Portal created? | Bitwise](https://www.youtube.com/watch?v=_SmPR5mvH7w)

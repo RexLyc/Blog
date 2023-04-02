@@ -61,19 +61,19 @@ enableEmoji = true
 [[menu.main]]
   weight = 2
   identifier = "categories"
-  name = "奕成的个人空间的分类"
+  name = "技术笔记本的分类"
   pre = "<i class=\"sidebar-button-icon fa fa-lg fa-bookmark\"></i>"
   url = "/categories"
 [[menu.main]]
   weight = 3
   identifier = "tags"
-  name = "奕成的个人空间的标签"
+  name = "技术笔记本的标签"
   pre = "<i class=\"sidebar-button-icon fa fa-lg fa-tags\"></i>"
   url = "/tags"
 [[menu.main]]
   weight = 4
   identifier = "archives"
-  name = "奕成个人空间的时轴"
+  name = "技术笔记本的时轴"
   pre = "<i class=\"sidebar-button-icon fa fa-lg fa-archive\"></i>"
   url = "/archives"
 [[menu.main]]

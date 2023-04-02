@@ -76,3 +76,6 @@ thumbnailImage: /images/thumbnail/ue-logo.png
 1. [官方Learning Library](https://dev.epicgames.com/community/learning)
 1. [油管Unreal Engine 5 Beginner Tutorial - UE5 Starter Course!](https://www.youtube.com/watch?v=gQmiqmxJMtA)
 1. [Unreal Engine 5 Beginner Tutorial - UE5 Starter Course 2022](https://www.youtube.com/watch?v=k-zMkzmduqI)
+1. 图形学相关：
+    1. [GAMES101-现代计算机图形学入门-闫令琪](https://www.bilibili.com/video/BV1X7411F744)
+    1. [GAMES202-高质量实时渲染](https://www.bilibili.com/video/BV1YK4y1T7yY/)

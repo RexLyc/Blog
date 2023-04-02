@@ -598,6 +598,7 @@ math: true
         | -P port | 特定端口，也可以直接ip:port |
         | -l limit 小写的L | 指定带宽限制Kb/s |
     - 网络状态netstat
+        > netstat无法看见全部端口，或者一些进程的pid的原因：进程不属于当前用户（可以通过sudo查看）
 1. 终端复用tmux
     1. 基本用法
         ```bash
@@ -936,5 +937,6 @@ cat /proc/cpuinfo
     - jconsole：一个java GUI监视工具，甚至支持X远程图形
 - telnet：查询对指定端口
 - nc：[netcat](https://learnku.com/articles/59416)，一个非常全面的网络指令，可以用于端口扫描、文件传输、创建IM会话
+- last：查看最近的登录信息
 ## 一些建议
 1. 对于rm，可以替换为mv到临时文件夹，并定期清理，尽量避免使用rm，尤其禁止使用rm -rf

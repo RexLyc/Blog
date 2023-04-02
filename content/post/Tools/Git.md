@@ -44,7 +44,7 @@ thumbnailImage: /images/thumbnail/git.png
         - git write-tree：将暂存区内容写入到一个树对象
         - git read-tree：读取树对象
         > 使用上层指令时，对于没有变动的文件，git也会一并存储到树对象中，以保存目录结构的完整。其哈希值不变。
-1. commit：将树对象和一些提交相关的元信息保存并串联起来
+1. commit：将树对象（保存起来的blob）和一些提交相关的元信息保存并串联起来
     - git commit-tree：输入指定的树对象、父commit、元信息（commit message等）创建一个新的commit对象
 1. 标签：一个固定的哈希值和引用名
 1. 分支：其本质就是记录在.git/refs中的若干个commit及其引用名
@@ -268,6 +268,17 @@ thumbnailImage: /images/thumbnail/git.png
     git gc --prune=now
     git push --force
     ```
+    - 或者基于基本的方式
+    ```bash
+    # 删除
+    git filter-branch --force --index-filter "git rm --cached --ignore-unmatch 你要删除的文件（相对项目的路径）" --prune-empty --tag-name-filter cat -- --all
+    # 强制推送（略）
+    # 清理本地垃圾
+    git for-each-ref --format='delete %(refname)' refs/original | git update-ref --stdin
+    git reflog expire --expire=now --all
+    git gc --prune=now
+    ```
+    - 参考:[Github删除某个文件的所有提交记录](https://cloud.tencent.com/developer/article/1665810)
 1. 查找问题代码的引入提交
     - git提供二分查找的办法：git blame & git bisect
 1. 子模块：git submodule

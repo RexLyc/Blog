@@ -35,3 +35,18 @@ thumbnailImage: /images/thumbnail/linux.jpg
     1. EXT2
     1. EXT3
     1. EXT4
+
+## 目录内容约定
+1. /opt：optional，安装额外软件的目录
+1. /etc：系统管理所需的配置文件
+1. /bin：一般是/usr/bin的链接
+1. /usr：unix shared resourcecs，存放很多程序和文件，类似于Windows的Program Files
+1. /run：存储系统开机以来的信息，该信息在下次启动后会被删掉
+1. /sbin：系统管理员使用的程序，一般是/usr/sbin的链接
+1. /tmp：临时文件
+1. /var：variable，存放会变化的文件，如日志
+1. /dev：外部设备
+1. /mnt：用于挂载其他文件系统（如光驱、u盘）
+1. /home、/root：普通用户主目录、root主目录
+1. /lib：动态链接库
+1. /proc：系统内存的部分映射

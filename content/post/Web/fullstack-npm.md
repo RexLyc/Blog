@@ -84,6 +84,9 @@ Node.JS是基于Chrome V8开发的JS服务器端运行环境，NPM则是Node.JS�
         set ELECTRON_MIRROR="https://npm.taobao.org/mirrors/electron/"
         ```
     1. files设置的打包时所需打包的文件，但是注意路径需要有一些变化。最好是通过from、to的方式指定清楚。
+    1. ASAR文件存在一些限制，这其中最明显的是ASAR是只读的，因此不能将需要运行时修改的文件打包，此时应当使用"asarUnpack"选项，指定不想被打包的文件
+    1. linux下图标最好使用icns文件指定
+    1. linux下以deb包安装会出现权限问题，默认都是root文件，无法进行修改（比如动态调整配置文件）。个人认为最好的办法是将配置文件复制到用户目录下进行使用。
 - 项目文件参考
 ```json
 // package.json

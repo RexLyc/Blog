@@ -119,17 +119,29 @@ String getBuildDate() {
 ```
 
 ### 调用外部C++库
+1. 关键词：
+    - JNI：Java Native Interface，作为Java代码和Native代码的桥梁，提供数据转换，接口映射等功能。注意虽然Native效率很高，但是JNI效率很低，因此要尽量避免频繁调用JNI层
+    - NDK（Native Develop Kit）：提供本地代码开发的各种工具（主要就是一个C/C++编译器和标准库）
 1. 主要方式
     - 低难度：提供Java接口、so库。这意味着JNI代码已经写好了，使用者只需将so放到指定位置，调用Java接口即可
-    - 高难度：C/C++接口、so库。需要用户编写编译规则和JNI代码
+    - 高难度：C/C++接口、so库。需要用户编写编译规则和JNI代码，难点主要在于接口名称映射。当然这一点如果使用Android Studio，选择新建NativeLibrary进行开发，自动化程度也已经非常高了
 1. 坑：
     - 外部库的名字可以变动,调用加载时指定正确的名称即可，但是路径必须是固定的，而且要和so对应的CPU架构一致，如armeabi、armeabi-v7a、x86。
+    - 虽然一些基础的数据类型如jint、jbyte是可以直接使用的，但是数组、对象等类型，都需要使用jenv进行一定的转换，否则会发生无法预期的错误。比如未pin住对象内存，导致被GC回收，从而段错误退出。
 1. 参考
     - [菜鸟教程：JNI入门教程](https://www.runoob.com/w3cnote/jni-getting-started-tutorials.html)
     - [ANDROID动态加载 使用SO库时要注意的一些问题](https://segmentfault.com/a/1190000005646078)
+    - 推荐阅读：[NDK 系列（5）：JNI 从入门到实践，爆肝万字详解！](https://www.cnblogs.com/pengxurui/p/16529252.html)
 ## 原理
 1. 四大组件：活动（Activity）、服务（Service）、广播接收者（BroadCast Receiver）、内容提供者（Content Provider）
 ## 代码应用
+### 数据存储
+- 五种主要方式
+    - SharePreferences：本质是xml文件
+    - SQLite
+    - Content Provider：唯一可以用于共享的办法，用一个uri标记资源，如content://路径/id
+    - File：一般用于大文件
+    - 网络存储
 ### ListView
 - ListView容易出现卡顿问题，一定要做其中的View优化
 - 最好准备完整的数据之后再进行setAdapter，减少触发数据变动
@@ -329,6 +341,7 @@ String getBuildDate() {
     adb shell screenrecord /存储/路径.mp4 # 录制屏幕
     adb shell input ... # 模拟各类输入事件（键鼠等）
     adb shell logcat >> xxx.txt # 将日志追加输出到指定文件
+    adb -s (ip):5555 shell # 指定连接
 
     # 安卓shell侧
     setprop service.adb.tcp.port 5555
@@ -340,7 +353,7 @@ String getBuildDate() {
     # adb shell命令也都可以用在这里
     # .. 可以使用其他部分linux指令
     ```
-1. 设置永久网络调试接口：
+1. 设置永久网络调试接口：adb实际上默认就是开启的，网络端口也是，可以直接尝试连接（首次连接也会需要安卓端确认）
     - 参考：[adb网络连接调试，重启之后失效](https://blog.csdn.net/ezconn/article/details/103358710)
 
 ## 实用第三方库

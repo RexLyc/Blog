@@ -11,6 +11,13 @@ thumbnailImage: /images/thumbnail/java.jpg
 ---
 本文总结一些常见的较为特别的Java基础要点
 <!--more-->
+## 类型大小
+1. 基本类型不再复述，记得char是两个字节
+1. 类类型的大小分为四个部分：
+    - 对象头：包含jvm信息（如gc、锁），和计算机字长相等
+    - oop指针：指向类型信息：开启指针压缩是4个字节，否则是8个
+    - 实际数据成员：
+    - 对齐区域：默认对齐到8个字节的倍数
 ## 语言特性
 1. 序列化：
     - 一般写法：继承Serializable接口，提供一个serialVersionUID
@@ -20,3 +27,7 @@ thumbnailImage: /images/thumbnail/java.jpg
         private static final long serialVersionUID=1L;
     }
     ```
+## 泛型
+1. Java的泛型和C++的是两种实现方式
+1. 如何保留完整的泛型类型？
+    - 使用Type、TypeToken

@@ -13,5 +13,10 @@ thumbnailImage: /images/thumbnail/linux.jpg
 ---
 部分Linux源代码赏析
 <!--more-->
+## 常见宏
+1. L1_CACHE_ALIGN(x)：返回x所指向的内存区域的起始cacheline的边界地址
+1. ____cacheline_aligned：局部数据，将数据分配到程序.data段，起始位置对齐cacheline
+1. __cacheline_aligned：全局数据，其他同上
+
 ## 参考
 1. [Linux Kernel Map可视化](https://makelinux.github.io/kernel/map/)

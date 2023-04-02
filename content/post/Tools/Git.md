@@ -268,6 +268,17 @@ thumbnailImage: /images/thumbnail/git.png
     git gc --prune=now
     git push --force
     ```
+    - 或者基于基本的方式
+    ```bash
+    # 删除
+    git filter-branch --force --index-filter "git rm --cached --ignore-unmatch 你要删除的文件（相对项目的路径）" --prune-empty --tag-name-filter cat -- --all
+    # 强制推送（略）
+    # 清理本地垃圾
+    git for-each-ref --format='delete %(refname)' refs/original | git update-ref --stdin
+    git reflog expire --expire=now --all
+    git gc --prune=now
+    ```
+    - 参考:[Github删除某个文件的所有提交记录](https://cloud.tencent.com/developer/article/1665810)
 1. 查找问题代码的引入提交
     - git提供二分查找的办法：git blame & git bisect
 1. 子模块：git submodule

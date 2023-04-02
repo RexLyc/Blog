@@ -330,14 +330,9 @@ thumbnailImage: /images/thumbnail/IBM.jpg
     ```
     
 ## 参考资料
-[在Linux系统安装IBM WebSphere MQ](https://blog.csdn.net/chengyan0079/article/details/78922889)
-
-[Linux安装IBM WebSphere MQ以及配置](https://blog.csdn.net/weixin_37539417/article/details/93488229)
-
-[IBM WebSphere MQ for linux 安装详解](http://www.shterm.cn/176.html)
-
-[IBM MQ 远程队列的创建与使用](https://blog.csdn.net/ILYPTING/article/details/104749065)
-
-[SpringBoot整合IBMMQ连接发送和接收](https://blog.csdn.net/u012448904/article/details/90474548  )
-
-[IBMMQ搭建和远程访问队列管理器时的权限配置](https://www.cnblogs.com/shawWey/p/12204917.html)
+- [在Linux系统安装IBM WebSphere MQ](https://blog.csdn.net/chengyan0079/article/details/78922889)
+- [Linux安装IBM WebSphere MQ以及配置](https://blog.csdn.net/weixin_37539417/article/details/93488229)
+- [IBM WebSphere MQ for linux 安装详解](http://www.shterm.cn/176.html)
+- [IBM MQ 远程队列的创建与使用](https://blog.csdn.net/ILYPTING/article/details/104749065)
+- [SpringBoot整合IBMMQ连接发送和接收](https://blog.csdn.net/u012448904/article/details/90474548  )
+- [IBMMQ搭建和远程访问队列管理器时的权限配置](https://www.cnblogs.com/shawWey/p/12204917.html)

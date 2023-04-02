@@ -13,7 +13,6 @@ thumbnailImage: /images/thumbnail/qt-logo.svg
 Qt是一个非常好用的C++框架，最主要的用途是用来开发跨平台GUI程序。
 <!--more-->
 本文主要记录一些开发过程中遇到的经典坑和关键理解。以高版本（不低于5.4）为例。
-## 最佳实践
 ## 核心机制关键词
 1. 信号和槽
     1. 观察者模式：信号和槽本质上就是观察者模式的一种实现
@@ -21,13 +20,20 @@ Qt是一个非常好用的C++框架，最主要的用途是用来开发跨平台
     1. QObject：只有QObject派生类，且添加了Q_OBJECT宏才可以使用该机制
     1. public：signals不能添加限定符，默认就是public的，信号只能声明，不能定义，返回值必须为void
     1. 参数：信号的参数量不能小于槽函数的参数量
-    1. 级联：信号可以级联，信号将会连接顺序进行传递
+    1. 级联：信号可以级联（信号连接信号），信号将会连接顺序进行传递
+1. 元对象系统
+    - 一个基于标准C++的扩展，提供对象间通信的信号槽机制，实施类型信息和动态属性等功能
+    - 实现基于QObject类、Q_OBJECT宏、元对象编译器moc
+1. 事件模型
+    - 主事件循环从事件队列中获取本地窗口系统事件，分发给对应的接收对象
+    - 用户也可以由QEventLoop创建本地事件循环，管理事件并分发
 1. MOC
-    1. Meta-Object Compiler：元对象编译器
+    - Meta-Object Compiler：元对象编译器
 1. UIC
+    - User Interface Compiler：图形界面编译器
 1. QMake
-1. 国际化
-
+1. 国际化，QtLinguist
+    - 对用户可见的文本信息全部使用tr函数进行封装，ts文件报错了所有待翻译内容，qm保存了所有翻译结果
 ## 扩展
 ### 绘图
 1. QGraphics：Qt自带的一系列绘图用的类型，也是大部分第三方绘图库的实际底层
@@ -93,7 +99,7 @@ cd qt5130build
     - [Qt打包发布程序，解决找不到msvcp140.dll等动态库问题正确方案](https://blog.csdn.net/no_say_you_know/article/details/126360830)
     - [OpenGL环境检测和设置](https://blog.csdn.net/mvmmvm/article/details/122177404)
 ### linux
-- Linux下并没有自带部署工具，但由于Linux的特殊性，只需实用ldd查看依赖项并进行拷贝即可，拷贝步骤可以放在CMake种进行
+- Linux下并没有自带部署工具，但由于Linux的特殊性，只需实用ldd查看依赖项并进行拷贝即可，拷贝步骤可以放在CMake中进行
 
 ## Qt-Android
 1. 首先，不推荐用Qt做这个开发，还是用原生的开发，资料多，坑少。其次，非用不可的情况下，Qt作为跨平台开发框架，也可以用于Android开发，在这里记录一下。
@@ -118,4 +124,5 @@ cd qt5130build
         ```
     1. 提示qmlimportscanner不存在。**尚未解决**
 ## 参考资料
-[Qt5官方文档](https://doc.qt.io/qt-5/classes.html)
+1. [Qt5官方文档](https://doc.qt.io/qt-5/classes.html)
+1. [Qt事件机制](https://www.cnblogs.com/Braveliu/p/7417476.html)

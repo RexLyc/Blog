@@ -16,15 +16,15 @@ thumbnailImage: /images/thumbnail/todo.jpg
 这里是一些更新计划，没事记得看看。。。进度差的挺多的
 <!--more-->
 ## 加更
-1. [ ] 一个测试框架
-    - 开发语言和图形接口选择（建议前后端分离）
+1. [x] 一个测试框架
+    - [x] 开发语言和图形接口选择（建议前后端分离）
         - vue+js+electron：[DrawFlow](https://github.com/jerosoler/Drawflow)
         - 后端python/cpp/java
-    - 可视化测试进度
-    - UI测试，同步、异步接口的测试处理
-    - 测试中的异常处理
-    - 网络化、批量化
-1. [ ] Android
+    - [ ] 可视化测试进度
+    - [ ] UI测试，同步、异步接口的测试处理
+    - [x] 测试中的异常处理
+    - [ ] 网络化、批量化
+1. [x] Android
 1. [ ] 基于UE5的地铁数字孪生系统
     - 智能维修、[爆炸动画](https://docs.unrealengine.com/5.1/zh-CN/setting-up-xr-explode-animations-in-unreal-engine/)
 
@@ -42,10 +42,10 @@ thumbnailImage: /images/thumbnail/todo.jpg
 1. [X] cpp-standard - 16h
     - [X] C & C++
     - [X] C++ 98 03 11 14 17 20
-1. [ ] qt-all-in-one - 8h(后续可以再补充，尤其是针对嵌入式、针对模块的单独使用)
+1. [x] qt-all-in-one - 8h(后续可以再补充，尤其是针对嵌入式、针对模块的单独使用)
 1. [x] jmeter-all-in-one - 2h(稍加补充)
 1. [x] Unreal Engine5 入门 - 48h
-1. [ ] ibmmq-all-in-one - 2h(稍加补充)
+1. [x] ibmmq-all-in-one - 2h(稍加补充)
 1. [ ] linux-file - 30h
 1. [ ] linux-system-run - 16h 
     - https://www.liuvv.com/p/c9c96ac3.html
@@ -62,8 +62,8 @@ thumbnailImage: /images/thumbnail/todo.jpg
 1. [ ] design-concurrency - 24h
 1. [ ] design-pattern-terms - 2h(后续不断补充)
 1. [ ] redis-single - 8h
-1. [ ] WebLab-init - 30h(快点做完吧球球了)
-    - 可以看看BliKVM，以KVM形式做一个控制器
+1. ~~[ ] WebLab-init - 30h(快点做完吧球球了)~~
+    ~~- 可以看看BliKVM，以KVM形式做一个控制器~~
 1. [ ] algo1 - 4h(重看一遍视频，把这部分博客补了)
 - 合计：270h，预计需花费90天
 ## 更新二

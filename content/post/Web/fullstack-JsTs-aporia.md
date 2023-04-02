@@ -57,7 +57,7 @@ thumbnailImage: /images/thumbnail/fullstack.jpg
     }
 
     buildType(type:StaticMember){
-        // 在这一行，会检查，type必须具备StaticMember里要求的成员
+        // 在这一行，会检查，type必须具备StaticMember里要求的成员 
         // 因为是属于类的成员，所以只能是静态成员（构造函数也是）
         return new type();
     }

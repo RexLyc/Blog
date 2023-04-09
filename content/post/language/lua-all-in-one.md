@@ -9,7 +9,7 @@ tags:
 - 合集篇
 - 施工中
 thumbnailImagePosition: left
-thumbnailImage: /images/thumbnail/Lua-Logo.jpg
+thumbnailImage: /images/thumbnail/Lua-Logo.png
 ---
 据说Lua是一个非常好用的C/C++内嵌脚本语言，在系统编程和游戏领域都有一定的用武之地。本篇总结学习一下。
 <!--more-->

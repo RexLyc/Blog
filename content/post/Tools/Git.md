@@ -289,6 +289,16 @@ thumbnailImage: /images/thumbnail/git.png
     - git clone --recurse-submodules url：相当于git submodule init & update
 1. 创建git离线更新包
     - git bundle create
+1. 建立纯本地仓库
+    - 有的时候有一些大文件，放在SSD不放心，但是又不适合放到Github、网盘上，可以用这种方式，放到一个本地的HDD。注意仓库的bare和non-bare之分
+        ```bash
+            # 找到一个靠谱的本地磁盘，--bare用于指定该仓库为纯仓库（没有默认的init），完全是空的
+            git init --bare PrivateProject
+
+            # 在你的分支上
+            git remote add local D:\\PrivateProject\
+            git push
+        ```
 ## 其他
 - push 有的时候会失败，提示remote rejected之类的，commit some refs failed。并不确定是不是自己的问题。可以尝试git gc。如果还是不行，建议等一段时间，可能只是github的问题。
 - git早期更像一个文件系统，即使是现在，很多底层命令依然保留。通常可以分为底层（plumbing）和上层（procelain）命令。

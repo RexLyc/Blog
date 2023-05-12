@@ -22,5 +22,8 @@ Python作为一种脚本语言，在互联网和AI技术发展浪潮中都抓住
 1. Anaconda：Anaconda公司开发的，包含一系列预先建立和配置好的包的发行版。
 1. Miniconda：基本上是一个用来安装空的conda环境的发行版，仅包含conda和conda的依赖。
 ## PyPy
+## 坑
+1. pyinstaller部署
+    - [pyinstaller打包含有socketio的flask项目的安装与使用](https://blog.csdn.net/qq_23518283/article/details/100514584)
 ## 参考
 - [Anaconda与conda、pip与conda的区别](https://zhuanlan.zhihu.com/p/379321816)

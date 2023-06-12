@@ -18,7 +18,7 @@ draft: true
 ### 主要玩法：
 &emsp;&emsp;在随机生成的地图中和好友一同探索世界，采集资源，建立并发展生存点，招募NPC伙伴，发展科技，对抗敌对生物。
 ### 背景设定
-&emsp;&emsp;在平行时空中人类被外星人入侵？最终使用核武器，导致核冬天降临，作为少数幸存者尝试生存下来，击败剩余外星人。
+&emsp;&emsp;别太中二
 ### 要素：
 1. 支持联机
     - 服主自动获得管理员身份、其他人按管理员分配权限继承顺位
@@ -67,13 +67,91 @@ draft: true
 1. 饥荒
 1. 这是我的战争
 
+## 第三节点
+1. 目标：继续第二周的目标
+    1. 新目标：
+        - [*] 从5.1更新到5.2
+        - [ ] 尝试使用5.2中提供的过程内容生成
+        - [ ] 完成对地图的动态生成，保存，加载功能
+        - [ ] 重构地形生成器代码，提供更好的设计模式
+        - [ ] 重新引入puerts，尝试将部分逻辑在脚本中进行编写
+            - [ ] 完成C++、蓝图、TS互操作
+    1. 关键点：
+        1. 5.1到5.2
+            1. 不要在代码里写和版本绑定的include，比如include "unreal engine 5.1/...."
+            1. 5.1中使用的puerts作为插件，无法直接支持5.2，需要等待社区进行升级
+                - 重新评估脚本系统？
+            1. Landscape中的CollisionComponent的获取方式有变化
+            1. 原位转换其他内容正常
+        1. Procedural Content Generation：
+            - 该部分更倾向于替代Foliage（植被工具），提供更好的泛用性，并具备实时使用内容，而不是地形生成
+            - 参考:[Unreal Engine 5.2 Procedural Content Generation Tutorial](https://www.youtube.com/watch?v=_Mk3x5W8tHY)、[Procedural Content Generation in UE5 | GDC 2023](https://www.youtube.com/watch?v=aoCGLW53fZg)
+    1. 支线：
+        - 为项目添加提高蓝图可用性的插件：[蓝图 Visual Studio Integration Tool](https://www.unrealengine.com/marketplace/en-US/product/362651520df94e4fa65492dbcba44ae2)
+1. 时间安排
+    1. 6月
+> 以周为单位的计划安排不够合理
+
 ## 第二周
 1. 目标：实现基础的角色和联机
     1. 细化目标：
-        - [ ] 角色能够加入Dedicated Server，并且不同角色仅加载各自的区域，服务器需要加载所有区域并进行计算
-        - [ ] 修改地形系统，使得能够根据角色进行区域加载
+        - [x] 角色能够加入Dedicated Server，并且不同角色~~~仅加载~~~各自的区域，服务器需要加载所有区域并进行计算
+        - [x] 修改地形系统，使得能够根据角色进行区域加载
         - [ ] 角色拥有物品系统，能够收集、丢弃资源
-
+            - 暂时用text3dactor代替物品，也需要为其添加碰撞（仿mc）
+        - [ ] 尝试Linux、Windows双版本
+    1. 关键点：
+        - Enhanced Input：
+            - IM和IA配合使用，IA绑定到具体的控制（相当于信号和槽），IM负责给IA映射按键
+            - 想要使用组合按键，要在IM中进行配置，设置组合，组合方式和所有相关键的触发方式有关，可以根据需要调整（都按下、有顺序按等等）
+        - UMG:
+            - 注意先创建UUserWidget子类，然后再单独创建蓝图，并选择继承刚刚的C++父类（而不是从C++父类直接派生蓝图子类）
+        - 关于蓝图：
+            - 不排斥蓝图，但是也不要过于依赖，对于一些能提高效率的场景，多使用蓝图是完全可以的。比如对于动画，角色运动、输入动作的基本配置，使用蓝图更方便
+        - 参考Minecraft，每秒20个Tick，将渲染帧和游戏逻辑帧分离。
+            - Tick暂时用定时器确定
+        - GameMode和GameState：
+            - 将一些游戏基础的逻辑移动到GameMode和GameState中进行存储和控制
+        - 联机注意：
+            - GameMode是不会向客户端复制的，位于listenServer上的玩家，仍然可以调用GameMode实例中的方法和属性，但是其它纯client的玩家，但凡使用GameMode实例中的方法，均会抛出异常（因为这个类并不会向其他客户端进行扩散）
+                - 注意在编辑器的启动模式中区分单机（无服务器），监听服务器（ListenServer），客户端（启动纯Client并自动启动一个Dedicated Server）
+            - 需要使用GameState进行同步
+                - 控制地形的同步生成
+                - 存档同步（为了简化：一律采用ds + client模式，只不过ds只有房主才能启动）
+                    - 本地存档保存所有只属于玩家的信息（名称，id，位置等），不保存任何公共信息（地图、建筑）
+                    - 登陆后由服务器负责下发地图
+                    - 优化空间？
+                - login控制（AGameModeBase::Login）
+            - 最重要的几条思路：
+                - 分清楚代码要在哪里执行：并使用HasAuthority（对本地和远程玩家进行区分）、IsRunningDedicatedServer（对是否位于服务器进行区分，收编辑器状态影响）、IsRunningClientOnly（对是否位于客户端进行区分）
+                - 注意判断方式和编辑器模式有关，这也算是一个坑
+                - 其他判断方式
+                    - GetGameInstance()->IsDedicatedServerInstance()
+            - 新的Player加入时，GameState等可能尚未同步完成，此时在BeginPlay中使用相关内容可能造成错误的初始化。
+        - 语言注意：
+            - 转型问题：注意float和uint16不能直接转型，uintXX是虚幻5定义类型
+            - 不要使用FVector2i（怀疑删除，即使引用了对应的GeometryCore也无法引入），使用FIntVector/2D/3D。
+            - TArray、TMap、TSet不是线程安全的
+        - 考虑到工具链成熟情况，选择暂时使用PuerTS，以ts作为脚本语言
+    1. 疑问：
+        - 即使是Dedicated Server，也需要完整的创建Landscape，否则移动角色会出现问题（调入虚空）
+    1. 核心知识
+        - UE5最新的增强输入
+        - 参考
+            - [UE5 -- EnhancedInput(增强输入系统)](https://zhuanlan.zhihu.com/p/470949422)
+            - [【UE5】角色动画蓝图，制作八方向混合空间](https://www.bilibili.com/video/BV1TG4y1V75k/)
+            - [Creating Custom Landscape Importers](https://docs.unrealengine.com/5.1/zh-CN/creating-custom-landscape-importers-in-unreal-engine/)
+            - [UE5 保存和加载游戏](https://docs.unrealengine.com/5.1/zh-CN/saving-and-loading-your-game-in-unreal-engine/)
+            - [Unreal Engine 5.1 - Enhanced Input - Multi-Key Actions](https://www.youtube.com/watch?v=KguFlvQHWH8)
+            - [Set Up HUD & UI Widget - Unreal Engine 5 Tutorial [UE5]](https://www.youtube.com/watch?v=YCQ1heoaILY&t=8s)
+            - [UE5中GameMode、玩家角色等的设置与获取](https://zhuanlan.zhihu.com/p/560971474)
+            - [UE4原子操作与无锁编程](https://www.cnblogs.com/kekec/p/13750892.html)
+            - [在编辑器中运行多玩家选项](https://docs.unrealengine.com/5.1/zh-CN/play-in-editor-multiplayer-options-in-unreal-engine/)
+            - [UE5中的网络同步能力和同构服务器框架（上）](https://zhuanlan.zhihu.com/p/621339344)
+            - [《图解UE4渲染体系》Part 0 引擎基础](https://zhuanlan.zhihu.com/p/493147444)
+            - [强力推荐Alex Forsythe系列视频： Multiplayer in Unreal Engine: How to Understand Network Replication ](https://www.youtube.com/watch?v=JOJP0CvpB8w)
+            - [UE4学习之路：Puerts安装和调试](https://zhuanlan.zhihu.com/p/456267138)
+            - [Puerts & ReactUMG 环境搭建（二）](https://zhuanlan.zhihu.com/p/397369095)
 ## 第一周
 1. 目标：实现随机地形生成，注意地形生成应由服务器端控制
     1. 细化目标：

@@ -121,6 +121,7 @@ thumbnailImage: /images/thumbnail/todo.jpg
 - [ ] 旅行终点
 - [ ] 唐顿庄园
 - [ ] 侧耳倾听
+- [ ] 布达佩斯大饭店
 
 ## 去哪儿试玩
 - 户外：

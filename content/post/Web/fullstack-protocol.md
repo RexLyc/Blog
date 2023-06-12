@@ -43,6 +43,11 @@ thumbnailImage: /images/thumbnail/fullstack.jpg
 1. 流水线
     - 非流水线模式
     - 流水线模式
+## 流式
+1. 文本
+    1. websocket
+    1. socket.io：低延迟、双向的客户端、服务端通信。
+        - [Flask-SocketIO官方文档翻译](https://www.law-think.com/p/2018-12-09-socketio/)
 ## 编码
 ### 文字编码
 1. 编码处理情况

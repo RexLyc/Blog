@@ -1,5 +1,5 @@
 ---
-title: "UE5学习：Cpp篇"
+title: "UE5学习：Cpp概述篇"
 date: 2022-12-09T19:15:18+08:00
 categories:
 - 计算机科学与技术
@@ -26,73 +26,89 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
 
 ## 常用宏
 1. UE中使用的修饰作用的宏，一般的语法都类似于：
-```c
-// 修饰在前，key&value在后
-MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
-```
+    ```c
+    // 修饰在前，key&value在后
+    MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
+    ```
 1. 一些重要的宏如下表
-| 名称 | 使用位置 | 意义 |参数 |
-| ----- | --- | --- | --- |
-| UPROPERTY | 对类成员进行属性设置 |  | BlueprintReadOnly、replicated等 |
-| UCLASS | 对类进行属性设置 | 用于创建被声明类的UClass | Transient、Blueprintable、BlueprintType等 |
-| USTRUCT | 对结构体进行属性设置 | 用于创建被声明的类的UStruct | Blueprintable等 |
-| UFUNCTION | 回调函数声明 | 回调类型的函数必须添加，使其拥有反射能力 | Client等 |
-| TEXT | 任何需要使用多字节字符串的位置 | 避免乱码 | 参数就是你想要使用的字符串 |
-| DECLARE_MULTICAST_DELEGATE_XXXX | 一系列宏 | 自定义事件 | 为指定类型提供广播事件机制 |
+    | 名称 | 使用位置 | 意义 |参数 |
+    | ----- | --- | --- | --- |
+    | UCLASS | 对类进行属性设置 | 用于创建被声明类的UClass | 
+    | UPROPERTY | 对类成员进行属性设置 |  | BlueprintReadOnly、replicated等 |Transient、Blueprintable、BlueprintType等 |
+    | USTRUCT | 对结构体进行属性设置 | 用于创建被声明的类的UStruct | Blueprintable等 |
+    | UFUNCTION | 回调函数声明 | 回调类型的函数必须添加，使其拥有反射能力 | Client等 |
+    | UENUM | 枚举声明 | 修饰enum class | BlueprintType |
+    | TEXT | 任何需要使用多字节字符串的位置 | 避免乱码 | 参数就是你想要使用的字符串 |
+    | DECLARE_MULTICAST_DELEGATE_XXXX | 一系列宏 | 自定义事件 | 为指定类型提供广播事件机制 |
+1. 常见宏参数含义
+    | 名称 | 所属宏 |  含义 |
+    | --- | --- | --- |
+    | Blueprintable | UCLASS | 允许从该类型派生蓝图 |
+    | BlueprintType | UCLASS | 允许该类型在蓝图中使用（创建变量） |
+    | EditAnywhere | UPROPERTY | 在属性窗口，为原型（蓝图）和实例设置 |
+    | EditDefaultsOnly | UPROPERTY | 在属性窗口，仅为原型设置 |
+    | EditInstanceOnly | UPROPERTY | 在属性窗口，仅为实例设置 |
+    | VisibleAnywhere | UPROPERTY | 在原型、实例的属性窗口中均可见 |
+    | VisibleDefaultsOnly | UPROPERTY | 属性仅可在原型设置中可见 |
+    | VisibleInstanceOnly | UPROPERTY | 属性仅可在实例设置中可见 |
+    | BlueprintReadOnly | UPROPERTY | 属性仅可在蓝图中读取（GetXXX） |
+    | BlueprintReadWrite | UPROPERTY | 属性可以在蓝图中读写 |
+    | Category | UPROPERTY | 该属性在属性面板中的分类名称 |
+> 参考：[官方文档：UE5.2 uproperty 描述符列表](https://docs.unrealengine.com/5.2/en-US/unreal-engine-uproperty-specifiers/)、[官方文档：UE5.2 uclass 描述符列表](https://docs.unrealengine.com/5.2/en-US/class-specifiers/)、[UE4 UPROPERTY Explained](https://www.youtube.com/watch?v=ZPJtFa9srXw)
 
 ## 一些核心基类
 1. ACharacter：角色类型通用的基类
-| 成员名称 | 成员类型 | 含义 | 
-| --- | --- | --- |
-| GetCapsuleComponent() | 继承函数&emsp; | 获取碰撞胶囊组件，一般会进一步Init胶囊体大小 |
-| GetMesh() | 继承函数 |获取网格体，用于进一步设置SkeletalMesh等 |
-| bUseControllerRotationXXXX | 继承变量 | 指示变量：是否使用控制器的输入控制旋转角色 |
-| SetupPlayerInputComponent() | 重写函数 | 用于将输入事件绑定到用户输入组件 |
-| AutoPossessPlayer | 继承变量 | 用于记录该角色相机视角是否为初始视角（Player0） |
-| AddMovementInput() | 继承函数 | 用于提供橘色的移动方向和移动量 |
-| GetCharacterMovenent() | 继承函数 | 获取角色当前的运动组件 | 
-| Jump() | 继承函数 | 设置角色进行一次跳跃（只是对速度、高度计算，动画需要用户控制 |
-| GetActorLocation() | 继承函数 | 获取角色根组件的世界坐标 |
+    | 成员名称 | 成员类型 | 含义 | 
+    | --- | --- | --- |
+    | GetCapsuleComponent() | 继承函数&emsp; | 获取碰撞胶囊组件，一般会进一步Init胶囊体大小 |
+    | GetMesh() | 继承函数 |获取网格体，用于进一步设置SkeletalMesh等 |
+    | bUseControllerRotationXXXX | 继承变量 | 指示变量：是否使用控制器的输入控制旋转角色 |
+    | SetupPlayerInputComponent() | 重写函数 | 用于将输入事件绑定到用户输入组件 |
+    | AutoPossessPlayer | 继承变量 | 用于记录该角色相机视角是否为初始视角（Player0） |
+    | AddMovementInput() | 继承函数 | 用于提供橘色的移动方向和移动量 |
+    | GetCharacterMovenent() | 继承函数 | 获取角色当前的运动组件 | 
+    | Jump() | 继承函数 | 设置角色进行一次跳跃（只是对速度、高度计算，动画需要用户控制 |
+    | GetActorLocation() | 继承函数 | 获取角色根组件的世界坐标 |
 
 1. AController：角色控制通用的基类
-| 成员名称 | 成员类型 | 含义 | 
-| --- | --- | --- |
-| InputComponent | 继承变量 | 默认为空的输入组件 |
-| GetControlRotation() | 继承函数 | 获取当前控制器的旋转向量（欧拉角） | 
-| GetCharacter() | 内联函数 | 获取当前控制器控制的角色 |
+    | 成员名称 | 成员类型 | 含义 | 
+    | --- | --- | --- |
+    | InputComponent | 继承变量 | 默认为空的输入组件 |
+    | GetControlRotation() | 继承函数 | 获取当前控制器的旋转向量（欧拉角） | 
+    | GetCharacter() | 内联函数 | 获取当前控制器控制的角色 |
 
 1. AGameModeBase：游戏模式基类
-| 成员名称 | 成员类型 | 含义 |
-| --- | --- | --- |
-| PlayerControllerClass | 继承变量 | 默认玩家控制器 |
-| DefaultPawnClass | 继承变量 | 默认角色 |
+    | 成员名称 | 成员类型 | 含义 |
+    | --- | --- | --- |
+    | PlayerControllerClass | 继承变量 | 默认玩家控制器 |
+    | DefaultPawnClass | 继承变量 | 默认角色 |
 
 1. UAnimInstance：动画实例，多用于和蓝图配合编写更好的动画效果
-| 成员名称 | 成员类型 | 含义 |
-| --- | --- | --- |
-| NativeInitializeAnimation | 继承函数 | 初始化动画 |
-| NativeUpdateAnimation | 继承函数 | 每帧动画更新 |
+    | 成员名称 | 成员类型 | 含义 |
+    | --- | --- | --- |
+    | NativeInitializeAnimation | 继承函数 | 初始化动画 |
+    | NativeUpdateAnimation | 继承函数 | 每帧动画更新 |
 
 1. UActorComponent：自定义组件类型最常用的基类之一，常用于实现一些具体游戏性逻辑，并被挂载到具体Actor上
-| 成员名称 | 成员类型 | 含义 |
-| --- | --- | --- |
-| TickComponent | 继承函数 | Tick函数，每帧都会被调用 |
+    | 成员名称 | 成员类型 | 含义 |
+    | --- | --- | --- |
+    | TickComponent | 继承函数 | Tick函数，每帧都会被调用 |
 
 1. AActor：任何可放置、可Spawn的类型的基类
-| 成员名称 | 成员类型 | 含义 | 注意 |
-| --- | --- | --- | --- |
-| AddActorWorldTransform() | 继承函数 | 用于对Actor做全局变换 | |
-| AddActorLocalRotation() | 继承函数 | 用于对Actor做局部坐标系旋转 | |
-| SetMaterial() | 继承函数 | 用于设置材质、材质实例 | |
-| SetCollisionEnabled() | 继承函数 | 用于设置碰撞计算方式 | |
-| AttachToComponent | 函数 | 将当前Actor设置连接到指定Component | 常用于将某物品绑定到人物、其他物品身上 | |
+    | 成员名称 | 成员类型 | 含义 | 注意 |
+    | --- | --- | --- | --- |
+    | AddActorWorldTransform() | 继承函数 | 用于对Actor做全局变换 | |
+    | AddActorLocalRotation() | 继承函数 | 用于对Actor做局部坐标系旋转 | |
+    | SetMaterial() | 继承函数 | 用于设置材质、材质实例 | |
+    | SetCollisionEnabled() | 继承函数 | 用于设置碰撞计算方式 | |
+    | AttachToComponent | 函数 | 将当前Actor设置连接到指定Component | 常用于将某物品绑定到人物、其他物品身上 | |
 
 1. UWorld：世界类型
-| 成员名称 | 成员类型 | 含义 | 注意 |
-| --- | --- | --- | --- |
-| SpawnActor() | 泛型函数 | 创建一个Actor | |
-| DestroyActor() |  | 删除一个Actor | |
-| LineTraceSingleByObjectType | bool函数 | 以类型区分，计算射线首个命中物体 | 类型如ECC_Static、ECC_Pawn等 |
+    | 成员名称 | 成员类型 | 含义 | 注意 |
+    | --- | --- | --- | --- |
+    | SpawnActor() | 泛型函数 | 创建一个Actor | |
+    | DestroyActor() |  | 删除一个Actor | |
+    | LineTraceSingleByObjectType | bool函数 | 以类型区分，计算射线首个命中物体 | 类型如ECC_Static、ECC_Pawn等 |
 
 ## 广泛继承的函数
 | 名称 | 继承来源 | 含义 |
@@ -152,9 +168,9 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
 
 ## UKismetSystemLibrary
 - 一个丰富的类库，提供了从几何运算、绘制调试信息、延迟函数调用等多种不同种类的实用功能
-| 名称 | 含义 | 注意 |
-| --- | --- | --- |
-| Delay | 提供延迟运行 | 传递被调用的类对象实例、延迟时间、调用的函数信息封装 |
+    | 名称 | 含义 | 注意 |
+    | --- | --- | --- |
+    | Delay | 提供延迟运行 | 传递被调用的类对象实例、延迟时间、调用的函数信息封装 |
 
 
 ## 网络通信常用工具类/函数
@@ -195,24 +211,24 @@ MACRO([specifier, specifier, ...], [meta(key = value, key = value, ...)])
     - 控件：SOverlay、STextBlock、SCanvas、SVerticalBox、SEditableText、SButton
     - 函数：HAlign、VAlign、Padding、Text、Font、ColorAndOpacity、Size、Position、OnXXXX
 1. 类型、函数、宏
-| 名称 | 类型 | 含义 | 注意 |
-| --- | --- | --- | --- |
-| SLATE_BEGIN_ARGS | 宏 | Slate固定范式 | |
-| SLATE_ARGUMENT | 宏 | Slate固定范式 | 输入一个类型，一个变量，提供到Construct的InArgs内 |
-| SLATE_END_ARGS| 宏 | Slate固定范式 | |
-| BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION | 宏 | Slate实现部分固定范式 | 将所有SlateUI窗口类的实现部分包含在内 |
-| END_SLATE_FUNCTION_BUILD_OPTIMIZATION | 宏 | Slate实现部分固定范式 | 将所有SlateUI窗口类的实现部分包含在内 |
-| Construct | SlateUI窗口类成员函数 | UI业务的真正构造函数 | 其参数内就包含这SLATE_ARGUMENT传递的变量 |
-| SCanvas | SlateUI控件类类型 | 一般用于定义一个UI区域，其内完成一个独立功能 | 一般使用TSharedRef\<\>来共享 |
-| ChildSlot | SlateUI窗口类成员变量 | UI描述起点 | 该类型已对operator[]进行重载 |
-| SNew | 宏 | 实例化一个UI控件、窗口 | 在ChildSlot下、HUD类内广泛使用 |
-| SAssignNew | 宏 | 实例化一个UI控件、窗口，并赋值给参数 | 在HUD类内广泛使用 |
-| XX::Slot() | SlateUI控件类成员函数 | 用于创建子槽，以定义子控件 |
-| GEngine->GameViewport | GEngine成员 | 获取视口 | 用于获取视口，后续绑定、删除UI |
-| (Add/Remove)ViewportWidgetContent | ViewPort成员函数 | 创建、删除UI窗口 | 内部一般使用智能指针 |
-| XXXXGameModeBase::HUDClass | 游戏模式成员变量 | 用于将HUD类型绑定给游戏模式 | 和玩家控制器、默认玩家一样，需要进行复制 |
-| FSlateBrush | 笔刷类型 | 用于画图 | |
-| FReply | 反馈类型 | 用于各类OnXXX绑定的回调函数的返回类型 | 回调最后必须调用handled以标记结束 |
+    | 名称 | 类型 | 含义 | 注意 |
+    | --- | --- | --- | --- |
+    | SLATE_BEGIN_ARGS | 宏 | Slate固定范式 | |
+    | SLATE_ARGUMENT | 宏 | Slate固定范式 | 输入一个类型，一个变量，提供到Construct的InArgs内 |
+    | SLATE_END_ARGS| 宏 | Slate固定范式 | |
+    | BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION | 宏 | Slate实现部分固定范式 | 将所有SlateUI窗口类的实现部分包含在内 |
+    | END_SLATE_FUNCTION_BUILD_OPTIMIZATION | 宏 | Slate实现部分固定范式 | 将所有SlateUI窗口类的实现部分包含在内 |
+    | Construct | SlateUI窗口类成员函数 | UI业务的真正构造函数 | 其参数内就包含这SLATE_ARGUMENT传递的变量 |
+    | SCanvas | SlateUI控件类类型 | 一般用于定义一个UI区域，其内完成一个独立功能 | 一般使用TSharedRef\<\>来共享 |
+    | ChildSlot | SlateUI窗口类成员变量 | UI描述起点 | 该类型已对operator[]进行重载 |
+    | SNew | 宏 | 实例化一个UI控件、窗口 | 在ChildSlot下、HUD类内广泛使用 |
+    | SAssignNew | 宏 | 实例化一个UI控件、窗口，并赋值给参数 | 在HUD类内广泛使用 |
+    | XX::Slot() | SlateUI控件类成员函数 | 用于创建子槽，以定义子控件 |
+    | GEngine->GameViewport | GEngine成员 | 获取视口 | 用于获取视口，后续绑定、删除UI |
+    | (Add/Remove)ViewportWidgetContent | ViewPort成员函数 | 创建、删除UI窗口 | 内部一般使用智能指针 |
+    | XXXXGameModeBase::HUDClass | 游戏模式成员变量 | 用于将HUD类型绑定给游戏模式 | 和玩家控制器、默认玩家一样，需要进行复制 |
+    | FSlateBrush | 笔刷类型 | 用于画图 | |
+    | FReply | 反馈类型 | 用于各类OnXXX绑定的回调函数的返回类型 | 回调最后必须调用handled以标记结束 |
 
 1. 代码示例
     - 自定义窗口.h/.cpp

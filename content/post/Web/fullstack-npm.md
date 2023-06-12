@@ -61,6 +61,13 @@ Node.JS是基于Chrome V8开发的JS服务器端运行环境，NPM则是Node.JS�
         1. 本质上都是一种包管理器，而cnpm原生使用国内的镜像
         1. cnpm和npm无法完美混用，可以的情况下尽量使用npm，配置有效的镜像
 ## 一些库：
+### d3
+- 概述：一个非常强大的数据可视化库，能够绘制各种矢量的柱形图、饼状图，并且具有非常丰富的交互能力
+  - 以D3在Github上的Api Reference为准，其他教程均有可能落后（比如d3.layout中的各种布局已经拆分到各个库中，该包不再存在）
+- 参考：
+  - [D3.js 入门教程](https://doc.yonyoucloud.com/doc/wiki/project/d3wiki/index.html)
+  - [D3 数据可视化 - 进阶系列](https://www.kancloud.cn/digest/d3-medium/195048)
+  - [D3 Github](https://github.com/d3/d3)
 ### babel
 - 概述：目的是通过ES6到ES5的翻译，让ES6项目也能用于不支持ES6的浏览器
 - 参考：[官方文档](https://babeljs.io/docs/en/)
@@ -99,6 +106,9 @@ Node.JS是基于Chrome V8开发的JS服务器端运行环境，NPM则是Node.JS�
     - [Electron 打包优化](https://www.jianshu.com/p/50043f485ec9/)
     - [使用electron-builder在windows上打包并自动更新](https://www.cxyzjd.com/article/weixin_34249678/89009487)
     - [官网：Electron 进程间通信](https://www.electronjs.org/zh/docs/latest/tutorial/ipc)
+    - [Python + Flask + Electron 混合开发入门 (项目演示)](https://blog.csdn.net/Likianta/article/details/89199793)
+    - [Electron无法从淘宝镜像下载安装，报错HTTPError Response code 404 (Not Found)的问题](https://juejin.cn/post/7033932629128773669)
+    - [高阶篇 01：实现 npm script 跨平台兼容](https://www.kancloud.cn/sllyli/npm-script/1243457)
 ## Node.JS实用总结
 1. 版本变更
 1. 

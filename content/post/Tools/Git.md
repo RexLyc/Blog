@@ -289,10 +289,33 @@ thumbnailImage: /images/thumbnail/git.png
     - git clone --recurse-submodules url：相当于git submodule init & update
 1. 创建git离线更新包
     - git bundle create
+1. 建立纯本地仓库
+    - 有的时候有一些大文件，放在SSD不放心，但是又不适合放到Github、网盘上，可以用这种方式，放到一个本地的HDD。注意仓库的bare和non-bare之分
+        ```bash
+            # 找到一个靠谱的本地磁盘，--bare用于指定该仓库为纯仓库（没有默认的init），完全是空的
+            git init --bare PrivateProject
+
+            # 在你的分支上
+            git remote add local D:\\PrivateProject\
+            git push
+        ```
 ## 其他
 - push 有的时候会失败，提示remote rejected之类的，commit some refs failed。并不确定是不是自己的问题。可以尝试git gc。如果还是不行，建议等一段时间，可能只是github的问题。
 - git早期更像一个文件系统，即使是现在，很多底层命令依然保留。通常可以分为底层（plumbing）和上层（procelain）命令。
 - git add \*和git add .的区别：由于\*在shell中有特殊含义，因此前者实际由shell进行通配并传给git，而.在shell中没有特殊含义，即后者是真正的添加所有文件。
+- git 默认的mergetool是vimdiff，不太好用，如果有vscode，建议还是改成vscode，只需要使用git config配置即可，详见[VS Code与git更配哦](https://zhuanlan.zhihu.com/p/387977866)
+    ```ini
+    [core]
+    editor = code --wait
+    [diff]
+    tool = vscode
+    [difftool "vscode"]
+    cmd = code --wait --diff $LOCAL $REMOTE
+    [merge]
+    tool = vscode
+    [mergetool "vscode"]
+    cmd = code --wait $MERGED
+    ```
 ## 参考
 - [Git Book中文版](https://git-scm.com/book/zh/v2)
     - [一定要看的Git Book原理部分](https://git-scm.com/book/zh/v2/Git-%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86-Git-%E5%AF%B9%E8%B1%A1)

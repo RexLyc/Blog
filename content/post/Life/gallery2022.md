@@ -10,8 +10,10 @@ autoThumbnailImage : true
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/camera.jpg
 gallery:
-- /images/gallery2022/DSC04078.jpg
 - /images/gallery2022/DSC04205.jpg
+- /images/gallery2022/DSCF0045.jpg
+- /images/gallery2022/DSCF0047.jpg
+- /images/gallery2022/DSCF0056.jpg
 - /images/gallery2022/DSCF0224.jpg
 - /images/gallery2022/DSCF0226.jpg
 - /images/gallery2022/DSCF0229.jpg
@@ -27,10 +29,39 @@ gallery:
 - /images/gallery2022/DSCF0317.jpg
 - /images/gallery2022/DSCF0324.jpg
 - /images/gallery2022/DSCF0338.jpg
+- /images/gallery2022/DSCF0367.jpg
+- /images/gallery2022/DSCF0384.jpg
+- /images/gallery2022/DSCF0386.jpg
+- /images/gallery2022/DSCF0392.jpg
+- /images/gallery2022/DSCF0396.jpg
+- /images/gallery2022/DSCF0401.jpg
+- /images/gallery2022/DSCF0402.jpg
+- /images/gallery2022/DSCF0411.jpg
+- /images/gallery2022/DSCF0413.jpg
+- /images/gallery2022/DSCF0416.jpg
+- /images/gallery2022/DSCF0440.jpg
+- /images/gallery2022/DSCF0444.jpg
+- /images/gallery2022/DSCF0447.jpg
+- /images/gallery2022/DSCF0448.jpg
+- /images/gallery2022/DSCF0454.jpg
+- /images/gallery2022/DSCF0464.jpg
+- /images/gallery2022/DSCF0466.jpg
+- /images/gallery2022/DSCF0470.jpg
+- /images/gallery2022/DSCF0507.jpg
+- /images/gallery2022/DSCF0528.jpg
+- /images/gallery2022/DSCF0529.jpg
+- /images/gallery2022/DSCF0531.jpg
+- /images/gallery2022/DSCF0541.jpg
+- /images/gallery2022/DSCF0542.jpg
+- /images/gallery2022/DSCF0557.jpg
+- /images/gallery2022/DSCF0563.jpg
+- /images/gallery2022/DSCF0577.jpg
+- /images/gallery2022/DSCF0589.jpg
 - /images/gallery2022/DSCF0652.jpg
 - /images/gallery2022/DSCF1016.jpg
 - /images/gallery2022/DSCF1029.jpg
 - /images/gallery2022/DSCF1038.jpg
+- /images/gallery2022/DSCF9670.jpg
 - /images/gallery2022/full-view.jpg
 - /images/gallery2022/_DSF1906.jpg
 - /images/gallery2022/_DSF1938_2.jpg
@@ -41,8 +72,6 @@ gallery:
 - /images/gallery2022/_DSF2021.jpg
 - /images/gallery2022/_DSF2028.jpg
 - /images/gallery2022/_DSF2031.jpg
-- /images/gallery2022/_DSF2044.jpg
-- /images/gallery2022/_DSF2047.jpg
 - /images/gallery2022/_DSF2058.jpg
 - /images/gallery2022/_DSF2072.jpg
 - /images/gallery2022/_DSF2135.jpg
@@ -99,5 +128,11 @@ gallery:
 ---
 这本影集记录2022年全年作品
 <!--more-->
-## 包含事件
-- 
+## 包含内容
+- 疫情后的返乡
+- 很多的奥森
+- 故宫、景山、鼓楼
+- 海棠
+- 猫猫宇航员
+- 玉渊潭
+- 生活&工作碎片

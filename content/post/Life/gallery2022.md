@@ -89,8 +89,6 @@ gallery:
 - /images/gallery2022/_DSF2474.jpg
 - /images/gallery2022/_DSF2647.jpg
 - /images/gallery2022/_DSF2668.jpg
-- /images/gallery2022/_DSF3128.jpg
-- /images/gallery2022/_DSF3272.jpg
 - /images/gallery2022/_DSF4309.jpg
 - /images/gallery2022/_DSF4313.jpg
 - /images/gallery2022/_DSF4332.jpg

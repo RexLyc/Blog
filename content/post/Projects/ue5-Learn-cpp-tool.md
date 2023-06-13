@@ -28,3 +28,13 @@ math: true
     UE_LOG( LogTemp, Warning, TEXT( "Your string: %s" ), *string );
     ```
 > 详见：[关于日志的社区手册](https://unrealcommunity.wiki/logging-lgpidy6i)
+
+## 泛型
+1. TSubclassOf\<A\>
+   - 用于声明一个类型应当是A的子类型，多用于支持C++和蓝图的互操作
+      ```cpp
+      // 用于接收任意UObject子类型的实例
+      UPROPERTY(EditAnywhere, BlueprintReadWrite)
+      TSubclassOf<UObject> UClassOfAny;
+      ```
+   - 实践：当C++中计划使用蓝图时，可以先定义一个C++类A，并派生蓝图B。将B放置于任何UClassOfAny的出现位置

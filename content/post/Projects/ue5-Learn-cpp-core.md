@@ -14,6 +14,7 @@ math: true
 本篇将会对重要的引擎基础架构、运行时、编辑器等各方面的流程、原理进行总结。
 <!--more-->
 ## 编译与UObject
+1. UnrealHeaderTool
 
 ## Editor
 
@@ -24,3 +25,6 @@ math: true
 ## 网络通信
 
 ## 其他子系统
+
+## 其他参考
+1. [知乎专栏：InsideUE系列](https://www.zhihu.com/column/insideue4)

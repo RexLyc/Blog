@@ -33,8 +33,80 @@ math: true
 1. TSubclassOf\<A\>
    - 用于声明一个类型应当是A的子类型，多用于支持C++和蓝图的互操作
       ```cpp
-      // 用于接收任意UObject子类型的实例
+      // 用于接收任意从UObject派生的类类型
       UPROPERTY(EditAnywhere, BlueprintReadWrite)
       TSubclassOf<UObject> UClassOfAny;
       ```
    - 实践：当C++中计划使用蓝图时，可以先定义一个C++类A，并派生蓝图B。将B放置于任何UClassOfAny的出现位置
+1. TFieldIterator\<A\>
+   - 用于遍历一个UClass
+      ```cpp
+      // 模板参数起到过滤作用，如果换做使用UField，则会遍历UClass中的所有元素
+      for (TFieldIterator<UStruct> PropIt(GetClass()); PropIt; ++PropIt)
+      {
+         UStruct* Property = *PropIt;
+         // Do something with the property
+      }
+      ```
+1. TEnumAsByte\<A\>
+   - 在使用C++98版风格的枚举值定义时，用于将枚举值作为类型。
+      ```cpp
+      UENUM(BlueprintType)
+      namespace ETest98
+      {
+         enum Type
+         {
+            Test1,
+            Test2,
+            Test3,
+            Test4,
+         };
+      }
+
+      UCLASS()
+      class TEST_API UMyObject : public UObject
+      {
+         GENERATED_BODY()
+
+      public:
+         UPROPERTY(BlueprintReadWrite,EditAnywhere)
+         // 编译错误，不能作为类型定义变量
+         // ETest98::Type Type;
+         TEnumAsByte<ETest98::Type> Type;
+      };
+      ```
+   - 应当只在C++11版枚举值无法满足需求时（超过uint8的数量）使用。
+   > 参考：[UE4枚举类型使用总结](https://zhuanlan.zhihu.com/p/492630586)
+
+## 容器
+1. TArray
+   - 动态数组（vector）
+2. TMap
+   - 字典
+3. TSet
+   - 集合
+
+## 智能指针
+1. 概述：
+   - 智能指针默认都是**线程不安全**的，可在创建时添加模板参数```ESPMode::ThreadSafe```
+2. TSharedRef & TSharedPtr
+   - 共享指针、共享引用（不许为空）
+3. TWeakPtr
+   - 弱引用共享指针
+4. TUniquePtr
+   - unique指针
+5. 工具类和函数
+   1. TSharedFromThis：继承该类以继承一些便于共享的成员函数
+   2. MakeShared & MakeShareable：从裸指针创建共享指针的函数
+   3. StaticCastSharedRef & StaticCastSharedPtr：用于进行下转型的函数
+   4. ConstCastSharedRef & ConstCastSharedPtr：将const转为mutable
+> 参考：[官方文档：UE5.2 Unreal Smart Pointer Library](https://docs.unrealengine.com/5.2/en-US/smart-pointers-in-unreal-engine/)
+
+## 算法&数据结构
+| 名称 | 类型 | 含义 | 注意 |
+| --- | --- | --- | --- |
+| TArray | 泛型容器 | 动态数组 | |
+| TMap | 泛型容器 | 字典 | |
+| TSet | 泛型容器 | 集合 | |
+| TSharedRef | 泛型共享指针 | 智能指针 | |
+| TWeakObjectPtr | 泛型弱指针 | 智能指针 | |

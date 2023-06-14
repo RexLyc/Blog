@@ -938,5 +938,12 @@ cat /proc/cpuinfo
 - telnet：查询对指定端口
 - nc：[netcat](https://learnku.com/articles/59416)，一个非常全面的网络指令，可以用于端口扫描、文件传输、创建IM会话
 - last：查看最近的登录信息
+- 对一些支持多版本并存的依赖项，进行版本管理
+    - update-alternatives
+        ```bash
+        # 切换java版本
+        sudo update-alternatives --config java
+        sudo update-alternatives --config javac
+        ```
 ## 一些建议
 1. 对于rm，可以替换为mv到临时文件夹，并定期清理，尽量避免使用rm，尤其禁止使用rm -rf

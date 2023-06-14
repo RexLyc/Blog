@@ -14,10 +14,12 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
 <!--more-->
 
 ## 基本流程
-1. 构造函数：进行资源获取，基本的参数变量的设置
-1. BeginPlay：对动画等和运行时相关的逻辑进行设定和启动的函数
-1. Tick：每一帧都会进行调用的函数
-1. SetPlayerInputComponent：将控制器的某些事件绑定当当前类型的处理函数
+1. AActor体系
+   1. 构造函数：进行资源获取，基本的参数变量的设置
+   2. BeginPlay：对动画等和运行时相关的逻辑进行设定和启动的函数
+   3. Tick：每一帧都会进行调用的函数
+   4. SetPlayerInputComponent：将控制器的某些事件绑定当当前类型的处理函数
+2. UWorld
 
 ## 类型系统概述
 1. 关于C++
@@ -36,17 +38,21 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
     };
    ```
    - 通过UCLASS宏标记一个类需要经过UObject系统处理
-   - 任何UObject子类，均不应使用new&delete，而应当使用NewObject&CreateDefaultSubClass
+   - 任何UObject子类，均不应使用new&delete，而应当使用NewObject&CreateDefaultSubClass生成，使用ConditionalBeginDestroy释放（不建议手动调用）
    - GENERATED_BODY会用于生成一系列引擎必需代码
    - 每个UObject都有自己的类默认对象（Class Default Object），主要用于记录各个成员应当被赋予的默认值
    - 自动支持：成员自动初始化、序列化、网络通信、垃圾回收等能力
    - MYPROJECT_API用于将该类进行导出，等价于dllexport
    - UE的垃圾回收机制和UE的智能指针不能同时工作
+3. UClass
+   - UObject系统处理过程中，需要为每个类型添加反射的相关代码，尤其是需要保存类型信息，这些信息被封装到UClass内
+   - 从UObject、UField、UStruct一路继承过来
 > 参考：
 > - [官方文档：UE5.2 UObject](https://docs.unrealengine.com/5.2/zh-CN/objects-in-unreal-engine/)
 > - [腾讯游戏学堂：UE4 引擎基础类说明](https://gwb.tencent.com/community/detail/119428)
 > - [知乎专栏：UE4 UObject 对象概念](https://zhuanlan.zhihu.com/p/419769230)
 > - [《InsideUE4》UObject（三）类型系统设定和结构](https://zhuanlan.zhihu.com/p/24790386)
+> - [官方文档：UE5.2 UField](https://docs.unrealengine.com/5.2/en-US/API/Runtime/CoreUObject/UObject/UField/)
 
 ## 常用宏
 1. UE中使用的修饰作用的宏，一般的语法都类似于：
@@ -125,7 +131,7 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
     | --- | --- | --- |
     | TickComponent | 继承函数 | Tick函数，每帧都会被调用 |
 
-1. AActor：任何可放置、可Spawn的类型的基类
+1. AActor：任何**可放置**、可Spawn的类型的基类
     | 成员名称 | 成员类型 | 含义 | 注意 |
     | --- | --- | --- | --- |
     | AddActorWorldTransform() | 继承函数 | 用于对Actor做全局变换 | |
@@ -220,17 +226,6 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
 | FWebSocketXXXEvent | IWebSocket中的各类事件接口 | 用AddUObject绑定具体回调 |
 
 > 注1：类型系统中，所有非Class的内容，都是一种UObject。万物皆是UObject。
-
-## 算法&数据结构
-| 名称 | 类型 | 含义 | 注意 |
-| --- | --- | --- | --- |
-| TArray | 泛型容器 | 动态数组 | |
-| TMap | 泛型容器 | 字典 | |
-| TSet | 泛型容器 | 集合 | |
-| TSharedRef | 泛型共享指针 | 智能指针 | |
-| TWeakObjectPtr | 泛型弱指针 | 智能指针 | |
-
-
 
 ## 开发要点
 1. 由于C++代码带来的变化不能像蓝图一样，自动显示在编辑器中，因此需要使用**Live Coding**功能，在不重启编辑器的情况下，编译并应用C++的罪行修改。快捷键是Ctrl+Alt+F11。

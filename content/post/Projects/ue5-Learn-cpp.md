@@ -37,15 +37,15 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
         GENERATED_BODY()
     };
    ```
-   - 通过UCLASS宏标记一个类需要经过UObject系统处理
+   - 通过UCLASS宏标记一个类需要经过UObject的一系列相关处理
    - 任何UObject子类，均不应使用new&delete，而应当使用NewObject&CreateDefaultSubClass生成，使用ConditionalBeginDestroy释放（不建议手动调用）
-   - GENERATED_BODY会用于生成一系列引擎必需代码
+   - GENERATED_BODY宏会用于生成一系列引擎必需代码，主要是各种必需的成员函数
    - 每个UObject都有自己的类默认对象（Class Default Object），主要用于记录各个成员应当被赋予的默认值
    - 自动支持：成员自动初始化、序列化、网络通信、垃圾回收等能力
    - MYPROJECT_API用于将该类进行导出，等价于dllexport
    - UE的垃圾回收机制和UE的智能指针不能同时工作
 3. UClass
-   - UObject系统处理过程中，需要为每个类型添加反射的相关代码，尤其是需要保存类型信息，这些信息被封装到UClass内
+   - UObject系统处理过程中，需要为每个类型添加反射的相关代码，尤其是需要保存各个成员的名称、类型信息，这些信息被封装到UClass内
    - 从UObject、UField、UStruct一路继承过来
 > 参考：
 > - [官方文档：UE5.2 UObject](https://docs.unrealengine.com/5.2/zh-CN/objects-in-unreal-engine/)
@@ -107,40 +107,52 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
     | Jump() | 继承函数 | 设置角色进行一次跳跃（只是对速度、高度计算，动画需要用户控制 |
     | GetActorLocation() | 继承函数 | 获取角色根组件的世界坐标 |
 
-1. AController：角色控制通用的基类
+2. AController：角色控制通用的基类
     | 成员名称 | 成员类型 | 含义 | 
     | --- | --- | --- |
     | InputComponent | 继承变量 | 默认为空的输入组件 |
     | GetControlRotation() | 继承函数 | 获取当前控制器的旋转向量（欧拉角） | 
     | GetCharacter() | 内联函数 | 获取当前控制器控制的角色 |
 
-1. AGameModeBase：游戏模式基类
+3. AGameModeBase：游戏模式基类
     | 成员名称 | 成员类型 | 含义 |
     | --- | --- | --- |
     | PlayerControllerClass | 继承变量 | 默认玩家控制器 |
     | DefaultPawnClass | 继承变量 | 默认角色 |
 
-1. UAnimInstance：动画实例，多用于和蓝图配合编写更好的动画效果
+4. UAnimInstance：动画实例，多用于和蓝图配合编写更好的动画效果
     | 成员名称 | 成员类型 | 含义 |
     | --- | --- | --- |
     | NativeInitializeAnimation | 继承函数 | 初始化动画 |
     | NativeUpdateAnimation | 继承函数 | 每帧动画更新 |
 
-1. UActorComponent：自定义组件类型最常用的基类之一，常用于实现一些具体游戏性逻辑，并被挂载到具体Actor上
+5. UActorComponent：自定义组件类型常用的基类之一，常用于实现一些具体游戏性逻辑，并被挂载到具体Actor上。继承自UActorComponent应当是不渲染的组件。
     | 成员名称 | 成员类型 | 含义 |
     | --- | --- | --- |
     | TickComponent | 继承函数 | Tick函数，每帧都会被调用 |
 
-1. AActor：任何**可放置**、可Spawn的类型的基类
+6. USceneComponent: 自定义组件类型常见的基类之一，常用作需要进行变换的节点的挂载节点。USceneComponent本身是**不渲染**的，但会保存平移、旋转、缩放能力
+
+7. UPrimitiveComponent： 较为复杂自定义组件基类。以它为基类的组件，大都是需要进行渲染的组件。常见的派生类有UMeshComponent、UShapeComponent
+    | 成员名称 | 成员类型 | 含义 |
+    | --- | --- | --- |
+    | CreateSceneProxy | 继承函数 | 创建并返回FPrimitiveSceneProxy实例 |
+    | GetDynamicMeshElements | 继承函数 | 用顶点、材质创建面元并传递给收集器 |
+    | OnActorPositionChanged | 继承函数 | 在所属Actor位置移动时调用 |
+    > UPrimitiveComponent的复杂在于其涉及到渲染，需要维护CPU、GPU两侧的状态，加载图元资源，调度着色器。
+
+8. AActor：任何**可放置**、可Spawn的类型的基类
     | 成员名称 | 成员类型 | 含义 | 注意 |
     | --- | --- | --- | --- |
     | AddActorWorldTransform() | 继承函数 | 用于对Actor做全局变换 | |
     | AddActorLocalRotation() | 继承函数 | 用于对Actor做局部坐标系旋转 | |
     | SetMaterial() | 继承函数 | 用于设置材质、材质实例 | |
     | SetCollisionEnabled() | 继承函数 | 用于设置碰撞计算方式 | |
-    | AttachToComponent | 函数 | 将当前Actor设置连接到指定Component | 常用于将某物品绑定到人物、其他物品身上 | |
+    | AttachToComponent() | 函数 | 将当前Actor设置连接到指定Component | 常用于将某物品绑定到人物、其他物品身上 | |
+    | Destroy() | 函数 | 删除当前Actor | |
+    | SetLifeSpan() | 函数 | 设置当前Actor的剩余存活时间 | |
 
-1. UWorld：世界类型
+9.  UWorld：世界类型
     | 成员名称 | 成员类型 | 含义 | 注意 |
     | --- | --- | --- | --- |
     | SpawnActor() | 泛型函数 | 创建一个Actor | |
@@ -299,14 +311,15 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
 
 ## 参考
 1. [【虚幻5】【不适合小白观看】用C++来进行基于UE5的游戏开发（含动画蓝图）](https://www.bilibili.com/video/BV17Q4y1Y7fr)
-1. [官网：C++编程 虚幻引擎编程开发的相关信息](https://docs.unrealengine.com/5.0/zh-CN/programming-with-cplusplus-in-unreal-engine/)
-1. [官网：Slate UI编程](https://docs.unrealengine.com/5.0/zh-CN/slate-user-interface-programming-framework-for-unreal-engine/)
-1. [UE5-c++教程 01~05](https://www.bilibili.com/video/BV1be41137Kp)
-1. [知乎专栏：UE从点Play开始](https://zhuanlan.zhihu.com/p/512249255)
-1. [Unreal Engine C++ Advanced Dark Souls Boss Fight System](https://www.youtube.com/watch?v=ANzEGECpd0g)
-1. [UE5 C++ Tutorial | Introduction to Unreal Engine 5 with C++ in less than 90 Minutes](https://www.youtube.com/watch?v=nvruYLgjKkk&list=PL-m4pn2uJvXHL5rxdudkhqrSRM5gN43YN)
-1. [UE4静态/动态加载资源方式](https://zhuanlan.zhihu.com/p/266859719)
-1. [【教程】虚幻5教程 斯坦福专用课程 UE4 & C++ 专业游戏开发教程 24.5小时 中文字幕](https://www.bilibili.com/video/BV1nU4y1X7iQ)
-1. [UE4 UCLASS宏和可用宏参数](https://zhuanlan.zhihu.com/p/148098617)
-1. [UE5.1 Networking Overview](https://docs.unrealengine.com/5.1/en-US/networking-overview-for-unreal-engine/)
-1. [UE5.2 编程和脚本编写](https://docs.unrealengine.com/5.2/zh-CN/unreal-engine-programming-and-scripting/)
+2. [官网：C++编程 虚幻引擎编程开发的相关信息](https://docs.unrealengine.com/5.0/zh-CN/programming-with-cplusplus-in-unreal-engine/)
+3. [官网：Slate UI编程](https://docs.unrealengine.com/5.0/zh-CN/slate-user-interface-programming-framework-for-unreal-engine/)
+4. [UE5-c++教程 01~05](https://www.bilibili.com/video/BV1be41137Kp)
+5. [知乎专栏：UE从点Play开始](https://zhuanlan.zhihu.com/p/512249255)
+6. [Unreal Engine C++ Advanced Dark Souls Boss Fight System](https://www.youtube.com/watch?v=ANzEGECpd0g)
+7. [UE5 C++ Tutorial | Introduction to Unreal Engine 5 with C++ in less than 90 Minutes](https://www.youtube.com/watch?v=nvruYLgjKkk&list=PL-m4pn2uJvXHL5rxdudkhqrSRM5gN43YN)
+8. [UE4静态/动态加载资源方式](https://zhuanlan.zhihu.com/p/266859719)
+9.  [【教程】虚幻5教程 斯坦福专用课程 UE4 & C++ 专业游戏开发教程 24.5小时 中文字幕](https://www.bilibili.com/video/BV1nU4y1X7iQ)
+10. [UE4 UCLASS宏和可用宏参数](https://zhuanlan.zhihu.com/p/148098617)
+11. [UE5.1 Networking Overview](https://docs.unrealengine.com/5.1/en-US/networking-overview-for-unreal-engine/)
+12. [UE5.2 编程和脚本编写](https://docs.unrealengine.com/5.2/zh-CN/unreal-engine-programming-and-scripting/)
+13. 《Unreal Engine4 Scripting with C++ Cookbook》

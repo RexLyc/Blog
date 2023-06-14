@@ -19,7 +19,10 @@ math: true
 ### 序列化
 
 ### GC
-1. 最佳实践
+1. GC有两个入口
+   1. UObject
+   2. FGCObject
+2. 最佳实践
    1. 成员应尽可能都添加```UPROPERTY()```，空的也行，以保证获得完整的UObject处理，以及运行时正确的GC表现
 
 ### UHT和UBT
@@ -33,7 +36,7 @@ math: true
 
 ## Editor
 
-## 启动
+## GamePlay Framework
 
 ## 帧
 

@@ -139,6 +139,8 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
     | SetMaterial() | 继承函数 | 用于设置材质、材质实例 | |
     | SetCollisionEnabled() | 继承函数 | 用于设置碰撞计算方式 | |
     | AttachToComponent | 函数 | 将当前Actor设置连接到指定Component | 常用于将某物品绑定到人物、其他物品身上 | |
+    | SetActorTickEnabled | 继承函数 | 用于开启、关闭Actor的Tick功能 | |
+    | SetActorHiddenInGame | 继承函数 | 用于控制Actor的可见性（但不影响事件响应、可操作性） | |
 
 1. UWorld：世界类型
     | 成员名称 | 成员类型 | 含义 | 注意 |

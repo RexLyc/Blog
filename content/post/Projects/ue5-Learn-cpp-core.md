@@ -28,7 +28,7 @@ math: true
 2. UnrealHeaderTool
    - 作用：在UBT确定了需要更新的编译单元后开始工作，为指定的头文件添加反射等所需的各类代码，每个编译单元最终生成一个.inl文件。
    - 注意：
-        1. 由于UHT并具备完整的C++解析能力，因此除了WITH_EDITOR / WITH_EDITORONLY_DATA之外，应当尽量避免在UPROPERTY等宏附近使用条件编译（#if、#ifdef）。
+        1. 由于UHT并没有具备完整的C++解析能力，因此除了```WITH_EDITOR``` / ```WITH_EDITORONLY_DATA```之外，应当尽量避免在UPROPERTY等宏附近使用条件编译```#ifdef```。
 
 
 ## Editor

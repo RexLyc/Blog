@@ -14,3 +14,11 @@ thumbnailImage: /images/thumbnail/wheel.png
 <!--more-->
 ## 跨语言
 1. thrift：一个可以生成多语言的服务开发框架，可以很轻松的完成客户端-服务端开发。[Apache Thrift官方链接](https://thrift.apache.org/)
+
+## 网站
+1. dokuwiki：好用开源的简易wiki，这里直接记录一下部署步骤（使用dokuwiki-docker部署）：
+   1. 安装docker:[CentOS Docker 安装](https://www.runoob.com/docker/centos-docker-install.html)
+2. 指令
+   ```bash
+
+   ```

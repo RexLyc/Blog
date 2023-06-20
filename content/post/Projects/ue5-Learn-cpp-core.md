@@ -30,10 +30,10 @@ math: true
 1. UnrealBuildTool
    - 作用：扫描所有的头文件，记录任何从上次编译后有修改的且具有至少一个反射需求的编译单元，将该编译单元加入UHT的工作列表中。
 2. UnrealHeaderTool
-   - 作用：在UBT确定了需要更新的编译单元后开始工作，为指定的头文件添加反射等所需的各类代码，每个编译单元最终生成一个.inl文件。
+   - 作用：在UBT确定了需要更新的编译单元后开始工作，为指定的**头文件**添加反射等所需的各类代码，每个编译单元最终生成一个.inl文件。
    - 注意：
         1. 由于UHT并没有具备完整的C++解析能力，因此除了```WITH_EDITOR``` / ```WITH_EDITORONLY_DATA```之外，应当尽量避免在UPROPERTY等宏附近使用条件编译```#ifdef```。
-        2. 受UHT限制，无法在类定义内使用using、typedef，如果有需要，在类外使用。<font color=#ff6644>*待确认？*</font>
+        2. 受UHT限制，无法在头文件中对使用了```UPROPERTY```等宏标记的变量，再使用```using```、```typedef```等方式定义的类型。
         3. 受UHT限制，不能对重载函数（overload）使用UFUNCTION，对重写函数（override）使用UFUNCTION时也要求宏参数保持一致。<font color=#ff6644>*待确认？*</font>
 
 ### 委托和代理
@@ -67,8 +67,10 @@ math: true
    4. 销毁：
       1. 仍想保留组件，但是不希望再参与更新，可以通过**取消注册**```UnregisterComponent```
          1. 
-
    > 参考：[UE5.2 组件](https://docs.unrealengine.com/5.2/en-US/components-in-unreal-engine/)
+3. RootComponent：
+   1. 特点：包含变换数据，位置、旋转，缩放。当一个```Actor```没有任何```RootComponent```时，则不具备这些数据。
+   2. 所有其他的```Component```都必须以某种方式，绑定到```RootComponent```
 
 ## Editor
 

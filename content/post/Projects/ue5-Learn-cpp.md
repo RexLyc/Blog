@@ -69,7 +69,8 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
     | UFUNCTION | 回调函数声明 | 回调类型的函数必须添加，使其拥有反射能力 | Client等 |
     | UENUM | 枚举声明 | 修饰enum class | BlueprintType |
     | TEXT | 任何需要使用多字节字符串的位置 | 避免乱码 | 参数就是你想要使用的字符串 |
-    | DECLARE_MULTICAST_DELEGATE_XXXX | 一系列宏 | 自定义事件 | 为指定类型提供广播事件机制 |
+    | DECLARE_DELEGATE_XXX | UCLASS之前 | 自定义委托 | 参数是委托函数的签名情况，还可以进一步用UDELEGATE修饰 |
+    | DECLARE_MULTICAST_DELEGATE_XXXX | UCLASS之前 | 自定义事件 | 为指定类型提供广播事件机制 |
 1. 常见宏参数含义
     | 名称 | 所属宏 |  含义 |
     | --- | --- | --- |
@@ -92,6 +93,7 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
 > - [官方文档：UE5.2 Metadata usable in UPROPERTY](https://docs.unrealengine.com/5.2/en-US/API/Runtime/CoreUObject/UObject/UM_3/)
 > - [UE4 UPROPERTY Explained](https://www.youtube.com/watch?v=ZPJtFa9srXw)
 > - [官方文档：UE5.2 Metadata Specifiers](https://docs.unrealengine.com/5.2/en-US/metadata-specifiers-in-unreal-engine/)
+> - [官方问答那个： UE5.2 Delegates and Lambda Functions](https://docs.unrealengine.com/5.2/en-US/delegates-and-lamba-functions-in-unreal-engine/)
 
 ## 一些核心基类
 1. ACharacter：角色类型通用的基类
@@ -153,6 +155,8 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
     | SetLifeSpan() | 函数 | 设置当前Actor的剩余存活时间 | |
     | SetActorTickEnabled | 继承函数 | 用于开启、关闭Actor的Tick功能 | |
     | SetActorHiddenInGame | 继承函数 | 用于控制Actor的可见性（但不影响事件响应、可操作性） | |
+    | NotifyActorBeginOverlap | 继承函数 | 用于提示和其他Actor重叠 | |
+    | NotifyActorEndOverlap | 继承函数 | 用于提示和其他Actor结束重叠 | |
 
 9.  UWorld：世界类型
     | 成员名称 | 成员类型 | 含义 | 注意 |

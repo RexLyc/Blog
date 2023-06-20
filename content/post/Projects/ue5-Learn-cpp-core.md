@@ -33,12 +33,15 @@ math: true
    - 作用：在UBT确定了需要更新的编译单元后开始工作，为指定的头文件添加反射等所需的各类代码，每个编译单元最终生成一个.inl文件。
    - 注意：
         1. 由于UHT并没有具备完整的C++解析能力，因此除了```WITH_EDITOR``` / ```WITH_EDITORONLY_DATA```之外，应当尽量避免在UPROPERTY等宏附近使用条件编译```#ifdef```。
+        2. 受UHT限制，无法在类定义内使用using、typedef，如果有需要，在类外使用。<font color=#ff6644>*待确认？*</font>
+        3. 受UHT限制，不能对重载函数（overload）使用UFUNCTION，对重写函数（override）使用UFUNCTION时也要求宏参数保持一致。<font color=#ff6644>*待确认？*</font>
 
 ### 委托和代理
 1. 概述：UE中委托和代理广泛存在，这两种模式在事件、渲染等机制中被广泛使用
-2. 委托（delegate）：
+2. 委托（delegate）步骤：
    1. 核心宏：用于描述委托函数元属性的```UDELEGATE()```、用于描述委托函数的函数签名的```DECLARE_XXX_DELEGATE_XXX```。
-   2. 
+   2. 使用宏定义委托函数，如```MyActionDelegate```
+   3. 在必要时进行绑定```MyActionDelegate.Bind()```，以及委托调用```MyActionDelegate.Execute()```
 3. 代理（proxy）：
 
 ## Editor

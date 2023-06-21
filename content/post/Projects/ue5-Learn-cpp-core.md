@@ -36,13 +36,14 @@ math: true
         2. 受UHT限制，无法在头文件中对使用了```UPROPERTY```等宏标记的变量，再使用```using```、```typedef```等方式定义的类型。
         3. 受UHT限制，不能对重载函数（overload）使用UFUNCTION，对重写函数（override）使用UFUNCTION时也要求宏参数保持一致。<font color=#ff6644>*待确认？*</font>
 
-### 委托和代理
+### 委托
 1. 概述：UE中委托和代理广泛存在，这两种模式在事件、渲染等机制中被广泛使用
 2. 委托（delegate）步骤：
    1. 核心宏：用于描述委托函数元属性的```UDELEGATE()```、用于描述委托函数的函数签名的```DECLARE_XXX_DELEGATE_XXX```。
    2. 使用宏定义委托函数，如```MyActionDelegate```
    3. 在必要时进行绑定```MyActionDelegate.Bind()```，以及委托调用```MyActionDelegate.Execute()```
-3. 代理（proxy）：
+   > 事件（event）：事件定义宏```DECLARE_EVENT()```只是一种特殊的多播委托，对```Broadcast()```、```Bind()```、```Execute()```等做了权限约束，不允许非持有对象调用
+
 ## Actor
 1. 基本说明：所有能被放置到场景中的东西，基本都是AActor及其派生
 2. Actor的生命周期：

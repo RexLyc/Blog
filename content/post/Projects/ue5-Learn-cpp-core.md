@@ -44,7 +44,9 @@ math: true
    3. 在必要时进行绑定```MyActionDelegate.Bind()```，以及委托调用```MyActionDelegate.Execute()```
    > 事件（event）：事件定义宏```DECLARE_EVENT()```只是一种特殊的多播委托，对```Broadcast()```、```Bind()```、```Execute()```等做了权限约束，不允许非持有对象调用
 
-## Actor
+## 其他核心类型
+
+### Actor
 1. 基本说明：所有能被放置到场景中的东西，基本都是AActor及其派生
 2. Actor的生命周期：
    1. 创建步骤：
@@ -56,7 +58,7 @@ math: true
       2. ```EndPlay```：保证销毁
    > 参考：[UE5.2 Actor 生命周期](https://docs.unrealengine.com/5.2/zh-CN/unreal-engine-actor-lifecycle/)
 
-## Component
+### Component
 1. 基本说明：用于附加给Actor，以实现各种功能
 2. Component的生命周期：
    1. 创建步骤：
@@ -73,9 +75,54 @@ math: true
    1. 特点：包含变换数据，位置、旋转，缩放。当一个```Actor```没有任何```RootComponent```时，则不具备这些数据。
    2. 所有其他的```Component```都必须以某种方式，绑定到```RootComponent```
 
-## Editor
+### Interface
+1. 基本说明：和接口的含义一样，用来解决类型体系中，需要提供相同功能，但是不具备"Is A"关系的类型情况。如果直接多继承UObject，会导致严重的问题（比如存在多个UClass实例，难以区分）。总而言之，用接口来实现"Has A"是一个很好的办法。
+   > 需要用Interface的场景主要是：所属类型不在Actor类型体系下，因此无法使用ActorComponent来完成一些接口定义。此时使用Interface。
+2. 基本步骤
+   1. 编辑器自动：定义一个```UINTERFACE```标记的```UInterface```子类，该类不需修改，定义一个同名但前缀为```I```原始C++类。
+   2. 编写所需要的函数，并在其定义中添加```unimplemented()```。
+   3. 在所需场合继承前缀为```I```的原始类，并重写对应函数。
+3. 相关代码工具
+   1. 判断是否是一个接口的实现
+      ```cpp
+      // 使用U前缀和I前缀，成对的定义接口的意义，依然可以一定程度上使用反射系统
+      // 这里的UMyInterface代表了你定义的被UINTERFACE()宏修饰的接口名称
+      UClass::ImplementsInterface(UMyInterface::StaticClass())
+      ```
+   2. 
+4. 注意：
+   1. 原始C++类，不是```UObject```，因此不具备任何相关能力
+5. 代码示例
+```cpp
+#include "CoreMinimal.h"
+#include "UObject/Interface.h"
+#include "AnimPlayInterface.generated.h"
 
-## GamePlay Framework
+// This class does not need to be modified.
+UINTERFACE(MinimalAPI)
+class UAnimPlayInterface : public UInterface
+{
+	GENERATED_BODY()
+};
+
+/**
+ */
+class DEMOZERO_API IAnimPlayInterface
+{
+	GENERATED_BODY()
+	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
+public:
+   virtual void Play() {
+      // 标记未完成，如果被调用会报错
+      unimplemented();
+   }
+};
+```
+
+## 编辑器环境Editor
+
+## 游戏运行时框架
+> GamePlay Framework
 
 ## 帧
 

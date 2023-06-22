@@ -38,7 +38,7 @@ math: true
       TSubclassOf<UObject> UClassOfAny;
       ```
    - 实践：当C++中计划使用蓝图时，可以先定义一个C++类A，并派生蓝图B。将B放置于任何UClassOfAny的出现位置
-1. ```TFieldIterator<A>```
+2. ```TFieldIterator<A>```
    - 用于遍历一个```UClass```
       ```cpp
       // 模板参数起到过滤作用，如果换做使用UField，则会遍历UClass中的所有元素
@@ -48,7 +48,15 @@ math: true
          // Do something with the property
       }
       ```
-1. ```TEnumAsByte<A>```
+3. ```TActorIterator<A>```
+   - 用于遍历一系列以A为基类的```Actor```
+      ```cpp
+      for(TActorIterator<AActor> It(GetWorld(),AActor::StaticClass()); It; ++it)
+      {
+         // Do something...
+      }
+      ```
+4. ```TEnumAsByte<A>```
    - 在使用C++98版风格的枚举值定义时，用于将枚举值作为类型。
       ```cpp
       UENUM(BlueprintType)
@@ -78,6 +86,16 @@ math: true
    - 应当只在C++11版枚举值无法满足需求时（超过uint8的数量）使用。
    > 参考：[UE4枚举类型使用总结](https://zhuanlan.zhihu.com/p/492630586)
 
+5. ```Cast<A>```
+   - UE提供的安全转型工具，转型失败时，会获得空指针```nullptr```
+      ```cpp
+      // 常见用法
+      A* a = Cast<A>(b);
+      if(a)
+      {
+         // do something
+      }
+      ```
 ## 容器
 1. ```TArray```
    - 动态数组（vector）
@@ -120,3 +138,12 @@ math: true
 ## 物理引擎
 1. 碰撞检测
    1. 分类：无视碰撞、通知重叠、禁止重叠
+   2. 工具类：
+      1. FCollisionObjectQueryParams
+      2. SweepSingleByObjectType
+      3. FCollisionShape
+      4. FCollisionQueryParams
+2. 射线检测
+   1. Hit
+   2. 工具类
+      1. FHitResult

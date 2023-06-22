@@ -87,6 +87,7 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
     | Category | UPROPERTY | 该属性在属性面板中的分类名称 |
     | AllowPrivateAccess | UXXX(meta=(~="?")) | 使private成员支持从蓝图操作（默认不允许） |
     | MetaClass | UXXX(meta=(~="?")) | 限制出现在编辑器的下拉列表中的C++子类型名称 |
+    | BlueprintNativeEvent | UFUNCTION | 表明该函数会有默认C++实现，但同时允许蓝图重写 |
 > 参考：
 > - [官方文档：UE5.2 uproperty 描述符列表](https://docs.unrealengine.com/5.2/en-US/unreal-engine-uproperty-specifiers/)
 > - [官方文档：UE5.2 uclass 描述符列表](https://docs.unrealengine.com/5.2/en-US/class-specifiers/)

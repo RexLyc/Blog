@@ -1,5 +1,5 @@
 ---
-title: "UE5学习：Cpp引擎核心篇"
+title: "UE5学习：Cpp引擎核心篇（一）"
 date: 2023-06-12T15:53:45+08:00
 categories:
 - 计算机科学与技术
@@ -34,7 +34,7 @@ math: true
    - 注意：
         1. 由于UHT并没有具备完整的C++解析能力，因此除了```WITH_EDITOR``` / ```WITH_EDITORONLY_DATA```之外，应当尽量避免在UPROPERTY等宏附近使用条件编译```#ifdef```。
         2. 受UHT限制，无法在头文件中对使用了```UPROPERTY```等宏标记的变量，再使用```using```、```typedef```等方式定义的类型。
-        3. 受UHT限制，不能对重载函数（overload）使用UFUNCTION，对重写函数（override）使用UFUNCTION时也要求宏参数保持一致。<font color=#ff6644>*待确认？*</font>
+        3. 受UHT限制，不能对重载函数（overload）使用UFUNCTION，对重写函数（override）使用UFUNCTION时，一般都是对```UInterface```中的函数进行重载，同时要求必须添加C++的virtual标记，或者添加宏标记```BlueprintImplementableEvent```。
 
 ### 委托
 1. 概述：UE中委托和代理广泛存在，这两种模式在事件、渲染等机制中被广泛使用
@@ -79,8 +79,9 @@ math: true
 1. 基本说明：和接口的含义一样，用来解决类型体系中，需要提供相同功能，但是不具备"Is A"关系的类型情况。如果直接多继承UObject，会导致严重的问题（比如存在多个UClass实例，难以区分）。总而言之，用接口来实现"Has A"是一个很好的办法。
    > 需要用Interface的场景主要是：所属类型不在Actor类型体系下，因此无法使用ActorComponent来完成一些接口定义。此时使用Interface。
 2. 基本步骤
-   1. 编辑器自动：定义一个```UINTERFACE```标记的```UInterface```子类，该类不需修改，定义一个同名但前缀为```I```原始C++类。
-   2. 编写所需要的函数，并在其定义中添加```unimplemented()```。
+   1. 编辑器自动：定义一个```UINTERFACE```标记的```UInterface```子类，该类不需修改，也不应添加任何东西，定义一个同名但前缀为```I```原始C++类。
+      1. ```UInterface```可以继承自```UObject```或者其他```UInterface```。
+   2. 编写所需要的函数，如果需要禁止默认行为可以在其定义中添加```unimplemented()```。
    3. 在所需场合继承前缀为```I```的原始类，并重写对应函数。
 3. 相关代码工具
    1. 判断是否是一个接口的实现
@@ -89,9 +90,29 @@ math: true
       // 这里的UMyInterface代表了你定义的被UINTERFACE()宏修饰的接口名称
       UClass::ImplementsInterface(UMyInterface::StaticClass())
       ```
-   2. 
+   2. 转型
+      ```cpp
+      // 转型仍使用Cast，但是需要使用I前缀，即原始C++类
+      IMyInterface* temp = Cast<IMyInterface>(obj);
+      if(temp)
+      {
+         // ...
+      }
+      ```
+   3. 暴露给蓝图：只需给```I```前缀的原始类中的函数添加```UFUNCTION()```宏即可
+      ```cpp
+      UFUNCTION(BlueprintCallable, Category = Debug)
+      virtual void MyOnPostBeginPlay()
+      {
+         // ...
+      }
+      ```
+   4. 用C++调用蓝图中实现的接口（和3相反）
+      ```cpp
+
+      ```
 4. 注意：
-   1. 原始C++类，不是```UObject```，因此不具备任何相关能力
+   1. 以```I```为前缀的类，是原始C++类，不是```UObject```。因此涉及到反射时用```U```前缀，其他情况用另一种。
 5. 代码示例
 ```cpp
 #include "CoreMinimal.h"
@@ -113,13 +134,14 @@ class DEMOZERO_API IAnimPlayInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
    virtual void Play() {
-      // 标记未完成，如果被调用会报错
+      // 如果希望默认实现被调用会报错，可以标记未完成
       unimplemented();
    }
 };
 ```
 
 ## 编辑器环境Editor
+
 
 ## 游戏运行时框架
 > GamePlay Framework
@@ -129,6 +151,31 @@ public:
 ## 网络通信
 
 ## 其他子系统
+### 蓝图
+1. C++和蓝图的互操作的各种需求
+   1. C++函数希望暴露函数给蓝图：宏参数```BlueprintCallable```
+   2. C++函数希望由蓝图实现：宏参数```BlueprintImplementableEvent```
+   3. C++函数给出默认实现，但蓝图仍然可以重写：宏参数```BlueprintNativeEvent```，注意此时C++的默认实现，带有后缀```_Implementation```，如果蓝图未给出实现，则自动生成的函数将会调用带有该后缀的版本。
+      ```cpp
+      // MyInterface.h
+      class XXX_API IMyInterface
+      {
+         GENERATED_BODY()
+      public:
+         // 不用实现
+         void DoSomething();
+
+         // 给出默认实现
+         void DoSomething_Implementation();
+      }
+
+      // 判断是否实现接口，并通用的执行（由运行时决定调用蓝图还是C++默认实现）
+      if(MyActor->GetClass()->ImplementsInterface(UMyInterface::StaticClass()))
+      {
+         IMyInterface::Execute_DoSomething();
+      }
+      ```
+   4. 
 
 ## 其他参考
 1. [知乎专栏：InsideUE系列](https://www.zhihu.com/column/insideue4)

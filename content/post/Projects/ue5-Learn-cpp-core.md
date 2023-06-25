@@ -131,7 +131,8 @@ class UAnimPlayInterface : public UInterface
 class DEMOZERO_API IAnimPlayInterface
 {
 	GENERATED_BODY()
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
+	// Add interface functions to this class. 
+   // This is the class that will be inherited to implement this interface.
 public:
    virtual void Play() {
       // 如果希望默认实现被调用会报错，可以标记未完成
@@ -141,7 +142,11 @@ public:
 ```
 
 ## 编辑器环境Editor
-
+1. 模块
+   1. 说明：模块是UE组织软件架构的一种构建单元。适当的进行模块化的开发，提高软件开发、复用效率。
+   2. 为Editor添加自定义模块步骤：
+      1. 
+   > 参考：[UE5.2 Unreal Engine Modules](https://docs.unrealengine.com/5.2/en-US/unreal-engine-modules/)
 
 ## 游戏运行时框架
 > GamePlay Framework
@@ -175,7 +180,10 @@ public:
          IMyInterface::Execute_DoSomething();
       }
       ```
-   4. 
+   4. ```OnConstruction```：C++侧，对蓝图内```Construction Script```(任意属性变动时会执行)的实现函数
+2. 默认情况
+   1. 出于性能考虑（减少反射相关代码量），C++的变量、类型默认并不会导出到蓝图中。
+   > 尽量不要依赖于默认行为
 
 ## 其他参考
 1. [知乎专栏：InsideUE系列](https://www.zhihu.com/column/insideue4)

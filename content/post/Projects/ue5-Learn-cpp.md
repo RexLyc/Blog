@@ -71,12 +71,14 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
     | TEXT | 任何需要使用多字节字符串的位置 | 避免乱码 | 参数就是你想要使用的字符串 |
     | DECLARE_DELEGATE_XXX | UCLASS之前 | 自定义委托 | 参数是委托函数的签名情况，还可以进一步用UDELEGATE修饰 |
     | DECLARE_MULTICAST_DELEGATE_XXXX | UCLASS之前 | 自定义事件 | 为指定类型提供广播事件机制 |
+    | GET_MEMBER_NAME_CHECKED | 语句内 | 用于编译期检查某个类是否存在某个成员属性 | 类名、成员名 |
 1. 常见宏参数含义
     | 名称 | 所属宏 |  含义 |
     | --- | --- | --- |
-    | Blueprintable | UCLASS | 允许从该类型派生蓝图 |
-    | BlueprintType | UCLASS | 允许该类型在蓝图中使用（创建变量） |
-    | EditAnywhere | UPROPERTY | 在属性窗口，为原型（蓝图）和实例设置 |
+    | Blueprintable | UCLASS | 允许在编辑器中从该类型派生蓝图 |
+    | BlueprintType | UCLASS、UENUM | 允许该类型在蓝图中作为类型使用（创建变量） |
+    | BlueprintCallable | UFUNCTION | 允许函数在蓝图中调用 |
+    | EditAnywhere | UPROPERTY | 在属性窗口，为原型（蓝图）和实例设置。 |
     | EditDefaultsOnly | UPROPERTY | 在属性窗口，仅为原型设置 |
     | EditInstanceOnly | UPROPERTY | 在属性窗口，仅为实例设置 |
     | VisibleAnywhere | UPROPERTY | 在原型、实例的属性窗口中均可见 |
@@ -87,7 +89,12 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
     | Category | UPROPERTY | 该属性在属性面板中的分类名称 |
     | AllowPrivateAccess | UXXX(meta=(~="?")) | 使private成员支持从蓝图操作（默认不允许） |
     | MetaClass | UXXX(meta=(~="?")) | 限制出现在编辑器的下拉列表中的C++子类型名称 |
+    | BlueprintImplementableEvent | UFUNCTION | 函数可以在蓝图中实现 |
     | BlueprintNativeEvent | UFUNCTION | 表明该函数会有默认C++实现，但同时允许蓝图重写 |
+    | BlueprintAssignable | UPROPERTY | 多播委托专用，可以在蓝图中添加委托绑定 |
+> 注：
+> 1. EditXXX限定符自带VisibleXXX效果，二者不能同时使用
+
 > 参考：
 > - [官方文档：UE5.2 uproperty 描述符列表](https://docs.unrealengine.com/5.2/en-US/unreal-engine-uproperty-specifiers/)
 > - [官方文档：UE5.2 uclass 描述符列表](https://docs.unrealengine.com/5.2/en-US/class-specifiers/)
@@ -136,7 +143,12 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
 
 6. USceneComponent: 自定义组件类型常见的基类之一，常用作需要进行变换的节点的挂载节点。USceneComponent本身是**不渲染**的，但会保存平移、旋转、缩放能力
 
-7. UPrimitiveComponent： 较为复杂自定义组件基类。以它为基类的组件，大都是需要进行渲染的组件。常见的派生类有UMeshComponent、UShapeComponent
+7. UStaticMeshComponent:静态网格体组件
+    | 成员名称 | 成员类型 | 含义 |
+    | --- | --- | --- |
+    | bGenerateOverlapEvents | 成员变量 | 触发碰撞检测事件 |
+
+8. UPrimitiveComponent： 较为复杂自定义组件基类。以它为基类的组件，大都是需要进行渲染的组件。常见的派生类有UMeshComponent、UShapeComponent
     | 成员名称 | 成员类型 | 含义 |
     | --- | --- | --- |
     | CreateSceneProxy | 继承函数 | 创建并返回FPrimitiveSceneProxy实例 |
@@ -144,7 +156,7 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
     | OnActorPositionChanged | 继承函数 | 在所属Actor位置移动时调用 |
     > UPrimitiveComponent的复杂在于其涉及到渲染，需要维护CPU、GPU两侧的状态，加载图元资源，调度着色器。
 
-8. AActor：任何**可放置**、可Spawn的类型的基类
+9.  AActor：任何**可放置**、可Spawn的类型的基类
     | 成员名称 | 成员类型 | 含义 | 注意 |
     | --- | --- | --- | --- |
     | AddActorWorldTransform() | 继承函数 | 用于对Actor做全局变换 | |
@@ -158,8 +170,10 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
     | SetActorHiddenInGame | 继承函数 | 用于控制Actor的可见性（但不影响事件响应、可操作性） | |
     | NotifyActorBeginOverlap | 继承函数 | 用于提示和其他Actor重叠 | |
     | NotifyActorEndOverlap | 继承函数 | 用于提示和其他Actor结束重叠 | |
+    | PostEditChangeProperty | 继承函数 | 用于接收并处理来自编辑器的成员属性修改事件 |  |
+    | OnConstruction | 继承函数 | 属性变动时的回调 | 无法得知变动属性具体是哪个，注意性能 |
 
-9.  UWorld：世界类型
+10. UWorld：世界类型
     | 成员名称 | 成员类型 | 含义 | 注意 |
     | --- | --- | --- | --- |
     | SpawnActor() | 泛型函数 | 创建一个Actor | |

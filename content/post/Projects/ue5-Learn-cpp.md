@@ -278,6 +278,102 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
 ## 一些无奈
 1. UE类型体系内的用户自定义类型，必须以XXXX.generated.h为最后一个头文件。
 
+## 模块
+1. 说明：模块是UE组织软件架构的一种构建单元。适当的进行模块化的开发，提高软件开发、复用效率。
+2. 为Editor添加自定义模块步骤
+   1. 修改uproject文件，添加对自定义模块的依赖，形如
+      ```json
+      // ...
+      "Modules": [
+         {
+            // ...
+         },
+         {
+            "Name": "YourModule",
+            "Type": "Editor",
+            "LoadingPhase": "PostEngineInit",
+            "AdditionalDependencies": [
+               "Engine",
+               "CoreUObject"
+            ]
+         }
+         // ...
+      ],
+      ```
+   2. 在Source文件夹下，新建以自定义模块为名称的文件夹，文件夹结构形如
+      ```
+         - （修改）YourProject.uproject
+         - Source/
+                  - YourProject/
+                  -（新建）YouModule/
+                           - YouModule.h & cpp
+                           - YouModule.build.cs
+                  -（修改）YourProject.Target.cs
+                  - YourProjectEditor.Target.cs
+      ```
+   3. 在新建文件夹内，添加构建文件build.cs，形如
+      ```cs
+      using UnrealBuildTool;
+      using System.Collections.Generic;
+
+      public class YouModule : ModuleRules
+      {
+         public YouModule(ReadOnlyTargetRules Target) : base(Target)
+         {
+            PublicDependencyModuleNames.AddRange(new string[] {
+                  "Core", "CoreUObject", "Engine", "InputCore","UnrealEd"});
+            // 可选：模块依赖于主项目
+            PublicDependencyModuleNames.Add("YourProject");
+            PrivateDependencyModuleNames.AddRange(new string[] {"Core" });
+         }
+      }
+      ```
+   4. 添加.h/.cpp，形如
+      ```cpp
+      // h内
+      #pragma once
+      #include "CoreMinimal.h"
+      #include "Modules/ModuleManager.h"
+
+      class FDemoZeroModModule: public IModuleInterface
+      {
+      };
+      
+      // cpp内
+      #include "DemoZeroMod.h"
+      IMPLEMENT_MODULE(FDemoZeroModModule, DemoZeroMod)
+      ```
+   5. 修改Editor.cs，形如
+      ```c#
+      // Copyright Epic Games, Inc. All Rights Reserved.
+      using UnrealBuildTool;
+      using System.Collections.Generic;
+
+      public class YourProjectEditorTarget : TargetRules
+      {
+         public YourProjectEditorTarget( TargetInfo Target) : base(Target)
+         {
+            Type = TargetType.Editor;
+            DefaultBuildSettings = BuildSettingsVersion.V2;
+            IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_1;
+            ExtraModuleNames.Add("YourProject");
+            ExtraModuleNames.Add("YourModule");
+         }
+      }
+      ```
+   > 注：Module开发容易受UE引擎版本影响，注意对依赖模块的使用
+
+   > 参考：
+   > - [UE5.2 Unreal Engine Modules](https://docs.unrealengine.com/5.2/en-US/unreal-engine-modules/)
+   > - [UE5.2 UBT Target](https://docs.unrealengine.com/5.2/en-US/unreal-engine-build-tool-target-reference/)
+3. 常见API
+   | 名称 | 所属类 | 类型 | 说明 |
+   | --- | --- | --- | --- |
+   | StartupModule | IModuleInterface | 继承函数 | 重写该函数以在Module加载后执行所需代码 |
+   | ShutdownModule | IModuleInterface | 继承函数 | 重写该函数以在Module卸载后执行所需代码 |
+
+4. 注意事项：
+   1. Module开发不支持热更新，需要关闭编辑器，编译运行
 
 ## 坑
 1. C++类的更新无法在UE5编辑器内正常看到：动态编译的问题，推荐在偏好设置中，开启加载时强制编译

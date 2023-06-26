@@ -142,105 +142,37 @@ public:
 ```
 
 ## 编辑器环境Editor
-1. 模块
-   1. 说明：模块是UE组织软件架构的一种构建单元。适当的进行模块化的开发，提高软件开发、复用效率。
-   2. 为Editor添加自定义模块步骤
-      1. 修改uproject文件，添加对自定义模块的依赖，形如
-         ```json
-         // ...
-         "Modules": [
-         {
-            // ...
-         },
-         {
-            "Name": "YourModule",
-            "Type": "Editor",
-            "LoadingPhase": "PostEngineInit",
-            "AdditionalDependencies": [
-               "Engine",
-               "CoreUObject"
-            ]
-         }
-         // ...
-      ],
-         ```
-      2. 在Source文件夹下，新建以自定义模块为名称的文件夹，文件夹结构形如
-         ```
-            - （修改）YourProject.uproject
-            - Source/
-                     - YourProject/
-                     -（新建）YouModule/
-                              - YouModule.h & cpp
-                              - YouModule.build.cs
-                     -（修改）YourProject.Target.cs
-                     - YourProjectEditor.Target.cs
-         ```
-      3. 在新建文件夹内，添加构建文件build.cs，形如
-         ```cs
-         using UnrealBuildTool;
-         using System.Collections.Generic;
+1. 概述：在UE自身提供的编辑器环境之外，UE也允许玩家对编辑器环境进行改变，编写一些自定义模块、代码，在编辑器环境下工作，以提升开发效率。Editor开发中普遍使用Slate
+2. Editor常见类型
+   | 名称 | 类型 | 说明 |
+   | --- | --- | --- |
+   | TCommands | 类模板 | 使用CRTP写法，完成UI和具体动作的解耦 |
+   | UI_COMMAND | 宏 | 创建一个可执行命令的UI控件 |
+   | IMainFrameModule | 接口类 |  |
+   | FLevelEditorModule | 工具类 | 关卡编辑器模块 |
+   | FModuleManager | 工具类 | 对模块加载进行管理 |
+   | FUICommandInfo | 工具类 | 存储UI相关命令信息（描述、名称等） |
+   | FUICommandList | 工具类 | 存储一系列UI命令信息 |
+   | FExtender | 工具类 | 用于向UI添加新控件 |
+   | EUserInterfaceActionType | 枚举类 | 表明控件的类型（按钮，开关，列表等） |
 
-         public class YouModule : ModuleRules
-         {
-            public YouModule(ReadOnlyTargetRules Target) : base(Target)
-            {
-               PublicDependencyModuleNames.AddRange(new string[] {
-                     "Core", "CoreUObject", "Engine", "InputCore","UnrealEd"});
-               // 可选：模块依赖于主项目
-               PublicDependencyModuleNames.Add("YourProject");
-               PrivateDependencyModuleNames.AddRange(new string[] {"Core" });
-            }
-         }
-         ```
-      4. 添加.h/.cpp，形如
-         ```cpp
-         // h内
-         #pragma once
-         #include "CoreMinimal.h"
-         #include "Modules/ModuleManager.h"
-
-         class FDemoZeroModModule: public IModuleInterface
-         {
-         };
-         
-         // cpp内
-         #include "DemoZeroMod.h"
-         IMPLEMENT_MODULE(FDemoZeroModModule, DemoZeroMod)
-         ```
-      5. 修改Editor.cs，形如
-         ```c#
-         // Copyright Epic Games, Inc. All Rights Reserved.
-         using UnrealBuildTool;
-         using System.Collections.Generic;
-
-         public class YourProjectEditorTarget : TargetRules
-         {
-            public YourProjectEditorTarget( TargetInfo Target) : base(Target)
-            {
-               Type = TargetType.Editor;
-               DefaultBuildSettings = BuildSettingsVersion.V2;
-               IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_1;
-               ExtraModuleNames.Add("YourProject");
-               ExtraModuleNames.Add("YourModule");
-            }
-         }
-         ```
-      > 注：Module开发容易受UE引擎版本影响，注意对依赖模块的使用
-
-      > 参考：
-      > - [UE5.2 Unreal Engine Modules](https://docs.unrealengine.com/5.2/en-US/unreal-engine-modules/)
-      > - [UE5.2 UBT Target](https://docs.unrealengine.com/5.2/en-US/unreal-engine-build-tool-target-reference/)
-   3. 注意事项：
-      1. Module开发不支持热更新，需要关闭编辑器，编译运行
+   > 注：TCommands使用过程中，利用了C++的CRTP特性（Curious Recurring Template Pattern），用来实现静态多态。参考[C++ 惯用法 CRTP 简介](https://liam.page/2016/11/26/Introduction-to-CRTP-in-Cpp/)。
+### 自定义UI流程
+1. 工具栏按钮
+   1. 注册命令、查找目标窗口、在目标窗口中添加命令按钮
+2. 
 
 ## 游戏运行时框架
 > GamePlay Framework
 
-## 帧
+### 帧
 
-## 网络通信
 
 ## 其他子系统
+### 网络通信
+1. 概述：UE内部实现了TCP、UDP、HTTP、Websocket等协议。但如果打算使用UE自带的Dedicated Server进行服务器端开发，需要自行从源代码编译UE。
+2. 原理：
+
 ### 蓝图
 1. C++和蓝图的互操作的各种需求
    1. C++函数希望暴露函数给蓝图：宏参数```BlueprintCallable```

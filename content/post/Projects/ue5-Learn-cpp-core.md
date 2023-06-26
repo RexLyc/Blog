@@ -154,6 +154,7 @@ public:
    | FUICommandInfo | 工具类 | 存储UI相关命令信息（描述、名称等） |
    | FUICommandList | 工具类 | 存储一系列UI命令信息 |
    | FExtender | 工具类 | 用于向UI添加新控件 |
+   | FEditorStyle | 工具类 | 内含控制Slate的UI风格的各种属性 |
    | EUserInterfaceActionType | 枚举类 | 表明控件的类型（按钮，开关，列表等） |
 
    > 注：TCommands使用过程中，利用了C++的CRTP特性（Curious Recurring Template Pattern），用来实现静态多态。参考[C++ 惯用法 CRTP 简介](https://liam.page/2016/11/26/Introduction-to-CRTP-in-Cpp/)。

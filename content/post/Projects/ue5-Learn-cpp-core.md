@@ -175,7 +175,7 @@ public:
    2. 此时已经可以在内容浏览器中看到自定义Asset类型的创建
 3. 开发辅助工具
    1. Pick Live Widget
-   2. Display UIExtension Point
+   2. 编辑器偏好设置$/to$显示UI扩展点：Display UIExtension Point，能够显示允许扩展的位置的名称，便于在各种```Extender```中选择插入点。
 
 ## 游戏运行时框架
 > GamePlay Framework

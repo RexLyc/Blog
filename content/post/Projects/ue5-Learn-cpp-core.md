@@ -142,8 +142,10 @@ public:
 ```
 
 ## 编辑器环境Editor
-1. 概述：在UE自身提供的编辑器环境之外，UE也允许玩家对编辑器环境进行改变，编写一些自定义模块、代码，在编辑器环境下工作，以提升开发效率。Editor开发中普遍使用Slate
-2. Editor常见类型
+1. 概述：在UE自身提供的编辑器环境之外，UE也允许玩家对编辑器环境进行改变，编写一些自定义模块、代码，在编辑器环境下工作，以提升开发效率。Editor开发中普遍使用Slate。
+   > 参考
+   > - [UE 插件与工具开发：基础概念](https://imzlp.com/posts/75405/)
+2. Editor开发常见类型
    | 名称 | 类型 | 说明 |
    | --- | --- | --- |
    | TCommands | 类模板 | 使用CRTP写法，完成UI和具体动作的解耦 |
@@ -156,12 +158,24 @@ public:
    | FExtender | 工具类 | 用于向UI添加新控件 |
    | FEditorStyle | 工具类 | 内含控制Slate的UI风格的各种属性 |
    | EUserInterfaceActionType | 枚举类 | 表明控件的类型（按钮，开关，列表等） |
+   | FMenuBuilder | 工具类 | 构造菜单 |
+   | FToolBarBuilder | 工具类 | 构造工具栏 |
+   | FToolBarExtensionDelegate | 工具类 | 用于添加自定义ToolbarExtender |
+   | FMenuExtensionDelegate | 工具类 | 用于添加自定义MenuExtender |
+   | FSlateApplication | 工具类 | Slate应用程序，有很多静态成员 |
 
    > 注：TCommands使用过程中，利用了C++的CRTP特性（Curious Recurring Template Pattern），用来实现静态多态。参考[C++ 惯用法 CRTP 简介](https://liam.page/2016/11/26/Introduction-to-CRTP-in-Cpp/)。
 ### 自定义UI流程
-1. 工具栏按钮
-   1. 注册命令、查找目标窗口、在目标窗口中添加命令按钮
-2. 
+1. 模块基本流程
+   1. 准备工作：编写自定义命令类型，重写命令注册函数，编写命令回调函数
+   2. Startup阶段：注册命令、映射命令和回调函数、查找或创建目标窗口、在目标窗口的合适位置添加命令相关UI控件
+   3. Shutdown阶段：从目标窗口中移除命令相关UI控件
+2. 添加新的Asset类型
+   1. 继承```UObject```并创建Asset类型，并为其创建工厂类型（继承```UFactory```），重写```FactoryCreateNew```函数。
+   2. 此时已经可以在内容浏览器中看到自定义Asset类型的创建
+3. 开发辅助工具
+   1. Pick Live Widget
+   2. Display UIExtension Point
 
 ## 游戏运行时框架
 > GamePlay Framework

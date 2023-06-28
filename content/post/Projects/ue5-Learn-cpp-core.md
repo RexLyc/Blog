@@ -155,7 +155,7 @@ public:
    | FModuleManager | 工具类 | 对模块加载进行管理 |
    | FUICommandInfo | 工具类 | 存储UI相关命令信息（描述、名称等） |
    | FUICommandList | 工具类 | 存储一系列UI命令信息 |
-   | FExtender | 工具类 | 用于向UI添加新控件 |
+   | FExtender | 工具类 | 用于向UI添加新控件，工具栏、菜单项等均可 |
    | FEditorStyle | 工具类 | 内含控制Slate的UI风格的各种属性 |
    | EUserInterfaceActionType | 枚举类 | 表明控件的类型（按钮，开关，列表等） |
    | FMenuBuilder | 工具类 | 构造菜单 |
@@ -174,8 +174,8 @@ public:
    1. 继承```UObject```并创建Asset类型，并为其创建工厂类型（继承```UFactory```），重写```FactoryCreateNew```函数。
    2. 此时已经可以在内容浏览器中看到自定义Asset类型的创建
 3. 开发辅助工具
-   1. Pick Live Widget
-   2. 编辑器偏好设置$/to$显示UI扩展点：Display UIExtension Point，能够显示允许扩展的位置的名称，便于在各种```Extender```中选择插入点。
+   1. Pick Live Widget：UE5.2内置了Slate UI的调试工具，在 **Tools$\to$Debug$\to$Widget Reflector** 中，详情参考[Widget Reflector](https://docs.unrealengine.com/5.2/en-US/using-the-slate-widget-reflector-in-unreal-engine/)。允许动态的查看所有Slate组件的层级关系。
+   2. 编辑器 **偏好设置$\to$显示UI扩展点** ：Display UIExtension Point，能够显示允许扩展的位置的名称，便于在各种```Extender```中选择插入点。
 
 ## 游戏运行时框架
 > GamePlay Framework

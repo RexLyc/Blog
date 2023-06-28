@@ -272,8 +272,9 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
 
 ## 常见功能示例
 1. 添加自定义C++类：    
-    1. 步骤：菜单栏→工具→新建C++类→选择合适的父类并创建
-1. 
+   1. 步骤：菜单栏→工具→新建C++类→选择合适的父类并创建
+   > 注意：是可以选择所属子项目的，如果同时在开发Game内容和Module内容，注意选择合适的子项目。
+2. 
 
 ## 一些无奈
 1. UE类型体系内的用户自定义类型，必须以XXXX.generated.h为最后一个头文件。
@@ -373,18 +374,21 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
    | ShutdownModule | IModuleInterface | 继承函数 | 重写该函数以在Module卸载后执行所需代码 |
 
 4. 注意事项：
-   1. Module开发不支持热更新，需要关闭编辑器，编译运行。准确的说是，Live Coding可以运行，但是dll不能保证替换成最新的。
+   1. Module开发并不完美支持热更新，个别情况需要关闭编辑器，编译运行。准确的说是，Live Coding可以运行，但是dll不能保证替换成最新的。
 
 ## 坑
-1. C++类的更新无法在UE5编辑器内正常看到：动态编译的问题，推荐在偏好设置中，开启加载时强制编译
-1. 打开已有项目，C++类在UE5编辑器内找不到了：动态编译的问题，推荐在偏好设置中，开启加载时强制编译
-1. Windows下，Live Coding、UE5编辑器自定义类注释乱码：设置Windows语言为Unicode.UTF-8
-1. UE5，在VS2019下开发时，IntelliSense性能差：安装引擎自带的UnrealVS插件（在引擎安装路径下，如D:/Epic Games/UE_5.0/Engine/Extras/UnrealVS/VS2019/UnrealVS.vsix）
-1. 无法自动导入依赖所需要包含的头文件：
+1. Visual Studio：错误过多，导致IntelliSense引擎无法正常工作：
+   1. 删除不必要的头文件
+   2. 删除Saved/Intermediate/Binaries文件夹，解决方案.sln文件，重新从uproject文件生成sln
+2. C++类的更新无法在UE5编辑器内正常看到：动态编译的问题，推荐在偏好设置中，开启加载时强制编译
+3. 打开已有项目，C++类在UE5编辑器内找不到了：动态编译的问题，推荐在偏好设置中，开启加载时强制编译
+4. Windows下，Live Coding、UE5编辑器自定义类注释乱码：设置Windows语言为Unicode.UTF-8
+5. UE5，在VS2019下开发时，IntelliSense性能差：安装引擎自带的UnrealVS插件（在引擎安装路径下，如D:/Epic Games/UE_5.0/Engine/Extras/UnrealVS/VS2019/UnrealVS.vsix）
+6. 无法自动导入依赖所需要包含的头文件：
     - **尚未解决？**
-1. UE体系内C++类型修改后，Live Coding后，运行仍然未更新：删除原对象，重新拖动对象到关卡内。
+7. UE体系内C++类型修改后，Live Coding后，运行仍然未更新：删除原对象，重新拖动对象到关卡内。
     - **是否有自动的办法？**
-1. 继承函数一般都需要在函数刚开始时调用父类函数，例如
+8. 继承函数一般都需要在函数刚开始时调用父类函数，例如
     ```cpp
     // 自定义动画类，动画更新
     void UMyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -392,10 +396,10 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
         Super::NativeUpdateAnimation(DeltaSeconds);
     }
     ```
-1. SetupAttachment用于构造函数中，AttachToComponent用于运行时修改。而且如果使用KeepRelativeTransform，要注意是否需要重置相对位置、旋转。
-1. 想要删除一个C++类：需要先从VS中删除文件，再关闭UE编辑器，再删除Binaries文件夹，最后在VS中生成项目。**真的离谱**。
+9.  SetupAttachment用于构造函数中，AttachToComponent用于运行时修改。而且如果使用KeepRelativeTransform，要注意是否需要重置相对位置、旋转。
+10. 想要删除一个C++类：需要先从VS中删除文件，再关闭UE编辑器，再删除Binaries文件夹，最后在VS中生成项目。**真的离谱**。
     - 如果不这么做，很有可能出现VS中莫名其妙的错误，
-1. 据说UE5目前的烹专该内测，使用QueryOnly时，仍然不能保证是只检测而不会禁止移动，因此需要具体设置静态网格体的算法，设置如下
+11. 据说UE5目前的烹专该内测，使用QueryOnly时，仍然不能保证是只检测而不会禁止移动，因此需要具体设置静态网格体的算法，设置如下
     ```cpp
     if (type == ECollisionEnabled::QueryOnly) {
         // 无视阻挡
@@ -406,7 +410,7 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
 		staticMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	}
     ```
-1. 回调函数必须添加宏描述UFUNCTION()，例如碰撞检测回调（此举实际上将其加入反射系统）
+12. 回调函数必须添加宏描述UFUNCTION()，例如碰撞检测回调（此举实际上将其加入反射系统）
     ```cpp
     UFUNCTION()
 	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp
@@ -418,13 +422,13 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
 		, class AActor* OtherActor, class UPrimitiveComponent* OtherComp
         , int32 OtherBody);
     ```
-1. GetBounds函数，在不同类型中名字可能不同，但是注意获取到的origin和boxIntent都是局部坐标系的值。并且都是包含当前节点及其子节点的所有组件在内的整体包围盒。使用前确认在哪一级组件上。
-1. Overlap检测，注意对应的Actor在创建时，关于碰撞盒和网格体的缩放的控制：**尚未很好的解决**
+13. GetBounds函数，在不同类型中名字可能不同，但是注意获取到的origin和boxIntent都是局部坐标系的值。并且都是包含当前节点及其子节点的所有组件在内的整体包围盒。使用前确认在哪一级组件上。
+14. Overlap检测，注意对应的Actor在创建时，关于碰撞盒和网格体的缩放的控制：**尚未很好的解决**
     - BoxComponent的InitBoxIntent：只控制碰撞盒的大小（默认32，和坐标不是同一种单位），但同时也受BoxComponent的缩放参数的控制
     - StaticMeshComponent的SetRelativeScale3D：作为BoxComponent的子组件时，只控制网格体的缩放
     - 灵活使用UE编辑器，可以先在C++中编码，然后在场景中拖出来一个，之后在编辑器的细节窗口中调整参数，直到调整好之后，再将参数带回C++代码中。
-1. 如果一个物体Spawn时就和另一个物体重叠，无法触发Overlap重叠事件：**尚未解决**
-1. CreateDefaultSubobject函数只能在构造函数内调用，不能在BeginPlay等函数中使用（包括间接使用）。想要动态创建，只能使用NewObject，并进一步使用AttachTo等方式绑定父组件。
+15. 如果一个物体Spawn时就和另一个物体重叠，无法触发Overlap重叠事件：**尚未解决**
+16. CreateDefaultSubobject函数只能在构造函数内调用，不能在BeginPlay等函数中使用（包括间接使用）。想要动态创建，只能使用NewObject，并进一步使用AttachTo等方式绑定父组件。
 
 ## 参考
 1. [【虚幻5】【不适合小白观看】用C++来进行基于UE5的游戏开发（含动画蓝图）](https://www.bilibili.com/video/BV17Q4y1Y7fr)

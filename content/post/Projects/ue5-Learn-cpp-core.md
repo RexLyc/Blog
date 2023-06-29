@@ -164,6 +164,7 @@ public:
    | FMenuExtensionDelegate | 工具类 | 用于添加自定义MenuExtender |
    | FSlateApplication | 工具类 | Slate应用程序，有很多静态成员 |
    | IAssetTools | Asset工具接口 | 用于自定义资源管理菜单等 |
+   | FAssetToolsModule | 资源工具模块 | 用于管理资源类型，添加自定义资源类 |
    | IConsoleCommand | 控制台命令接口 | 用于管理控制台命令 |
    | IConsoleManager | 控制台管理器接口 | 用于获取、管理控制台实例 |
    | FConsoleCommandDelegate | 控制台命令委托工具类 |  用于创建控制台命令 |
@@ -181,9 +182,9 @@ public:
    3. ShutdownModule阶段：从目标窗口中移除命令相关UI控件
 2. 添加新的Asset类型
    1. 继承```UObject```并创建Asset类型，并为其创建工厂类型（继承```UFactory```），重写```FactoryCreateNew```函数。
-   2. 此时已经可以在创建菜单、内容浏览器等位置，看到自定义Asset类型的标志
-   3. 进一步地，可以为自定义Asset类型添加专属的右键菜单项，以提供专属功能。继承```FAssetTypeActions_Base```，重写必要的虚函数，如```HasActions```，```GetActions```等。
-   4. 在```StartupModule```阶段使用```FModuleManager```获取AssetTools，并注册自定义Asset类型的菜单项动作。注意```ShutdownModule```阶段也应该取消注册。
+   2. 进一步地，可以为自定义Asset类型添加专属的右键菜单项，以提供专属功能。继承```FAssetTypeActions_Base```，重写必要的虚函数，如```HasActions```，```GetActions```等。此时已经可以在创建菜单、内容浏览器等位置，看到自定义Asset类型的标志
+   3. 在```StartupModule```阶段使用```FModuleManager```获取AssetTools，并注册自定义Asset类型的菜单项动作。注意```ShutdownModule```阶段也应该取消注册。
+   > 参考：[Creating a Custom Asset Type with its own Editor in C++](https://dev.epicgames.com/community/learning/tutorials/vyKB/unreal-engine-creating-a-custom-asset-type-with-its-own-editor-in-c)
 3. 为自定义Asset定制蓝图节点UI
    1. 继承```FGraphPanelPinFactory```，重写```CreatePin```虚函数，内部也是调用Slate的SNew创建UI。
    2. 继承```SGraphPin```，该类需使用Slate框架的```SLATE_BEGIN_ARGS```、```SLATE_END_ARGS```宏等，来给出一个标准的Slate控件类的实现。
@@ -200,7 +201,6 @@ public:
 6. 一些Editor中的开发辅助工具
    1. Pick Live Widget：UE5.2内置了Slate UI的调试工具，在 **Tools$\to$Debug$\to$Widget Reflector** 中，详情参考[Widget Reflector](https://docs.unrealengine.com/5.2/en-US/using-the-slate-widget-reflector-in-unreal-engine/)。允许动态的查看所有Slate组件的层级关系。
    2. 编辑器 **偏好设置$\to$显示UI扩展点** ：Display UIExtension Point，能够显示允许扩展的位置的名称，便于在各种```Extender```中选择插入点。
-
 ## 游戏运行时框架
 > GamePlay Framework
 

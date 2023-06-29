@@ -427,3 +427,7 @@ thumbnailImage: /images/thumbnail/ue-logo.png
             UE_LOG(LogTemp, Log, TEXT("widget create failed"));
     }
     ```
+
+## 参考
+1. [现代图形引擎入门指南（Unreal Engine）— Slate开发 - Italink的文章 - 知乎](https://zhuanlan.zhihu.com/p/636153935)
+2. [官方UE5.2 Slate架构](https://docs.unrealengine.com/5.2/zh-CN/understanding-the-slate-ui-architecture-in-unreal-engine/)

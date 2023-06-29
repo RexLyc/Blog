@@ -163,17 +163,41 @@ public:
    | FToolBarExtensionDelegate | 工具类 | 用于添加自定义ToolbarExtender |
    | FMenuExtensionDelegate | 工具类 | 用于添加自定义MenuExtender |
    | FSlateApplication | 工具类 | Slate应用程序，有很多静态成员 |
-
+   | IAssetTools | Asset工具接口 | 用于自定义资源管理菜单等 |
+   | IConsoleCommand | 控制台命令接口 | 用于管理控制台命令 |
+   | IConsoleManager | 控制台管理器接口 | 用于获取、管理控制台实例 |
+   | FConsoleCommandDelegate | 控制台命令委托工具类 |  用于创建控制台命令 |
+   | FConsoleCommandWithArgsDelegate | 控制台命令委托工具类 | 用于创建带参数控制台命令的Lambda回调函数 |
+   | SGraphPin | 蓝图节点子控件类 | 蓝图节点图内的各种可操作控件都叫做Pin |
+   | FEdGraphUtilities | 编辑器图表工具实例 | 可用于注册蓝图节点工厂 |
+   | IDetailCustomization | 细节面板接口类 | 提供对细节面板的控制 |
+   | IDetailLayoutBuilder | 细节面板布局构造类 | 用于对细节面板布局进行管理 |
+   | FPropertyEditorModule | 属性编辑器模块 | 用于注册自定义的属性细节面板 |
    > 注：TCommands使用过程中，利用了C++的CRTP特性（Curious Recurring Template Pattern），用来实现静态多态。参考[C++ 惯用法 CRTP 简介](https://liam.page/2016/11/26/Introduction-to-CRTP-in-Cpp/)。
 ### 自定义UI流程
 1. 模块基本流程
    1. 准备工作：编写自定义命令类型，重写命令注册函数，编写命令回调函数
-   2. Startup阶段：注册命令、映射命令和回调函数、查找或创建目标窗口、在目标窗口的合适位置添加命令相关UI控件
-   3. Shutdown阶段：从目标窗口中移除命令相关UI控件
+   2. StartupModule阶段：注册命令、映射命令和回调函数、查找或创建目标窗口、在目标窗口的合适位置添加命令相关UI控件。
+   3. ShutdownModule阶段：从目标窗口中移除命令相关UI控件
 2. 添加新的Asset类型
    1. 继承```UObject```并创建Asset类型，并为其创建工厂类型（继承```UFactory```），重写```FactoryCreateNew```函数。
-   2. 此时已经可以在内容浏览器中看到自定义Asset类型的创建
-3. 开发辅助工具
+   2. 此时已经可以在创建菜单、内容浏览器等位置，看到自定义Asset类型的标志
+   3. 进一步地，可以为自定义Asset类型添加专属的右键菜单项，以提供专属功能。继承```FAssetTypeActions_Base```，重写必要的虚函数，如```HasActions```，```GetActions```等。
+   4. 在```StartupModule```阶段使用```FModuleManager```获取AssetTools，并注册自定义Asset类型的菜单项动作。注意```ShutdownModule```阶段也应该取消注册。
+3. 为自定义Asset定制蓝图节点UI
+   1. 继承```FGraphPanelPinFactory```，重写```CreatePin```虚函数，内部也是调用Slate的SNew创建UI。
+   2. 继承```SGraphPin```，该类需使用Slate框架的```SLATE_BEGIN_ARGS```、```SLATE_END_ARGS```宏等，来给出一个标准的Slate控件类的实现。
+   3. StartupModule阶段：实例化自定义Pin的工厂，注册到蓝图工具中。
+   > 默认的Asset类型，在蓝图中是以UObject的形式进行显示，对于其属性并不会优化显示、编辑方式，对于有需要的情况，可以自定义其在蓝图内的编辑方式。比如对FColor类型的成员，在蓝图节点内提供一个取色器，而不是手动输入ARGB。
+4. 自定义细节面板
+   1. 准备工作：继承```IDetailCustomization```，重写```CustomizeDetails```虚函数。向```DetailBuilder```中添加自定义的Slate控件
+   2. StartupModule阶段：获取属性编辑模块，向其添加自定义Asset及其自定义细节面板。
+   3. ShutdownModule阶段：取消注册。
+5. 添加新的命令行命令
+   1. 准备工作：编辑自定义命令行命令的执行回调函数
+   2. StartupModule阶段：获取控制台实例并向其注册控制台命令
+   3. ShutdownModule阶段：取消注册
+6. 一些Editor中的开发辅助工具
    1. Pick Live Widget：UE5.2内置了Slate UI的调试工具，在 **Tools$\to$Debug$\to$Widget Reflector** 中，详情参考[Widget Reflector](https://docs.unrealengine.com/5.2/en-US/using-the-slate-widget-reflector-in-unreal-engine/)。允许动态的查看所有Slate组件的层级关系。
    2. 编辑器 **偏好设置$\to$显示UI扩展点** ：Display UIExtension Point，能够显示允许扩展的位置的名称，便于在各种```Extender```中选择插入点。
 
@@ -219,4 +243,5 @@ public:
 
 ## 其他参考
 1. [知乎专栏：InsideUE系列](https://www.zhihu.com/column/insideue4)
-2. [Unreal Property System Reflection](https://www.unrealengine.com/zh-CN/blog/unreal-property-system-reflection)
+2. [知乎专栏：现代图形引擎入门指南](https://www.zhihu.com/column/c_1635772272538648576)
+3. [Unreal Property System Reflection](https://www.unrealengine.com/zh-CN/blog/unreal-property-system-reflection)

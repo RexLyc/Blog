@@ -36,6 +36,19 @@ math: true
         2. 受UHT限制，无法在头文件中对使用了```UPROPERTY```等宏标记的变量，再使用```using```、```typedef```等方式定义的类型。
         3. 受UHT限制，不能对重载函数（overload）使用UFUNCTION，对重写函数（override）使用UFUNCTION时，一般都是对```UInterface```中的函数进行重载，同时要求必须添加C++的virtual标记，或者添加宏标记```BlueprintImplementableEvent```。
 
+### 非UObject系统
+1. 以F为前缀的类型
+   - 特点：主要是工具类，例如```FAssetTypeActions_Base```、```FGraphPanelPinFactory```。也包括大部分结构体，如```FColor```、```FVector```。
+   - 注意：不能使用```UCLASS```等宏进行标记（标记也会报错），也没有必要，这些类型不需要经过UHT处理。
+1. 以S为前缀的类型
+   - 特点：代表Slate类型，如```SWidget```
+   - 注意：也不能使用```UCLASS```等宏进行标记，但需要使用```SLATE_BEGIN_ARGS```、```SLATE_END_ARGS```等Slate宏，完善UI代码。
+1. 以I为前缀的类型
+   - 特点：是接口类型，可能是```UINTERFACE```的伴生类型，也可能就是独立的一个接口。该前缀类型的派生类型，并不需要以I为前缀，视其使用目的，可以使用F前缀。
+   - 注意：重写其虚函数以满足业务和接口要求。
+
+> [推荐的资源命名惯例Recommended Asset Naming Conventions](https://docs.unrealengine.com/5.2/en-US/recommended-asset-naming-conventions-in-unreal-engine-projects/)
+
 ### 委托
 1. 概述：UE中委托和代理广泛存在，这两种模式在事件、渲染等机制中被广泛使用
 2. 委托（delegate）步骤：
@@ -146,40 +159,47 @@ public:
    > 参考
    > - [UE 插件与工具开发：基础概念](https://imzlp.com/posts/75405/)
 2. Editor开发常见类型
-   | 名称 | 类型 | 说明 |
-   | --- | --- | --- |
-   | TCommands | 类模板 | 使用CRTP写法，完成UI和具体动作的解耦 |
-   | UI_COMMAND | 宏 | 创建一个可执行命令的UI控件 |
-   | IMainFrameModule | 接口类 |  |
-   | FLevelEditorModule | 工具类 | 关卡编辑器模块 |
-   | FModuleManager | 工具类 | 对模块加载进行管理 |
-   | FUICommandInfo | 工具类 | 存储UI相关命令信息（描述、名称等） |
-   | FUICommandList | 工具类 | 存储一系列UI命令信息 |
-   | FExtender | 工具类 | 用于向UI添加新控件，工具栏、菜单项等均可 |
-   | FEditorStyle | 工具类 | 内含控制Slate的UI风格的各种属性 |
-   | EUserInterfaceActionType | 枚举类 | 表明控件的类型（按钮，开关，列表等） |
-   | FMenuBuilder | 工具类 | 构造菜单 |
-   | FToolBarBuilder | 工具类 | 构造工具栏 |
-   | FToolBarExtensionDelegate | 工具类 | 用于添加自定义ToolbarExtender |
-   | FMenuExtensionDelegate | 工具类 | 用于添加自定义MenuExtender |
-   | FSlateApplication | 工具类 | Slate应用程序，有很多静态成员 |
-   | IAssetTools | Asset工具接口 | 用于自定义资源管理菜单等 |
-   | FAssetToolsModule | 资源工具模块 | 用于管理资源类型，添加自定义资源类 |
-   | IConsoleCommand | 控制台命令接口 | 用于管理控制台命令 |
-   | IConsoleManager | 控制台管理器接口 | 用于获取、管理控制台实例 |
-   | FConsoleCommandDelegate | 控制台命令委托工具类 |  用于创建控制台命令 |
-   | FConsoleCommandWithArgsDelegate | 控制台命令委托工具类 | 用于创建带参数控制台命令的Lambda回调函数 |
-   | SGraphPin | 蓝图节点子控件类 | 蓝图节点图内的各种可操作控件都叫做Pin |
-   | FEdGraphUtilities | 编辑器图表工具实例 | 可用于注册蓝图节点工厂 |
-   | IDetailCustomization | 细节面板接口类 | 提供对细节面板的控制 |
-   | IDetailLayoutBuilder | 细节面板布局构造类 | 用于对细节面板布局进行管理 |
-   | FPropertyEditorModule | 属性编辑器模块 | 用于注册自定义的属性细节面板 |
-   > 注：TCommands使用过程中，利用了C++的CRTP特性（Curious Recurring Template Pattern），用来实现静态多态。参考[C++ 惯用法 CRTP 简介](https://liam.page/2016/11/26/Introduction-to-CRTP-in-Cpp/)。
+
+      | 名称 | 类型 | 说明 |
+      | --- | --- | --- |
+      | TCommands | 类模板 | 使用CRTP写法，完成UI和具体动作的解耦 |
+      | UI_COMMAND | 宏 | 创建一个可执行命令的UI控件 |
+      | IMainFrameModule | 接口类 |  |
+      | FLevelEditorModule | 工具类 | 关卡编辑器模块 |
+      | FModuleManager | 工具类 | 对模块加载进行管理 |
+      | FUICommandInfo | 工具类 | 存储UI相关命令信息（描述、名称等） |
+      | FUICommandList | 工具类 | 存储一系列UI命令信息 |
+      | FExecuteAction | 工具类 | 创建一个可以和控件绑定的回调函数委托 |
+      | FExtender | 工具类 | 用于向UI添加新控件，工具栏、菜单项等均可 |
+      | FEditorStyle | 工具类 | 内含控制Slate的UI风格的各种属性 |
+      | EUserInterfaceActionType | 枚举类 | 表明控件的类型（按钮，开关，列表等） |
+      | FMenuBuilder | 工具类 | 构造菜单 |
+      | FToolBarBuilder | 工具类 | 构造工具栏 |
+      | FToolBarExtensionDelegate | 工具类 | 用于添加自定义ToolbarExtender |
+      | FMenuExtensionDelegate | 工具类 | 用于添加自定义MenuExtender |
+      | FSlateApplication | 工具类 | Slate应用程序，有很多静态成员 |
+      | IAssetTools | Asset工具接口 | 用于自定义资源管理菜单等 |
+      | FAssetToolsModule | 资源工具模块 | 用于管理资源类型，添加自定义资源类 |
+      | IConsoleCommand | 控制台命令接口 | 用于管理控制台命令 |
+      | IConsoleManager | 控制台管理器接口 | 用于获取、管理控制台实例 |
+      | FConsoleCommandDelegate | 控制台命令委托工具类 |  用于创建控制台命令 |
+      | FConsoleCommandWithArgsDelegate | 控制台命令委托工具类 | 用于创建带参数控制台命令的Lambda回调函数 |
+      | SGraphPin | 蓝图节点子控件类 | 蓝图节点图内的各种可操作控件都叫做Pin |
+      | FGraphPanelPinFactory | 蓝图节点子控件工厂 | 继承以重写工厂函数，自定义蓝图节点子控件 |
+      | FEdGraphUtilities | 编辑器图表工具实例 | 可用于注册蓝图节点工厂 |
+      | IDetailCustomization | 细节面板接口类 | 提供对细节面板的控制 |
+      | IDetailLayoutBuilder | 细节面板布局构造类 | 用于对细节面板布局进行管理 |
+      | FPropertyEditorModule | 属性编辑器模块 | 用于注册自定义的属性细节面板 |
+      > 注：TCommands使用过程中，利用了C++的CRTP特性（Curious Recurring Template Pattern），用来实现静态多态。参考[C++ 惯用法 CRTP 简介](https://liam.page/2016/11/26/Introduction-to-CRTP-in-Cpp/)。
+
+      > 这里列出的只是冰山一角，而且在使用过程中，大概率需要引入中间变量的一些头文件，总之开发时要多看文档。
+
 ### 自定义UI流程
 1. 模块基本流程
    1. 准备工作：编写自定义命令类型，重写命令注册函数，编写命令回调函数
    2. StartupModule阶段：注册命令、映射命令和回调函数、查找或创建目标窗口、在目标窗口的合适位置添加命令相关UI控件。
    3. ShutdownModule阶段：从目标窗口中移除命令相关UI控件
+   > Editor界面中有若干个被称为扩展点（UIExtension Point）的地方，根据不同的类型，可以向其前后扩展自定义控件。
 2. 添加新的Asset类型
    1. 继承```UObject```并创建Asset类型，并为其创建工厂类型（继承```UFactory```），重写```FactoryCreateNew```函数。
    2. 进一步地，可以为自定义Asset类型添加专属的右键菜单项，以提供专属功能。继承```FAssetTypeActions_Base```，重写必要的虚函数，如```HasActions```，```GetActions```等。此时已经可以在创建菜单、内容浏览器等位置，看到自定义Asset类型的标志
@@ -201,6 +221,225 @@ public:
 6. 一些Editor中的开发辅助工具
    1. Pick Live Widget：UE5.2内置了Slate UI的调试工具，在 **Tools$\to$Debug$\to$Widget Reflector** 中，详情参考[Widget Reflector](https://docs.unrealengine.com/5.2/en-US/using-the-slate-widget-reflector-in-unreal-engine/)。允许动态的查看所有Slate组件的层级关系。
    2. 编辑器 **偏好设置$\to$显示UI扩展点** ：Display UIExtension Point，能够显示允许扩展的位置的名称，便于在各种```Extender```中选择插入点。
+### 代码示例
+<details>
+   <summary>模块h/cpp</summary>
+
+```cpp
+// .h
+class FDemoZeroModModule: public IModuleInterface
+{
+public:
+   // 在虚函数中重写自定义模块的注册等业务
+	virtual void StartupModule() override;
+	virtual void ShutdownModule() override;
+
+   // 各类资源
+	TSharedPtr<FExtender> ToolbarExtender;
+	TSharedPtr<const FExtensionBase> Extension;
+	TSharedPtr<const FExtensionBase> MenuExtension;
+	TArray<TSharedPtr< FAssetTypeActions_Base>> CreatedAssetTypeActions;
+   TSharedPtr<FModAssetGraphPinFactory> PinFactory;
+
+	IConsoleCommand* DisplayTestCommand;
+	IConsoleCommand* DisplayUserSpecifiedWindow;
+
+	void MyButton_Clicked();
+	void AddToolbarExtension(FToolBarBuilder& builder);
+	void AddMenuExtension(FMenuBuilder& builder);
+	void DisplayWindow(FString args);
+};
+
+// .cpp
+#include "DemoZeroMod.h"
+#include "Widgets/SWindow.h"
+#include "LevelEditor.h"
+#include "Interfaces/IMainFrameModule.h"
+#include "AssetToolsModule.h"
+#include "ModAssetAction.h"
+#include "ModAsset.h"
+#include "ModAssetDetailCustomization.h"
+#include "DemoZeroModCommands.h"
+
+IMPLEMENT_MODULE(FDemoZeroModModule, DemoZeroMod)
+
+void FDemoZeroModModule::StartupModule()
+{
+	UE_LOG(LogTemp, Log, TEXT("FDemoZeroModModule Startup!"));
+
+   // 自定义命令注册
+	FDemoZeroModCommands::Register();
+	TSharedPtr<FUICommandList> CommandList =
+		MakeShareable(new FUICommandList());
+   // 绑定自定义命令的输入控件和回调委托
+	CommandList->MapAction(FDemoZeroModCommands::Get().MyButton,
+		FExecuteAction::CreateRaw(this,
+			&FDemoZeroModModule::MyButton_Clicked),
+		FCanExecuteAction());
+
+	// 添加Toolbar扩展器
+	ToolbarExtender = MakeShareable(new FExtender());
+   // 添加到Play扩展点之后
+	Extension = ToolbarExtender
+		->AddToolBarExtension("Play", EExtensionHook::Before,
+			CommandList, FToolBarExtensionDelegate::CreateRaw(this,
+				&FDemoZeroModModule::AddToolbarExtension));
+   // 将Toolbar扩展器，添加到LevelEditor模块中
+	FLevelEditorModule& LevelEditorModule =
+		FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+	LevelEditorModule.GetToolBarExtensibilityManager()->AddExtender(ToolbarExtender);
+
+	// 添加MenuEntry
+	MenuExtension = ToolbarExtender->AddMenuExtension("LevelEditor", EExtensionHook::Before,
+			CommandList, FMenuExtensionDelegate::CreateRaw(this,
+				&FDemoZeroModModule::AddMenuExtension));
+	LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(ToolbarExtender);
+
+	// 注册ModAsset
+	IAssetTools& AssetTools =
+		FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
+	auto Actions = MakeShareable(new FModAssetAction);
+	AssetTools.RegisterAssetTypeActions(Actions);
+	CreatedAssetTypeActions.Add(Actions);
+
+	// 添加自定义控制台命令
+	DisplayTestCommand =
+		IConsoleManager::Get().RegisterConsoleCommand(TEXT("DisplayTestCommandWindow"), TEXT("test"),
+			FConsoleCommandDelegate::CreateRaw(this,
+				&FDemoZeroModModule::DisplayWindow,
+				FString(TEXT("Test Command Window"))), ECVF_Default);
+	DisplayUserSpecifiedWindow =
+		IConsoleManager::Get().RegisterConsoleCommand(TEXT("DisplayWindow"), TEXT("test"),
+			FConsoleCommandWithArgsDelegate::CreateLambda(
+				[&](const TArray< FString >& Args)
+				{
+					FString WindowTitle;
+					for (FString Arg : Args)
+					{
+						WindowTitle += Arg;
+						WindowTitle.AppendChar(' ');
+					}
+					this->DisplayWindow(WindowTitle);
+				}
+	), ECVF_Default);
+
+	// 自定义蓝图节点UI
+	PinFactory = MakeShareable(new FModAssetGraphPinFactory);
+	FEdGraphUtilities::RegisterVisualPinFactory(PinFactory);
+
+	// 细节面板
+	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+	PropertyModule.RegisterCustomClassLayout(UModAsset::StaticClass()->GetFName(),
+				FOnGetDetailCustomizationInstance::CreateStatic(&FModAssetDetailCustomization::MakeInstance));
+}
+
+void FDemoZeroModModule::ShutdownModule()
+{
+	UE_LOG(LogTemp, Log, TEXT("FDemoZeroModModule Shutdown!"));
+   // 移除扩展
+	ToolbarExtender->RemoveExtension(Extension.ToSharedRef());
+	Extension.Reset();
+	MenuExtension.Reset();
+	ToolbarExtender.Reset();
+	for (auto& t : CreatedAssetTypeActions) {
+		t.Reset();
+	}
+	CreatedAssetTypeActions.Reset();
+	FEdGraphUtilities::UnregisterVisualPinFactory(PinFactory);
+	PinFactory.Reset();
+
+	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+	PropertyModule.UnregisterCustomClassLayout(UModAsset::StaticClass()->GetFName());
+}
+
+void FDemoZeroModModule::MyButton_Clicked()
+{
+	TSharedRef<SWindow> CookbookWindow = SNew(SWindow)
+		.Title(FText::FromString(TEXT("DemoZero Window")))
+		.ClientSize(FVector2D(800, 400))
+		.SupportsMaximize(false)
+		.SupportsMinimize(false)
+		[
+			SNew(SVerticalBox)
+			+SVerticalBox::Slot()
+			.HAlign(HAlign_Center)
+			.VAlign(VAlign_Center)
+			[
+				SNew(STextBlock)
+				.Text(FText::FromString(TEXT("Hello from DemoZero Mod")))
+			]
+		];
+	IMainFrameModule& MainFrameModule =
+		FModuleManager::LoadModuleChecked<IMainFrameModule>(TEXT("MainFrame"));
+	if (MainFrameModule.GetParentWindow().IsValid())
+	{
+		FSlateApplication::Get().AddWindowAsNativeChild
+		(CookbookWindow, MainFrameModule.GetParentWindow()
+			.ToSharedRef());
+	}
+	else
+	{
+		FSlateApplication::Get().AddWindow(CookbookWindow);
+	}
+}
+
+void FDemoZeroModModule::AddToolbarExtension(FToolBarBuilder& builder)
+{
+	FSlateIcon IconBrush =
+		FSlateIcon(FEditorStyle::GetStyleSetName(),
+			"LevelEditor.ViewOptions",
+			"LevelEditor.ViewOptions.Small");
+	builder.AddToolBarButton(FDemoZeroModCommands::Get()
+		.MyButton, NAME_None, FText::FromString("My Button"),
+		FText::FromString("Click me to display a message"),
+		IconBrush, NAME_None);
+}
+
+void FDemoZeroModModule::AddMenuExtension(FMenuBuilder& builder)
+{
+	FSlateIcon IconBrush =
+		FSlateIcon(FEditorStyle::GetStyleSetName(),
+			"LevelEditor.ViewOptions",
+			"LevelEditor.ViewOptions.Small");
+	builder.AddMenuEntry(FDemoZeroModCommands::Get().MyButton);
+}
+
+void FDemoZeroModModule::DisplayWindow(FString args)
+{
+	TSharedRef<SWindow> CookbookWindow = SNew(SWindow)
+		.Title(FText::FromString(TEXT("DemoZero Window")))
+		.ClientSize(FVector2D(800, 400))
+		.SupportsMaximize(false)
+		.SupportsMinimize(false)
+		[
+			SNew(SVerticalBox)
+			+ SVerticalBox::Slot()
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Center)
+		[
+			SNew(STextBlock)
+			.Text(FText::FromString(args))
+		]
+		];
+	IMainFrameModule& MainFrameModule =
+		FModuleManager::LoadModuleChecked<IMainFrameModule>
+		(TEXT("MainFrame"));
+	if (MainFrameModule.GetParentWindow().IsValid())
+	{
+		FSlateApplication::Get().AddWindowAsNativeChild
+		(CookbookWindow, MainFrameModule.GetParentWindow()
+			.ToSharedRef());
+	}
+	else
+	{
+		FSlateApplication::Get().AddWindow(CookbookWindow);
+	}
+}
+
+```
+
+</details>
+
 ## 游戏运行时框架
 > GamePlay Framework
 

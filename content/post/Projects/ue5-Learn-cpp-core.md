@@ -193,7 +193,8 @@ public:
       > 注：TCommands使用过程中，利用了C++的CRTP特性（Curious Recurring Template Pattern），用来实现静态多态。参考[C++ 惯用法 CRTP 简介](https://liam.page/2016/11/26/Introduction-to-CRTP-in-Cpp/)。
 
       > 这里列出的只是冰山一角，而且在使用过程中，大概率需要引入中间变量的一些头文件，总之开发时要多看文档。
-
+3. 坑
+   1. 模块加载和卸载顺序：虽然官方说了，为了保证依赖不出问题，加载顺序和卸载顺序相反。但是，实际上有些模块被优先卸载了（说是为了禁止在卸载期间仍然调用这些模块）。在5.2版中这些模块有：```AssetTools```、```WorldBrowser```、```AssetRegistry```、```IPackageResourceManager```、```IBulkDataRegistry```、```FShaderPipelineCache```、```FShaderCodeLibrary```、```FIoDispatcher```等。如果想要对依赖这些的模块做完美卸载，需要额外想办法。
 ### 自定义UI流程
 1. 模块基本流程
    1. 准备工作：编写自定义命令类型，重写命令注册函数，编写命令回调函数

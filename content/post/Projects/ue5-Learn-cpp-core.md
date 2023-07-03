@@ -165,7 +165,7 @@ public:
       | IMPLEMENT_MODULE| 宏 | 必备，用于导出该模块实例 |
       | TCommands | 类模板 | 使用CRTP写法，完成UI和具体动作的解耦 |
       | UI_COMMAND | 宏 | 创建一个可执行命令的UI控件 |
-      | IMainFrameModule | 接口类 |  |
+      | IMainFrameModule | 接口类 | 用于管理Editor最顶层的主窗口 |
       | FLevelEditorModule | 工具类 | 关卡编辑器模块 |
       | FModuleManager | 工具类 | 对模块加载进行管理 |
       | FUICommandInfo | 工具类 | 存储UI相关命令信息（描述、名称等） |
@@ -225,223 +225,585 @@ public:
    1. Pick Live Widget：UE5.2内置了Slate UI的调试工具，在 **Tools$\to$Debug$\to$Widget Reflector** 中，详情参考[Widget Reflector](https://docs.unrealengine.com/5.2/en-US/using-the-slate-widget-reflector-in-unreal-engine/)。允许动态的查看所有Slate组件的层级关系。
    2. 编辑器 **偏好设置$\to$显示UI扩展点** ：Display UIExtension Point，能够显示允许扩展的位置的名称，便于在各种```Extender```中选择插入点。
 ### 代码示例
-<details>
-   <summary>模块h/cpp</summary>
+- <details><summary>自定义模块 DemoZeroMod.h/cpp</summary>
 
-```cpp
-// .h
-class FDemoZeroModModule: public IModuleInterface
-{
-public:
-   // 在虚函数中重写自定义模块的注册等业务
-	virtual void StartupModule() override;
-	virtual void ShutdownModule() override;
+   ```cpp
+   // .h
+   class FDemoZeroModModule: public IModuleInterface
+   {
+   public:
+      // 在虚函数中重写自定义模块的注册等业务
+      virtual void StartupModule() override;
+      virtual void ShutdownModule() override;
 
-   // 各类资源
-	TSharedPtr<FExtender> ToolbarExtender;
-	TSharedPtr<const FExtensionBase> Extension;
-	TSharedPtr<const FExtensionBase> MenuExtension;
-	TArray<TSharedPtr< FAssetTypeActions_Base>> CreatedAssetTypeActions;
-   TSharedPtr<FModAssetGraphPinFactory> PinFactory;
+      // 各类资源
+      TSharedPtr<FExtender> ToolbarExtender;
+      TSharedPtr<const FExtensionBase> Extension;
+      TSharedPtr<const FExtensionBase> MenuExtension;
+      TSharedPtr<FAssetTypeActions_Base> Actions;
+      TSharedPtr<FModAssetGraphPinFactory> PinFactory;
 
-	IConsoleCommand* DisplayTestCommand;
-	IConsoleCommand* DisplayUserSpecifiedWindow;
+      IConsoleCommand* DisplayTestCommand;
+      IConsoleCommand* DisplayUserSpecifiedWindow;
 
-	void MyButton_Clicked();
-	void AddToolbarExtension(FToolBarBuilder& builder);
-	void AddMenuExtension(FMenuBuilder& builder);
-	void DisplayWindow(FString args);
-};
+      void MyButton_Clicked();
+      void AddToolbarExtension(FToolBarBuilder& builder);
+      void AddMenuExtension(FMenuBuilder& builder);
+      void DisplayWindow(FString args);
+   };
 
-// .cpp
-#include "DemoZeroMod.h"
-#include "Widgets/SWindow.h"
-#include "LevelEditor.h"
-#include "Interfaces/IMainFrameModule.h"
-#include "AssetToolsModule.h"
-#include "ModAssetAction.h"
-#include "ModAsset.h"
-#include "ModAssetDetailCustomization.h"
-#include "DemoZeroModCommands.h"
+   // .cpp
+   #include "DemoZeroMod.h"
+   #include "Widgets/SWindow.h"
+   #include "LevelEditor.h"
+   #include "Interfaces/IMainFrameModule.h"
+   #include "AssetToolsModule.h"
+   #include "ModAssetAction.h"
+   #include "ModAsset.h"
+   #include "ModAssetDetailCustomization.h"
+   #include "DemoZeroModCommands.h"
 
-IMPLEMENT_MODULE(FDemoZeroModModule, DemoZeroMod)
+   IMPLEMENT_MODULE(FDemoZeroModModule, DemoZeroMod)
 
-void FDemoZeroModModule::StartupModule()
-{
-	UE_LOG(LogTemp, Log, TEXT("FDemoZeroModModule Startup!"));
+   void FDemoZeroModModule::StartupModule()
+   {
+      UE_LOG(LogTemp, Log, TEXT("FDemoZeroModModule Startup!"));
 
-   // 自定义命令注册
-	FDemoZeroModCommands::Register();
-	TSharedPtr<FUICommandList> CommandList =
-		MakeShareable(new FUICommandList());
-   // 绑定自定义命令的输入控件和回调委托
-	CommandList->MapAction(FDemoZeroModCommands::Get().MyButton,
-		FExecuteAction::CreateRaw(this,
-			&FDemoZeroModModule::MyButton_Clicked),
-		FCanExecuteAction());
+      // 自定义命令注册
+      FDemoZeroModCommands::Register();
+      TSharedPtr<FUICommandList> CommandList =
+         MakeShareable(new FUICommandList());
+      // 绑定自定义命令的输入控件和回调委托
+      CommandList->MapAction(FDemoZeroModCommands::Get().MyButton,
+         FExecuteAction::CreateRaw(this,
+            &FDemoZeroModModule::MyButton_Clicked),
+         FCanExecuteAction());
 
-	// 添加Toolbar扩展器
-	ToolbarExtender = MakeShareable(new FExtender());
-   // 添加到Play扩展点之后
-	Extension = ToolbarExtender
-		->AddToolBarExtension("Play", EExtensionHook::Before,
-			CommandList, FToolBarExtensionDelegate::CreateRaw(this,
-				&FDemoZeroModModule::AddToolbarExtension));
-   // 将Toolbar扩展器，添加到LevelEditor模块中
-	FLevelEditorModule& LevelEditorModule =
-		FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
-	LevelEditorModule.GetToolBarExtensibilityManager()->AddExtender(ToolbarExtender);
+      // 添加Toolbar扩展器
+      ToolbarExtender = MakeShareable(new FExtender());
+      // 添加到Play扩展点之后
+      Extension = ToolbarExtender
+         ->AddToolBarExtension("Play", EExtensionHook::Before,
+            CommandList, FToolBarExtensionDelegate::CreateRaw(this,
+               &FDemoZeroModModule::AddToolbarExtension));
+      // 将Toolbar扩展器，添加到LevelEditor模块中
+      FLevelEditorModule& LevelEditorModule =
+         FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+      LevelEditorModule.GetToolBarExtensibilityManager()->AddExtender(ToolbarExtender);
 
-	// 添加MenuEntry
-	MenuExtension = ToolbarExtender->AddMenuExtension("LevelEditor", EExtensionHook::Before,
-			CommandList, FMenuExtensionDelegate::CreateRaw(this,
-				&FDemoZeroModModule::AddMenuExtension));
-	LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(ToolbarExtender);
+      // 添加MenuEntry
+      MenuExtension = ToolbarExtender->AddMenuExtension("LevelEditor", EExtensionHook::Before,
+            CommandList, FMenuExtensionDelegate::CreateRaw(this,
+               &FDemoZeroModModule::AddMenuExtension));
+      LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(ToolbarExtender);
 
-	// 注册ModAsset
-	IAssetTools& AssetTools =
-		FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
-	auto Actions = MakeShareable(new FModAssetAction);
-	AssetTools.RegisterAssetTypeActions(Actions);
-	CreatedAssetTypeActions.Add(Actions);
+      // 注册ModAsset
+      IAssetTools& AssetTools =
+         FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
+      Actions = MakeShareable(new FModAssetAction);
+      AssetTools.RegisterAssetTypeActions(Actions.ToSharedRef());
 
-	// 添加自定义控制台命令
-	DisplayTestCommand =
-		IConsoleManager::Get().RegisterConsoleCommand(TEXT("DisplayTestCommandWindow"), TEXT("test"),
-			FConsoleCommandDelegate::CreateRaw(this,
-				&FDemoZeroModModule::DisplayWindow,
-				FString(TEXT("Test Command Window"))), ECVF_Default);
-	DisplayUserSpecifiedWindow =
-		IConsoleManager::Get().RegisterConsoleCommand(TEXT("DisplayWindow"), TEXT("test"),
-			FConsoleCommandWithArgsDelegate::CreateLambda(
-				[&](const TArray< FString >& Args)
-				{
-					FString WindowTitle;
-					for (FString Arg : Args)
-					{
-						WindowTitle += Arg;
-						WindowTitle.AppendChar(' ');
-					}
-					this->DisplayWindow(WindowTitle);
-				}
-	), ECVF_Default);
+      // 添加自定义控制台命令
+      DisplayTestCommand =
+         IConsoleManager::Get().RegisterConsoleCommand(TEXT("DisplayTestCommandWindow"), TEXT("test"),
+            FConsoleCommandDelegate::CreateRaw(this,
+               &FDemoZeroModModule::DisplayWindow,
+               FString(TEXT("Test Command Window"))), ECVF_Default);
+      DisplayUserSpecifiedWindow =
+         IConsoleManager::Get().RegisterConsoleCommand(TEXT("DisplayWindow"), TEXT("test"),
+            FConsoleCommandWithArgsDelegate::CreateLambda(
+               [&](const TArray< FString >& Args)
+               {
+                  FString WindowTitle;
+                  for (FString Arg : Args)
+                  {
+                     WindowTitle += Arg;
+                     WindowTitle.AppendChar(' ');
+                  }
+                  this->DisplayWindow(WindowTitle);
+               }
+      ), ECVF_Default);
 
-	// 自定义蓝图节点UI
-	PinFactory = MakeShareable(new FModAssetGraphPinFactory);
-	FEdGraphUtilities::RegisterVisualPinFactory(PinFactory);
+      // 自定义蓝图节点UI
+      PinFactory = MakeShareable(new FModAssetGraphPinFactory);
+      FEdGraphUtilities::RegisterVisualPinFactory(PinFactory);
 
-	// 细节面板
-	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
-	PropertyModule.RegisterCustomClassLayout(UModAsset::StaticClass()->GetFName(),
-				FOnGetDetailCustomizationInstance::CreateStatic(&FModAssetDetailCustomization::MakeInstance));
-}
+      // 细节面板
+      FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+      PropertyModule.RegisterCustomClassLayout(UModAsset::StaticClass()->GetFName(),
+               FOnGetDetailCustomizationInstance::CreateStatic(&FModAssetDetailCustomization::MakeInstance));
+   }
 
-void FDemoZeroModModule::ShutdownModule()
-{
-	UE_LOG(LogTemp, Log, TEXT("FDemoZeroModModule Shutdown!"));
-   // 移除扩展
-	ToolbarExtender->RemoveExtension(Extension.ToSharedRef());
-	Extension.Reset();
-	MenuExtension.Reset();
-	ToolbarExtender.Reset();
-	for (auto& t : CreatedAssetTypeActions) {
-		t.Reset();
-	}
-	CreatedAssetTypeActions.Reset();
-	FEdGraphUtilities::UnregisterVisualPinFactory(PinFactory);
-	PinFactory.Reset();
+   void FDemoZeroModModule::ShutdownModule()
+   {
+      UE_LOG(LogTemp, Log, TEXT("FDemoZeroModModule Shutdown!"));
+      // 尚未解决：AssetTools在卸载阶段优先于大部分模组，无法通过这种方式安全卸载自定义Actions
+      //IAssetTools& AssetTools =
+      //	FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
+      //AssetTools.UnregisterAssetTypeActions(Actions.ToSharedRef());
+      Actions.Reset();
 
-	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
-	PropertyModule.UnregisterCustomClassLayout(UModAsset::StaticClass()->GetFName());
-}
+      ToolbarExtender->RemoveExtension(Extension.ToSharedRef());
+      Extension.Reset();
+      MenuExtension.Reset();
+      ToolbarExtender.Reset();
+      FDemoZeroModCommands::Unregister();
 
-void FDemoZeroModModule::MyButton_Clicked()
-{
-	TSharedRef<SWindow> CookbookWindow = SNew(SWindow)
-		.Title(FText::FromString(TEXT("DemoZero Window")))
-		.ClientSize(FVector2D(800, 400))
-		.SupportsMaximize(false)
-		.SupportsMinimize(false)
-		[
-			SNew(SVerticalBox)
-			+SVerticalBox::Slot()
-			.HAlign(HAlign_Center)
-			.VAlign(VAlign_Center)
-			[
-				SNew(STextBlock)
-				.Text(FText::FromString(TEXT("Hello from DemoZero Mod")))
-			]
-		];
-	IMainFrameModule& MainFrameModule =
-		FModuleManager::LoadModuleChecked<IMainFrameModule>(TEXT("MainFrame"));
-	if (MainFrameModule.GetParentWindow().IsValid())
-	{
-		FSlateApplication::Get().AddWindowAsNativeChild
-		(CookbookWindow, MainFrameModule.GetParentWindow()
-			.ToSharedRef());
-	}
-	else
-	{
-		FSlateApplication::Get().AddWindow(CookbookWindow);
-	}
-}
 
-void FDemoZeroModModule::AddToolbarExtension(FToolBarBuilder& builder)
-{
-	FSlateIcon IconBrush =
-		FSlateIcon(FEditorStyle::GetStyleSetName(),
-			"LevelEditor.ViewOptions",
-			"LevelEditor.ViewOptions.Small");
-	builder.AddToolBarButton(FDemoZeroModCommands::Get()
-		.MyButton, NAME_None, FText::FromString("My Button"),
-		FText::FromString("Click me to display a message"),
-		IconBrush, NAME_None);
-}
+      IConsoleManager::Get().UnregisterConsoleObject(TEXT("DisplayTestCommandWindow"));
+      
+      IConsoleManager::Get().UnregisterConsoleObject(TEXT("DisplayWindow"));
 
-void FDemoZeroModModule::AddMenuExtension(FMenuBuilder& builder)
-{
-	FSlateIcon IconBrush =
-		FSlateIcon(FEditorStyle::GetStyleSetName(),
-			"LevelEditor.ViewOptions",
-			"LevelEditor.ViewOptions.Small");
-	builder.AddMenuEntry(FDemoZeroModCommands::Get().MyButton);
-}
+      FEdGraphUtilities::UnregisterVisualPinFactory(PinFactory);
+      PinFactory.Reset();
 
-void FDemoZeroModModule::DisplayWindow(FString args)
-{
-	TSharedRef<SWindow> CookbookWindow = SNew(SWindow)
-		.Title(FText::FromString(TEXT("DemoZero Window")))
-		.ClientSize(FVector2D(800, 400))
-		.SupportsMaximize(false)
-		.SupportsMinimize(false)
-		[
-			SNew(SVerticalBox)
-			+ SVerticalBox::Slot()
-		.HAlign(HAlign_Center)
-		.VAlign(VAlign_Center)
-		[
-			SNew(STextBlock)
-			.Text(FText::FromString(args))
-		]
-		];
-	IMainFrameModule& MainFrameModule =
-		FModuleManager::LoadModuleChecked<IMainFrameModule>
-		(TEXT("MainFrame"));
-	if (MainFrameModule.GetParentWindow().IsValid())
-	{
-		FSlateApplication::Get().AddWindowAsNativeChild
-		(CookbookWindow, MainFrameModule.GetParentWindow()
-			.ToSharedRef());
-	}
-	else
-	{
-		FSlateApplication::Get().AddWindow(CookbookWindow);
-	}
-}
+      FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+      PropertyModule.UnregisterCustomClassLayout(UModAsset::StaticClass()->GetFName());
+   }
 
-```
+   void FDemoZeroModModule::MyButton_Clicked()
+   {
+      TSharedRef<SWindow> CookbookWindow = SNew(SWindow)
+         .Title(FText::FromString(TEXT("DemoZero Window")))
+         .ClientSize(FVector2D(800, 400))
+         .SupportsMaximize(false)
+         .SupportsMinimize(false)
+         [
+            SNew(SVerticalBox)
+            +SVerticalBox::Slot()
+            .HAlign(HAlign_Center)
+            .VAlign(VAlign_Center)
+            [
+               SNew(STextBlock)
+               .Text(FText::FromString(TEXT("Hello from DemoZero Mod")))
+            ]
+         ];
+      IMainFrameModule& MainFrameModule =
+         FModuleManager::LoadModuleChecked<IMainFrameModule>(TEXT("MainFrame"));
+      if (MainFrameModule.GetParentWindow().IsValid())
+      {
+         FSlateApplication::Get().AddWindowAsNativeChild
+         (CookbookWindow, MainFrameModule.GetParentWindow()
+            .ToSharedRef());
+      }
+      else
+      {
+         FSlateApplication::Get().AddWindow(CookbookWindow);
+      }
+   }
 
-</details>
+   void FDemoZeroModModule::AddToolbarExtension(FToolBarBuilder& builder)
+   {
+      FSlateIcon IconBrush =
+         FSlateIcon(FEditorStyle::GetStyleSetName(),
+            "LevelEditor.ViewOptions",
+            "LevelEditor.ViewOptions.Small");
+      builder.AddToolBarButton(FDemoZeroModCommands::Get()
+         .MyButton, NAME_None, FText::FromString("My Button"),
+         FText::FromString("Click me to display a message"),
+         IconBrush, NAME_None);
+   }
+
+   void FDemoZeroModModule::AddMenuExtension(FMenuBuilder& builder)
+   {
+      FSlateIcon IconBrush =
+         FSlateIcon(FEditorStyle::GetStyleSetName(),
+            "LevelEditor.ViewOptions",
+            "LevelEditor.ViewOptions.Small");
+      builder.AddMenuEntry(FDemoZeroModCommands::Get().MyButton);
+   }
+
+   void FDemoZeroModModule::DisplayWindow(FString args)
+   {
+      TSharedRef<SWindow> CookbookWindow = SNew(SWindow)
+         .Title(FText::FromString(TEXT("DemoZero Window")))
+         .ClientSize(FVector2D(800, 400))
+         .SupportsMaximize(false)
+         .SupportsMinimize(false)
+         [
+            SNew(SVerticalBox)
+            + SVerticalBox::Slot()
+         .HAlign(HAlign_Center)
+         .VAlign(VAlign_Center)
+         [
+            SNew(STextBlock)
+            .Text(FText::FromString(args))
+         ]
+         ];
+      IMainFrameModule& MainFrameModule =
+         FModuleManager::LoadModuleChecked<IMainFrameModule>
+         (TEXT("MainFrame"));
+      if (MainFrameModule.GetParentWindow().IsValid())
+      {
+         FSlateApplication::Get().AddWindowAsNativeChild
+         (CookbookWindow, MainFrameModule.GetParentWindow()
+            .ToSharedRef());
+      }
+      else
+      {
+         FSlateApplication::Get().AddWindow(CookbookWindow);
+      }
+   }
+
+   ```
+
+  </details>
+- <details><summary>自定义资源 ModAsset.h</summary>
+
+  ```cpp
+   #pragma once
+
+   #include "CoreMinimal.h"
+   #include "UObject/NoExportTypes.h"
+   #include "ModAsset.generated.h"
+
+   /**
+   * 
+   */
+   UCLASS(BlueprintType)
+   class DEMOZEROMOD_API UModAsset : public UObject
+   {
+      GENERATED_BODY()
+   public:
+      UPROPERTY(EditAnywhere, Category = "Custom Asset")
+      FString ModName;
+
+      UPROPERTY(EditAnywhere, Category = "Custom Asset")
+      FString ModColor;
+   };
+
+   // 暂时不需要cpp内容
+  ```
+
+  </details>
+- <details><summary>自定义资源动作 ModAssetAction.h/cpp</summary>
+  
+   ```cpp
+   //h
+   #pragma once
+
+   #include "CoreMinimal.h"
+   #include "AssetTypeActions_Base.h" 	
+   #include "Framework/MultiBox/MultiBoxBuilder.h"
+   /**
+   * 
+   */
+   class DEMOZEROMOD_API FModAssetAction: public FAssetTypeActions_Base
+   {
+   public:
+      virtual FText GetName() const override;
+      virtual UClass* GetSupportedClass() const override;
+      virtual FColor GetTypeColor() const override;
+      virtual uint32 GetCategories() override;
+      virtual void GetActions(const TArray<UObject*>& InObjects, FMenuBuilder& MenuBuilder) override;
+      virtual bool HasActions(const TArray<UObject*>& InObjects)const override;
+
+      void ModAssetContext_Clicked();
+   };
+
+   // cpp
+   #include "ModAssetAction.h"
+   #include "ModAsset.h" 	
+   #include "EditorStyleSet.h"
+   #include "Interfaces/IMainFrameModule.h"
+
+   FText FModAssetAction::GetName() const
+   {
+      return FText::FromString(TEXT("Mod Asset"));
+   }
+
+   UClass* FModAssetAction::GetSupportedClass() const
+   {
+      return UModAsset::StaticClass();;
+   }
+
+   FColor FModAssetAction::GetTypeColor() const
+   {
+      return FColor::Green;
+   }
+
+   uint32 FModAssetAction::GetCategories()
+   {
+      return EAssetTypeCategories::Misc;
+   }
+
+   void FModAssetAction::GetActions(const TArray<UObject*>& InObjects, FMenuBuilder& MenuBuilder)
+   {
+      MenuBuilder.AddMenuEntry(
+         FText::FromString("ModAssetAction"),
+         FText::FromString("Action from Test"),
+         FSlateIcon(FEditorStyle::GetStyleSetName(),
+            "LevelEditor.ViewOptions"),
+         FUIAction(
+            FExecuteAction::CreateRaw(this,
+               &FModAssetAction::ModAssetContext_Clicked),
+            FCanExecuteAction()));
+   }
+
+   bool FModAssetAction::HasActions(const TArray<UObject*>& InObjects) const
+   {
+      return true;
+   }
+
+   void FModAssetAction::ModAssetContext_Clicked()
+   {
+      TSharedRef<SWindow> CookbookWindow = SNew(SWindow)
+         .Title(FText::FromString(TEXT("Cookbook Window")))
+         .ClientSize(FVector2D(800, 400))
+         .SupportsMaximize(false)
+         .SupportsMinimize(false);
+      IMainFrameModule& MainFrameModule = FModuleManager::LoadModuleChecked<IMainFrameModule>(TEXT("MainFrame"));
+      if (MainFrameModule.GetParentWindow().IsValid())
+      {
+         FSlateApplication::Get().AddWindowAsNativeChild
+         (CookbookWindow, MainFrameModule.GetParentWindow()
+            .ToSharedRef());
+      }
+      else
+      {
+         FSlateApplication::Get().AddWindow(CookbookWindow);
+      }
+   }
+   ```
+
+  </details>
+- <details><summary>自定义资源工厂 ModAssetFactory.h/cpp</summary>
+
+   ```cpp
+   #pragma once
+
+   #include "CoreMinimal.h"
+   #include "Factories/Factory.h"
+   #include "ModAssetFactory.generated.h"
+
+   /**
+   * 
+   */
+   UCLASS()
+   class DEMOZEROMOD_API UModAssetFactory : public UFactory
+   {
+      GENERATED_BODY()
+   public:
+      UModAssetFactory();
+
+      virtual UObject* FactoryCreateNew(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn, FName CallingContext) override;
+   };
+
+   // cpp
+   #include "ModAssetFactory.h"
+   #include "ModAsset.h"
+
+   UModAssetFactory::UModAssetFactory()
+   {
+      bCreateNew = true;
+      bEditAfterNew = true;
+      SupportedClass = UModAsset::StaticClass();
+   }
+
+   UObject* UModAssetFactory::FactoryCreateNew(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn, FName CallingContext)
+   {
+      return NewObject<UModAsset>(InParent,InClass,InName,Flags);
+   }
+
+   ```
+
+  </details>
+- <details><summary>自定义资源细节面板 ModAssetDetailCustomization.h/cpp</summary>
+
+   ```cpp
+   #pragma once
+
+   #include "CoreMinimal.h"
+   #include "IDetailCustomization.h"
+   #include "DetailLayoutBuilder.h"
+   #include "ModAsset.h"
+   //#include "IPropertyTypeCustomization.h"
+
+   /**
+   * 
+   */
+   class DEMOZEROMOD_API FModAssetDetailCustomization:public IDetailCustomization
+   {
+   public:
+      virtual void CustomizeDetails(IDetailLayoutBuilder& DetailBuilder) override;
+      void ColorPicked(FLinearColor SelectedColor);
+
+      static TSharedRef<IDetailCustomization> MakeInstance()
+      {
+         return MakeShareable(new FModAssetDetailCustomization);
+      }
+
+      TWeakObjectPtr<UModAsset> MyAsset;
+   };
+
+   // cpp
+   #include "ModAssetDetailCustomization.h"
+   #include "Runtime/AppFramework/Public/Widgets/Colors/SColorPicker.h"
+   #include "IDetailsView.h"
+   #include "DetailCategoryBuilder.h"
+   #include "Widgets/SBoxPanel.h" 	
+   #include "DetailWidgetRow.h"
+   //#include "PropertyEditor/Public/DetailLayoutBuilder.h"
+
+   void FModAssetDetailCustomization::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
+   {
+      const TArray< TWeakObjectPtr<UObject>>& SelectedObjects = DetailBuilder.GetDetailsView()->GetSelectedObjects();
+      for (int32 ObjectIndex = 0; !MyAsset.IsValid() &&
+         ObjectIndex < SelectedObjects.Num(); ++ObjectIndex)
+      {
+         const TWeakObjectPtr<UObject>& CurrentObject =
+            SelectedObjects[ObjectIndex];
+         if (CurrentObject.IsValid())
+         {
+            MyAsset = Cast<UModAsset>(CurrentObject.Get());
+         }
+      }
+      DetailBuilder.EditCategory("CustomCategory", FText::GetEmpty(), ECategoryPriority::Important)
+         .AddCustomRow(FText::GetEmpty())
+         [
+            SNew(SVerticalBox) + SVerticalBox::Slot().VAlign(VAlign_Center)
+            [
+               SNew(SColorPicker).OnColorCommitted(this, &FModAssetDetailCustomization::ColorPicked)
+            ]
+         ];
+   }
+
+   void FModAssetDetailCustomization::ColorPicked(FLinearColor SelectedColor)
+   {
+      if (MyAsset.IsValid())
+      {
+         MyAsset.Get()->ModColor = SelectedColor.ToFColor(false).ToHex();
+      }
+   }
+   ```
+
+  </details>
+- <details><summary>自定义资源蓝图Pin控件 SGraphPinModAsset.h/cpp</summary>
+
+   ```cpp
+   #pragma once
+
+   #include "CoreMinimal.h" 	
+   #include "SGraphPin.h"
+
+   /**
+   * 
+   */
+   class DEMOZEROMOD_API SGraphPinModAsset: public SGraphPin
+   {
+   public:
+      SLATE_BEGIN_ARGS(SGraphPinModAsset) {}
+      SLATE_END_ARGS()
+      void Construct(const FArguments& InArgs, UEdGraphPin* InPin);
+   protected:
+      virtual FSlateColor GetPinColor() const override {
+         return
+            FSlateColor(FColor::Black);
+      };
+      virtual TSharedRef<SWidget> GetDefaultValueWidget() override;
+      void ColorPicked(FLinearColor SelectedColor);
+   };
+
+   // cpp
+   #include "SGraphPinModAsset.h"
+   #include "ModAsset.h"
+   #include "Runtime/AppFramework/Public/Widgets/Colors/SColorPicker.h"
+   //#include "Widgets/Colors/SColorPicker.h"
+
+   void SGraphPinModAsset::Construct(const FArguments& InArgs, UEdGraphPin* InPin)
+   {
+      SGraphPin::Construct(SGraphPin::FArguments(), InPin);
+   }
+
+   TSharedRef<SWidget> SGraphPinModAsset::GetDefaultValueWidget()
+   {
+      return SNew(SColorPicker).OnColorCommitted(this, &SGraphPinModAsset::ColorPicked);
+   }
+
+   void SGraphPinModAsset::ColorPicked(FLinearColor SelectedColor)
+   {
+      UModAsset* NewValue = NewObject<UModAsset>();
+      NewValue->ModColor = SelectedColor.ToFColor(false).ToHex();
+      GraphPinObj->GetSchema()->TrySetDefaultObject(*GraphPinObj, NewValue);
+   }
+
+   ```
+
+  </details>
+- <details><summary>自定义资源蓝图Pin工厂 ModAssetGraphPinFactory.h/cpp</summary>
+
+   ```cpp
+   #pragma once
+
+   #include "CoreMinimal.h"
+   #include "EdGraphUtilities.h"
+
+
+   /**
+   * 
+   */
+   class DEMOZEROMOD_API FModAssetGraphPinFactory : public FGraphPanelPinFactory
+   {
+   public:
+      virtual TSharedPtr<SGraphPin> CreatePin(UEdGraphPin* Pin) const override;
+   };
+
+   // cpp
+   #include "ModAssetGraphPinFactory.h"
+   #include "ModAsset.h"
+   #include "SGraphPinModAsset.h"
+
+   TSharedPtr<SGraphPin> FModAssetGraphPinFactory::CreatePin(UEdGraphPin* Pin) const
+   {
+      if (Pin->PinType.PinSubCategoryObject == UModAsset::StaticClass())
+      {
+         return SNew(SGraphPinModAsset, Pin);
+      }
+      else
+      {
+         return nullptr;
+      }
+   }
+
+   ```
+
+  </details>
+- <details><summary>自定义控制台命令 DemoZeroModCommands.h</summary>
+
+   ```cpp
+   #pragma once
+
+   //#include "CoreMinimal.h"
+   #include "Framework/Commands/Commands.h"
+   #include "EditorStyleSet.h"
+
+   class FDemoZeroModCommands: public TCommands<FDemoZeroModCommands>
+   {
+   public:
+      FDemoZeroModCommands()
+         :TCommands<FDemoZeroModCommands>
+         (FName(TEXT("DemoZero_Mod")),
+            FText::FromString("DemoZero Mod Commands"), NAME_None,
+            FEditorStyle::GetStyleSetName())
+      {
+      };
+      virtual void RegisterCommands() override;
+      TSharedPtr<FUICommandInfo> MyButton;
+   };
+
+   // cpp
+   #include "DemoZeroModCommands.h"
+
+   void FDemoZeroModCommands::RegisterCommands()
+   {
+   #define LOCTEXT_NAMESPACE ""
+      UI_COMMAND(MyButton, "DemoZero", "Demo Zero Mod Command", EUserInterfaceActionType::Button, FInputGesture());
+   #undef LOCTEXT_NAMESPACE
+   }
+
+   ```
+
+  </details>
 
 ## 游戏运行时框架
 > GamePlay Framework

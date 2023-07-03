@@ -130,6 +130,25 @@ math: true
    - 用于在**构造函数**中加载静态资源，必须写绝对路径
    - 加载结果，即资源指针可以从```FObjectFinder.Object```获取
 
+## 字符串和国际化
+1. ```FText```
+   - 侧重于存储、处理在游戏运行时向屏幕渲染使用的各类文本，具有国际化能力。其使用可以搭配数个宏。
+   - 另外，```FText```也提供了对于数字、百分比、日期时间等内容，优化字符串显示效果的API。
+   - 参考：[Text Localization](https://docs.unrealengine.com/5.2/en-US/text-localization-in-unreal-engine/)
+   ```cpp
+   // 定义一个可翻译文本的命名空间
+   #define LOCTEXT_NAMESPACE "MyNamespace"
+   // 即使在一个命名空间内，也依然可以定义其属于其他命名空间的key-value
+   FText constFTextHelloWorld= NSLOCTEXT("MyOtherNamespace","HelloWorld","Hello World!")
+   // 如果不指定命名空间，则默认是当前的
+   FText constFTextGoodbyeWorld= LOCTEXT("GoodbyeWorld","Goodbye World!")
+   #undef LOCTEXT_NAMESPACE
+   ```
+2. ```FString```
+   - 侧重于在内部存储、计算各类字符串，非常接近```std::string```但是提供了大量字符串API。
+3. ```FName```
+   - 不区分大小写，会使用hash进行快速的比较，侧重于描述名称。适合用于存储资源名称。
+
 ## 渲染
 1. ```FMeshBuilder```
 2. ```FVertexBuffer```

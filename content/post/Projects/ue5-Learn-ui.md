@@ -13,16 +13,22 @@ thumbnailImage: /images/thumbnail/ue-logo.png
 编写好看好用的UI是用户能够获得体验的重点之一，本文记录UE中UI开发相关的内容。
 <!--more-->
 ## HUD和SlateUI
-1. 开发流程：
+1. Slate核心原理：
+   1. ```FSlateApplication```：UI调度单例
+   2. ```SWindow```：一个SlateUI的顶层窗口
+   3. ```SWidget```：控件
+      1. ```SPanel```：子类都是具有槽（Slot）的，可以添加子控件
+      2. 
+2. 开发流程：
     - 编辑器中新建C++类型，继承HUD类型：实现自己的HUD类。HUD类是UI的入口，在这个类型中创建具体的SlateUI实例，并在适当的操作后删除SlateUI实例返回游戏界面
     - 编辑器中新建C++类型（SlateUI），继承SCompoundWidget：实现自己的窗口，窗口是UI的具体绘制内容，在这个类型中，需要设计UI资源加载，并设计UI布局，UI控件，编写UI操作回调
     - SlateUI，即SCompoundWidget为代表的一系列类型系统，使用一种相对特殊的C++语法，相关内容可以参考官网链接
     > 注1：SlateUI类型在当前版本中，不在UE5引擎的垃圾回收机制内，因此需要自行管理，推荐使用智能指针的方式
     > 注2：SlateUI类型，在定义、实现过程中，有大量不符合常规思路的代码、宏，需要加以理解
-1. 常用SlateUI：
+3. 常用SlateUI：
     - 控件：SOverlay、STextBlock、SCanvas、SVerticalBox、SEditableText、SButton
     - 函数：HAlign、VAlign、Padding、Text、Font、ColorAndOpacity、Size、Position、OnXXXX
-1. 类型、函数、宏
+4. 类型、函数、宏
     | 名称 | 类型 | 含义 | 注意 |
     | --- | --- | --- | --- |
     | SLATE_BEGIN_ARGS | 宏 | Slate固定范式 | |
@@ -42,217 +48,224 @@ thumbnailImage: /images/thumbnail/ue-logo.png
     | FSlateBrush | 笔刷类型 | 用于画图 | |
     | FReply | 反馈类型 | 用于各类OnXXX绑定的回调函数的返回类型 | 回调最后必须调用handled以标记结束 |
 
-1. 代码示例
+5. 代码示例
     - 自定义窗口.h/.cpp
-    ```cpp
-    #pragma once
+        <details>
+        <summary>代码示例</summary>
 
-    #include "CoreMinimal.h"
-    #include "MyHUD.h"
-    #include <Runtime/Slate/Public/Widgets/SCanvas.h>
-    #include <Runtime/Slate/Public/Widgets/Input/SEditableText.h>
-    #include <Runtime/Slate/Public/Widgets/SWeakWidget.h>
-    #include "Widgets/SCompoundWidget.h"
-    class CPPLEARN_API SMyCompoundWidget : public SCompoundWidget
-    {
-    public:
-        SLATE_BEGIN_ARGS(SMyCompoundWidget)
-        {}
-        SLATE_ARGUMENT(TWeakObjectPtr<class AMyHUD>, myHUD)
-        SLATE_END_ARGS()
+        ```cpp
+        #pragma once
 
-        /** Constructs this widget with InArgs */
-        void Construct(const FArguments& InArgs);
+        #include "CoreMinimal.h"
+        #include "MyHUD.h"
+        #include <Runtime/Slate/Public/Widgets/SCanvas.h>
+        #include <Runtime/Slate/Public/Widgets/Input/SEditableText.h>
+        #include <Runtime/Slate/Public/Widgets/SWeakWidget.h>
+        #include "Widgets/SCompoundWidget.h"
+        class CPPLEARN_API SMyCompoundWidget : public SCompoundWidget
+        {
+        public:
+            SLATE_BEGIN_ARGS(SMyCompoundWidget)
+            {}
+            SLATE_ARGUMENT(TWeakObjectPtr<class AMyHUD>, myHUD)
+            SLATE_END_ARGS()
 
-        TWeakObjectPtr<AMyHUD> myHUD;
+            /** Constructs this widget with InArgs */
+            void Construct(const FArguments& InArgs);
 
-        TSharedRef<SCanvas> LoginPanel();
-        TSharedRef<SCanvas> Passworld();
-        TSharedRef<SCanvas> Button();
+            TWeakObjectPtr<AMyHUD> myHUD;
 
-        FSlateBrush brush;
+            TSharedRef<SCanvas> LoginPanel();
+            TSharedRef<SCanvas> Passworld();
+            TSharedRef<SCanvas> Button();
 
-        void PassworldChanged(const FText& text);
+            FSlateBrush brush;
 
-        FReply PassWorldClick();
-    };
+            void PassworldChanged(const FText& text);
 
-    // ================================================= //
-    #include "SMyCompoundWidget.h"
-    #include "SlateOptMacros.h"
+            FReply PassWorldClick();
+        };
 
-    BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
-    void SMyCompoundWidget::Construct(const FArguments& InArgs)
-    {
-        /*
-        ChildSlot
-        [
-            // Populate the widget
-        ];
-        */
-        myHUD = InArgs._myHUD;
+        // ================================================= //
+        #include "SMyCompoundWidget.h"
+        #include "SlateOptMacros.h"
 
-        const FString path = FPaths::ProjectContentDir() + "MaoKenShiJinHei.ttf";
-        FSlateFontInfo robot(path, 30);
-        robot.LetterSpacing = 100;
+        BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
+        void SMyCompoundWidget::Construct(const FArguments& InArgs)
+        {
+            /*
+            ChildSlot
+            [
+                // Populate the widget
+            ];
+            */
+            myHUD = InArgs._myHUD;
+
+            const FString path = FPaths::ProjectContentDir() + "MaoKenShiJinHei.ttf";
+            FSlateFontInfo robot(path, 30);
+            robot.LetterSpacing = 100;
 
 
-        brush.SetResourceObject(LoadObject<UTexture2D>(nullptr, TEXT("Texture2D'/Game/Poor.Poor'")));
-        
+            brush.SetResourceObject(LoadObject<UTexture2D>(nullptr, TEXT("Texture2D'/Game/Poor.Poor'")));
+            
 
-        ChildSlot
-        [
-            SNew(SOverlay)
-            +SOverlay::Slot()
-                .HAlign(HAlign_Center)
-                .VAlign(VAlign_Top)
-                .Padding(0,10,0,0)
-                [
-                    SNew(STextBlock)
-                    .ColorAndOpacity(FLinearColor::Black)
-                    .ShadowColorAndOpacity(FLinearColor::Black)
-                    .ShadowOffset(FIntPoint(-1,0))
-                    .Font(robot)
-                    .Text(FText::FromString(TEXT("界面测试")))
-                ]
-            +SOverlay::Slot()
-                .HAlign(HAlign_Center)
-                .VAlign(VAlign_Center)
-                .Padding(10,0,0,55)
-                [
-                    LoginPanel()
-                ]
-        ];
-    }
-
-    TSharedRef<SCanvas> SMyCompoundWidget::LoginPanel() {
-        return SNew(SCanvas)
-               + SCanvas::Slot()
+            ChildSlot
+            [
+                SNew(SOverlay)
+                +SOverlay::Slot()
+                    .HAlign(HAlign_Center)
+                    .VAlign(VAlign_Top)
+                    .Padding(0,10,0,0)
+                    [
+                        SNew(STextBlock)
+                        .ColorAndOpacity(FLinearColor::Black)
+                        .ShadowColorAndOpacity(FLinearColor::Black)
+                        .ShadowOffset(FIntPoint(-1,0))
+                        .Font(robot)
+                        .Text(FText::FromString(TEXT("界面测试")))
+                    ]
+                +SOverlay::Slot()
                     .HAlign(HAlign_Center)
                     .VAlign(VAlign_Center)
-                    .Size(FVector2D(550, 280))
+                    .Padding(10,0,0,55)
                     [
-                        SNew(SBorder).HAlign(HAlign_Fill).VAlign(VAlign_Fill).BorderImage(&brush)
-                        [
-                            SNew(SVerticalBox)
-                            + SVerticalBox::Slot().Padding(10, 20, 0, 10)
-                                [
-                                    Passworld()
-                                ]
-                            + SVerticalBox::Slot().Padding(10, 20, 0, 10)
-                                [
-                                Button()
-                                ]
-                        ]
-                    ];
-    }
-
-    TSharedRef<SCanvas> SMyCompoundWidget::Passworld() {
-        return SNew(SCanvas) + SCanvas::Slot().Position(FVector2D(0, 0)).Size(FVector2D(500, 80))
-            [
-                SNew(SEditableText)
-                .OnTextChanged(this,&SMyCompoundWidget::PassworldChanged)
-                .HintText(FText::FromString("TEXT"))
-                .ColorAndOpacity(FLinearColor::White)
-                .IsPassword(true)
+                        LoginPanel()
+                    ]
             ];
-    }
-    TSharedRef<SCanvas> SMyCompoundWidget::Button() {
-        return SNew(SCanvas) 
-               + SCanvas::Slot().Position(FVector2D(0,0)).Size(FVector2D(500, 80))
-                    [
-                        SNew(SButton)
+        }
+
+        TSharedRef<SCanvas> SMyCompoundWidget::LoginPanel() {
+            return SNew(SCanvas)
+                + SCanvas::Slot()
                         .HAlign(HAlign_Center)
                         .VAlign(VAlign_Center)
-                        .Text(FText::FromString("Press Me"))
-                        .OnClicked(this,&SMyCompoundWidget::PassWorldClick)
-                    ];
-    }
-
-    void SMyCompoundWidget::PassworldChanged(const FText& text) {
-        UE_LOG(LogTemp, Log, TEXT("%s"), *text.ToString());
-    }
-
-
-    FReply SMyCompoundWidget::PassWorldClick() {
-        UE_LOG(LogTemp, Log, TEXT("pressed!"));
-        if (myHUD.IsValid()) {
-            if (APlayerController* pc = myHUD->PlayerOwner) {
-                pc->ConsoleCommand("quit");
-            }
+                        .Size(FVector2D(550, 280))
+                        [
+                            SNew(SBorder).HAlign(HAlign_Fill).VAlign(VAlign_Fill).BorderImage(&brush)
+                            [
+                                SNew(SVerticalBox)
+                                + SVerticalBox::Slot().Padding(10, 20, 0, 10)
+                                    [
+                                        Passworld()
+                                    ]
+                                + SVerticalBox::Slot().Padding(10, 20, 0, 10)
+                                    [
+                                    Button()
+                                    ]
+                            ]
+                        ];
         }
-        return FReply::Handled();
-    }
-    END_SLATE_FUNCTION_BUILD_OPTIMIZATION
-    ```
+
+        TSharedRef<SCanvas> SMyCompoundWidget::Passworld() {
+            return SNew(SCanvas) + SCanvas::Slot().Position(FVector2D(0, 0)).Size(FVector2D(500, 80))
+                [
+                    SNew(SEditableText)
+                    .OnTextChanged(this,&SMyCompoundWidget::PassworldChanged)
+                    .HintText(FText::FromString("TEXT"))
+                    .ColorAndOpacity(FLinearColor::White)
+                    .IsPassword(true)
+                ];
+        }
+        TSharedRef<SCanvas> SMyCompoundWidget::Button() {
+            return SNew(SCanvas) 
+                + SCanvas::Slot().Position(FVector2D(0,0)).Size(FVector2D(500, 80))
+                        [
+                            SNew(SButton)
+                            .HAlign(HAlign_Center)
+                            .VAlign(VAlign_Center)
+                            .Text(FText::FromString("Press Me"))
+                            .OnClicked(this,&SMyCompoundWidget::PassWorldClick)
+                        ];
+        }
+
+        void SMyCompoundWidget::PassworldChanged(const FText& text) {
+            UE_LOG(LogTemp, Log, TEXT("%s"), *text.ToString());
+        }
+
+
+        FReply SMyCompoundWidget::PassWorldClick() {
+            UE_LOG(LogTemp, Log, TEXT("pressed!"));
+            if (myHUD.IsValid()) {
+                if (APlayerController* pc = myHUD->PlayerOwner) {
+                    pc->ConsoleCommand("quit");
+                }
+            }
+            return FReply::Handled();
+        }
+        END_SLATE_FUNCTION_BUILD_OPTIMIZATION
+        ```
+        </details>
 
     - 自定义HUD的.h/.cpp
-    ```cpp
-    #include "CoreMinimal.h"
-    #include "GameFramework/HUD.h"
-    #include "SMyCompoundWidget.h"
-    #include "MyHUD.generated.h"
+        <details>
+        <summary>代码示例</summary>
 
-    UCLASS()
-    class CPPLEARN_API AMyHUD : public AHUD
-    {
-        GENERATED_BODY()
-        
-    protected:
-        virtual void BeginPlay() override;
-    public:
+        ```cpp
+        #include "CoreMinimal.h"
+        #include "GameFramework/HUD.h"
+        #include "SMyCompoundWidget.h"
+        #include "MyHUD.generated.h"
 
-        TSharedPtr<class SMyCompoundWidget> myUI;
-        TSharedPtr<class SWidget> myUIContainter;
+        UCLASS()
+        class CPPLEARN_API AMyHUD : public AHUD
+        {
+            GENERATED_BODY()
+            
+        protected:
+            virtual void BeginPlay() override;
+        public:
 
-        void OpenMenu();
+            TSharedPtr<class SMyCompoundWidget> myUI;
+            TSharedPtr<class SWidget> myUIContainter;
 
-        void CloseMenu();
-    };
+            void OpenMenu();
 
-    // ================================================= //
-    #include "MyHUD.h"
+            void CloseMenu();
+        };
 
-    void AMyHUD::BeginPlay() {
-        Super::BeginPlay();
-        UE_LOG(LogTemp, Log, TEXT("BeginPlay Setup UI"));
-        OpenMenu();
-    }
+        // ================================================= //
+        #include "MyHUD.h"
 
-    void AMyHUD::OpenMenu()
-    {
-        if (GEngine && GEngine->GameViewport) {
-            myUI = SNew(SMyCompoundWidget).myHUD(this);
+        void AMyHUD::BeginPlay() {
+            Super::BeginPlay();
+            UE_LOG(LogTemp, Log, TEXT("BeginPlay Setup UI"));
+            OpenMenu();
+        }
 
-            GEngine->GameViewport->AddViewportWidgetContent(
-                SAssignNew(myUIContainter, SWeakWidget).PossiblyNullContent(myUI.ToSharedRef())
-            );
+        void AMyHUD::OpenMenu()
+        {
+            if (GEngine && GEngine->GameViewport) {
+                myUI = SNew(SMyCompoundWidget).myHUD(this);
 
-            myUI->SetVisibility(EVisibility::Visible);
-            if (PlayerOwner) {
-                PlayerOwner->bShowMouseCursor = true;
-                // 设置将输入仅挂载到UI
-                //PlayerOwner->SetInputMode(FInputModeUIOnly());
+                GEngine->GameViewport->AddViewportWidgetContent(
+                    SAssignNew(myUIContainter, SWeakWidget).PossiblyNullContent(myUI.ToSharedRef())
+                );
+
+                myUI->SetVisibility(EVisibility::Visible);
+                if (PlayerOwner) {
+                    PlayerOwner->bShowMouseCursor = true;
+                    // 设置将输入仅挂载到UI
+                    //PlayerOwner->SetInputMode(FInputModeUIOnly());
+                }
             }
         }
-    }
 
-    void AMyHUD::CloseMenu()
-    {
-        UE_LOG(LogTemp, Log, TEXT("Close Menu ing"));
-        if (GEngine && GEngine->GameViewport && myUIContainter.IsValid()) {
-            GEngine->GameViewport->RemoveViewportWidgetContent(myUIContainter.ToSharedRef());
+        void AMyHUD::CloseMenu()
+        {
+            UE_LOG(LogTemp, Log, TEXT("Close Menu ing"));
+            if (GEngine && GEngine->GameViewport && myUIContainter.IsValid()) {
+                GEngine->GameViewport->RemoveViewportWidgetContent(myUIContainter.ToSharedRef());
 
-            if (PlayerOwner) {
-                PlayerOwner->bShowMouseCursor = false;
-                // 设置将输入仅挂载到游戏
-                //PlayerOwner->SetInputMode(FInputModeGameOnly());
+                if (PlayerOwner) {
+                    PlayerOwner->bShowMouseCursor = false;
+                    // 设置将输入仅挂载到游戏
+                    //PlayerOwner->SetInputMode(FInputModeGameOnly());
+                }
             }
         }
-    }
 
-    ```
-
+        ```
+        </details>
 ## UMG
 1. UMG是基于SlateUI开发的一套UI框架，相对来说更容易使用
 1. 使用流程：

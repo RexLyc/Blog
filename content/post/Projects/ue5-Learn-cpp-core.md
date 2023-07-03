@@ -162,6 +162,7 @@ public:
 
       | 名称 | 类型 | 说明 |
       | --- | --- | --- |
+      | IMPLEMENT_MODULE| 宏 | 必备，用于导出该模块实例 |
       | TCommands | 类模板 | 使用CRTP写法，完成UI和具体动作的解耦 |
       | UI_COMMAND | 宏 | 创建一个可执行命令的UI控件 |
       | IMainFrameModule | 接口类 |  |
@@ -170,6 +171,7 @@ public:
       | FUICommandInfo | 工具类 | 存储UI相关命令信息（描述、名称等） |
       | FUICommandList | 工具类 | 存储一系列UI命令信息 |
       | FExecuteAction | 工具类 | 创建一个可以和控件绑定的回调函数委托 |
+      | FUIAction | 工具类 | UI动作的实现，通常用于接收一个回调委托 |
       | FExtender | 工具类 | 用于向UI添加新控件，工具栏、菜单项等均可 |
       | FEditorStyle | 工具类 | 内含控制Slate的UI风格的各种属性 |
       | EUserInterfaceActionType | 枚举类 | 表明控件的类型（按钮，开关，列表等） |

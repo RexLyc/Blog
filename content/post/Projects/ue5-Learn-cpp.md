@@ -180,6 +180,13 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
     | DestroyActor() |  | 删除一个Actor | |
     | LineTraceSingleByObjectType | bool函数 | 以类型区分，计算射线首个命中物体 | 类型如ECC_Static、ECC_Pawn等 |
 
+11. UFactory：工厂类型
+    | 成员名称 | 成员类型 | 含义 | 注意 |
+    | --- | --- | --- | --- |
+    | bCreateNew | 成员变量 | 用于CanCreateNew返回 |  |
+    | bEditAfterNew | 成员变量 | 指示新建之后是否打开对应编辑器 |  |
+    | SupportedClass | 成员变量 | 存储该工厂所创建类型的UClass |  |
+
 ## 广泛继承的函数
 | 名称 | 继承来源 | 含义 |
 | --- | --- | --- |

@@ -72,6 +72,8 @@ Unreal Engine另一个强大之处就在于它使用C++作为开发语言，和�
     | DECLARE_DELEGATE_XXX | UCLASS之前 | 自定义委托 | 参数是委托函数的签名情况，还可以进一步用UDELEGATE修饰 |
     | DECLARE_MULTICAST_DELEGATE_XXXX | UCLASS之前 | 自定义事件 | 为指定类型提供广播事件机制 |
     | GET_MEMBER_NAME_CHECKED | 语句内 | 用于编译期检查某个类是否存在某个成员属性 | 类名、成员名 |
+    | WITH_EDITOR | 条件编译宏 | 在源文件cpp中使用，用于标记一段代码只在Editor环境下使用 |  |
+    | WITH_EDITORONLY_DATA | 条件编译宏 | 在头文件.h中使用，标记某变量只在Editor环境下生成反射代码 |  |
 1. 常见宏参数含义
     | 名称 | 所属宏 |  含义 |
     | --- | --- | --- |

@@ -50,13 +50,20 @@ math: true
 > [推荐的资源命名惯例Recommended Asset Naming Conventions](https://docs.unrealengine.com/5.2/en-US/recommended-asset-naming-conventions-in-unreal-engine-projects/)
 
 ### 委托
-1. 概述：UE中委托和代理广泛存在，这两种模式在事件、渲染等机制中被广泛使用
-2. 委托（delegate）步骤：
+1. 概述：UE中委托（delegate）和代理广泛存在，这两种模式在事件、渲染等机制中被广泛使用
+2. 成员函数作为委托的步骤：
    1. 核心宏：用于描述委托函数元属性的```UDELEGATE()```、用于描述委托函数的函数签名的```DECLARE_XXX_DELEGATE_XXX```。
    2. 使用宏定义委托函数，如```MyActionDelegate```
    3. 在必要时进行绑定```MyActionDelegate.Bind()```，以及委托调用```MyActionDelegate.Execute()```
    > 事件（event）：事件定义宏```DECLARE_EVENT()```只是一种特殊的多播委托，对```Broadcast()```、```Bind()```、```Execute()```等做了权限约束，不允许非持有对象调用
-
+3. 创建一个可用于绑定的委托函数实例：
+   1. ```CreateWeakLambda()```：绑定弱引用对象的委托函数
+   2. ```CreateRaw()```：绑定原始（非UFUNCTION）成员函数
+   3. ```CreateSP()```：绑定共享指针对象的委托函数
+   4. ```CreateUFunction()```：绑定UFUNCTION作为委托函数
+   5. ```CreateUObject()```：绑定指定UObject的委托函数
+   6. ```CreateStatic()```：使用全局函数，创建一个静态委托函数
+   7. ```CreateLambda()```：很多类型提供委托工具类，可以直接创建Lambda函数作为委托。
 ## 其他核心类型
 
 ### Actor

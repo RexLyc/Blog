@@ -124,6 +124,17 @@ math: true
 1. 插值：
    - Leap线性插值
    - 
+## 系统
+1. 时钟
+   - ```FTimerHandle```：定时器句柄，用于存储已创建委托的定时器实例。用法例如：
+      ```cpp
+      FTimerHandle myTimer;
+      GetWorld()->GetTimerManager().SetTimer(myTimer
+         ,FTimerDelegate::CreateLambda([this]{
+            // do something
+         })
+      );
+      ```
 
 ## 资源工具
 1. ```ConstructorHelpers::FObjectFinder```

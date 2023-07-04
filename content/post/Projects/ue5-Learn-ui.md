@@ -13,22 +13,44 @@ thumbnailImage: /images/thumbnail/ue-logo.png
 编写好看好用的UI是用户能够获得体验的重点之一，本文记录UE中UI开发相关的内容。
 <!--more-->
 ## HUD和SlateUI
-1. Slate核心原理：
+1. HUD类型是UE中对于界面进行控制的主要类型。该类型实例存储于```GameMode```中，自定义HUD也需要在其中创建实例。
+2. ```Canvas```
+   - 是从UE3流传下来的简单HUD实现，仍然可以使用，但相对功能没有那么强大。
+   - 示例代码（在HUD类型中）
+        ```cpp
+        class MYPROJECT_API MyHUD: public AHUD
+        {
+        public:
+            virtual void DrawHUD() override
+            {
+                Super::DrawHUD();
+                // 绘制文字
+                Canvas->DrawText(GEngine->GetSmallFont(), TEXT("hello"),10,10);
+                // 创建一个进度条
+                FCanvasBoxItem ProgressBar(FVector2D(5,25),FVector2D(100,5));
+                // 绘制进度条
+                Canvas->DrawItem(ProgressBar);
+                // DrawRect是AHUD的函数
+                DrawRect(FLinearColor::Blue,5,25,100,5);
+            }
+        }
+        ```
+3. Slate核心原理：
    1. ```FSlateApplication```：UI调度单例
    2. ```SWindow```：一个SlateUI的顶层窗口
    3. ```SWidget```：控件
       1. ```SPanel```：子类都是具有槽（Slot）的，可以添加子控件
-      2. 
-2. 开发流程：
+4. 开发流程：
     - 编辑器中新建C++类型，继承HUD类型：实现自己的HUD类。HUD类是UI的入口，在这个类型中创建具体的SlateUI实例，并在适当的操作后删除SlateUI实例返回游戏界面
     - 编辑器中新建C++类型（SlateUI），继承SCompoundWidget：实现自己的窗口，窗口是UI的具体绘制内容，在这个类型中，需要设计UI资源加载，并设计UI布局，UI控件，编写UI操作回调
     - SlateUI，即SCompoundWidget为代表的一系列类型系统，使用一种相对特殊的C++语法，相关内容可以参考官网链接
-    > 注1：SlateUI类型在当前版本中，不在UE5引擎的垃圾回收机制内，因此需要自行管理，推荐使用智能指针的方式
+    > 注1：SlateUI类型在当前版本（5.2）中，不在UE5引擎的垃圾回收机制内，因此需要自行管理，推荐使用智能指针的方式
+
     > 注2：SlateUI类型，在定义、实现过程中，有大量不符合常规思路的代码、宏，需要加以理解
-3. 常用SlateUI：
+5. 常用SlateUI：
     - 控件：SOverlay、STextBlock、SCanvas、SVerticalBox、SEditableText、SButton
     - 函数：HAlign、VAlign、Padding、Text、Font、ColorAndOpacity、Size、Position、OnXXXX
-4. 类型、函数、宏
+6. 类型、函数、宏
     | 名称 | 类型 | 含义 | 注意 |
     | --- | --- | --- | --- |
     | SLATE_BEGIN_ARGS | 宏 | Slate固定范式 | |
@@ -47,8 +69,8 @@ thumbnailImage: /images/thumbnail/ue-logo.png
     | XXXXGameModeBase::HUDClass | 游戏模式成员变量 | 用于将HUD类型绑定给游戏模式 | 和玩家控制器、默认玩家一样，需要进行复制 |
     | FSlateBrush | 笔刷类型 | 用于画图 | |
     | FReply | 反馈类型 | 用于各类OnXXX绑定的回调函数的返回类型 | 回调最后必须调用handled以标记结束 |
-
-5. 代码示例
+    | EVisibility | 枚举值 | 用于描述Slate对象可见性 |  |
+7. 代码示例
     - 自定义窗口.h/.cpp
         <details>
         <summary>代码示例</summary>
@@ -195,7 +217,6 @@ thumbnailImage: /images/thumbnail/ue-logo.png
         END_SLATE_FUNCTION_BUILD_OPTIMIZATION
         ```
         </details>
-
     - 自定义HUD的.h/.cpp
         <details>
         <summary>代码示例</summary>
@@ -254,6 +275,7 @@ thumbnailImage: /images/thumbnail/ue-logo.png
         {
             UE_LOG(LogTemp, Log, TEXT("Close Menu ing"));
             if (GEngine && GEngine->GameViewport && myUIContainter.IsValid()) {
+                // 这里选择直接删除
                 GEngine->GameViewport->RemoveViewportWidgetContent(myUIContainter.ToSharedRef());
 
                 if (PlayerOwner) {
@@ -440,6 +462,10 @@ thumbnailImage: /images/thumbnail/ue-logo.png
             UE_LOG(LogTemp, Log, TEXT("widget create failed"));
     }
     ```
+
+## 编辑器和项目设置
+1. 在项目设置中，可以配置UI的缩放倍率曲线（DPI Curve，缩放-分辨率），从而达到在不同分辨率下的最优效果。
+   - 尚未解决：如何在代码中动态的修改这部分？
 
 ## 参考
 1. [现代图形引擎入门指南（Unreal Engine）— Slate开发 - Italink的文章 - 知乎](https://zhuanlan.zhihu.com/p/636153935)

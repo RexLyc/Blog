@@ -189,9 +189,11 @@ thumbnailImage: /images/thumbnail/ue-logo.png
 7. 类型、函数、宏
     | 名称 | 类型 | 含义 | 注意 |
     | --- | --- | --- | --- |
-    | SLATE_BEGIN_ARGS | 宏 | 自定义窗口的Slate固定范式 | |
-    | SLATE_ARGUMENT | 宏 | 自定义窗口的Slate固定范式 | 输入一个类型，一个变量，提供到Construct的InArgs内 |
-    | SLATE_END_ARGS| 宏 | 自定义窗口的Slate固定范式 | |
+    | SLATE_BEGIN_ARGS | 宏 | Slate固定范式 | |
+    | SLATE_ARGUMENT | 宏 | Slate固定范式 | 输入一个类型，一个变量，需提供到Construct的InArgs内 |
+    | SLATE_EVENT | 宏 | Slate固定范式，用于声明一个委托类型的变量 | 可在SLATE_BEGIN_ARGS后初始化，需提供到InArgs |
+    | SLATE_ATTRIBUTE | 宏 | Slate固定凡是，用于声明一个Attribute | 可在SLATE_BEGIN_ARGS后初始化，需提供到InArgs |
+    | SLATE_END_ARGS| 宏 | Slate固定范式 | |
     | BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION | 宏 | Slate实现部分固定范式 | 将所有SlateUI窗口类的实现部分包含在内 |
     | END_SLATE_FUNCTION_BUILD_OPTIMIZATION | 宏 | Slate实现部分固定范式 | 将所有SlateUI窗口类的实现部分包含在内 |
     | Construct | SlateUI窗口类成员函数 | UI业务的真正构造函数 | 其参数内就包含这SLATE_ARGUMENT传递的变量 |
@@ -211,6 +213,7 @@ thumbnailImage: /images/thumbnail/ue-logo.png
     | FSlateStyleRegistry | 工具类 | 用于注册Slate控件风格 |  |
     | FSlateGameResources | 工具类 | 创建并管理Slate资源，即SlateStyle |  |
     | FSlateStyleSet | 工具类 | 按键值的方式，存储Slate控件风格 |  |
+    > Slate中广泛使用宏来简化声明式UI编写，可以通过查看源代码的方式，了解各个宏所作的工作。
 8. 代码示例
     - 自定义窗口.h/.cpp
         <details>
@@ -473,21 +476,22 @@ thumbnailImage: /images/thumbnail/ue-logo.png
     6. 在BeginPlay中LoadClass、CreateWidget
     > 注1：蓝图编辑时，需要先添加一个画布面板，才能添加各类具体的UI控件
 3. 相关类型、函数、宏
-| 名称 | 类型 | 含义 | 注意 |
-| --- | --- | --- | --- |
-| UWidget | UMG基类 | 提供UMG基础功能 | 继承该类实现自定义UI |
-| UUserWidget | UWidget子类 | 提供UMG框架的基础功能，该类会自动导出到窗口设计蓝图 | 继承该类来实现自己的UI |
-| UPROPERTY(meta=(BindWidget)) | 宏 | 惯用写法，将C++成员变量和蓝图控件绑定 | 必须完全同名 |
-| UButton | 按钮类型 | 按钮 | 各种控件的类型可以在蓝图中查看（右上角） |
-| FInputModeUIOnly | 类 | 输入模式参数 | 设置输入模式的各类可配置参数（如仅UI，仅游戏） |
-| AddToViewport() | 函数 | 将当前UI实例添加到视口 | CreateWidget后调用 |
-| RemoveFromParent() | 函数 | 将当前UI实例从托管的父类中移除 | 一般搭配对控制输入模式的恢复 |
-| IUserObjectListEntry | 类 | 用于自定义列表单元项 | 自定义时需要继承该类 |
-| NativeXXXXX | 继承函数 | 各类UI控件类型内存在的回调函数 | 在自定义的子类型中重写该类型的函数 |
-| SynchronizeProperties() | 继承函数 | 传递TAttribute<>给Slate |  |
-| RebuildWidget | 继承函数 | 创建窗口，并处理好所有控件操作逻辑 |  |
-| BIND_UOBJECT_DELEGATE | 宏 | 用于更方便的对Slate控件绑定回调 |  |
-| OPTIONAL_BIND | 宏 | 用于更方便的将变量绑定到TAttribute上 |  |
+    | 名称 | 类型 | 含义 | 注意 |
+    | --- | --- | --- | --- |
+    | UWidget | UMG基类 | 提供UMG基础功能 | 继承该类实现自定义UI |
+    | UUserWidget | UWidget子类 | 提供UMG框架的基础功能，该类会自动导出到窗口设计蓝图 | 继承该类来实现自己的UI |
+    | UPROPERTY(meta=(BindWidget)) | 宏 | 惯用写法，将C++成员变量和蓝图控件绑定 | 必须完全同名 |
+    | UButton | 按钮类型 | 按钮 | 各种控件的类型可以在蓝图中查看（右上角） |
+    | FInputModeUIOnly | 类 | 输入模式参数 | 设置输入模式的各类可配置参数（如仅UI，仅游戏） |
+    | AddToViewport() | 函数 | 将当前UI实例添加到视口 | CreateWidget后调用 |
+    | RemoveFromParent() | 函数 | 将当前UI实例从托管的父类中移除 | 一般搭配对控制输入模式的恢复 |
+    | IUserObjectListEntry | 类 | 用于自定义列表单元项 | 自定义时需要继承该类 |
+    | NativeXXXXX | 继承函数 | 各类UI控件类型内存在的回调函数 | 在自定义的子类型中重写该类型的函数 |
+    | SynchronizeProperties() | 继承函数 | 传递TAttribute<>给Slate |  |
+    | RebuildWidget | 继承函数 | 创建窗口，并处理好所有控件操作逻辑 |  |
+    | BIND_UOBJECT_DELEGATE | 宏 | 用于更方便的对Slate控件绑定回调 |  |
+    | OPTIONAL_BIND | 宏 | 用于更方便的将变量绑定到TAttribute上 |  |
+    | FOnClicked | 委托类型（常用于SLATE_EVENT） | 该委托在点击事件发生时触发 | 用该类型定义一个变量，可以将该变量绑定给其他委托，行程调用链 |
 1. 基础的UMG示例代码
     - 自定义列表单元项.h/.cpp
         ```cpp
@@ -656,7 +660,7 @@ thumbnailImage: /images/thumbnail/ue-logo.png
         public:
             void Construct(constFArguments&InArgs);
             TAttribute<FString> Label;
-            FOnClickedButtonClicked;
+            FOnClicked ButtonClicked;
         };
 
         #include "UE4Cookbook.h"
@@ -688,8 +692,9 @@ thumbnailImage: /images/thumbnail/ue-logo.png
         #include "SlateDelegates.h"
         
         DECLARE_DYNAMIC_DELEGATE_RetVal(FString, FGetString);
-        DECLARE_DYNAMIC_MULTICAST_DELEGATE(FButtonClicked)
+        DECLARE_DYNAMIC_MULTICAST_DELEGATE(FButtonClicked);
 
+        UCLASS()
         class UE4COOKBOOK_API UCustomButtonWidget: public UWidget
         {
         protected:

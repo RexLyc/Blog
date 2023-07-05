@@ -33,8 +33,10 @@ math: true
    - 作用：在UBT确定了需要更新的编译单元后开始工作，为指定的**头文件**添加反射等所需的各类代码，每个编译单元最终生成一个.inl文件。
    - 注意：
         1. 由于UHT并没有具备完整的C++解析能力，因此除了```WITH_EDITOR``` / ```WITH_EDITORONLY_DATA```之外，应当尽量避免在UPROPERTY等宏附近使用条件编译```#ifdef```。
-        2. 受UHT限制，无法在头文件中对使用了```UPROPERTY```等宏标记的变量，再使用```using```、```typedef```等方式定义的类型。
-        3. 受UHT限制，不能对重载函数（overload）使用UFUNCTION，对重写函数（override）使用UFUNCTION时，一般都是对```UInterface```中的函数进行重载，同时要求必须添加C++的virtual标记，或者添加宏标记```BlueprintImplementableEvent```。
+        2. 受UHT限制
+           1. 无法在头文件中对使用了```UPROPERTY```等宏标记的变量，再使用```using```、```typedef```等方式定义的类型。
+           2. 不能对重载函数（overload）使用```UFUNCTION```
+           3. 对重写函数（override）使用```UFUNCTION```时，一般都是对```UInterface```中的函数进行重载，同时要求必须添加C++的virtual标记，或者添加宏标记```BlueprintImplementableEvent```，且派生类重写时，不许再添加```UFUNCTION```
 
 ### 非UObject系统
 1. 以F为前缀的类型

@@ -645,7 +645,7 @@ thumbnailImage: /images/thumbnail/ue-logo.png
         }
         ```
 2. UMG结合委托函数示例代码
-    - <details><summary>自定义Slate窗口 .h/cpp </summary>
+    -   <details><summary>自定义Slate窗口 .h/cpp </summary>
         ```cpp
         #pragma once
         #include "SCompoundWidget.h"
@@ -683,8 +683,8 @@ thumbnailImage: /images/thumbnail/ue-logo.png
             ];
         }
         ```
-    </details>
-    - <details><summary>自定义UMG窗口 .h/cpp </summary>
+        </details>
+    -   <details><summary>自定义UMG窗口 .h/cpp </summary>
 
         ```cpp
         #include "Components/Widget.h"
@@ -744,7 +744,7 @@ thumbnailImage: /images/thumbnail/ue-logo.png
             MyButton->Label = LabelBinding;
         }
         ```
-    </details>
+        </details>
 ## 编辑器和项目设置
 1. 在项目设置中，可以配置UI的缩放倍率曲线（DPI Curve，缩放-分辨率），从而达到在不同分辨率下的最优效果。
    - 尚未解决：如何在代码中动态的修改这部分？

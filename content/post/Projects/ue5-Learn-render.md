@@ -1,18 +1,23 @@
 ---
-title: "Ue5 Learn Render"
+title: "UE5学习：渲染和视觉效果篇"
 date: 2023-06-14T22:01:55+08:00
 categories:
-- 
+- 计算机科学与技术
+- 游戏
 tags:
-- 
-# thumbnailImagePosition: left
-# thumbnailImage: //example.com/image.jpg
-draft: true
-
+- 游戏
+- 个人项目
+thumbnailImagePosition: left
+thumbnailImage: /images/thumbnail/ue-logo.png
 ---
-
+画面是UE的强项，本篇记录所有UE相关的视觉效果内容。
 <!--more-->
+## 材质和纹理
+1. 区分纹理和材质：
+    - 纹理（Texture）：一般来说就是一个图片。
+    - 材质（Material）：一系列资源和可视化处理的组合，可能是颜色纹理、法向、光照方程等等。
 
+## 着色器
 
 ## 参考
 1. [博客园专栏：剖析虚幻渲染体系](https://www.cnblogs.com/timlly/p/13512787.html)

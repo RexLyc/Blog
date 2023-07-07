@@ -483,7 +483,9 @@ thumbnailImage: /images/thumbnail/ue-logo.png
     | UPROPERTY(meta=(BindWidget)) | 宏 | 惯用写法，将C++成员变量和蓝图控件绑定 | 必须完全同名 |
     | UButton | 按钮类型 | 按钮 | 各种控件的类型可以在蓝图中查看（右上角） |
     | FInputModeUIOnly | 类 | 输入模式参数 | 设置输入模式的各类可配置参数（如仅UI，仅游戏） |
-    | AddToViewport() | 函数 | 将当前UI实例添加到视口 | CreateWidget后调用 |
+    | AddToViewport() | 函数 | 将当前UI实例添加到视口 | CreateWidget后必须调用，否则Slate不会真正构造 |
+    | RemoveFromViewport | 函数 | 从视口中移除Widget  | |
+    | CreateWidget | 函数 | 创建UWidget的任何子类 | 注意Slate用SNew、UWidget用CreateWidget |
     | RemoveFromParent() | 函数 | 将当前UI实例从托管的父类中移除 | 一般搭配对控制输入模式的恢复 |
     | IUserObjectListEntry | 类 | 用于自定义列表单元项 | 自定义时需要继承该类 |
     | NativeXXXXX | 继承函数 | 各类UI控件类型内存在的回调函数 | 在自定义的子类型中重写该类型的函数 |
@@ -492,6 +494,7 @@ thumbnailImage: /images/thumbnail/ue-logo.png
     | BIND_UOBJECT_DELEGATE | 宏 | 用于更方便的对Slate控件绑定回调 |  |
     | OPTIONAL_BIND | 宏 | 用于更方便的将变量绑定到TAttribute上 |  |
     | FOnClicked | 委托类型（常用于SLATE_EVENT） | 该委托在点击事件发生时触发 | 用该类型定义一个变量，可以将该变量绑定给其他委托，行程调用链 |
+    | ESlateVisibility | UMG可见性枚举 | 从可见性、可点击性区分，共五种 |  |
 1. 基础的UMG示例代码
     - 自定义列表单元项.h/.cpp
         ```cpp

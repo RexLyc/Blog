@@ -80,6 +80,7 @@ thumbnailImage: /images/thumbnail/ue-logo.png
             #include "SlateGameResources.h"
 
             TSharedPtr<FSlateStyleSet> FCookbookStyle::CookbookStyleInstance = NULL;
+            
             void FCookbookStyle::Initialize()
             {
                 if (!CookbookStyleInstance.IsValid())

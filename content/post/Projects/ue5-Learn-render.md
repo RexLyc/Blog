@@ -16,7 +16,10 @@ thumbnailImage: /images/thumbnail/ue-logo.png
 1. 区分纹理和材质：
     - 纹理（Texture）：一般来说就是一个图片。
     - 材质（Material）：一系列资源和可视化处理的组合，可能是颜色纹理、法向、光照方程等等。
-
+2. 自定义材质：[参见蓝图章节]({{< relref "/content/post/Projects/ue5-Learn-Blueprint.md#材质" >}})
+    - 常见效果的制作原理：
+        1. 水面：材质坐标映射受时间影响
+        2. 
 ## 着色器
 
 ## 参考

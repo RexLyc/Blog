@@ -172,8 +172,8 @@ math: true
 
 ###  分治
 1. :green_circle: 70：[爬楼梯](https://leetcode-cn.com/problems/climbing-stairs/)。经典斐波那契问题。矩阵快速幂。
-1. :yellow_circle: 215：[数组中第K个最大的元素](https://leetcode-cn.com/problems/kth-largest-element-in-an-array/)。可以使用[BFPRT算法](https://www.lyclife.com/2021/07/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E5%9B%9B%E4%B8%AD%E4%BD%8D%E6%95%B0%E5%92%8C%E9%A1%BA%E5%BA%8F%E7%BB%9F%E8%AE%A1/)，理论上更快，但是其实常数很高，也可以用小顶堆来实现，理论上复杂度高一些。
-1. :yellow_circle: 148：[排序链表](https://leetcode-cn.com/problems/sort-list/)。进阶要求是$O(nlogn)$时间和$O(1)$的空间。只能使用自底向上的原地归并排序。
+2. :yellow_circle: 215：[数组中第K个最大的元素](https://leetcode-cn.com/problems/kth-largest-element-in-an-array/)。可以使用[BFPRT算法]({{<relref "/content/post/CSBasic/algo4-sequenceCount.md#选择问题">}})，理论上更快，但是其实常数很高，也可以用小顶堆来实现，理论上复杂度高一些。
+3. :yellow_circle: 148：[排序链表](https://leetcode-cn.com/problems/sort-list/)。进阶要求是$O(nlogn)$时间和$O(1)$的空间。只能使用自底向上的原地归并排序。
 
 ###  排序
 1. :yellow_circle: 220：[存在重复元素III](https://leetcode-cn.com/problems/contains-duplicate-iii/)。使用滑动窗口+平衡树的方式可以很容易得到$O(nlogk)$的时间复杂度。但[题解](https://leetcode-cn.com/problems/contains-duplicate-iii/solution/cun-zai-zhong-fu-yuan-su-iii-by-leetcode-bbkt/)使用桶排序的思想来解决**abs值是否在一个区间内**的判断问题，需要判断当前桶和相邻桶。
@@ -195,7 +195,7 @@ math: true
 1. :red_circle: 332：[重新安排行程](https://leetcode-cn.com/problems/reconstruct-itinerary/)。学习图论概念：[欧拉图&半欧拉图&欧拉回路&半欧通路](https://oi-wiki.org/graph/euler/)。[Hierholzer算法题解](https://leetcode-cn.com/problems/reconstruct-itinerary/solution/zhong-xin-an-pai-xing-cheng-by-leetcode-solution/)。**值得二刷**。
 1. :yellow_circle: 310：[最小高度树](https://leetcode-cn.com/problems/minimum-height-trees/)。自己写的是普通的BFS。[题解]()中揭示了本题实际上是逐步删除度为1的节点，即拓扑排序。或者说这是一类，两端烧香求中点的题目。
 1. :yellow_circle: 743：[网络延迟时间](https://leetcode-cn.com/problems/network-delay-time/)。基础款单源有向最短路。邻接表+djikstra+堆优化。
-1. :yellow_circle: 787：[K站中转内最便宜的航班](https://leetcode-cn.com/problems/cheapest-flights-within-k-stops)。K轮[Bellman-Ford算法](http://localhost:1313/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E5%85%AD%E5%9B%BE%E7%AE%97%E6%B3%95/)。
+1. :yellow_circle: 787：[K站中转内最便宜的航班](https://leetcode-cn.com/problems/cheapest-flights-within-k-stops)。K轮[Bellman-Ford算法]({{<relref "/content/post/CSBasic/algo6-graph.md#单源最短路">}})。
 1. :red_circle: 685：[冗余连接II](https://leetcode-cn.com/problems/redundant-connection-ii/solution/)。树+并查集。根据冗余连接的不同情况，查找可以断开的边。
 1. :red_circle: 1168：[水资源分配优化](https://leetcode-cn.com/problems/optimize-water-distribution-in-a-village/)。[非会员传送门](https://blog.csdn.net/qq_17550379/article/details/100070671)。图论的经典思路：**添加超级源点**。通过引入超级源点，水井费用也成为一种普通的边。转化后就成为了最小生成树题目。
 1. :red_circle: 329：[矩阵中的最长递增路径](https://leetcode-cn.com/problems/longest-increasing-path-in-a-matrix/)。经典转化思路：将原题目中的一些约束，修改为图论中点和点之间的边关系。而最长路径恰好可以用拓扑排序的方式进行计算（或者说是类似BFS的方式）。

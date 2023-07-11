@@ -188,6 +188,10 @@ thumbnailImage: /images/thumbnail/lycStamp.png
         - [几种搜索方式的官方指南](https://gohugo.io/tools/search/)
         - [hugo-elasticsearch](https://blog.travismclarke.com/project/hugo-elasticsearch/)
         - [使用lunr生成搜索](https://blog.csdn.net/weixin_33143629/article/details/118322638)
+- 使用ShortCode引用本站文章
+    - ShortCode是Hugo提供的类似于函数的一类语法糖。允许用户自定义一个ShortCode，并在markdown文本中调用自己的ShortCode
+    - Hugo内置的ShortCode种，```ref```可以自动计算出渲染后的md路径，更方便站点内部相互引用，使用```relref```甚至可以指定到章节。
+    > 参考：[Content Management: Shortcodes](https://gohugo.io/content-management/shortcodes/)
 - 如何自定义模板
     - 其实我也想知道
 ## CDN加速

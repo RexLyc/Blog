@@ -16,9 +16,19 @@ math: true
 ## 日志和格式化
 1. ```UE_LOG```
    - 用于打印日志的宏，根据日志级别其内容可以打印到命令行、文件
-2. ```GEngine->AddOnScreenDebugMessage```
+   - 在编辑器命令行内，可以使用指令关闭某个分类的输出，例如
+      ```bash
+      Log YourLogName off
+      Log YourLogName Log
+      ```
+2. ```FMessageLog```
+   - 编辑器中的另一种日志，相比于UE_LOG打印到控制台的风格，```FMessageLog```偏向于事件消息，用法形如
+      ```cpp
+      
+      ```
+3. ```GEngine->AddOnScreenDebugMessage```
    - 用于打印日志到窗口，可以指定位置、颜色
-3. ```FString::Printf```、```FString::Format```
+4. ```FString::Printf```、```FString::Format```
    - 创建格式化字符串，后者可以自动格式化，无需填写格式字符，例如
     ```cpp
     TArray< FStringFormatArg > args;
@@ -121,9 +131,9 @@ math: true
 > 参考：[官方文档：UE5.2 Unreal Smart Pointer Library](https://docs.unrealengine.com/5.2/en-US/smart-pointers-in-unreal-engine/)
 
 ## 算法 & 数据结构
-1. 插值：
-   - Leap线性插值
-   - 
+1. 数学：
+   - Leap：线性插值
+   - Fmod：取余数
 ## 系统
 1. 时钟
    - ```FTimerHandle```：定时器句柄，用于存储已创建委托的定时器实例。用法例如：
@@ -181,3 +191,6 @@ math: true
    1. Hit
    2. 工具类
       1. FHitResult
+
+## 参考
+1. [Unreal Engine 5.2 API Reference](https://docs.unrealengine.com/5.2/en-US/API/)

@@ -173,14 +173,15 @@ draft: true
                 - ALandscapeProxy
                     - ALandscape
                     - ALandscapeStreamingProxy
-    1. 一些可以复用的内容：
+        > 参考：《Unreal Engine 4 Scripting with C++ Cookbook.pdf》400~404页
+    2. 一些可以复用的内容：
         - 获取HeightData最大值和中间值：LandscapeDataAccess::MidValue MaxValue
         - 给Actor起唯一的名字：FActorLabelUtilities::SetActorLabelUnique
-    1. 坑：
+    3. 坑：
         - 官方的FMath::PerlinNoise，不能在整数点采样，否则结果必为0
         - 填充高度图TArray\<uint16\>时，需要按先y后x的遍历顺序（否则高度图和import时的读取方式不匹配会无法接缝）
         - 由于设计者故意将Landscape设计为静态内容，所以任何运行时的SetActorLocationRotation都需要先对所在ALandscapeStreamingProxy.RootComponent.Mobility进行修改
-    1. 尚未解决：
+    4. 尚未解决：
         - 接缝？
         - 物理碰撞网格不对？
         - 构造、BeginPlay，到底哪些操作能在这两个函数中进行，为什么GetWorld有时崩溃，有时没事
@@ -189,7 +190,7 @@ draft: true
         - 第一个地块和其他地块连不上，目前的办法是，构建之后再把第一个删掉，重新创建（首次创建和后续流程确实有区别，盲猜应该是哪里设置了RelativeLocation）
         - ALandscapeProxy.Import会构建法线，但是针对LandsdcapeConfigHelper中的FindOrCreateNew并不会
         - 随处可见HeightmapScaleBias，这个Bias是干嘛的
-    1. 核心数学：
+    5. 核心数学：
         ```c++
         // 高度图中RGBA通道的作用
         HeightmapInfo.HeightmapTextureMipData[0][HeightTexDataIdx].R = HeightValue >> 8;
@@ -197,7 +198,7 @@ draft: true
         HeightmapInfo.HeightmapTextureMipData[0][HeightTexDataIdx].B = FMath::RoundToInt(127.5f * (Normal.X + 1.0f));
         HeightmapInfo.HeightmapTextureMipData[0][HeightTexDataIdx].A = FMath::RoundToInt(127.5f * (Normal.Y + 1.0f));
         ```
-    1. 核心知识：
+    6. 核心知识：
         - UE5的游戏启动、运行、结束流程，以及流程中所有参与类型的生命周期
         - 参考：
             - [UE4 Runtime Landscape](https://www.cnblogs.com/LynnVon/p/11776482.html)

@@ -819,12 +819,6 @@ public:
 
 ### 帧
 
-
-## 其他子系统
-### 网络通信
-1. 概述：UE内部实现了TCP、UDP、HTTP、Websocket等协议。但如果打算使用UE自带的Dedicated Server进行服务器端开发，需要自行从源代码编译UE。
-2. 原理：
-
 ### 蓝图
 1. C++和蓝图的互操作的各种需求
    1. C++函数希望暴露函数给蓝图：宏参数```BlueprintCallable```

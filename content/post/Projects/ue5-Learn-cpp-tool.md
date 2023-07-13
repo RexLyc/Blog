@@ -24,7 +24,31 @@ math: true
 2. ```FMessageLog```
    - 编辑器中的另一种日志，相比于UE_LOG打印到控制台的风格，```FMessageLog```偏向于事件消息，用法形如
       ```cpp
-      
+      // 为了进一步提供国际化能力，尽量使用LOCTEXT
+      #define LOCTEXT_NAMESPACE "YourNamespace"
+      #define FTEXT(x) LOCTEXT(x, x)
+      // 定义方式
+      FMessageLog CreateLog(FName name)
+      {
+         FMessageLogModule& MessageLogModule =  
+            FModuleManager::LoadModuleChecked<FMessageLogModule>("MessageLog");
+         FMessageLogInitializationOptions InitOptions;
+         InitOptions.bShowPages = true;
+         InitOptions.bShowFilters = true;
+         FText LogListingName = FTEXT("YourLogList");
+         MessageLogModule.RegisterLogListing(LoggerName, LogListingName, InitOptions);
+      }
+
+      // 使用方式
+      MyGameMode::MyGameMode()
+      {
+         FName LoggerName("YourLogger");
+         CreateLogger(LoggerName);
+         FMessageLog logger(LoggerName);
+         logger.Warning(FTEXT("Message from MyGameMode"));
+      }
+      // 在必要的时候取消宏定义
+      #undef LOCTEXT_NAMESPACE
       ```
 3. ```GEngine->AddOnScreenDebugMessage```
    - 用于打印日志到窗口，可以指定位置、颜色
@@ -134,6 +158,8 @@ math: true
 1. 数学：
    - Leap：线性插值
    - Fmod：取余数
+   - FQuat：四元数旋转
+   - FRotationMatrix：旋转矩阵
 ## 系统
 1. 时钟
    - ```FTimerHandle```：定时器句柄，用于存储已创建委托的定时器实例。用法例如：

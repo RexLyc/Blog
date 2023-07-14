@@ -99,18 +99,22 @@ thumbnailImage: /images/thumbnail/todo.jpg
 1. 玩一下历年的年度游戏
 
 ## 待读书清单
-1. Unreal Engine 4 Scripting with C++ Cookbook（快速阅读）
-1. 大象无形：虚幻引擎程序设计浅析
-2. Modern Cpp Tutorial: C++ 11/14/17/20 on the fly
-3. 其他：
-   1. 3D数学基础：图形和游戏开发
-   2. Physically Based Rendering: From Theory to Implemention 3rd
-   3. 点石成金：访客至上的Web和移动可用性设计秘笈 原书第3版
-   4. SRE谷歌运维解密
-   5. 面向模式的软件架构
-   6. 黑客与画家
-   7. 分布式系统原理与泛型
-> 按从上到下顺序
+- 计划必读
+    - [x] Unreal Engine 4 Scripting with C++ Cookbook（快速阅读）
+    - [ ] 大象无形：虚幻引擎程序设计浅析
+    - [ ] Modern Cpp Tutorial: C++ 11/14/17/20 on the fly
+    - [ ] Docker 容器与容器云（第2版）
+    - [ ] Kubernetes中文指南
+    - [ ] Prometheus操作指南
+- 其他：
+   - [ ] 3D数学基础：图形和游戏开发
+   - [ ] Physically Based Rendering: From Theory to Implemention 3rd
+   - [ ] 点石成金：访客至上的Web和移动可用性设计秘笈 原书第3版
+   - [ ] SRE谷歌运维解密
+   - [ ] 面向模式的软件架构
+   - [ ] 黑客与画家
+   - [ ] 分布式系统原理与泛型
+> 参考：[推荐工程师合适读本](https://github.com/0voice/expert_readed_books)
 
 ## 影剧清单
 - [ ] 海边的曼彻斯特

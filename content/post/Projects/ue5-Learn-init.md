@@ -81,3 +81,5 @@ thumbnailImage: /images/thumbnail/ue-logo.png
    1. [GAMES101-现代计算机图形学入门-闫令琪](https://www.bilibili.com/video/V1X7411F744)
    2. [GAMES202-高质量实时渲染](https://www.bilibili.com/video/BV1YK4y1T7yY/)
 7. [Unreal Engine C++编程文档](https://italink.github.io/ModernGraphicsEngineGuide/04-UnrealEngine/0.%E5%9F%BA%E7%A1%80%E7%BC%96%E7%A8%8B/)
+8. 官方推荐数字资产
+   1. [【UE5】Hillside虚幻5.2官方炫技的重磅资产，63G大小诚意十足](https://www.bilibili.com/video/BV1tm4y1t7hu/)

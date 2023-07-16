@@ -652,63 +652,91 @@ thumbnailImage: /images/thumbnail/ue-logo.png
     -   <details><summary>自定义Slate窗口 .h/cpp </summary>
         ```cpp
         #pragma once
-        #include "SCompoundWidget.h"
-        class UE4COOKBOOK_API SCustomButton : public SCompoundWidget
+
+        #include "CoreMinimal.h"
+        #include "Widgets/SCompoundWidget.h"
+
+        /**
+        * 
+        */
+        class DEMOZERO_API SLevelMainMenu : public SCompoundWidget
         {
-            SLATE_BEGIN_ARGS(SCustomButton)
-            : _Label(TEXT("Default Value")), _ButtonClicked()
+        public:
+            SLATE_BEGIN_ARGS(SLevelMainMenu)
+                : _MainHint(TEXT("Pause")), _ButtonClicked()
             {}
-            SLATE_ATTRIBUTE(FString, Label)
+            SLATE_ATTRIBUTE(FString, MainHint)
             SLATE_EVENT(FOnClicked, ButtonClicked)
             SLATE_END_ARGS()
-        public:
-            void Construct(constFArguments&InArgs);
-            TAttribute<FString> Label;
+
+            /** Constructs this widget with InArgs */
+            void Construct(const FArguments& InArgs);
+
+            TAttribute<FString> MainHint;
             FOnClicked ButtonClicked;
         };
 
-        #include "UE4Cookbook.h"
-        #include "CustomButton.h"
-        void SCustomButton::Construct(constFArguments&InArgs)
+        #include "SLevelMainMenu.h"
+        #include "SlateOptMacros.h"
+        #include "CustomUIStyle.h"
+
+        BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
+        void SLevelMainMenu::Construct(const FArguments& InArgs)
         {
-            Label = InArgs._Label;
+            MainHint = InArgs._MainHint;
             ButtonClicked = InArgs._ButtonClicked;
-            ChildSlot.VAlign(VAlign_Center)
+            ChildSlot
+                .VAlign(VAlign_Center)
                 .HAlign(HAlign_Center)
-            [
-                SNew(SButton)
-                .OnClicked(ButtonClicked)
-                .Content()
                 [
-                    SNew(STextBlock)
-                    .Text_Lambda([this] {return
-                    FText::FromString(Label.Get()); })
-                ]
-            ];
+                    SNew(SButton)
+                    .ButtonStyle(CustomUIStyle::Get(),"NormalButtonBrush")
+                    .OnClicked(ButtonClicked)
+                    .Content()
+                    [
+                        SNew(STextBlock)
+                        .Text_Lambda([this] 
+                            {
+                                return FText::FromString(MainHint.Get()); 
+                            })
+                    ]
+                ];
+            UE_LOG(LogTemp, Log, TEXT("SLevelMainMenu Construct"));
         }
+        END_SLATE_FUNCTION_BUILD_OPTIMIZATION
+
+
         ```
         </details>
     -   <details><summary>自定义UMG窗口 .h/cpp </summary>
 
         ```cpp
-        #include "Components/Widget.h"
-        #include "CustomButton.h"
-        #include "SlateDelegates.h"
-        
+        #pragma once
+
+        #include "CoreMinimal.h"
+        #include "Blueprint/UserWidget.h"
+        #include "SLevelMainMenu.h"
+        #include "LevelMainMenu.generated.h"
+
+
         DECLARE_DYNAMIC_DELEGATE_RetVal(FString, FGetString);
         DECLARE_DYNAMIC_MULTICAST_DELEGATE(FButtonClicked);
-
+        /**
+        * 
+        */
         UCLASS()
-        class UE4COOKBOOK_API UCustomButtonWidget: public UWidget
+        class DEMOZERO_API ULevelMainMenu : public UUserWidget
         {
+            GENERATED_BODY()
         protected:
-            TSharedPtr<SCustomButton> MyButton;
+            TSharedPtr<SLevelMainMenu> Menu;
             virtual TSharedRef<SWidget> RebuildWidget() override;
         public:
-            UCustomButtonWidget();
+
+            ULevelMainMenu(const FObjectInitializer& ObjectInitializer);
 
             UPROPERTY(BlueprintAssignable)
-            FButtonClickedButtonClicked;
+            FButtonClicked ButtonClicked;
 
             FReply OnButtonClicked();
 
@@ -716,39 +744,70 @@ thumbnailImage: /images/thumbnail/ue-logo.png
             FString Label;
 
             UPROPERTY()
-            FGetStringLabelDelegate;
+            FGetString LabelDelegate;
 
             virtual void SynchronizeProperties() override;
-        }
 
-        #include "UE4Cookbook.h"
-        #include "CustomButtonWidget.h"
+            UFUNCTION()
+            FString LabelSet();
+        };
 
-        TSharedRef<SWidget>UCustomButtonWidget::RebuildWidget()
+
+        #include "LevelMainMenu.h"
+        #include "Framework/SlateDelegates.h"
+
+        TSharedRef<SWidget> ULevelMainMenu::RebuildWidget()
         {
-            MyButton = SNew(SCustomButton)
-                .ButtonClicked(BIND_UOBJECT_DELEGATE(FOnClicked,
-                    OnButtonClicked));
-            return MyButton.ToSharedRef();
+            Menu = SNew(SLevelMainMenu)
+                .ButtonClicked(BIND_UOBJECT_DELEGATE(FOnClicked,OnButtonClicked));
+
+            this->LabelDelegate.BindUFunction(this, TEXT("LabelSet"));
+            return Menu.ToSharedRef();
         }
 
-        UCustomButtonWidget::UCustomButtonWidget()
-            :Label(TEXT("Default Value"))
+        ULevelMainMenu::ULevelMainMenu(const FObjectInitializer& ObjectInitializer)
+            :Super(ObjectInitializer),Label(TEXT("INVALID DEFAULT"))
         {
         }
-        FReplyUCustomButtonWidget::OnButtonClicked()
+
+        FReply ULevelMainMenu::OnButtonClicked()
         {
             ButtonClicked.Broadcast();
+            UE_LOG(LogTemp, Log, TEXT("On Button Clicked"))
+            this->LabelDelegate.Unbind();
             return FReply::Handled();
         }
-        voidUCustomButtonWidget::SynchronizeProperties()
+
+        void ULevelMainMenu::SynchronizeProperties()
         {
             Super::SynchronizeProperties();
-            TAttribute<FString> LabelBinding = OPTIONAL_BINDING(FString, Label);
-            MyButton->Label = LabelBinding;
+            TAttribute<FString> LabelBinding = 
+                TAttribute<FString>::Create(TAttribute<FString>::FGetter::CreateLambda([this] {
+                // 优先实用绑定的UFUNCTION
+                if (this->LabelDelegate.IsBound()) {
+                    UE_LOG(LogTemp, Log, TEXT("use delegate"));
+                    return this->LabelDelegate.Execute();
+                }
+                else {
+                    return this->Label;
+                }
+            }));
+            Menu->MainHint = LabelBinding;
         }
+
+        FString ULevelMainMenu::LabelSet()
+        {
+            return TEXT("Hello from LabelSet");
+            //return FString::Printf(TEXT("%lf"), GetWorld()->TimeSeconds);
+        }
+
         ```
         </details>
+
+## 坑
+1. 可见性
+    - 当使用```AddToViewport```之前，和```RemoveFromViewport```之后，不能再使用变量Visibility来判断可见性，此时应当使用```IsInViewport```判断是否再视口内。
+
 ## 编辑器和项目设置
 1. 在项目设置中，可以配置UI的缩放倍率曲线（DPI Curve，缩放-分辨率），从而达到在不同分辨率下的最优效果。
    - 尚未解决：如何在代码中动态的修改这部分？

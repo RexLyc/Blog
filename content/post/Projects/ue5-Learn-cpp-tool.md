@@ -18,8 +18,12 @@ math: true
    - 用于打印日志的宏，根据日志级别其内容可以打印到命令行、文件
    - 在编辑器命令行内，可以使用指令关闭某个分类的输出，例如
       ```bash
+      # 关闭
       Log YourLogName off
+      # 开启到Log级别
       Log YourLogName Log
+      # 开启到VeryVerbose
+      Log YourLogName All
       ```
 2. ```FMessageLog```
    

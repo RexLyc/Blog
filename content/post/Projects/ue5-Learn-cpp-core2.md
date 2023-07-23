@@ -15,6 +15,9 @@ math: true
 <!--more-->
 ## 组件相关
 1. 模块```GameplayAbilities```：用于实现[Gameplay技能系统](https://docs.unrealengine.com/5.2/zh-CN/gameplay-ability-system-for-unreal-engine/)，GameplayEffects、GameplayTags、GameplayTasks等均与之联系较多。
+    > 注：需添加模块AIModule、GameplayAbilities、GameplayTasks
+
+    > 参考：[虚幻插件GAS分析 知乎专栏](https://zhuanlan.zhihu.com/p/417226776)、[[UE5]使用GamePlayTag绑定UE5增强输入](https://zhuanlan.zhihu.com/p/552662789)
     1. 主要C++ API：
         - ```UGameplayAbility```：实现技能逻辑功能
             | 成员 | 类型 | 作用 | 备注 |
@@ -60,6 +63,10 @@ math: true
         - 模块```GameplayTags```：根据需要，可以绑定Tag到技能、角色、物体等各种场景
     3. 示例代码
         ```cpp
+        // gamemode 
+        // gameplay ability绑定
+        // 自定义attribute
+        // 实例化gameplay effect
         ```
 ## 网络通信
 1. 常规通信

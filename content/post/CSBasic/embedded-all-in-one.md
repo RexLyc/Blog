@@ -35,13 +35,13 @@ math: true
     - ADU（Application Data Unit） & PDU（Protocal Data Unit）：
         <center> <img src="/images/embedded/adu-modbus.png" </center>
     - 功能码：用于表明该指令的业务目的，取状态值/设置状态值
-- 常见指令示例：(XX为校验位)
-    | 十六进制RTU表示 | 指令说明 | 指令方向 |
-    | --- | --- | --- |
-    | 01 01 00 01 00 01 XX XX | 取从站01中起始地址0x0001处，共0x0001个线圈的值 | 主$\to$从 |
-    | 
+- 坑：
+    - 在使用Modbus协议发送数据时，如果底层采用RTU，需要注意间隔发送，否则粘包。即使是使用上层Modbus TCP时，如果最终转为Modbus RTU，也需要注意这个问题。
+    - 使用Modbus TCP转RTU时，需要注意TCP格式中的内容。
+        > [参考：工业以太网杂谈（一） Modbus TCP/IP](https://zhuanlan.zhihu.com/p/568309501)：关于设备识别号，对于Modbus TCP/IP协议该项默认255，但是如果该协议为Modbus Plus或者Modbus RTU等串口协议，通过串口服务器等转换设备转换后变为了Modbus RTU over TCP，则该项为Modbus 串口从站的设备地址。
 - 工具：
-    - Modbus Poll/Slave:
+    - Modbus Poll/Slave: Poll用来模拟一个主站设备，便于调试从站。Slave则用来模拟从站设备，便于调试主站。
 - 参考：
     - [Modbus Poll/Slave 模拟器使用教程](https://blog.csdn.net/qq_35029061/article/details/125865898)
+    - [知乎：Modbus协议详解与案例演示](https://zhuanlan.zhihu.com/p/537762158)
 ## ToDo

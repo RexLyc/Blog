@@ -945,5 +945,17 @@ cat /proc/cpuinfo
         sudo update-alternatives --config java
         sudo update-alternatives --config javac
         ```
+- 防火墙：firewall-cmd
+    ```bash
+    # 查看所有开放端口
+    firewall-cmd --zone=public --list-ports
+
+    # 添加80端口（permanent为永久，否则重启后失效）
+    firewall-cmd --zone=public --add-port=80/tcp --permanent
+
+    # 更新防火墙规则
+    firewall-cmd --reload
+
+    ```
 ## 一些建议
 1. 对于rm，可以替换为mv到临时文件夹，并定期清理，尽量避免使用rm，尤其禁止使用rm -rf

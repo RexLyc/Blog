@@ -111,6 +111,8 @@ thumbnailImage: /images/thumbnail/DevOps.jpg
             docker run hello-world
             # 查看容器执行情况
             docker ps -a
+            # 进入容器(xxxx为container id)
+            docker exec -it xxxx bash
             ```
         3. 注意项：
             - Docker的版本发生过一次变更。从原先的docker（docker-engine，版本号不大于1.13.1），分化为docker-ce、docker-ee，社区版和企业版。在不同系统上安装时，需要注意优先删除旧版的docker。

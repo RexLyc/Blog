@@ -36,7 +36,7 @@ math: true
         2. 受UHT限制
            1. 无法在头文件中对使用了```UPROPERTY```等宏标记的变量，再使用```using```、```typedef```等方式定义的类型。
            2. 不能对重载函数（overload）使用```UFUNCTION```
-           3. 对重写函数（override）使用```UFUNCTION```时，一般都是对```UInterface```中的函数进行重载，同时要求必须添加C++的virtual标记，或者添加宏标记```BlueprintImplementableEvent```，且派生类重写时，不许再添加```UFUNCTION```
+           3. 对重写函数（override）使用```UFUNCTION```时，一般都是对```UInterface```中的函数进行重载，同时要求必须添加C++的virtual标记，或者添加宏标记```BlueprintImplementableEvent```，且派生类重写时，不许再添加```UFUNCTION```（保持反射属性）
 
 ### 非UObject系统
 1. 以F为前缀的类型

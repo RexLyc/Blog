@@ -27,67 +27,67 @@ thumbnailImage: /images/thumbnail/todo.jpg
 1. [x] Android
 1. [ ] 基于UE5的地铁数字孪生系统
     - 智能维修、[爆炸动画](https://docs.unrealengine.com/5.1/zh-CN/setting-up-xr-explode-animations-in-unreal-engine/)
+1. [ ] 把PC版的页面文章宽度增加一些.
 
 ## 更新一
-每天去看一下待博客化笔记.docx
 1. [x] linux-shell - 8h
-1. [x] spring1 - 8h
-1. [x] design-pattern-init - 16h(各种模式找一个样例代码)
-1. [x] git - 4h
-1. [x] cpp-compile - 24h
+2. [x] spring1 - 8h
+3. [x] design-pattern-init - 16h(各种模式找一个样例代码)
+4. [x] git - 4h
+5. [x] cpp-compile - 24h
     - [x] 编译链接装配
     - [x] linux gcc & windows vs
     - [x] gdb
     - [x] cmake
-1. [X] cpp-standard - 16h
+6. [X] cpp-standard - 16h
     - [X] C & C++
     - [X] C++ 98 03 11 14 17 20
-1. [x] qt-all-in-one - 8h(后续可以再补充，尤其是针对嵌入式、针对模块的单独使用)
-1. [x] jmeter-all-in-one - 2h(稍加补充)
-1. [x] Unreal Engine5 入门 - 48h
-1. [x] ibmmq-all-in-one - 2h(稍加补充)
-1. [ ] linux-file - 30h
-1. [ ] linux-system-run - 16h 
+7. [x] qt-all-in-one - 8h(后续可以再补充，尤其是针对嵌入式、针对模块的单独使用)
+8. [x] jmeter-all-in-one - 2h(稍加补充)
+9. [x] Unreal Engine5 入门 - 48h
+10. [x] ibmmq-all-in-one - 2h(稍加补充)
+11. [ ] linux-file - 30h
+12. [ ] linux-system-run - 16h 
     - https://www.liuvv.com/p/c9c96ac3.html
     - https://blog.csdn.net/lina_acm/article/details/79767414
-1. [ ] linux-process - 30h
-1. [ ] spring2 - 8h(稍加补充)
-1. [ ] cicd-jenkins - 2h(稍加补充，后续可以更新不同项目的一些build的坑)
-1. [ ] mysql-backend - 16h(整理之前的笔记)
-1. [ ] mysql-command - 4h
+13. [ ] linux-process - 30h
+14. [ ] spring2 - 8h(稍加补充)
+15. [ ] cicd-jenkins - 2h(稍加补充，后续可以更新不同项目的一些build的坑)
+16. [ ] mysql-backend - 16h(整理之前的笔记)
+17. [ ] mysql-command - 4h
     - https://www.csdn.net/tags/OtDaIg1sNzA2Ni1ibG9n.html
-1. [ ] mysql-practice - 8h(整理一些sql实用脚本)
-1. [ ] fullstack-jsts-basic - 8h
-1. [ ] fullstack-jsts-aporia - 8h
-1. [ ] design-concurrency - 24h
-1. [ ] design-pattern-terms - 2h(后续不断补充)
-1. [ ] redis-single - 8h
-1. ~~[ ] WebLab-init - 30h(快点做完吧球球了)~~
+18. [ ] mysql-practice - 8h(整理一些sql实用脚本)
+19. [ ] fullstack-jsts-basic - 8h
+20. [ ] fullstack-jsts-aporia - 8h
+21. [ ] design-concurrency - 24h
+22. [ ] design-pattern-terms - 2h(后续不断补充)
+23. [ ] redis-single - 8h
+24. ~~[ ] WebLab-init - 30h(快点做完吧球球了)~~
     ~~- 可以看看BliKVM，以KVM形式做一个控制器~~
-1. [ ] algo1 - 4h(重看一遍视频，把这部分博客补了)
+25. [ ] algo1 - 4h(重看一遍视频，把这部分博客补了)
 - 合计：270h，预计需花费90天
 ## 更新二
 1. [ ] 权限系统相关：
     - [ ] RBAC等模型
     - [ ] OAuth2.0
-1. [ ] 计算机网络进阶
+2. [ ] 计算机网络进阶
     - [ ] dhcp原理
     - [ ] dns
     - [ ] 代理和反向代理
     - [ ] 网络安全（firewalld、selinux），常见攻击手段和防御方式
-1. [ ] java-构建（maven、gradle）
+3. [ ] java-构建（maven、gradle）
     maven 常见的几个解决办法：
     1. [ ] 仍然使用自带maven（有的时候用自己下载的高版本maven就是有问题）
-    1. [ ] 使用解决冲突的一个插件，一般来说是exclude一些不要的包
-1. [ ] java annotation：一些注解处理中常用的设计模式
-1. [ ] linux-mod：内核模块开发
+    2. [ ] 使用解决冲突的一个插件，一般来说是exclude一些不要的包
+4. [ ] java annotation：一些注解处理中常用的设计模式
+5. [ ] linux-mod：内核模块开发
     - lsusb、modprobe、dkms
-1. [ ] 大数据
+6. [ ] 大数据
     - [ ] pearson相关性系数、xgboost、随机森林、sklearn、lgboost、linear regression、交叉验证
     - [ ] 数据标注和预处理
-1. [ ] 运维
+7. [ ] 运维
     - [ ] google sre、docker、k8s
-1. [ ] 面试
+8. [ ] 面试
     - [ ] orm框架原理（mybatis）
     - [ ] rabbitmq & kafka
 

@@ -71,6 +71,10 @@ thumbnailImage: /images/thumbnail/ue-logo.png
 1. 易用性：
     - 书签（Bookmark）：在任意位置使用Ctrl+数字组合键，设置一个书签点，之后按数字键即可回到该位置。
 
+## 平衡蓝图和C++
+1. 用蓝图快速开发原型
+2. 用C++优化其中的性能要求较高的部分
+
 ## 参考资料
 1. [官方文档（中文）](https://docs.unrealengine.com/5.0/zh-CN/)
 2. [官方Learning Library](https://dev.epicgames.com/community/learning)

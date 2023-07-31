@@ -22,15 +22,17 @@ draft: true
          | --- | --- | --- |
          | 移动旋转缩放 | G、R、S | 输入后再按X、Y、Z可以固定轴 |
          | 复制 | Shift + D | |
-         | 旋转视口 | 鼠标中键 | 按住Alt可以吸附旋转到一些固定角度 |
+         | 旋转视口 | 鼠标中键 | 按住Alt可以吸附旋转到一些固定角度！ |
          | 移动视口 | Shift + 鼠标中键 |  |
          | LoopCut（增加环） | Ctrl + R | |
          | PropotionalEdit（衰减编辑） | 先按O，再进行其他变换 | 将一个变换施加给附近元素，类似于PS的液化 |
          | 切换所选元素级别 | 1、2、3 | 分别是点、线、面 |
          | 切换模式 | Tab | 编辑模式、物体模式 |
          | 面挤出 | E | |
+         | 添加元素 | Shift + A |  |
       2. 参考：
          - [【教程】Blender + UE5 游戏角色建模材质绑定动画全流程](https://www.bilibili.com/video/BV1MY4y1X7gn/)
+         - [【中文字幕】UE5与Blender完整游戏环境制作工作流程视频教程](https://www.bilibili.com/video/BV1Ft4y1T7KW)
 
 ## 音乐
 1. SuperCollider

@@ -52,3 +52,4 @@ thumbnailImage: /images/thumbnail/wheel.png
       date_default_timezone_set("Asia/Shanghai");
       ```
    2. CSV插件支持无效，对于表格的支持要再想想办法
+   3. Firefox使用时会报安全问题

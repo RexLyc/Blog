@@ -2,10 +2,12 @@
 title: "Daily Report"
 date: 2023-07-15T13:26:13+08:00
 categories:
-- 
+- 日报
 tags:
-- 
-draft: true
+- 日报
+weight: 1100
+thumbnailImagePosition: left
+thumbnailImage: /images/thumbnail/todo.jpg
 ---
 这个是专门用于记录每天的一些问题和想法，不会公开
 <!--more-->

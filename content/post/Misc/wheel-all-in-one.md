@@ -53,3 +53,15 @@ thumbnailImage: /images/thumbnail/wheel.png
       ```
    2. CSV插件支持无效，对于表格的支持要再想想办法
    3. Firefox使用时会报安全问题
+   4. 用Semantic Plugin、Bootstrap 3 Template实现悬停预览内部链接页面时，如果PHP版本在8及以上，会报出一个渲染函数参数数量不匹配的问题（子类重写时少了一个参数）。需要手动修改该文件并进行替换
+      ```php
+      /** /opt/bitnami/dokuwiki/inc/parser/xhtmlsummary.php */
+      /** 添加最后的 $returnonly = false */
+      public function header($text, $level, $pos, $returnonly = false) {
+         /** ... */
+      }
+      ```
+      ```bash
+      # docker容器内容替换
+      docker cp ./xhtmlsummary.php xxxx:/opt/bitnami/dokuwiki/inc/parser/xhtmlsummary.php
+      ```

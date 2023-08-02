@@ -28,12 +28,24 @@ draft: true
          | PropotionalEdit（衰减编辑） | 先按O，再进行其他变换 | 将一个变换施加给附近元素，类似于PS的液化 |
          | 切换所选元素级别 | 1、2、3 | 分别是点、线、面 |
          | 切换模式 | Tab | 编辑模式、物体模式 |
+         | 切换模式（轮盘） | Ctrl + Tab | 会呼出一个轮盘，选择所有的六种模式 |
          | 面挤出 | E | |
          | 添加元素 | Shift + A |  |
+         | Apply应用（变换） | 选择元素后Ctrl + A | 选择需要的变换（如Visual Geometry To Mesh，应用所有Modifier） |
+         | 合并元素（物体） | Ctrl + J | 将右侧Collection中的元素合并 |
+         | 分离元素（点线面） | 选中后按P | 可根据选择、材质等分离 |
+      1. 雕刻模式下操作
+         | 操作名称 | 快捷键 | 注意 |
+         | 调整衰减编辑区域大小 | 按住F并左右移动鼠标调整 |  |
+      1. Modifier说明
+         | Modifier名称 | 作用 | 注意 |
+         | Mirror | 创建镜像元素 | 可以按照轴，也可以按照一个物体对象镜像 |
+         | Subdivision Surface | 细分表面 | 原有物体的点成为控制点，可以进一步通过LoopCut增加控制点 |
+         | Remesh | 重新网格化 | 根据给定算法和参数重新计算物体网格，**注意   计算量** |
       2. 参考：
          - [【教程】Blender + UE5 游戏角色建模材质绑定动画全流程](https://www.bilibili.com/video/BV1MY4y1X7gn/)
          - [【中文字幕】UE5与Blender完整游戏环境制作工作流程视频教程](https://www.bilibili.com/video/BV1Ft4y1T7KW)
-
+         - [Blender学习笔记：一个Q版人物](https://space.bilibili.com/27462787/channel/collectiondetail?sid=902549)
 ## 音乐
 1. SuperCollider
    1. 参考：

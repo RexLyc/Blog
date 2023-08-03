@@ -36,12 +36,17 @@ draft: true
          | 分离元素（点线面） | 选中后按P | 可根据选择、材质等分离 |
       1. 雕刻模式下操作
          | 操作名称 | 快捷键 | 注意 |
-         | 调整衰减编辑区域大小 | 按住F并左右移动鼠标调整 |  |
+         | 调整衰减编辑区域大小 | 按住F并左右移动鼠标调整 | |
+         | 调整衰减羽化 | 按住Shift + F并左右调整鼠标 |
+         | Clay粘土 | C | 使模型隆起（圆形笔） |
+         | Clay Strip粘土条 |  | 使模型隆起（方形），使用时如果再按住Ctrl/Shift，则是模型凹陷 |
+         | Smooth平滑 | Shift + S | 使模型平滑 |
+         | Grab抓取 | G | 拖拽模型 |
       1. Modifier说明
          | Modifier名称 | 作用 | 注意 |
          | Mirror | 创建镜像元素 | 可以按照轴，也可以按照一个物体对象镜像 |
          | Subdivision Surface | 细分表面 | 原有物体的点成为控制点，可以进一步通过LoopCut增加控制点 |
-         | Remesh | 重新网格化 | 根据给定算法和参数重新计算物体网格，**注意   计算量** |
+         | Remesh | 重新网格化 | 根据给定算法和参数重新计算物体网格，**注意计算量** |
       2. 参考：
          - [【教程】Blender + UE5 游戏角色建模材质绑定动画全流程](https://www.bilibili.com/video/BV1MY4y1X7gn/)
          - [【中文字幕】UE5与Blender完整游戏环境制作工作流程视频教程](https://www.bilibili.com/video/BV1Ft4y1T7KW)

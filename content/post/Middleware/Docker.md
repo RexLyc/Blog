@@ -71,5 +71,15 @@ draft: true
   6. runc读取bundle下配置，以挂载路径rootPath作为rootfs启动容器实例
 - 监控：eBPF（KProbe） based metrics，非侵入式。（选择要探测的内核函数，eBPF调用kProbe，写入map，用户态读取map，将进程级数据聚合到cgroup级别）
 
+## 指令示例
+1. docker
+  ```bash
+  # 创建使用bash的可交互容器，命名为redis-slave1，（在host中定义master）连接到名为redis-master的容器
+  docker run -it --name redis-slave1 --link redis-master:master redis /bin/bash
+
+
+  ```
+2. docker-compose
+
 ## 参考
 《Docker容器与容器云》

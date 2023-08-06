@@ -34,23 +34,37 @@ draft: true
          | Apply应用（变换） | 选择元素后Ctrl + A | 选择需要的变换（如Visual Geometry To Mesh，应用所有Modifier） |
          | 合并元素（物体） | Ctrl + J | 将右侧Collection中的元素合并 |
          | 分离元素（点线面） | 选中后按P | 可根据选择、材质等分离 |
-      1. 雕刻模式下操作
+         | 吸附 | Shift + Tab（或顶部磁铁按钮） | 可选择吸附目标 |
+         | 选出循环元素 | Alt | 按住Alt时为loop select（循环边、面） |
+         | 切割 | K | 用来在面上切割出一个新的面 |
+      2. 雕刻模式下操作
          | 操作名称 | 快捷键 | 注意 |
+         | --- | --- | --- |
          | 调整衰减编辑区域大小 | 按住F并左右移动鼠标调整 | |
          | 调整衰减羽化 | 按住Shift + F并左右调整鼠标 |
-         | Clay粘土 | C | 使模型隆起（圆形笔） |
-         | Clay Strip粘土条 |  | 使模型隆起（方形），使用时如果再按住Ctrl/Shift，则是模型凹陷 |
+         | Clay粘土 | C | 增减模型（圆形笔） |
+         | Clay Strip粘土条 |  | 增减模型（方形笔） |
          | Smooth平滑 | Shift + S | 使模型平滑 |
-         | Grab抓取 | G | 拖拽模型 |
-      1. Modifier说明
+         | Grab抓取 | G | 拖拽模型，按Ctrl是沿着法向移动 |
+
+         > 注1：大部分工具，同时按下Ctrl可以使效果反向（隆起/凹陷）、Shift则是平滑
+
+         > 注2：推荐学习视频：[【中字】Blender雕刻基础知识 / 雕刻快速入门](https://www.bilibili.com/video/BV1tD4y1X7zi)
+      3. Modifier说明
          | Modifier名称 | 作用 | 注意 |
+         | --- | --- | --- |
          | Mirror | 创建镜像元素 | 可以按照轴，也可以按照一个物体对象镜像 |
          | Subdivision Surface | 细分表面 | 原有物体的点成为控制点，可以进一步通过LoopCut增加控制点 |
          | Remesh | 重新网格化 | 根据给定算法和参数重新计算物体网格，**注意计算量** |
-      2. 参考：
+         | ShirnkWrap | 收缩 | 约束对象顶点并移动到目标对象表面（可以和吸附模式一同工作） |
+         > 注：修改器先后顺序是有影响的
+      4. 建模工作流参考：
          - [【教程】Blender + UE5 游戏角色建模材质绑定动画全流程](https://www.bilibili.com/video/BV1MY4y1X7gn/)
          - [【中文字幕】UE5与Blender完整游戏环境制作工作流程视频教程](https://www.bilibili.com/video/BV1Ft4y1T7KW)
          - [Blender学习笔记：一个Q版人物](https://space.bilibili.com/27462787/channel/collectiondetail?sid=902549)
+      5. 经典问题：
+         1. 建模的过程中忘记镜像，导致物体重拓扑时有很多问题？
+      > 在Blender的任意位置，都可以通过F1获取帮助文档
 ## 音乐
 1. SuperCollider
    1. 参考：

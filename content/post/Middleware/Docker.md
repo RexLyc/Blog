@@ -35,10 +35,47 @@ draft: true
   - docker
       - 轻量化、直接使用宿主机所用的系统（内核）
       - 需要更少的硬件资源
-## 原理
+## 原理概述
 - 原理：linux namespace + linux cgroups + rootfs构建进程隔离环境
   - 静态视图：一组联合挂载在docker-imges上的rootfs，即容器镜像
-  - 动态视图：由namespace+cgroups构成的隔离环境，即容器运行时
+  - 动态视图：由namespace + cgroups构成的隔离环境，即容器运行时
+
+## 资源隔离
+### namespace
+Linu下通过namespace实现资源之间的隔离。namespace并不是在某个版本一次性完成实现的，在不同的内核版本中有不同的开发情况。但他们的目的是相同的，就是希望在不同的资源方面，每个进程都能有自己所属的命名空间。不同命名空间的资源相互隔离，不可见。以下是常见的namespace。
+  | 名称 | 宏名称 | 隔离资源 |
+  | --- | --- | --- |
+  | IPC | CLONE_NEWIPC | 进程通信资源：信号量、消息队列、共享内存 |
+  | PID | CLONE_NEWPID | 进程编号 |
+  | Network | CLONE_NEWNET | 网络设备、网络栈、端口 |
+  | Mount | CLONE_NEWNS | 文件系统挂载点 |
+  | User | CLONE_NEWUSER | 用户和用户组 |
+  | UTS（Unix Time-Sharing System，Unix分时操作系统） | CLONE_NEWUTS | 主机名和域名 |
+  | CGroup | CLONE_NEWCGROUP | cgroup根目录 |
+  
+  > 伪文件系统/proc里存储了namespace信息，对于每一个进程pid，都能在/proc下找到，/proc/pid/ns/，该文件夹下存储了指向各个命名空间的文件。
+
+不同命名空间的隔离意义，参考
+1. UTS：隔离主机名和域名，则每个容器可以作为一个主机独立存在，可以视为网络上的一个独立节点，而不是宿主机上的一个进程。当一个进程使用了UTS命名空间隔离，在该进程内调用```sethostname```，不会影响宿主机名称。
+2. IPC：同一个IPC命名空间下的进程，可以看到相同的IPC资源，如信号量、消息队列等。
+3. PID：非常重要也复杂的隔离，操作系统为每一个PID命名空间维护一个树状结构，根节点等价于是该PID树的init进程。在这种树状结构中，子命名空间的各节点对父命名空间可见，反之则不行。因此可知：
+  - 宿主机上实际可以看到所有容器内进程，但容器内不能所属PID命名空间外部的任何进程。
+  - 每一个进程都可能有多个PID，具体应当使用的PID需要参考所处的PID命名空间
+  - 系统启动时会创建一个根PID命名空间，所有进程都处于该命名空间下
+  - PID命名空间只能在clone时进行指定（或者说创建），而不能通过setns进行更改。
+4. Mount：进行挂载点隔离，则不同命名空间内的进程，其对文件系统的挂载互相不可见。
+5. Network：网络隔离，则不同命名空间内的进程，各自拥有独立的网络设备接口、网路协议栈、路由表、防火墙规则等资源。
+6. User：对用户、用户组、权限的隔离。一个用户可以在不同的命名空间中，表现出不一样的权限。参考[Linux Namespace：user(第一部分)](https://www.testerfans.com/archives/linux-namespace-user-first-section)
+7. Cgroup：Control Group，目前有v1，v2两个版本。目标是控制进程对设备的使用，如cpu、内存、块设备（硬盘）等。参考[Linux资源管理之cgroups简介](https://tech.meituan.com/2015/03/31/cgroups.html)
+
+
+核心系统调用
+1. clone：```int clone(int (*fn)(void *), void *child_stack, int flags, void *arg);```
+  是fork的一种包装，在创建新进程fn时，传递给其栈child_stack，同时可以用各种CLONE开头的宏来指定flags。
+1. setns：```int setns(int fd, int nstype);```
+  fd是一个指定的namespace的文件描述符（/proc/xxxx/ns下的某个链接），nstype是所属的namespace类型。通过这个函数，可以将当前进程的namespace进行修改。但setns能修改的命名空间是很有限的，**user、pid均不允许**。
+1. unshare：```int unshare(int flags);```
+  flags是所指定的namespace类型，调用该函数将会创建并切换到指定的一系列namespace下
 - 资源隔离细节：
   - cgroups（control groups）：主要隔离进程的cpu和内存资源。原理是为进程加上一些钩子（hook，检测到对应消息就先于消息处理函数执行），当任务执行涉及到某个资源时就会触发钩子上附带的subsystem进行检查，根据不同资源使用对应技术进行资源限制和优先级分配。
     - 补充知识，linux的进程结构体task_struct，进程状态，结合操作系统看进程状态，状态中还涉及到异步信号
@@ -74,9 +111,17 @@ draft: true
 ## 指令示例
 1. docker
   ```bash
-  # 创建使用bash的可交互容器，命名为redis-slave1，（在host中定义master）连接到名为redis-master的容器
+  # 创建使用bash的可交互容器，命名为redis-slave1，（通过在host中定义master）连接到名为redis-master的容器
   docker run -it --name redis-slave1 --link redis-master:master redis /bin/bash
 
+  # 查看容器运行时配置（常看volume、ip等）
+  docker inspect XXXX
+
+  # 查看容器运行时磁盘使用
+  docker system df -u
+
+  # 创建redis容器，并映射主机路径A到容器路径B（A不存在则默认创建）
+  docker run -v /A:/B redis
 
   ```
 2. docker-compose

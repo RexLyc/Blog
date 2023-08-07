@@ -969,5 +969,19 @@ cat /proc/cpuinfo
     firewall-cmd --reload
 
     ```
+- 日志流转：logrotate
+    ```bash
+    logrotate /path/to/your/log.config
+    ```
+    其中config文件内容规则形如
+    ```conf
+    /var/log/yourApp/app.log {
+        weekly
+        create
+        minsize 1M
+        missingok
+        rotate 4
+    }
+    ```
 ## 一些建议
 1. 对于rm，可以替换为mv到临时文件夹，并定期清理，尽量避免使用rm，尤其禁止使用rm -rf

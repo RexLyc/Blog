@@ -968,6 +968,12 @@ cat /proc/cpuinfo
     # 更新防火墙规则
     firewall-cmd --reload
 
+    # 添加端口转发
+    firewall-cmd --zone=public --add-forward-port=port=6603:proto=tcp:toport=3306
+
+    # 查看全部规则
+    firewall-cmd --list-all
+
     ```
 - 日志流转：logrotate
     ```bash

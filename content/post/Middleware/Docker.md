@@ -42,7 +42,7 @@ draft: true
 
 ## 资源隔离
 ### namespace
-Linu下通过namespace实现资源之间的隔离。namespace并不是在某个版本一次性完成实现的，在不同的内核版本中有不同的开发情况。但他们的目的是相同的，就是希望在不同的资源方面，每个进程都能有自己所属的命名空间。不同命名空间的资源相互隔离，不可见。以下是常见的namespace。
+Linu下通过namespace实现资源之间的隔离。namespace并不是在某个版本一次性完成实现的，在不同的内核版本中有不同的开发情况。但他们的目的是相同的，就是希望在不同的资源方面，每个进程都能有自己所属的命名空间。不同命名空间的资源相互隔离，不可见。以下是常见的namespace。推荐阅读[Containers unplugged: Linux namespaces - Michael Kerrisk](https://www.youtube.com/watch?v=0kJPa-1FuoI)
   | 名称 | 宏名称 | 隔离资源 |
   | --- | --- | --- |
   | IPC | CLONE_NEWIPC | 进程通信资源：信号量、消息队列、共享内存 |
@@ -53,19 +53,30 @@ Linu下通过namespace实现资源之间的隔离。namespace并不是在某个�
   | UTS（Unix Time-Sharing System，Unix分时操作系统） | CLONE_NEWUTS | 主机名和域名 |
   | CGroup | CLONE_NEWCGROUP | cgroup根目录 |
   
-  > 伪文件系统/proc里存储了namespace信息，对于每一个进程pid，都能在/proc下找到，/proc/pid/ns/，该文件夹下存储了指向各个命名空间的文件。
+  > 注1：Mount命名空间的宏名称很特殊，是New Namespace的含义，这是因为它就是实现的第一个命名空间。
+
+  > 注2：伪文件系统/proc里存储了namespace信息，对于每一个进程pid，都能在/proc下找到，/proc/pid/ns/，该文件夹下存储了指向各个命名空间的文件。
+
+  > 注3：/proc/pid/ns/文件夹下采用文件的形式存储命名空间信息，可以很方便的追踪打开这个文件的进程，当某个命名空间下的所有进程都退出，则该文件被关闭。
 
 不同命名空间的隔离意义，参考
 1. UTS：隔离主机名和域名，则每个容器可以作为一个主机独立存在，可以视为网络上的一个独立节点，而不是宿主机上的一个进程。当一个进程使用了UTS命名空间隔离，在该进程内调用```sethostname```，不会影响宿主机名称。
 2. IPC：同一个IPC命名空间下的进程，可以看到相同的IPC资源，如信号量、消息队列等。
-3. PID：非常重要也复杂的隔离，操作系统为每一个PID命名空间维护一个树状结构，根节点等价于是该PID树的init进程。在这种树状结构中，子命名空间的各节点对父命名空间可见，反之则不行。因此可知：
+3. PID：重要也复杂的隔离。操作系统为每一个PID命名空间维护一个树状结构，根节点等价于是该PID树的init进程。在这种树状结构中，子命名空间的各节点对父命名空间可见，反之则不行。因此可知：
   - 宿主机上实际可以看到所有容器内进程，但容器内不能所属PID命名空间外部的任何进程。
   - 每一个进程都可能有多个PID，具体应当使用的PID需要参考所处的PID命名空间
   - 系统启动时会创建一个根PID命名空间，所有进程都处于该命名空间下
-  - PID命名空间只能在clone时进行指定（或者说创建），而不能通过setns进行更改。
-4. Mount：进行挂载点隔离，则不同命名空间内的进程，其对文件系统的挂载互相不可见。
+  - getpid调用返回值，和进程所处pid命名空间相关
+  - PID命名空间只能在clone时进行指定（或者说创建时确定），而不能通过setns进行更改。因此PID命名空间只能在新进程中隔离，当前进程是无法切换PID命名空间的。
+4. Mount：进行挂载点隔离，可以做到不同命名空间内的进程，其对文件系统的挂载互相不可见。挂载规则包含私有、共享、主从等规则。
 5. Network：网络隔离，则不同命名空间内的进程，各自拥有独立的网络设备接口、网路协议栈、路由表、防火墙规则等资源。
-6. User：对用户、用户组、权限的隔离。一个用户可以在不同的命名空间中，表现出不一样的权限。参考[Linux Namespace：user(第一部分)](https://www.testerfans.com/archives/linux-namespace-user-first-section)
+6. User：重要也复杂的隔离。对用户、用户组、权限的隔离。该命名空间也具有类似PID命名空间一样的层次结构。一个用户可以在不同的命名空间中，表现出不一样的权限。参考[Linux Namespace：user(第一部分)](https://www.testerfans.com/archives/linux-namespace-user-first-section)。推荐阅读[Containers unplugged: understanding user namespaces - Michael Kerrisk](https://www.youtube.com/watch?v=73nB9-HYbAI)。重点在于理解以下几点：
+  - 简单来说，原有的Linux权限模型有安全问题：有些程序往往需要（通过setuid方式）获取root权限来完成相应工作，但是这些程序并不能保证其具备充分的安全性。因此Linux提出了Capabilities模型来描述进程/文件相对应的权限，来拆分原本通通杂糅在root的各种权限（修改密码、修改时钟等）。
+  - 创建新的user命名空间后，需要对其进行uid/gid的映射，以明确当前命名空间用户id和父user命名空间中的某个用户id的映射关系。
+  - **核心**：所有其他非user命名空间资源，都会和一个user命名空间绑定。即该user命名空间拥有这个资源。当一个进程申请使用资源时，会检查其所处user命名空间，是否拥有该非user命名空间所管理的资源。
+  - 子user命名空间中的用户，即使具备root权限，也只是相对于该命名空间所拥有的各种其他命名空间资源具备了root权限。对于从父User命名空间继承而来的资源，并不一定具备root权限（取决于该用户在父命名空间中所具备的权限）。
+  - 综上，目前的权限检查是Capabilities和User命名空间的双重检查。
+  - Docker默认并不会新建user命名空间，而是会选择继承宿主环境。
 7. Cgroup：Control Group，目前有v1，v2两个版本。目标是控制进程对设备的使用，如cpu、内存、块设备（硬盘）等。参考[Linux资源管理之cgroups简介](https://tech.meituan.com/2015/03/31/cgroups.html)
 
 

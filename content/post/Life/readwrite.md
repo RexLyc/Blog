@@ -12,6 +12,9 @@ thumbnailImage: /images/thumbnail/diary.jpg
 ---
 21世纪的程序员是一个经常游走在舆论场里的职业。看了一些事情，听了一些事情，自然有一些事情想要写下来。
 <!--more-->
+## 推荐频道
+- [一些很好的软件开发分享 NDC Conference](https://www.youtube.com/@NDC)
+
 ## 关于职业
 
 ### 软件设计

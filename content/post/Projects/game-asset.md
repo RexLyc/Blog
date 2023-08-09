@@ -16,7 +16,7 @@ draft: true
 ## 美术
 1. 2D
 2. 3D
-   1. Blender（3.6.1）：
+   1. Blender（3.6.1）：[操作手册](https://docs.blender.org/manual/zh-hans/3.6/index.html)
       1. 常用操作
          | 操作名称 | 快捷键 | 注意 |
          | --- | --- | --- |
@@ -45,6 +45,7 @@ draft: true
          | Add | F3 | 添加各类东西 |
          | Add（Grid Fill） | F3 | 对**偶数顶点**的循环边，自动填充空洞 |
          | Fill创建面 | F | 选中指定的边、点 |
+         | 重新计算法向 |  Shift + N | 选中指定的面，多用于翻转个别错误法向 |
 
       3. 雕刻模式下操作
          | 操作名称 | 快捷键 | 注意 |
@@ -66,7 +67,12 @@ draft: true
          | Subdivision Surface | 细分表面 | 原有物体的点成为控制点，可以进一步通过LoopCut增加控制点 |
          | Remesh | 重新网格化 | 根据给定算法和参数重新计算物体网格，**注意计算量** |
          | ShirnkWrap | 收缩 | 约束对象顶点并移动到目标对象表面（可以和吸附模式一同工作） |
+         | Multriesolution | 多级精度修改器 | 对不同细分级别下的物体模型进行修改 |
+         
          > 注：修改器先后顺序是有影响的
+         
+         > 注：收缩包裹的若干种模式中，最近点和投影最常用，后者能保证一定对称
+
       5. 建模工作流参考：
          - [【教程】Blender + UE5 游戏角色建模材质绑定动画全流程](https://www.bilibili.com/video/BV1MY4y1X7gn/)
          - [【中文字幕】UE5与Blender完整游戏环境制作工作流程视频教程](https://www.bilibili.com/video/BV1Ft4y1T7KW)
@@ -79,6 +85,8 @@ draft: true
          2. 对于会弯曲的位置，要增加细分
          3. 手指、脚趾，一开始就要分开，否则重拓扑时非常麻烦
          4. 切换物体进行雕刻等模式操作时，先将当前物体退出到**Object Mode**
+         5. 在合适的时候，Object模式下切换平滑光照和flat光照，能够更好的看出拓扑问题。
+         6. 耳朵面部不应在重拓扑之前雕刻过多细节，会导致重拓扑变得非常困难。
       > 在Blender的任意位置，都可以通过F1获取帮助文档
 ## 音乐
 1. SuperCollider

@@ -30,6 +30,7 @@ draft: true
          | 切换模式 | Tab | 编辑模式、物体模式 |
          | 切换模式（轮盘） | Ctrl + Tab | 会呼出一个轮盘，选择所有的六种模式 |
          | 面挤出 | E | |
+         | 独立挤出 | Alt + E |  |
          | 添加元素 | Shift + A |  |
          | Apply应用（变换） | 选择元素后Ctrl + A | 选择需要的变换（如Visual Geometry To Mesh，应用所有Modifier） |
          | 合并元素（物体） | Ctrl + J | 将右侧Collection中的元素合并 |
@@ -37,7 +38,15 @@ draft: true
          | 吸附 | Shift + Tab（或顶部磁铁按钮） | 可选择吸附目标 |
          | 选出循环元素 | Alt | 按住Alt时为loop select（循环边、面） |
          | 切割 | K | 用来在面上切割出一个新的面 |
-      2. 雕刻模式下操作
+      2. 编辑模式
+         | 操作名称 | 快捷键 | 备注 |
+         | --- | --- | --- |
+         | Poly Build |  | 利用附近顶点创建多边形（Ctrl创建新的，Shift删除已有的），设置自动合并阈值更方便 |
+         | Add | F3 | 添加各类东西 |
+         | Add（Grid Fill） | F3 | 对**偶数顶点**的循环边，自动填充空洞 |
+         | Fill创建面 | F | 选中指定的边、点 |
+
+      3. 雕刻模式下操作
          | 操作名称 | 快捷键 | 注意 |
          | --- | --- | --- |
          | 调整衰减编辑区域大小 | 按住F并左右移动鼠标调整 | |
@@ -50,7 +59,7 @@ draft: true
          > 注1：大部分工具，同时按下Ctrl可以使效果反向（隆起/凹陷）、Shift则是平滑
 
          > 注2：推荐学习视频：[【中字】Blender雕刻基础知识 / 雕刻快速入门](https://www.bilibili.com/video/BV1tD4y1X7zi)
-      3. Modifier说明
+      4. Modifier说明
          | Modifier名称 | 作用 | 注意 |
          | --- | --- | --- |
          | Mirror | 创建镜像元素 | 可以按照轴，也可以按照一个物体对象镜像 |
@@ -58,12 +67,18 @@ draft: true
          | Remesh | 重新网格化 | 根据给定算法和参数重新计算物体网格，**注意计算量** |
          | ShirnkWrap | 收缩 | 约束对象顶点并移动到目标对象表面（可以和吸附模式一同工作） |
          > 注：修改器先后顺序是有影响的
-      4. 建模工作流参考：
+      5. 建模工作流参考：
          - [【教程】Blender + UE5 游戏角色建模材质绑定动画全流程](https://www.bilibili.com/video/BV1MY4y1X7gn/)
          - [【中文字幕】UE5与Blender完整游戏环境制作工作流程视频教程](https://www.bilibili.com/video/BV1Ft4y1T7KW)
          - [Blender学习笔记：一个Q版人物](https://space.bilibili.com/27462787/channel/collectiondetail?sid=902549)
-      5. 经典问题：
+      6. 经典问题：
          1. 建模的过程中忘记镜像，导致物体重拓扑时有很多问题？
+            可以和一个大立方体作差，保留一半，重新镜像
+      7. 经验教训：
+         1. 使用表面细分时，应当保持控制网格都是四边
+         2. 对于会弯曲的位置，要增加细分
+         3. 手指、脚趾，一开始就要分开，否则重拓扑时非常麻烦
+         4. 切换物体进行雕刻等模式操作时，先将当前物体退出到**Object Mode**
       > 在Blender的任意位置，都可以通过F1获取帮助文档
 ## 音乐
 1. SuperCollider

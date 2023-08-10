@@ -68,8 +68,8 @@ Linu下通过namespace实现资源之间的隔离。namespace并不是在某个�
   - 系统启动时会创建一个根PID命名空间，所有进程都处于该命名空间下
   - getpid调用返回值，和进程所处pid命名空间相关
   - PID命名空间只能在clone时进行指定（或者说创建时确定），而不能通过setns进行更改。因此PID命名空间只能在新进程中隔离，当前进程是无法切换PID命名空间的。
-4. Mount：进行挂载点隔离，可以做到不同命名空间内的进程，其对文件系统的挂载互相不可见。挂载规则包含私有、共享、主从等规则。
-5. Network：网络隔离，则不同命名空间内的进程，各自拥有独立的网络设备接口、网路协议栈、路由表、防火墙规则等资源。
+4. Mount：进行挂载点隔离，可以做到不同命名空间内的进程，其对文件系统的挂载互相不可见。创建时的挂载规则包含私有、共享、主从等规则。在创建时会复制原有挂载信息，并存储针对挂载对象的规则。随后两个Mount命名空间将互相独立。
+5. Network：网络隔离，则不同命名空间内的进程，各自拥有独立的网络设备接口、网路协议栈、路由表、防火墙规则等资源。宿主机通过veth建立虚拟网络资源。
 6. User：重要也复杂的隔离。对用户、用户组、权限的隔离。该命名空间也具有类似PID命名空间一样的层次结构。一个用户可以在不同的命名空间中，表现出不一样的权限。参考[Linux Namespace：user(第一部分)](https://www.testerfans.com/archives/linux-namespace-user-first-section)。推荐阅读[Containers unplugged: understanding user namespaces - Michael Kerrisk](https://www.youtube.com/watch?v=73nB9-HYbAI)。重点在于理解以下几点：
   - 简单来说，原有的Linux权限模型有安全问题：有些程序往往需要（通过setuid方式）获取root权限来完成相应工作，但是这些程序并不能保证其具备充分的安全性。因此Linux提出了Capabilities模型来描述进程/文件相对应的权限，来拆分原本通通杂糅在root的各种权限（修改密码、修改时钟等）。
   - 创建新的user命名空间后，需要对其进行uid/gid的映射，以明确当前命名空间用户id和父user命名空间中的某个用户id的映射关系。
@@ -87,19 +87,22 @@ Linu下通过namespace实现资源之间的隔离。namespace并不是在某个�
   fd是一个指定的namespace的文件描述符（/proc/xxxx/ns下的某个链接），nstype是所属的namespace类型。通过这个函数，可以将当前进程的namespace进行修改。但setns能修改的命名空间是很有限的，**user、pid均不允许**。
 1. unshare：```int unshare(int flags);```
   flags是所指定的namespace类型，调用该函数将会创建并切换到指定的一系列namespace下
-- 资源隔离细节：
-  - cgroups（control groups）：主要隔离进程的cpu和内存资源。原理是为进程加上一些钩子（hook，检测到对应消息就先于消息处理函数执行），当任务执行涉及到某个资源时就会触发钩子上附带的subsystem进行检查，根据不同资源使用对应技术进行资源限制和优先级分配。
-    - 补充知识，linux的进程结构体task_struct，进程状态，结合操作系统看进程状态，状态中还涉及到异步信号
-    - 核心结构体cgroupfs_root，cgroup_subsys，一个子系统只能挂载一个
-  - cpu共享原理：
-    - 调度器组成：主调度器、周期性调度器、调度器类（CFS是其一种实现）。
-      - 调度器分为主调度器和周期性调度器两种，两种共同组成核心调度器（core ~）或称通用调度器（generic ~）。分别服务不同的场景，比如线程主动让出控制权，或者是周期性检测查看是否有必要更换
-      - 周期性调度器、主调度器，内部具体分为实时进程调度和普通进程调度，策略不同，普通一般使用CFS选用红黑树最左侧节点，实时进程一般使用FIFO、RR策略
-    - CFS调度器：红黑树结构，优先级分两层（nice值控制一个task的权重，share值控制一个group的权重），整合task_group作为一个sched_entity进行调度，优先级高的vruntime跑的慢
-    - cpu quota：share方式只能控制容器间负载拉满时的一种下限。再引入cfs_bandwidth，并结合task_group进行限制。也相当于vruntime，整个组针对物理机的核数做一个限制。
-  - 内存和I/O隔离：
-    - 内存OOM：系统OOM，或者cgroup级别OOM。
-    - 磁盘I/O：缓存和脏页回写。bdi_writeback，每个磁盘都会有一个线程，专门负责磁盘的page cache数据刷新工作。目前隔离做的不够好，没办法知道回写由哪个cgroup发起。某一个进程打满磁盘会影响其他进程。
+
+### cgroups细节
+- cgroups（control groups）：主要隔离进程的cpu和内存资源。原理是为进程加上一些钩子（hook，检测到对应消息就先于消息处理函数执行），当任务执行涉及到某个资源时就会触发钩子上附带的subsystem进行检查，根据不同资源使用对应技术进行资源限制和优先级分配。
+  - 补充知识，linux的进程结构体task_struct，进程状态，结合操作系统看进程状态，状态中还涉及到异步信号
+  - 核心结构体cgroupfs_root，cgroup_subsys，一个子系统只能挂载一个
+- cpu共享原理：
+  - 调度器组成：主调度器、周期性调度器、调度器类（CFS是其一种实现）。
+    - 调度器分为主调度器和周期性调度器两种，两种共同组成核心调度器（core ~）或称通用调度器（generic ~）。分别服务不同的场景，比如线程主动让出控制权，或者是周期性检测查看是否有必要更换
+    - 周期性调度器、主调度器，内部具体分为实时进程调度和普通进程调度，策略不同，普通一般使用CFS选用红黑树最左侧节点，实时进程一般使用FIFO、RR策略
+  - CFS调度器：红黑树结构，优先级分两层（nice值控制一个task的权重，share值控制一个group的权重），整合task_group作为一个sched_entity进行调度，优先级高的vruntime跑的慢
+  - cpu quota：share方式只能控制容器间负载拉满时的一种下限。再引入cfs_bandwidth，并结合task_group进行限制。也相当于vruntime，整个组针对物理机的核数做一个限制。
+- 内存和I/O隔离：
+  - 内存OOM：系统OOM，或者cgroup级别OOM。
+  - 磁盘I/O：缓存和脏页回写。bdi_writeback，每个磁盘都会有一个线程，专门负责磁盘的page cache数据刷新工作。目前隔离做的不够好，没办法知道回写由哪个cgroup发起。某一个进程打满磁盘会影响其他进程。
+
+## Docker提供的隔离
 - 视图隔离：
   - namespace：提供了虚拟化的轻量级实现，部分数据只能局部可见
   - 类型：uts、ipc、mnt、pid、net、cgroup（以这些内容为代表划分可见性）

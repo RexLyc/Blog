@@ -21,6 +21,7 @@ draft: true
          | 操作名称 | 快捷键 | 注意 |
          | --- | --- | --- |
          | 移动旋转缩放 | G、R、S | 输入后再按X、Y、Z可以固定轴 |
+         | 放大缩小相机 | Ctrl + 鼠标中键并滑动鼠标 | |
          | 复制 | Shift + D | |
          | 旋转视口 | 鼠标中键 | 按住Alt可以吸附旋转到一些固定角度！ |
          | 移动视口 | Shift + 鼠标中键 |  |
@@ -73,10 +74,13 @@ draft: true
          
          > 注：收缩包裹的若干种模式中，最近点和投影最常用，后者能保证一定对称
 
-      5. 建模工作流参考：
-         - [【教程】Blender + UE5 游戏角色建模材质绑定动画全流程](https://www.bilibili.com/video/BV1MY4y1X7gn/)
-         - [【中文字幕】UE5与Blender完整游戏环境制作工作流程视频教程](https://www.bilibili.com/video/BV1Ft4y1T7KW)
-         - [Blender学习笔记：一个Q版人物](https://space.bilibili.com/27462787/channel/collectiondetail?sid=902549)
+      5. 建模工作流：
+         - 对称建模（镜像修改器、镜像操作）：
+           1. 人体：
+              1. 先用立方体和圆柱体，搭配细分修改器，构建起大概的人体框架（主要骨骼和肌肉）
+              2. remesh（这一步不是严格对称的），并进行雕刻，这一步要雕刻出几乎完整的人体轮廓（这一步面数会非常多）
+              3. 重拓扑，目标是获得干净（面数合理）且有质感的模型。注意重拓扑先后进行**两次ShrinkWrap**，并适当使用Multiresolution细分。
+              4. 
       6. 经典问题：
          1. 建模的过程中忘记镜像，导致物体重拓扑时有很多问题？
             可以和一个大立方体作差，保留一半，重新镜像
@@ -88,13 +92,30 @@ draft: true
          5. 在合适的时候，Object模式下切换平滑光照和flat光照，能够更好的看出拓扑问题。
          6. 耳朵面部不应在重拓扑之前雕刻过多细节，会导致重拓扑变得非常困难。
          7. 在合适的情况下，为顶点分组
-      > 在Blender的任意位置，都可以通过F1获取帮助文档
+         8. 编辑软体结构，用粘土（C）雕刻效果往往优于拖拽（G）
+
+         > 在Blender的任意位置，都可以通过F1获取帮助文档
+
 ## 音乐
-1. SuperCollider
-   1. 参考：
-      - [Github: awesome SuperCollider](https://github.com/madskjeldgaard/awesome-supercollider)
-2. Sonic Pi
-   1. Windows10：安装后无法启动
+1. 代码式
+   1. SuperCollider
+      1. 参考：
+         - [Github: awesome SuperCollider](https://github.com/madskjeldgaard/awesome-supercollider)
+   2. Sonic Pi
+      1. Windows10：安装后无法启动
+2. DAW
+   1. CakeWalk：
+      1. 问题：创建项目卡死，可以创建完全空白的，其他任何模板均会卡死。
+   2. WaveForm
+   3. 
+
+> 参考：[LANDR Blog：The 12 Best Free DAWs to Create Music](https://blog.landr.com/best-free-daw/)、[Best Free DAWs for Windows in 2023: Make Music on a Budget](https://www.youtube.com/watch?v=Un6xUqBWSe0)
+
+## UE插件
+1. FluidFlux：流体插件
 
 ## 资源网站
-1. [ANATOMY360：一个提供精细三维重建模型的网站](http://anatomy360.info/) 
+1. [ANATOMY360：一个提供精细三维重建模型的网站](http://anatomy360.info/)
+1. [【教程】Blender + UE5 游戏角色建模材质绑定动画全流程](https://www.bilibili.com/video/BV1MY4y1X7gn/)
+1. [【中文字幕】UE5与Blender完整游戏环境制作工作流程视频教程](https://www.bilibili.com/video/BV1Ft4y1T7KW)
+1. [Blender学习笔记：一个Q版人物](https://space.bilibili.com/27462787/channel/collectiondetail?sid=902549)

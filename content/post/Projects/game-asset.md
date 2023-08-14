@@ -109,7 +109,11 @@ draft: true
    2. WaveForm
    3. 
 
-> 参考：[LANDR Blog：The 12 Best Free DAWs to Create Music](https://blog.landr.com/best-free-daw/)、[Best Free DAWs for Windows in 2023: Make Music on a Budget](https://www.youtube.com/watch?v=Un6xUqBWSe0)
+> 参考：
+> - [LANDR Blog：The 12 Best Free DAWs to Create Music](https://blog.landr.com/best-free-daw/)
+> - [Best Free DAWs for Windows in 2023: Make Music on a Budget](https://www.youtube.com/watch?v=Un6xUqBWSe0)
+> - [LIKEMUSIC 音频术语教程](https://www.bilibili.com/video/BV1ye4y1T7Z3)
+> - Asio4All、Asio Link Pro
 
 ## UE插件
 1. FluidFlux：流体插件

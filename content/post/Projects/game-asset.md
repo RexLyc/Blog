@@ -113,6 +113,7 @@ draft: true
 > - [LANDR Blog：The 12 Best Free DAWs to Create Music](https://blog.landr.com/best-free-daw/)
 > - [Best Free DAWs for Windows in 2023: Make Music on a Budget](https://www.youtube.com/watch?v=Un6xUqBWSe0)
 > - [LIKEMUSIC 音频术语教程](https://www.bilibili.com/video/BV1ye4y1T7Z3)
+> - [023 Cakewalk by BandLab 基础教程](https://www.bilibili.com/video/BV1dt4y1J7pT)
 > - Asio4All、Asio Link Pro
 
 ## UE插件

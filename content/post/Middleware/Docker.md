@@ -297,3 +297,5 @@ struct cgroup_subsys {
 《Docker容器与容器云》
 
 [Linux Cgroups详解(一)](https://www.cnblogs.com/lisperl/archive/2012/04/17/2453838.html)、[Linux Cgroups详解(二)](https://www.cnblogs.com/lisperl/archive/2012/04/18/2455027.html)
+
+[【重识云原生】第六章容器6.1.7.3节——cgroups数据结构剖析](https://cloud.tencent.com/developer/article/2128337)

@@ -1,5 +1,5 @@
 ---
-title: "Linux：桌面环境和发行版"
+title: "边学边用linux-桌面环境和发行版"
 date: 2023-01-12T13:43:15+08:00
 categories:
 - 计算机科学与技术

@@ -106,8 +106,13 @@ draft: true
 2. DAW
    1. CakeWalk：
       1. 问题：创建项目卡死，可以创建完全空白的，其他任何模板均会卡死。
-   2. WaveForm
-   3. 
+   2. WaveForm:
+      1. 收费软件的免费版本，有一些限制，但不影响使用。
+      2. 不能直接和Minilab联动
+3. 音源软件
+   1. Kontakt：不打开DAW，单独使用时没有声音
+   2. 优先找一些免费的：
+      1. [SOUNDS OF CHINA SAMPLE PACK | ROYALTY FREE TRADITIONAL CHINESE INSTRUMENTS](https://www.youtube.com/watch?v=K3vjNtKDXeU)
 
 > 参考：
 > - [LANDR Blog：The 12 Best Free DAWs to Create Music](https://blog.landr.com/best-free-daw/)

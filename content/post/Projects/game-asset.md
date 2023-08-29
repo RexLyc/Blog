@@ -119,8 +119,11 @@ draft: true
       2. 不能直接和Minilab联动
 3. 音源软件
    1. Kontakt：不打开DAW，单独使用时没有声音
-   2. 优先找一些免费的：
-      1. [SOUNDS OF CHINA SAMPLE PACK | ROYALTY FREE TRADITIONAL CHINESE INSTRUMENTS](https://www.youtube.com/watch?v=K3vjNtKDXeU)
+   2. Native Access：综合性的app，提供各类音乐资源。买了一个东亚乐器包
+   3. 优先找一些免费（或者便宜）的：
+      1. [SOUNDS OF CHINA SAMPLE PACK | ROYALTY FREE TRADITIONAL CHINESE INSTRUMENTS](https://www.youtube.com/watch?v=K3vjNtKDXeU)，这个是订阅后免费，订阅价格其实还算便宜
+4. 关键字
+   - Ornaments：装饰音
 
 > 参考：
 > - [LANDR Blog：The 12 Best Free DAWs to Create Music](https://blog.landr.com/best-free-daw/)

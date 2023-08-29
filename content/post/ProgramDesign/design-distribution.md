@@ -57,8 +57,24 @@ thumbnailImage: /images/thumbnail/design-pattern.svg
         1. 基于zookeeper
 1. 分布式定时器
     - Quartz
+
+## 网络相关
+### Netty设计分析
+Netty是Java网络编程中无法绕开的一个核心库，这里对其核心设计做一个总结。
+- 关键字
+    - Selector：用于判断Channel发生何种IO事件，并进行处理选择
+    - SelectionKey：用于IO事件状态和绑定
+    - Channel：用于支持对Socket进行非阻塞读写
+    - Handler
+    - Pipeline
+    - Socket
+    - Buffer：用于支持Channel读写的缓冲区，典型的类型是```ByteBuffer```
+- 类设计
+
 ## 参考
 1. [分布式基础之CAP和BASE理论](https://www.jianshu.com/p/46b90dfc7c90)
-1. [七种分布式事务的解决方案，一次讲给你听！](https://cloud.tencent.com/developer/article/1806989)
-1. [几种分布式锁的实现方式](https://juejin.cn/post/6844903863363829767)
-1. [三分钟了解 Serverless 是什么](https://zhuanlan.zhihu.com/p/340882159)
+2. [七种分布式事务的解决方案，一次讲给你听！](https://cloud.tencent.com/developer/article/1806989)
+3. [几种分布式锁的实现方式](https://juejin.cn/post/6844903863363829767)
+4. [三分钟了解 Serverless 是什么](https://zhuanlan.zhihu.com/p/340882159)
+5. [多图详解 Netty](https://anye3210.github.io/2021/08/22/%E5%A4%9A%E5%9B%BE%E8%AF%A6%E8%A7%A3-Netty/)
+6. [《Scalable IO in Java》](https://gee.cs.oswego.edu/dl/cpjslides/nio.pdf)、[《Scalable IO in Java》译文](https://www.cnblogs.com/dafanjoy/p/11217708.html)

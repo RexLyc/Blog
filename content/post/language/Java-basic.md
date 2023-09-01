@@ -27,7 +27,13 @@ thumbnailImage: /images/thumbnail/java.jpg
         private static final long serialVersionUID=1L;
     }
     ```
+
 ## 泛型
 1. Java的泛型和C++的是两种实现方式
 1. 如何保留完整的泛型类型？
     - 使用Type、TypeToken
+
+## 原生实用库
+1. PropertyChangeSupport：观察者模式，用于监视一个Java Bean的属性修改，可以包装并发送属性修改事件
+    > 无法监听被观察类型的实例，在构造函数中发生的修改
+2. 

@@ -46,3 +46,10 @@ thumbnailImage: /images/thumbnail/design-pattern.svg
     - 内存池
 1. 一些优秀实现案例
     - **To Be Continued**
+
+## 类型
+1. 泛型
+    1. [变型（variance）](https://zh.wikipedia.org/zh-cn/%E5%8D%8F%E5%8F%98%E4%B8%8E%E9%80%86%E5%8F%98)：描述具有父/子型别关系的多个型别通过型别构造器、构造出的多个复杂型别之间是否有父/子型别关系的用语。
+    2. 协变
+    3. 逆变
+    4. 不变

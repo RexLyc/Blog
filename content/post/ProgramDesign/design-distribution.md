@@ -68,7 +68,7 @@ Netty是Java网络编程中无法绕开的一个核心库，这里对其核心�
 - Netty线程模型：以主从Reactor多线程为基础
     - 事件部分
         - NioEventLoop：内部通过Executor创建线程，循环从Selector中收取待处理的事件，以及TaskQueue中的任务
-        - Executor：JDK中的基础接口，可以执行一个Runnable对象实例。EventLoop内部实际上的执行单元。
+        - Executor：实际类型是```EventExecutor```，它继承自JDK中的基础接口Executor框架，可以执行一个Runnable对象实例。是EventLoop内部实际上的执行单元。
         - TaskQueue：一个可以在NioEventLoop执行中被处理的任务队列，这里可以添加一些用户自定义的异步任务。尤其是一些耗时的任务，应该放在TaskQueue，而非Handler中执行（Handler在执行期间对于所在线程是同步的）。还有ScheduedTaskQueue用于存放定时任务。
         - BossGroup & WorkerGroup：Boss负责接收连接，Worker负责控制数据收发。在BossGroup中的Selector收到连接后，会创建用于收发数据的Channel，并注册到WorkerGroup的Selector
         - Selector：用于判断Channel发生何种IO事件，并进行处理选择

@@ -120,7 +120,25 @@ method.invoke(myList, 233);
         oa[1] = li; // Correct.
         Integer i = (Integer) lsa[1].get(0); // OK
         ```
-1. 代码示例
+    5. 如果一定要使用泛型数组，那么请使用反射```(T[])Array.newInstance(type, size)```
+    6. 受制于类型擦除，泛型类中的静态方法和静态变量，中不能出现泛型类型参数。这是因为静态方法没有创建实例，编译器无法给出正确的转型。但注意，可以有静态泛型方法（泛型方法有自己的泛型类型参数）。
+        ```java
+        class Test<T> {
+            public static T get() { /* */ }              // 编译失败
+            public static T instance;                    // 编译失败
+            public static <P> P pFunc(P a)  { /* */ }    // 编译成功
+        }
+        ```
+    7. 受制于类型擦除，无法用泛型类去泛化异常，或者用泛型类去捕获异常。但仍然可以抛出泛型类型参数定义的变量。
+        ```java
+        class MyException<T> extends Exception {}       // 编译失败
+
+        try { /* ... */ }
+        catch (MyException<Integer> a) { /* ... */ }    // 联系第一行，泛型异常没有意义
+        catch (MyException<String>  b) { /* ... */ }    // 擦除后是一样的
+        ```
+    8. 
+2. 代码示例
 ```java
 // --------------------定义方式--------------------
 

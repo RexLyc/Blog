@@ -130,6 +130,7 @@ draft: true
 > - [Best Free DAWs for Windows in 2023: Make Music on a Budget](https://www.youtube.com/watch?v=Un6xUqBWSe0)
 > - [LIKEMUSIC 音频术语教程](https://www.bilibili.com/video/BV1ye4y1T7Z3)
 > - [023 Cakewalk by BandLab 基础教程](https://www.bilibili.com/video/BV1dt4y1J7pT)
+> - [Tracktion Waveform Free Tutorial - How to Start Making Music](https://www.youtube.com/watch?v=fGToHMsnlQM&list=PL1YDn3d3UkT5m3xa7Diks8Veq3zplVxdR)
 > - Asio4All、Asio Link Pro
 
 ## UE插件

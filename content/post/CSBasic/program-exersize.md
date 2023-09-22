@@ -89,6 +89,8 @@ math: true
 1. :red_circle: 1259：[不相交的握手](https://leetcode-cn.com/problems/handshakes-that-dont-cross/)。[非会员传送门](https://www.acwing.com/file_system/file/content/whole/index/content/1528105/)。可以用DP，但用数学更好。卡塔兰数+Lucas定理。
 
 ###  二分
+> 二分大多是返回下界，写的时候注意考虑边界情况（上下界相同，相差1），每次上下界的修改（是否需要+-1），确保可以返回正常结束并返回。
+ 
 1. :yellow_circle: 33：[搜索旋转排序数组](https://leetcode-cn.com/problems/search-in-rotated-sorted-array)。自己写了很久总有问题。[精选题解](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/solution/ji-jian-solution-by-lukelee/)。很考虑分类讨论能力和对二分查找的理解。**值得二刷**。
 1. :yellow_circle: 540：[有序数组中的单一元素](https://leetcode-cn.com/problems/single-element-in-a-sorted-array)。利用有序性。
 1. :red_circle: 4：[寻找两个正序数组的中位数](https://leetcode-cn.com/problems/median-of-two-sorted-arrays/)。经典的二分查找题目。普通的二分$O(log(m+n))$，以及利用中位数性质的二分$O(log(min(m,n))$（典型的**数量关系**，一个数组划分后，另一个数组理论上的划分位置是固定的）。还要注意特殊情况处理。**值得二刷**。
@@ -99,6 +101,7 @@ math: true
 1. :red_circle: 410：[分割数组的最大值](https://leetcode-cn.com/problems/split-array-largest-sum/)。DP和记忆化搜索复杂度太高怎么办？一定要学[题解](https://leetcode-cn.com/problems/split-array-largest-sum/solution/fen-ge-shu-zu-de-zui-da-zhi-by-leetcode-solution/)，非常经典的二分思路，对待求结果进行**二分测试**。先设定一个最大值，超过该值就进行划分，如果划分数组的数量符合要求。再进一步用二分确定最大值的范围。
     - 仔细思考。如果搜索，则相当于是求出了过多的信息（很多种划分方式的最大值都被算出来了）。
     - 只要是结果有大小顺序，都可以用二分测试来计算。
+1. :yellow_circle: 2560: [打家劫舍 IV](https://leetcode.cn/problems/house-robber-iv/description/)。经典最小化最大值问题。这类问题就是针对这个值进行二分。而不是真的去模拟求出所有的最大值。另外该题需要想明白两点：先选一定不比后选更差（贪心策略的正确性，类似于优先选择最早完成的任务），另一点是二分的最终结果一定会存在于数组中（不用担心二分的结果不在原数组）。
 
 ###  字符串
 1. :green_circle: 28：[实现strstr](https://leetcode-cn.com/problems/implement-strstr/)。平均意义上又好写又快的[Sunday算法](https://blog.csdn.net/q547550831/article/details/51860017)。其实就是两条策略：失配后对比主串中此次参加匹配的子串后的下一个字符，如果在模式串中没有，则大跳，否则对齐到模式串从右数第一次出现的位置。
@@ -203,6 +206,7 @@ math: true
 1. :red_circle: 854：[相似度为K的字符串](https://leetcode-cn.com/problems/k-similar-strings/)。又是字符串变换转为图论变换的题目。本题的[题解](https://leetcode-cn.com/problems/k-similar-strings/solution/xiang-si-du-wei-k-de-zi-fu-chuan-by-leetcode/)把字符移动理解为对边的变换。
 1. :red_circle: 1197：[进击的骑士](https://leetcode-cn.com/problems/minimum-knight-moves/)。[非会员传送门](https://blog.csdn.net/qq_17550379/article/details/101195668)。使用[A*算法](https://zhuanlan.zhihu.com/p/54510444)，给搜索添加启发式估计值作为排序规则的一部分。这个规则的主要目的是，不让100%恶化的情况入队。
 1. :red_circle: 2493：[将节点分成尽可能多的组](https://leetcode.cn/problems/divide-nodes-into-the-maximum-number-of-groups/description/)。本质上是求若干个连通子图各自的图直径。图的直径的算法就是两次BFS，第一次随机，第二次从第一次BFS最后入队节点开始。可以先用并查集对图做分割。
+2. :red_circle: 2603: [收集树中金币](https://leetcode.cn/problems/collect-coins-in-a-tree/description/)。看了题解，核心是对图做变换：剪枝、去叶子节点。**思考最终路径的规则**：任何一条路径最多只需要走两次，路径终点到（最远的）有金币的节点距离为2。因此变换有两条：递归删除所有无金币的叶子节点，对最终树进行2次删除叶子节点的操作。最终剩下的边，每个都会遍历。
 
 ###  数据结构
 1. :red_circle: 2179：[统计数组中好三元组数目](https://leetcode-cn.com/problems/count-good-triplets-in-an-array/)。核心题解思路是，以变量y遍历第一个列表，视作三元组的中间元素，并统计第二个列表中，位于y前面的变量中，有多少也在第一个列表中y位置之前出现过。这个统计的信息，恰好可以用[树状数组](https://zhuanlan.zhihu.com/p/93795692)来进行维护。由此达到$O(nlogn)$。

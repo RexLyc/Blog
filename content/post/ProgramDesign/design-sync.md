@@ -40,14 +40,12 @@ Reactor是基于非阻塞IO的设计模式，大量优秀的网络框架都基�
 
 Proactor则是基于异步IO的设计模式，在Proactor模式下，IO操作都由系统完成，业务处理是异步回调。
 
-两者的的区别主要在于，Reactor模式在接收到系统通知的IO事件后，随机开始进行IO操作，编解码，业务处理，而Proactor则可以将IO处理完全交给系统，直接在回调中开始业务处理。所以这里的IO事件语义也完全不同，Reactor的通知代表事件发生，Proactor的通知代表事件结束。
+两者的的区别主要在于，Reactor模式在接收到系统通知的IO事件后，随即开始进行IO操作，编解码，业务处理，而Proactor则可以将IO处理完全交给系统，直接在回调中开始业务处理。所以这里的IO事件语义也完全不同，Reactor的通知代表事件发生，Proactor的通知代表事件结束。
 
 ## Linux、Windows异步
 - Linux：aio
 - Linux：io_uring
 - Windows：IOCP
-
-## Reactor和Proactor
 
 ## 参考：
 [5种网络IO模型](https://zhuanlan.zhihu.com/p/54580385) </br>

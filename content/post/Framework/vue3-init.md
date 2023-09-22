@@ -71,10 +71,18 @@ npm run -g  serve #-g的意思是全局安装，而不是在当前项目中
 serve -s dist #指定为dist目录做http服务器
 ```
 - 额外注意
+## 重要原理
+### 响应式编程
+1. 包裹器（Wrapper）：对变量进行包裹的一类数据结构，响应式编程中，包裹器的最大作用是其get、set函数，该函数可以用来判断依赖（get），得知数据更新需求（set）。
+2. 依赖收集（Track）：对变量进行依赖收集，以得知所有使用了get函数的响应式需求的场景
+3. 触发更新（Trigger）：在set执行时，对所有依赖进行更新。
+
+参考：[六千字详解！vue3 响应式是如何实现的？](https://juejin.cn/post/7048970987500470279)
+
 ## 实用第三方库
 1. 组件库：Element-Plus
 2. 图形库：Pixi.js
-2. 更多参考：[Github上的awesome系列中的前端内容](https://github.com/dypsilon/frontend-dev-bookmarks)
+3. 更多参考：[Github上的awesome系列中的前端内容](https://github.com/dypsilon/frontend-dev-bookmarks)
 ## 本系列暂定版本
 1. Nodejs：14.17.4(LTS)
     - npm：6.14.14

@@ -90,6 +90,8 @@ thumbnailImage: /images/thumbnail/todo.jpg
 8. [ ] 面试
     - [ ] orm框架原理（mybatis）
     - [ ] rabbitmq & kafka
+9. [ ] C++配套设施
+    - [ ] 内存泄漏检测（-fsanitize=address
 
 ## 长期型
 1. 参加一些线下技术论坛、创业论坛

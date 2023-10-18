@@ -504,7 +504,9 @@ math: true
   - 实体：顾客、商户、银行、认证中心
   - 模式：B2B、B2C、C2C、O2O（线上买线下的服务或商品）
   - 基础设施：网络、多媒体、商业服务、政策法律技术标准
- 
+
+## 信息安全
+
 ## 参考
 - [（旧）软考-系统架构设计师-上](https://www.bilibili.com/video/BV1du41187Sk)
 - [（旧）软考-系统架构设计师-下](https://www.bilibili.com/video/BV1WM4y1J7uz)

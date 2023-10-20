@@ -190,7 +190,7 @@ thumbnailImage: /images/thumbnail/lycStamp.png
         - [使用lunr生成搜索](https://blog.csdn.net/weixin_33143629/article/details/118322638)
 - 使用ShortCode引用本站文章
     - ShortCode是Hugo提供的类似于函数的一类语法糖。允许用户自定义一个ShortCode，并在markdown文本中调用自己的ShortCode
-    - Hugo内置的ShortCode种，```ref```可以自动计算出渲染后的md路径，更方便站点内部相互引用，使用```relref```甚至可以指定到章节。
+    - Hugo内置的ShortCode中，```ref```可以自动计算出渲染后的md路径，更方便站点内部相互引用，使用```relref```甚至可以指定到章节。
     > 参考：[Content Management: Shortcodes](https://gohugo.io/content-management/shortcodes/)
 - 如何自定义模板
     - 其实我也想知道

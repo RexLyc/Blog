@@ -14,6 +14,7 @@ thumbnailImage: /images/thumbnail/ue-logo.png
 <!--more-->
 ## 概述
 &emsp;&emsp; 蓝图是UE5面向非程序员类型的开发者推出的GamePlay脚本系统，对于一些简单目标，蓝图的功能已经足够完成。
+> 当任何一个蓝图节点的运行不符合预期时，不妨双击直接去看C++代码，有奇效。
 
 ## 蓝图编程
 - 蓝图类

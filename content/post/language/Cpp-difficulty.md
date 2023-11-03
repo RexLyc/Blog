@@ -11,8 +11,34 @@ tags:
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/cpp.png
 ---
-C/C++中有一些经常会出现的难点，也是考研功底的要点。本文致力于总结这一部分。
+C/C++中有一些经常会出现的难点，也是深入学习使用的要点。本文致力于总结这一部分。
 <!--more-->
+## 术语
+1. trivial：平凡类型（或称普通类型），STL中对于平凡类型的处理会进行特化，以提高速度。非平凡类型，在创建、销毁，移动时均需要采取最保守的方式，调用用户定义的函数，因此是非平凡的。
+
+    这些类型满足：
+    1. 没有虚函数、虚基类
+    2. 没有非平凡成员函数、操作符（构造、析构、拷贝、移动、赋值等）
+    3. 数据成员均是平凡类型
+2. standard-layout：标准布局类型。由于内存布局受编译器、优化等级的影响，因此委员会制定了一个最基础的标准布局类型，这些类型去掉了一些C++特性，用于保证对C等语言的内存布局兼容性。
+
+    这些类型满足
+    1. 没有虚函数和虚基类
+    2. 所有非静态数据成员都有相同的访问说明符（access specifiers：public/protected/private）
+    3. 没有与第一个非静态数据成员类型相同的基类（C++不允许相同类型的不同对象地址相同，这一条能避免产生1字节偏移）
+    4. 没有引用类型的非静态数据成员
+    5. 满足以下任意一个条件：（保证非静态数据成员地址连续）
+        1. 没有非静态数据成员，且具有非静态数据成员的基类不超过一个
+        2. 基类均不包含非静态数据成员
+    6. 所有非静态数据成员、所有基类均是标准布局类型。
+3. POD：简单旧数据类型。同时满足trivial和standard-layout的类型，这些数据类型的**内存布局完全是连续的**，后定义的成员地址一定高于先定义的成员，可以逐字节进行拷贝。
+    > C++17后对POD进行了划分，```is_pod<>```将逐渐弃用，取而代之的是根据应用场景需要，使用```is_trivial<>```、```is_standard_layout<>```
+4. 文本类型：可以在编译期确定布局的类型，包括：
+    1. void，及其数组
+    2. 标准类型（Scalar Type，即基本数据类型），及其数组
+    3. 引用，及其数组
+    4. 类：具有普通析构，一个或多个constexpr构造函数，没有移动和复制构造函数，且所有非静态数据成员、基类，均需是文本类型。
+
 ## 高级特性
 ### 模板编程
 1. 模板的类型
@@ -29,9 +55,65 @@ C/C++中有一些经常会出现的难点，也是考研功底的要点。本文
 
 ## STL
 &emsp;&emsp;STL是由容器、算法、迭代器、函数对象、适配器、内存分配器这6 部分构成。其中后四部分主要是为了前两个部分服务。
-### allocator分配器
-1. **To Be Continue**
-
+### allocator空间配置器
+1. 作用：空间配置器主要负责从系统申请/释放存储空间（不一定非得是内存），并调用构造/析构函数。注意std::allocator在C++11、C++20前后都有大的变动（尤其是construct/destroy）。
+2. 分配器的核心成员
+    1. 分配内容物类型：```value_type```
+    2. 内容物指针类型：```pointer```，C++20后应使用```std::allocator_traits<>::pointer```
+    3. 容量类型：```size_type```
+    4. 迭代器距离类型：```difference_type```
+    5. 空间分配：```allocate```
+    6. 空间释放：```deallocate```
+    7. 内容物构造：```construct```，C++20后应使用```std::allocator_traits<>::construct```
+    8. 内容物析构：```destroy```，C++20后应使用```std::allocator_traits<>::destroy```
+3. 分配器的工作流程：
+    1. 由使用者（如容器）调用```allocate```分配空间
+    2. 将内存指针，传递给```construct```
+    3. ```construct```根据类型信息（是否平凡），决定构造方式
+    4. 由使用者调用```destroy```，触发析构，根据类型信息（是否平凡），决定析构方式
+    5. ```deallocate```回收空间
+4. SGI STL的内存配置器实现：提供了一个更高效率的alloc，它并不属于C++标准，SGI对其进行了封装，其核心特性如下
+    1. 提供两级配置器：一级是最基础的malloc、free的封装；二级额外实现了一个小对象内存池，对于大对象，仍使用一级配置器。配置器均工作在堆空间。
+    2. 二级配置器的实现核心
+        1. 核心数据结构
+            ```cpp
+            // 空闲小对象、链表联合体
+            union obj {
+                // 空闲时free_list_link指向下一个空闲obj
+                // 当一个对象被释放，则重新加入free_list_link链表中
+                union obj * free_list_link;
+                // 分配后则存储client_data
+                char client_data[1];
+            }
+            ```
+        2. 配置器关键成员：
+            1. ```refill(size_t)```：当某个大小的空闲链表不存在时，用```chunk_alloc```尝试创建区块，并填充到空闲链表中
+            2. ```chunk_alloc(size_t,int&)```：尽最大努力分配内存池区块，但实际分配的区块数量可能有变。是整个SGI空间配置器中最复杂的部分：
+                1. 剩余的空闲堆完全能满足分配需求，直接分配
+                2. 可以分配至少一个，分配，修改并返回实际分配的区块数量
+                3. 完全无法直接分配
+                    1. **重点**：空闲堆未空，将所有零头分配给空闲链表。因为空闲堆指针将会变动，需要保证在**没有空闲堆前提下**，再继续下一步。
+                    2. 此时空闲堆已空，尝试malloc向系统申请更多内存
+                        1. 系统没有足够内存，尝试释放一块空闲链表中的不小于当前需求的空闲区块，并**递归调用**自己（利用自身步骤，修正分配区块数量，或分配零头）。如果也没有空闲区块可以释放，则调用一级配置器（一般情况下，将会可能抛出OOM）
+                        2. 有足够内存，修改空闲堆指针等，**递归调用**自己
+            3. ```start_free```：当前空闲堆起始地址
+            4. ```end_free```：当前空闲堆结束位置
+            5. ```heap_size```：空闲堆总大小
+            6. ```allocate(size_t)```：对小对象，选择适当大小（向上取整到8的倍数）的空闲链表，取空闲块返回，否则返回调用一级配置器
+            7. ```deallocate(void*,size_t)```：对小对象，将当前指针所指空间，返回到对应空闲链表中，否则用一级配置器释放
+            8. ```reallocate```：
+        > 从chunk_alloc可以看出，SGI内存配置器的内存池并不要求所用内存完全连续，只是每一次向系统申请的内存才连续，但仍然可以统一编入空闲链表中，不影响使用。而每一次空闲堆用尽前，都会保证将所有内存编入适当大小的链表中，保证没有浪费。
+5. 其他内存工具
+    1. 批量构造：C++标准要求，批量构造必须具备**commit or rollback**特性，要么全部成功，要么恢复到调用前。
+        1. ```uninitialized_copy(first,last,copy)```：将first到last区间内容，拷贝到copy开始的迭代器中。SGI实现同样区分了POD类型和非POD类型，对于普通类型，直接调用拷贝（copy），否则需要调用构造（拷贝构造）。还可以针对char*等，专门进行模板特化，直接用底层内存函数拷贝
+        2. ```uninitialized_fill(first,last,x)```、```uninitialized_fill_n(first,count,x)```：同样是根据是否是POD类型，决定是直接填充（fill、fill_n），还是调用构造。
+6. 一些语法
+    1. placement new：```new(p) T(x)```，这是一种特殊的new运算符，其使用已分配的地址p，并在其上使用参数x构造T类型实例。
+    2. ```::operator new```、```::operator delete```：当前域的全局new/delete函数。new/delete函数分为运算符，全局函数，类重载函数三种。当用户使用new/delete运算符的时候，实际上发生了，用类重载new申请内存（未定义则用::operator new申请内存），并在此基础上调用类构造函数。
+7. 参考:
+    - 《STL源码剖析》
+    - [GCC 源代码获取](https://gcc.gnu.org/git.html)
+    - [Cpp reference: allocator](https://en.cppreference.com/w/cpp/memory/allocator)
 ### 高性能IO
 1. 流
     1. 参考：
@@ -148,70 +230,90 @@ C/C++中有一些经常会出现的难点，也是考研功底的要点。本文
 1. const和*：核心原则就一句话，const默认作用于其左侧的内容，如果没有，则作用于其右侧的内容
     - 因此，为了可读性，推荐的写法是将const统一写于待修饰内容的右侧
 ### 指针篇
-1. 函数指针
-    1. C：
-        1. 函数签名：即函数的类型，由返回类型+参数类型列表构成。
-            ```cpp
-            // 函数签名为int(int,int)
-            int add(int a,int b);
-            ```
-        1. 创建一个函数指针，需要指明指向的函数的类型。pf附近的括号必须存在，否则变为声明一个返回指针的函数。
-            ```cpp
-            // 局部 & 全局变量
-            int (*pf) (int, int);
-            pf = add;
-            pf(100,100); // 使用方式1
-            (*pf)(100,100); // 使用方式2
-            
-            // 形参定义
-            void func1(int pf(int, int)); // 写法1
-            void func2(int (*pf)(int, int)); // 写法2
-            ```
-        1. 创建别名
-            ```cpp
-            typedef int (*PF) (int, int);
-            PF pf_2 = add; // PF定义了一个类型，和类型用法相同
-            ```
-        1. 函数指针作为函数返回值
-            ```cpp
-            // 阅读方式从自定义名称向外，func是一个函数，形参为(int)
-            // 返回一个int(int, int)类型的函数指针
-            int (*func1(int))(int, int);
+变量指针
+1. C:
+    1. 对0地址的使用：0地址不能解引用，但可以用于进行指针相关的地址的运算
+        ```c
+        // linux内核
+        struct list_head {
+            struct list_head *prev, *next;
+        }
 
-            // 当然并不建议以上写法，过于隐晦
-            PF func2(int);
-            ```
-    1. C++：
-        1. auto特性
-            ```cpp
-            int add(int,int);
-            auto pf1 = add; // auto将会自动解析类型为函数指针
-            // auto *pf1 = add; // 等价写法
-            pf1(100,100); // 可以
-            (*pf1)(100,100); // 可以
-            ```
-        1. 函数类型和函数指针类型。decltype仅解析到函数签名。
-            ```cpp
-            decltype(add)* pf2 = add; // 正确
-            decltype(add) pf1 = add; // 错误，类型不对
-            ```
-        1. 形参
-            ```cpp
-            typedef decltype(add) func_add;
-            typedef decltype(add)* funcP_add;
-            void func1(func_add a);
-            void func2(funcP_add a); // 错误，已有定义
-            ```
-        1. 成员函数指针
-            ```cpp
-            typedef void(A::*PF1)(); // 必须指定类型别名PF1所属的类
-            PF1 pf1 = &A::func; // 必须有&
-            A a;
-            (a.*pf1)(); // 使用成员函数指针，需要和类型实例关联
-            ```
-            > 由于成员函数指针需要获取类成员函数，因此没有多态性。取到哪个类，就是其对应的实现。即使关联了其子类的实例。
-    1. 参考
-        - [函数指针使用总结](https://www.cnblogs.com/lvchaoshun/p/7806248.html)似乎并不完全正确，**等待确认**。
+        struct task_struct {
+            /*
+            ... 
+            */
+            struct list_head cg_list;
+        }
+
+        // 使用时
+        struct list_head list;
+        struct task_struct *t = (task_struct *)( (char *)&list - ((size_t)&((task_struct *)0)->cg_list) );
+        ```
+函数指针
+1. C：
+    1. 函数签名：即函数的类型，由返回类型+参数类型列表构成。
+        ```cpp
+        // 函数签名为int(int,int)
+        int add(int a,int b);
+        ```
+    2. 创建一个函数指针，需要指明指向的函数的类型。pf附近的括号必须存在，否则变为声明一个返回指针的函数。
+        ```cpp
+        // 局部 & 全局变量
+        int (*pf) (int, int);
+        pf = add;
+        pf(100,100); // 使用方式1
+        (*pf)(100,100); // 使用方式2
+        
+        // 形参定义
+        void func1(int pf(int, int)); // 写法1
+        void func2(int (*pf)(int, int)); // 写法2
+        ```
+    3. 创建别名
+        ```cpp
+        typedef int (*PF) (int, int);
+        PF pf_2 = add; // PF定义了一个类型，和类型用法相同
+        ```
+    4. 函数指针作为函数返回值
+        ```cpp
+        // 阅读方式从自定义名称向外，func是一个函数，形参为(int)
+        // 返回一个int(int, int)类型的函数指针
+        int (*func1(int))(int, int);
+
+        // 当然并不建议以上写法，过于隐晦
+        PF func2(int);
+        ```
+2. C++：
+    1. auto特性
+        ```cpp
+        int add(int,int);
+        auto pf1 = add; // auto将会自动解析类型为函数指针
+        // auto *pf1 = add; // 等价写法
+        pf1(100,100); // 可以
+        (*pf1)(100,100); // 可以
+        ```
+    2. 函数类型和函数指针类型。decltype仅解析到函数签名。
+        ```cpp
+        decltype(add)* pf2 = add; // 正确
+        decltype(add) pf1 = add; // 错误，类型不对
+        ```
+    3. 形参
+        ```cpp
+        typedef decltype(add) func_add;
+        typedef decltype(add)* funcP_add;
+        void func1(func_add a);
+        void func2(funcP_add a); // 错误，已有定义
+        ```
+    4. 成员函数指针
+        ```cpp
+        typedef void(A::*PF1)(); // 必须指定类型别名PF1所属的类
+        PF1 pf1 = &A::func; // 必须有&
+        A a;
+        (a.*pf1)(); // 使用成员函数指针，需要和类型实例关联
+        ```
+        > 由于成员函数指针需要获取类成员函数，因此没有多态性。取到哪个类，就是其对应的实现。即使关联了其子类的实例。
+3. 参考
+    - [函数指针使用总结](https://www.cnblogs.com/lvchaoshun/p/7806248.html)似乎并不完全正确，**等待确认**。
 
 
 ## 其他坑

@@ -28,7 +28,7 @@ UE5最强大的使用方式应该是将蓝图和C++混合使用，充分利用�
 1. C++相关开发：
     - 编写继承UAnimInstance的子类，计算必要的动画控制字段，获取所需要控制的角色类实例。该类型的类属性、成员属性一般都需要设置为支持蓝图操作，如对类用Bluprintable、BluprintType，对成员用EditAnywhere、BluprintReadWrite。
     - 在角色类的BeginPlay位置，设置AnimInstanceClass，将动画类赋予给角色类实例。
-    - 详见[UE5学习：Cpp篇](/2022/12/ue5学习cpp篇/)
+    - 详见[UE5学习：Cpp篇]({{<ref "/content/post/Projects/ue5-Learn-cpp.md">}})
 1. 注意要点：
     - 使用UAnimInstance对角色进行动画设置，和使用SetAnimation()方法进行设置是互斥的，只有最后使用的方式会生效。
 

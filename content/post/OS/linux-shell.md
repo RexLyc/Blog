@@ -14,6 +14,18 @@ math: true
 ---
 需要熟练掌握命令行是Linux系列系统最大的特点之一。本文从实用角度出发编写。
 <!--more-->
+## Bash快捷键
+Bash快捷键的主要目标是快速输入指令，调整指令。这里记录一些使用内容
+| 快捷键 | 作用 |
+| --- | --- |
+| Ctrl + a/e | 移动到行首/行尾 |
+| Ctrl + h/d | 向前/后删除一个字符 |
+| Ctrl + b/f | 向前/后移动一个字符 |
+| Alt + b/f | 向前/后移动一个单词 |
+| Ctrl + u/k | 删除到行首/行尾 |
+| Ctrl + r | 搜索命令历史 |
+| Ctrl + r/R | 搜索命令模式下，向前/后遍历 |
+
 ## 核心指令
 ![键盘图](/images/Linux/vi-vim-cheat-sheet-sch.gif)
 ### vi/vim
@@ -938,5 +950,44 @@ cat /proc/cpuinfo
 - telnet：查询对指定端口
 - nc：[netcat](https://learnku.com/articles/59416)，一个非常全面的网络指令，可以用于端口扫描、文件传输、创建IM会话
 - last：查看最近的登录信息
+- 对一些支持多版本并存的依赖项，进行版本管理
+    - update-alternatives
+        ```bash
+        # 切换java版本
+        sudo update-alternatives --config java
+        sudo update-alternatives --config javac
+        ```
+- 防火墙：firewall-cmd
+    ```bash
+    # 查看所有开放端口
+    firewall-cmd --zone=public --list-ports
+
+    # 添加80端口（permanent为永久，否则重启后失效）
+    firewall-cmd --zone=public --add-port=80/tcp --permanent
+
+    # 更新防火墙规则
+    firewall-cmd --reload
+
+    # 添加端口转发
+    firewall-cmd --zone=public --add-forward-port=port=6603:proto=tcp:toport=3306
+
+    # 查看全部规则
+    firewall-cmd --list-all
+
+    ```
+- 日志流转：logrotate
+    ```bash
+    logrotate /path/to/your/log.config
+    ```
+    其中config文件内容规则形如
+    ```conf
+    /var/log/yourApp/app.log {
+        weekly
+        create
+        minsize 1M
+        missingok
+        rotate 4
+    }
+    ```
 ## 一些建议
 1. 对于rm，可以替换为mv到临时文件夹，并定期清理，尽量避免使用rm，尤其禁止使用rm -rf

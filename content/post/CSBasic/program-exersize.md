@@ -89,6 +89,8 @@ math: true
 1. :red_circle: 1259：[不相交的握手](https://leetcode-cn.com/problems/handshakes-that-dont-cross/)。[非会员传送门](https://www.acwing.com/file_system/file/content/whole/index/content/1528105/)。可以用DP，但用数学更好。卡塔兰数+Lucas定理。
 
 ###  二分
+> 二分大多是返回下界，写的时候注意考虑边界情况（上下界相同，相差1），每次上下界的修改（是否需要+-1），确保可以返回正常结束并返回。
+ 
 1. :yellow_circle: 33：[搜索旋转排序数组](https://leetcode-cn.com/problems/search-in-rotated-sorted-array)。自己写了很久总有问题。[精选题解](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/solution/ji-jian-solution-by-lukelee/)。很考虑分类讨论能力和对二分查找的理解。**值得二刷**。
 1. :yellow_circle: 540：[有序数组中的单一元素](https://leetcode-cn.com/problems/single-element-in-a-sorted-array)。利用有序性。
 1. :red_circle: 4：[寻找两个正序数组的中位数](https://leetcode-cn.com/problems/median-of-two-sorted-arrays/)。经典的二分查找题目。普通的二分$O(log(m+n))$，以及利用中位数性质的二分$O(log(min(m,n))$（典型的**数量关系**，一个数组划分后，另一个数组理论上的划分位置是固定的）。还要注意特殊情况处理。**值得二刷**。
@@ -99,6 +101,7 @@ math: true
 1. :red_circle: 410：[分割数组的最大值](https://leetcode-cn.com/problems/split-array-largest-sum/)。DP和记忆化搜索复杂度太高怎么办？一定要学[题解](https://leetcode-cn.com/problems/split-array-largest-sum/solution/fen-ge-shu-zu-de-zui-da-zhi-by-leetcode-solution/)，非常经典的二分思路，对待求结果进行**二分测试**。先设定一个最大值，超过该值就进行划分，如果划分数组的数量符合要求。再进一步用二分确定最大值的范围。
     - 仔细思考。如果搜索，则相当于是求出了过多的信息（很多种划分方式的最大值都被算出来了）。
     - 只要是结果有大小顺序，都可以用二分测试来计算。
+1. :yellow_circle: 2560: [打家劫舍 IV](https://leetcode.cn/problems/house-robber-iv/description/)。经典最小化最大值问题。这类问题就是针对这个值进行二分。而不是真的去模拟求出所有的最大值。另外该题需要想明白两点：先选一定不比后选更差（贪心策略的正确性，类似于优先选择最早完成的任务），另一点是二分的最终结果一定会存在于数组中（不用担心二分的结果不在原数组）。
 
 ###  字符串
 1. :green_circle: 28：[实现strstr](https://leetcode-cn.com/problems/implement-strstr/)。平均意义上又好写又快的[Sunday算法](https://blog.csdn.net/q547550831/article/details/51860017)。其实就是两条策略：失配后对比主串中此次参加匹配的子串后的下一个字符，如果在模式串中没有，则大跳，否则对齐到模式串从右数第一次出现的位置。
@@ -172,8 +175,8 @@ math: true
 
 ###  分治
 1. :green_circle: 70：[爬楼梯](https://leetcode-cn.com/problems/climbing-stairs/)。经典斐波那契问题。矩阵快速幂。
-1. :yellow_circle: 215：[数组中第K个最大的元素](https://leetcode-cn.com/problems/kth-largest-element-in-an-array/)。可以使用[BFPRT算法](https://www.lyclife.com/2021/07/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E5%9B%9B%E4%B8%AD%E4%BD%8D%E6%95%B0%E5%92%8C%E9%A1%BA%E5%BA%8F%E7%BB%9F%E8%AE%A1/)，理论上更快，但是其实常数很高，也可以用小顶堆来实现，理论上复杂度高一些。
-1. :yellow_circle: 148：[排序链表](https://leetcode-cn.com/problems/sort-list/)。进阶要求是$O(nlogn)$时间和$O(1)$的空间。只能使用自底向上的原地归并排序。
+2. :yellow_circle: 215：[数组中第K个最大的元素](https://leetcode-cn.com/problems/kth-largest-element-in-an-array/)。可以使用[BFPRT算法]({{<relref "/content/post/CSBasic/algo4-sequenceCount.md#选择问题">}})，理论上更快，但是其实常数很高，也可以用小顶堆来实现，理论上复杂度高一些。
+3. :yellow_circle: 148：[排序链表](https://leetcode-cn.com/problems/sort-list/)。进阶要求是$O(nlogn)$时间和$O(1)$的空间。只能使用自底向上的原地归并排序。
 
 ###  排序
 1. :yellow_circle: 220：[存在重复元素III](https://leetcode-cn.com/problems/contains-duplicate-iii/)。使用滑动窗口+平衡树的方式可以很容易得到$O(nlogk)$的时间复杂度。但[题解](https://leetcode-cn.com/problems/contains-duplicate-iii/solution/cun-zai-zhong-fu-yuan-su-iii-by-leetcode-bbkt/)使用桶排序的思想来解决**abs值是否在一个区间内**的判断问题，需要判断当前桶和相邻桶。
@@ -195,7 +198,7 @@ math: true
 1. :red_circle: 332：[重新安排行程](https://leetcode-cn.com/problems/reconstruct-itinerary/)。学习图论概念：[欧拉图&半欧拉图&欧拉回路&半欧通路](https://oi-wiki.org/graph/euler/)。[Hierholzer算法题解](https://leetcode-cn.com/problems/reconstruct-itinerary/solution/zhong-xin-an-pai-xing-cheng-by-leetcode-solution/)。**值得二刷**。
 1. :yellow_circle: 310：[最小高度树](https://leetcode-cn.com/problems/minimum-height-trees/)。自己写的是普通的BFS。[题解]()中揭示了本题实际上是逐步删除度为1的节点，即拓扑排序。或者说这是一类，两端烧香求中点的题目。
 1. :yellow_circle: 743：[网络延迟时间](https://leetcode-cn.com/problems/network-delay-time/)。基础款单源有向最短路。邻接表+djikstra+堆优化。
-1. :yellow_circle: 787：[K站中转内最便宜的航班](https://leetcode-cn.com/problems/cheapest-flights-within-k-stops)。K轮[Bellman-Ford算法](http://localhost:1313/2021/08/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA%E5%85%B6%E5%85%AD%E5%9B%BE%E7%AE%97%E6%B3%95/)。
+1. :yellow_circle: 787：[K站中转内最便宜的航班](https://leetcode-cn.com/problems/cheapest-flights-within-k-stops)。K轮[Bellman-Ford算法]({{<relref "/content/post/CSBasic/algo6-graph.md#单源最短路">}})。
 1. :red_circle: 685：[冗余连接II](https://leetcode-cn.com/problems/redundant-connection-ii/solution/)。树+并查集。根据冗余连接的不同情况，查找可以断开的边。
 1. :red_circle: 1168：[水资源分配优化](https://leetcode-cn.com/problems/optimize-water-distribution-in-a-village/)。[非会员传送门](https://blog.csdn.net/qq_17550379/article/details/100070671)。图论的经典思路：**添加超级源点**。通过引入超级源点，水井费用也成为一种普通的边。转化后就成为了最小生成树题目。
 1. :red_circle: 329：[矩阵中的最长递增路径](https://leetcode-cn.com/problems/longest-increasing-path-in-a-matrix/)。经典转化思路：将原题目中的一些约束，修改为图论中点和点之间的边关系。而最长路径恰好可以用拓扑排序的方式进行计算（或者说是类似BFS的方式）。
@@ -203,6 +206,7 @@ math: true
 1. :red_circle: 854：[相似度为K的字符串](https://leetcode-cn.com/problems/k-similar-strings/)。又是字符串变换转为图论变换的题目。本题的[题解](https://leetcode-cn.com/problems/k-similar-strings/solution/xiang-si-du-wei-k-de-zi-fu-chuan-by-leetcode/)把字符移动理解为对边的变换。
 1. :red_circle: 1197：[进击的骑士](https://leetcode-cn.com/problems/minimum-knight-moves/)。[非会员传送门](https://blog.csdn.net/qq_17550379/article/details/101195668)。使用[A*算法](https://zhuanlan.zhihu.com/p/54510444)，给搜索添加启发式估计值作为排序规则的一部分。这个规则的主要目的是，不让100%恶化的情况入队。
 1. :red_circle: 2493：[将节点分成尽可能多的组](https://leetcode.cn/problems/divide-nodes-into-the-maximum-number-of-groups/description/)。本质上是求若干个连通子图各自的图直径。图的直径的算法就是两次BFS，第一次随机，第二次从第一次BFS最后入队节点开始。可以先用并查集对图做分割。
+2. :red_circle: 2603: [收集树中金币](https://leetcode.cn/problems/collect-coins-in-a-tree/description/)。看了题解，核心是对图做变换：剪枝、去叶子节点。**思考最终路径的规则**：任何一条路径最多只需要走两次，路径终点到（最远的）有金币的节点距离为2。因此变换有两条：递归删除所有无金币的叶子节点，对最终树进行2次删除叶子节点的操作。最终剩下的边，每个都会遍历。
 
 ###  数据结构
 1. :red_circle: 2179：[统计数组中好三元组数目](https://leetcode-cn.com/problems/count-good-triplets-in-an-array/)。核心题解思路是，以变量y遍历第一个列表，视作三元组的中间元素，并统计第二个列表中，位于y前面的变量中，有多少也在第一个列表中y位置之前出现过。这个统计的信息，恰好可以用[树状数组](https://zhuanlan.zhihu.com/p/93795692)来进行维护。由此达到$O(nlogn)$。

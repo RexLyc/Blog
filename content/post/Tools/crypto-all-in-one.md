@@ -10,7 +10,7 @@ tags:
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/security.jpg
 ---
-本文记录所有的信息安全中的加解密知识，库，实用工具。
+本文记录所有的信息安全中的加解密知识，库，实用工具。也包括鉴权、访问控制、抗抵赖相关知识。
 <!--more-->
 
 ## OpenSSL
@@ -33,3 +33,15 @@ thumbnailImage: /images/thumbnail/security.jpg
         4. 调用Visual Studio的Native Tools Command Prompt，执行```nmake```
         5. ```nmake install```
     - 参考：[win10 x64 visual studio 2019 编译 OpenSSL-1.1.1](https://blog.csdn.net/qiuxue110/article/details/115560240)
+
+## 鉴权
+1. 基础术语
+    1. Cookie
+    2. Token
+    3. 跨域
+2. 单点登录：在一个多应用系统中，提供一处登录处处登录，一处登出处处登出的效果。参考[单点登录解决方案](https://cloud.tencent.com/developer/article/1636664)。
+    1. Cookie
+    2. SSO
+    3. OAuth
+    4. JWT（JSON Web Token）
+3. OAuth2.0

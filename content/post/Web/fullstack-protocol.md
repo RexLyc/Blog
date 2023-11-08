@@ -31,64 +31,81 @@ thumbnailImage: /images/thumbnail/fullstack.jpg
 1. 单播、组播、广播
 ## HTTP
 1. 使用最为广泛的应用层协议之一，建立在TCP上，以协议、地址、端口、路径表示一个HTTP接口
-1. HTTP头
-1. HTTP数据体
-1. 坑：
+2. HTTP消息：分为请求Request和反馈Response两种，结构都是头部和正文组成
+    1. HTTP头：头的内容是面向行的，固定格式的。下面是请求头的内容格式。
+        |  |  |  |  |  |  |  |
+        | --- | --- | --- | --- | --- | --- | --- |
+        | 请求方法 | 空格 | URL | 空格 | 协议版本 | 回车符CR | 换行符LF |
+        | 头部字段名 | ":" | 值 | 回车符 | 换行符 | | |
+        | 头部字段名 | ":" | 值 | 回车符 | 换行符 | | |
+        | 回车符 | 换行符 | | | | | |
+        | 请求数据 | | | | | | |
+    2. HTTP数据体：数据体的内容主要有4种格式，XML、HTML、JSON、Text。但实际上也可以传输纯二进制数据。
+3. 协议相关
+    1. XHR（XMLHttpRequest）：虽然名字有XML，但实际上和HTTP数据体支持的格式一样，XML/HTML/JSON/Text等。XHR的出现主要是为了解决数据的异步加载。使得客户端能够在不刷新页面的前提下，向服务器申请数据。但该方式出现较早，设计不够好。
+    2. Ajax（Asynchronous JavaScript And XML）：对XHR的一种封装框架。极大的普及了XHR的使用。缺点：没有浏览历史不能回滚，存在跨域问题，对SEO（Search Engine Optimization）不友好，Ajax数据无法被搜索引擎获取。
+    3. fetch API：为了解决XHR存在的各种设计上的问题（或者说遗憾）。使用Promise语法，模块化设计，通过数据流处理数据（分块读取，对大数据友好），引入AbortController实现对请求的额外控制（如中止请求）。
+    4. Cookie、Token、Session：都是用来协调http协议在实际应用中的无状态设计问题。
+        - Cookie：存储于客户端本地文件中的一小段数据（有数量和容量限制），是对HTTP协议的一个扩展。主要组成部分是：键、值、域、路径匹配、过期时间。从设计上来看，一个cookie只能附加在设计的过期时间内，对相同的域，符合路径匹配的请求中。
+        - Session：服务器端存储的，逻辑上的会话内容。当一个用户登录，服务器端就产生一个保存会话内容的数据结构。Cookie和Session搭配起来就能实现用户的登录，在线，登出状态的维护。
+        - Token：Cookie+Session的方案有一个很大的隐患是[CSRF（跨站请求伪造）](https://www.cnblogs.com/54chensongxia/p/11693666.html)。因为Cookie是自动填充到请求头中，而且会存储在本地，容易被第三方获取并利用。Token则是更多由用户控制，可以选择在缓存、localStorage、SessionStorage存储（但Token不存在Cookie中），跨域和过期时间也更灵活。服务器对Token进行合法性校验。
+4. 坑：
     1. 二进制数据不能直接填充到文本类型的数据体中，由于编码问题，不能保证所有的二进制数据得到正确编码（可能被转为一个问号?），对于需要填入到json格式内的二进制数据，可以考虑转为BASE64编码
-1. 大版本的主要变化
+5. 大版本的主要变化
     - 1.0
     - 1.1
     - 2.0
     - 2.1
-1. 流水线
+6. 流水线
     - 非流水线模式
     - 流水线模式
+7. 参考：[HTTP协议详解 - 知乎](https://zhuanlan.zhihu.com/p/77376952)、[阮一峰：Fetch API 教程](https://www.ruanyifeng.com/blog/2020/12/fetch-tutorial.html)
 ## 流式
 1. 文本
     1. websocket
-    1. socket.io：低延迟、双向的客户端、服务端通信。
+    2. socket.io：低延迟、双向的客户端、服务端通信。
         - [Flask-SocketIO官方文档翻译](https://www.law-think.com/p/2018-12-09-socketio/)
 ## 编码
 ### 文字编码
 1. 编码处理情况
     1. 代码
-    1. 编译器
-    1. 传输
-    1. 展示
+    2. 编译器
+    3. 传输
+    4. 展示
         1. 前端
-        1. Qt
-    1. 数据库
+        2. Qt
+    5. 数据库
         1. mysql
-    1. 操作系统
+    6. 操作系统
         1. Linux：$LANG
-1. 常见编码：
+2. 常见编码：
     1. UTF
-    1. GBK
+    2. GBK
 ### 多媒体编码
 1. BASE64
 ### 条形码&二维码
 1. 二维码
     1. 起源
-    1. 基本原理
-    1. 各版本
+    2. 基本原理
+    3. 各版本
 ## RESTful
 1. 概述：RESTFUL结构风格是互联网中HTTP接口经常采用的一种接口设计风格
-1. 关键词：
+2. 关键词：
     - 路径：又称为终点（Endpoint），restful架构中认为一个路径代表一种资源，因此路径中不应出现动词
     - http方法：代表对指定路径进行的操作
     - IETF：国际互联网工程任务组Internet Engineering Task Force，公开性质的民间国际团体
-1. 常用方法
+3. 常用方法
     1. GET：对应select
-    1. PUT：对应update、insert
-    1. POST：对应create
-1. 其他方法
+    2. PUT：对应update、insert
+    3. POST：对应create
+4. 其他方法
     1. HEAD
-    1. DELETE
-    1. OPTIONS
-    1. CONNECT
-    1. PATCH
-    1. TRACE
-1. 常见状态码
+    2. DELETE
+    3. OPTIONS
+    4. CONNECT
+    5. PATCH
+    6. TRACE
+5. 常见状态码
 | 码值 | 英文名称 | 具体含义 |
 | --- | --- | --- | --- |
 | 200 | OK | 服务器成功返回请求数据 |

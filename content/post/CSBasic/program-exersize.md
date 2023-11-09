@@ -58,6 +58,7 @@ math: true
 1. :yellow_circle: 950：[按递增顺序显示卡牌](https://leetcode-cn.com/problems/reveal-cards-in-increasing-order/)。重新排序卡牌，使得满足一定条件。考验模拟的思路。
 
 ###  搜索
+1. :rec_circle: 2258: [逃离火灾](https://leetcode.cn/problems/escape-the-spreading-fire/description/)。唯一需要特殊考虑的情况，是只有安全屋格子允许人和火同时抵达。优化思路，从起始位置和着火点分别BFS$\to$从安全屋反向BFS并记录路径$\to$不需要记录路径，只需要标记路径是从左侧还是右侧。题解里还有对等待时间二分查找+BFS，虽然效率低，但是二分的思路很有代表性。
 1. :yellow_circle: 39：[组合总数](https://leetcode-cn.com/problems/combination-sum/)。标准DFS。
 1. :yellow_circle: 40：[组合总数II](https://leetcode-cn.com/problems/combination-sum-ii/)。39题的变种。需要使用一些剪枝来避免重复。
 1. :yellow_circle: 94：[二叉树的中序遍历](https://leetcode-cn.com/problems/binary-tree-inorder-traversal/)。普通写法没什么。迭代写法就需要一点东西了，可参考[二叉树遍历方法大全](https://www.cnblogs.com/sunshuyi/p/12680577.html)、[Morris遍历](https://www.freesion.com/article/2475651348/)。尤其注意思考Morris后序遍历的反转操作。

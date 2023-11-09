@@ -8,6 +8,7 @@ tags:
 weight: 1100
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/todo.jpg
+draft: true
 ---
 这个是专门用于记录每天的一些问题和想法，不会公开
 <!--more-->

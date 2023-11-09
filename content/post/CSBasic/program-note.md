@@ -127,3 +127,4 @@ math: true
 1. [July《十五个经典算法研究与总结》索引](https://blog.csdn.net/sailinglt/article/details/79323509)
 1. [国家队资料](https://github.com/enkerewpo/OI-Public-Library)
 1. [图算法总结](https://www.cnblogs.com/Ace-Monster/p/9439557.html)
+2. 强烈推荐[OI Wiki](https://oi-wiki.org/)，推荐其中关于数据结构、图论、计算几何的部分。

@@ -117,6 +117,7 @@ draft: true
    2. WaveForm:
       1. 收费软件的免费版本，有一些限制，但不影响使用。
       2. 不能直接和Minilab联动
+      3. 教程：[Ot-学习如何使用Tracktion Waveform教程](https://www.bilibili.com/video/BV1mW4y1k7dS)
 3. 音源软件
    1. Kontakt：不打开DAW，单独使用时没有声音
    2. Native Access：综合性的app，提供各类音乐资源。买了一个东亚乐器包
@@ -137,6 +138,7 @@ draft: true
 1. FluidFlux：流体插件
 
 ## 资源网站
+1. [Online Courses：一个综合在线课程网站](https://online-courses.club/)
 1. [ANATOMY360：一个提供精细三维重建模型的网站](http://anatomy360.info/)
 1. [【教程】Blender + UE5 游戏角色建模材质绑定动画全流程](https://www.bilibili.com/video/BV1MY4y1X7gn/)
 1. [【中文字幕】UE5与Blender完整游戏环境制作工作流程视频教程](https://www.bilibili.com/video/BV1Ft4y1T7KW)

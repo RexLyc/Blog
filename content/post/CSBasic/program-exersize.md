@@ -229,6 +229,7 @@ math: true
 1. :red_circle: 862：[和至少为K的最短子数组](https://leetcode-cn.com/problems/shortest-subarray-with-sum-at-least-k/solution/he-zhi-shao-wei-k-de-zui-duan-zi-shu-zu-by-leetcod/)。结合多种思路，前缀和（加速）+单调栈（因为有负数，不能简单滑动窗口）+二分（加速）。**值得思考**。
 1. :red_circle: 1606：[找到处理最多请求的服务器](https://leetcode-cn.com/problems/find-servers-that-handled-most-number-of-requests/)。典型的多种数据结构配合。思考思路：需要有一个数据结构有序保存服务器当前任务结束时刻，还需要有一个数据结构有序保存空闲服务器序号。思维上**不要局限于单一数据结构**解决所有需求。
 1. :red_circle: 732：[我的日程安排表III](https://leetcode-cn.com/problems/my-calendar-iii/)。经典线段树板子，需要动态增加节点。即抛弃build过程，在update过程中（具体就是push_down）过程中，进行原来的节点分裂。
+2. :red_circle: 2736：[最大和查询](https://leetcode.cn/problems/maximum-sum-queries/description/)。看了[题解](https://leetcode.cn/problems/maximum-sum-queries/solutions/2530255/jian-dan-bao-li-xian-duan-shu-by-ketus82-tes0/)。还是线段树。**同一下标的多维度的值也可以用线段树进行区间维护**。线段树**并不要求区间之间一定满足什么关系**，看题目内容，可能要遍历很多的区间，必要的时候可以通过剪枝。其实仔细思考能发现本题的几个要点：和的极大值可以通过区间维护，两个加数的极小值/极大值也可以通过区间维护。如此就能通过排除
 
 ###  其他
 1. :green_circle: 665：[非递减数列](https://leetcode-cn.com/problems/non-decreasing-array/)。不简单的简单题，**值得二刷**。考虑情况要完整。

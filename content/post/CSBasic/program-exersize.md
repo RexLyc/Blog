@@ -120,6 +120,7 @@ math: true
 1. :red_circle: 6093：[设计一个文本编辑器](https://leetcode.cn/problems/design-a-text-editor/)。（看了题解）脑筋急转弯级别的困难题。很容易陷入到写一个链表结构的数据结构中（很难写）。但实际上，可以看作是类似两个栈，分别是前缀和后缀。左右移动就是两个栈来回压入，插入删除则是对前缀的压入和弹出。
 
 ###  动态规划
+1. :red_circle: 689：[三个无重叠子数组的最大和](https://leetcode.cn/problems/maximum-sum-of-3-non-overlapping-subarrays/description/)。思考方向比较顺畅：从一个最大和子数组，到两个，再到三个，可以很自然的思考出来动态规划方程。本质还是背包问题。
 1. :green_circle: 121、122：买卖股票的最佳时机[I](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock/)/[II](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-ii/)。有通用DP模板。
 1. :yellow_circle: 309：[最佳买卖股票时机含冷冻期](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/)。$dp[i][j]$代表第i天结束，手中有j支股票的最大收益。
 1. :yellow_circle: 877：[石子游戏](https://leetcode-cn.com/problems/stone-game)。博弈类问题的DP。但实际上，本题先手必胜。**值得二刷**。

@@ -99,6 +99,7 @@ thumbnailImage: /images/thumbnail/todo.jpg
 1. 参加一些线下技术论坛、创业论坛
 1. read&write (可以写一些有意义的活动心得、感悟)
 1. 玩一下历年的年度游戏
+2. 学英语，主要是听力、词汇量
 
 ## 待读书清单
 - 计划必读

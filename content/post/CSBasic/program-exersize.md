@@ -90,7 +90,7 @@ math: true
 1. :red_circle: 1259：[不相交的握手](https://leetcode-cn.com/problems/handshakes-that-dont-cross/)。[非会员传送门](https://www.acwing.com/file_system/file/content/whole/index/content/1528105/)。可以用DP，但用数学更好。卡塔兰数+Lucas定理。
 
 ###  二分
-> 二分大多是返回下界，写的时候注意考虑边界情况（上下界相同，相差1），每次上下界的修改（是否需要+-1），确保可以返回正常结束并返回。
+> 二分查找，最好的表示方式就是，left边界，remain查找区间长度。注意left+remain就是第一个超出区间的值，但是也有可能是查找结果，参考vector容器的end()。参考C++标准库[lower_bound的可能实现](https://en.cppreference.com/w/cpp/algorithm/lower_bound)。
  
 1. :yellow_circle: 33：[搜索旋转排序数组](https://leetcode-cn.com/problems/search-in-rotated-sorted-array)。自己写了很久总有问题。[精选题解](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/solution/ji-jian-solution-by-lukelee/)。很考虑分类讨论能力和对二分查找的理解。**值得二刷**。
 1. :yellow_circle: 540：[有序数组中的单一元素](https://leetcode-cn.com/problems/single-element-in-a-sorted-array)。利用有序性。
@@ -162,6 +162,7 @@ math: true
 1. :red_circle: 711：[不同岛屿的数量II](https://leetcode-cn.com/problems/number-of-distinct-islands-ii/)。[非会员传送门](https://blog.csdn.net/pianzang5201/article/details/93503836)。和694不同的地方在于这里会有旋转和翻转。其实这个就能很好的考验对于哈希的理解。只要换一个哈希思路，就能保证翻转、旋转不变性。即对形状坐标序列进行排序，并选择字典序最小的作为该形状的记录。
 
 ###  多指针 & 滑动窗口
+1. :yellow_circle: 2516：[每种字符至少取K个](https://leetcode.cn/problems/take-k-of-each-character-from-left-and-right/description/)。自己写了对保留部分长度进行二分的。题解是滑动窗口（双指针）效率更高。
 1. :green_circle: 26：[删除数组重复项](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-array/)。输入已经有序，单向双指针扫描。
 1. :green_circle: 141：[环形链表](https://leetcode-cn.com/problems/linked-list-cycle/)。快慢指针。如果链表中存在循环，一定会相遇。
 1. :green_circle: 27：[移除元素](https://leetcode-cn.com/problems/remove-element/)。从左右两侧分别开始，将需要移除的元素覆盖。

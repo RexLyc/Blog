@@ -105,19 +105,20 @@ math: true
 1. :yellow_circle: 2560: [打家劫舍 IV](https://leetcode.cn/problems/house-robber-iv/description/)。经典最小化最大值问题。这类问题就是针对这个值进行二分。而不是真的去模拟求出所有的最大值。另外该题需要想明白两点：先选一定不比后选更差（贪心策略的正确性，类似于优先选择最早完成的任务），另一点是二分的最终结果一定会存在于数组中（不用担心二分的结果不在原数组）。
 
 ###  字符串
-1. :green_circle: 28：[实现strstr](https://leetcode-cn.com/problems/implement-strstr/)。平均意义上又好写又快的[Sunday算法](https://blog.csdn.net/q547550831/article/details/51860017)。其实就是两条策略：失配后对比主串中此次参加匹配的子串后的下一个字符，如果在模式串中没有，则大跳，否则对齐到模式串从右数第一次出现的位置。
-1. :green_circle: 1071：[字符串的最大公因子](https://leetcode-cn.com/problems/greatest-common-divisor-of-strings/)。有个**题解非常精妙**，比较str1+str2==str2+str1，如果相等，返回gcd(str1.size(),str2.size())，否则返回0。
-1. :yellow_circle: 8：[字符串转整数atoi](https://leetcode-cn.com/problems/string-to-integer-atoi)。凡是计算，都要考虑中间步骤、最终结果，**是否会溢出**。尤其是结果不会溢出，但是粗暴的中间计算会，一定要注意。
-1. :构建回文串检测: 1177：[构建回文串检测](https://leetcode-cn.com/problems/can-make-palindrome-from-substring/)。计算各个奇偶性并进行判断即可。
-1. :yellow_circle: 820：[单词的压缩编码](https://leetcode-cn.com/problems/short-encoding-of-words/)。使用Trie树(前缀树、字典树)[题解](https://leetcode-cn.com/problems/short-encoding-of-words/solution/dan-ci-de-ya-suo-bian-ma-by-leetcode-solution/)。
-1. :yellow_circle: 151：[反转字符串里的单词](https://leetcode-cn.com/problems/reverse-words-in-a-string/)。小技巧，先翻转小单词，再翻转整体，等价于把单词位置进行对调。
-1. :yellow_circle: 647：[回文子串](https://leetcode-cn.com/problems/palindromic-substrings/)。先使用[Manacher算法](https://www.jianshu.com/p/116aa58b7d81)求出全部回文子串，结果显然。**值得二刷**。
-1. :red_circle: 1044：[最长重复子串](https://leetcode-cn.com/problems/longest-duplicate-substring/)。二分法+Rabin-Karp算法（实现不好就超时）。后缀数组+最长公共子串。***没做完***
-1. :red_circle: 65：[有效数字](https://leetcode-cn.com/problems/valid-number/)。直接上状态机，参考[题解](https://leetcode-cn.com/problems/valid-number/solution/biao-qu-dong-fa-by-user8973/)中提到的编译原理DFA。
-1. :red_circle: 466：[统计重复个数](https://leetcode-cn.com/problems/count-the-repetitions/)。题材非常新颖的一道。统计字符串之间的循环节。注意：参考小数的循环，字符串的循环节不一定从第一节字符串开始（前面可能有一个前缀）。[题解传送门](https://leetcode-cn.com/problems/count-the-repetitions/solution/tong-ji-zhong-fu-ge-shu-by-leetcode-solution/)。**值得二刷**。
-1. :red_circle: 1153：[字符串转化](https://leetcode-cn.com/problems/string-transforms-into-another-string/)。[非会员传送门](https://blog.csdn.net/qq_17550379/article/details/99404963)。很新颖的一道题目。判断类题目不需要给出解，**只需要判断**。本题只需要判断是否可能完成转换：不能具有全部26个字母，不能有相同字母需要修改为不同字母。
-1. :red_circle: 212：[单词搜索II](https://leetcode-cn.com/problems/word-search-ii/)。经典前缀树（字典树、Trie树）题目。可以看一下题解的[优化实现](https://leetcode-cn.com/problems/word-search-ii/solution/dan-ci-sou-suo-ii-by-leetcode-solution-7494/)。
-1. :red_circle: 6093：[设计一个文本编辑器](https://leetcode.cn/problems/design-a-text-editor/)。（看了题解）脑筋急转弯级别的困难题。很容易陷入到写一个链表结构的数据结构中（很难写）。但实际上，可以看作是类似两个栈，分别是前缀和后缀。左右移动就是两个栈来回压入，插入删除则是对前缀的压入和弹出。
+1. :red_circle: 1044：[最长重复子串](https://leetcode.cn/problems/longest-duplicate-substring/description/)。最长重复子串，等价于求所有后缀的最长公共前缀。后缀数组的样板题目。
+2. :green_circle: 28：[实现strstr](https://leetcode-cn.com/problems/implement-strstr/)。平均意义上又好写又快的[Sunday算法](https://blog.csdn.net/q547550831/article/details/51860017)。其实就是两条策略：失配后对比主串中此次参加匹配的子串后的下一个字符，如果在模式串中没有，则大跳，否则对齐到模式串从右数第一次出现的位置。
+3. :green_circle: 1071：[字符串的最大公因子](https://leetcode-cn.com/problems/greatest-common-divisor-of-strings/)。有个**题解非常精妙**，比较str1+str2==str2+str1，如果相等，返回gcd(str1.size(),str2.size())，否则返回0。
+4. :yellow_circle: 8：[字符串转整数atoi](https://leetcode-cn.com/problems/string-to-integer-atoi)。凡是计算，都要考虑中间步骤、最终结果，**是否会溢出**。尤其是结果不会溢出，但是粗暴的中间计算会，一定要注意。
+5. :构建回文串检测: 1177：[构建回文串检测](https://leetcode-cn.com/problems/can-make-palindrome-from-substring/)。计算各个奇偶性并进行判断即可。
+6. :yellow_circle: 820：[单词的压缩编码](https://leetcode-cn.com/problems/short-encoding-of-words/)。使用Trie树(前缀树、字典树)[题解](https://leetcode-cn.com/problems/short-encoding-of-words/solution/dan-ci-de-ya-suo-bian-ma-by-leetcode-solution/)。
+7. :yellow_circle: 151：[反转字符串里的单词](https://leetcode-cn.com/problems/reverse-words-in-a-string/)。小技巧，先翻转小单词，再翻转整体，等价于把单词位置进行对调。
+8. :yellow_circle: 647：[回文子串](https://leetcode-cn.com/problems/palindromic-substrings/)。先使用[Manacher算法](https://www.jianshu.com/p/116aa58b7d81)求出全部回文子串，结果显然。**值得二刷**。
+9. :red_circle: 1044：[最长重复子串](https://leetcode-cn.com/problems/longest-duplicate-substring/)。二分法+Rabin-Karp算法（实现不好就超时）。后缀数组+最长公共子串。***没做完***
+10. :red_circle: 65：[有效数字](https://leetcode-cn.com/problems/valid-number/)。直接上状态机，参考[题解](https://leetcode-cn.com/problems/valid-number/solution/biao-qu-dong-fa-by-user8973/)中提到的编译原理DFA。
+11. :red_circle: 466：[统计重复个数](https://leetcode-cn.com/problems/count-the-repetitions/)。题材非常新颖的一道。统计字符串之间的循环节。注意：参考小数的循环，字符串的循环节不一定从第一节字符串开始（前面可能有一个前缀）。[题解传送门](https://leetcode-cn.com/problems/count-the-repetitions/solution/tong-ji-zhong-fu-ge-shu-by-leetcode-solution/)。**值得二刷**。
+12. :red_circle: 1153：[字符串转化](https://leetcode-cn.com/problems/string-transforms-into-another-string/)。[非会员传送门](https://blog.csdn.net/qq_17550379/article/details/99404963)。很新颖的一道题目。判断类题目不需要给出解，**只需要判断**。本题只需要判断是否可能完成转换：不能具有全部26个字母，不能有相同字母需要修改为不同字母。
+13. :red_circle: 212：[单词搜索II](https://leetcode-cn.com/problems/word-search-ii/)。经典前缀树（字典树、Trie树）题目。可以看一下题解的[优化实现](https://leetcode-cn.com/problems/word-search-ii/solution/dan-ci-sou-suo-ii-by-leetcode-solution-7494/)。
+14. :red_circle: 6093：[设计一个文本编辑器](https://leetcode.cn/problems/design-a-text-editor/)。（看了题解）脑筋急转弯级别的困难题。很容易陷入到写一个链表结构的数据结构中（很难写）。但实际上，可以看作是类似两个栈，分别是前缀和后缀。左右移动就是两个栈来回压入，插入删除则是对前缀的压入和弹出。
 
 ###  动态规划
 1. :red_circle: 689：[三个无重叠子数组的最大和](https://leetcode.cn/problems/maximum-sum-of-3-non-overlapping-subarrays/description/)。思考方向比较顺畅：从一个最大和子数组，到两个，再到三个，可以很自然的思考出来动态规划方程。本质还是背包问题。

@@ -186,6 +186,7 @@ math: true
 - 参考：[前缀树(字典树、Trie树)](https://www.cnblogs.com/zhouzhiyao/p/12547142.html) 。
 
 #### 后缀树
+- 不再建议学习，可以转去学习后缀数组，实际上可以证明，后缀树的任意算法都可以用增强的后缀数组实现。
 - 讲的比较好的几篇：https://www.cnblogs.com/xubenben/p/3484988.html 、 https://www.cnblogs.com/xubenben/p/3486007.html 、 https://blog.csdn.net/aiphis/article/details/48489709 、https://www.cnblogs.com/gaochundong/p/suffix_tree.html。
 - 几个关键点:
     - 活跃节点的理解（当前能够重叠的部分的起始位置）
@@ -212,21 +213,122 @@ math: true
 ### 数组
 
 #### 后缀数组SA
-- 后缀数组（Suffix Array）。实现起来比较好理解，而且速度也不慢（不过一般需要引入额外的信息来解题）。参考[博客](https://www.cnblogs.com/jianglangcaijin/p/6035937.html)、[后缀数组详解](https://zhuanlan.zhihu.com/p/561024497)。DC3算法是比较好的实现方式（比较严格的O(3n)），对基数排序的理解。尤其是字符串的特点，导致划分完的2各部分，内部一定是有序的（长度都不一样，不可能出现完全相等）。而网上的对比可以看一下，起始倍增法也算够优秀（实际运行速度）。一个完整的介绍在[后缀数组简介](https://oi-wiki.org/string/sa/)。
+- 后缀数组（Suffix Array）：实现起来比较好理解，而且速度也不慢（不过一般需要引入额外的信息来解题）
 - 相关的术语和数据结构
     - 第i个后缀/后缀i：以第i个字符为起点的后缀。可表示成$S[i]$，S代表原始字符串的后缀。
     - $rank[i]$：后缀i的排序排名
     - $sa[j]$：在$rank$中排名为$j$的后缀，在原串中的起始位置。有$sa[rank[i]]=i$。
     - $height[j]$：后缀排名中，排名为i的后缀和前驱的最长公共前缀。即$LCP(S[sa[j]],S[sa[j-1]])$。后缀数组最重要的**导出数据**。有两条性质。
         - 后缀i和后缀j（假定$i<j$）：最长公共前缀长度为$min \lbrace height[k] , rank[i]<k\ge rank[j] \rbrace$。这条性质比较明显，两个字符串的最长公共前缀，是排序后所有在其中间的后缀之间的最长公共前缀长度的最小值。
-        - $h[i]$（辅助证明用）：后缀i和排序在其紧前的后缀的最长公共前缀。即$h[i]=height[rank[i]]$，或者$LCP(S[sa[rank[i]-1]],S[sa[rank[i]]])$。必有$h[i+1]\ge h[i]-1$。因此可以利用这一单调性，加快对$height$的求解。
+        - $h[i]$（辅助证明用）：后缀i和排序在其紧前的后缀的最长公共前缀。即$h[i]=height[rank[i]]$，或者$LCP(S[sa[rank[i]-1]],S[sa[rank[i]]])$。必有$h[i+1]\ge h[i]-1$。因此可以利用这一单调性，加快对$height$的求解。证明步骤如下（后缀k紧邻后缀i）
+        ![h证明](/images/algoSeries/proof-sa-height.png)
+        - 有了上述定理之后，可以保证$O(n)$时间内求出$height$
+            ```cpp
+            // 原始串、各后缀在字典序下的序号、按字典序排序下的后缀编号
+            void calculate_height(const string& str
+                                , const vector<int>& rank
+                                , const vector<int>& sa
+                                , vector<int>& height) {
+                int n = str.size();
+                // 前一个前缀计算的height
+                int last_height = 0;
+                for(int i = 0; i != n; ++i) {
+                    // 获得当前后缀i的排序
+                    int current = rank[i];
+                    if(current == 0) {
+                        // 对于字节序最小的后缀，单独处理
+                        height[current] = 0;
+                        last_height = 0;
+                    } else {
+                        // 相当于 h[i]-1
+                        if(last_height > 0) --last_height;
+                        // 获得字典序下的紧前后缀
+                        int before_current = sa[current - 1];
+                        while(i + last_height < n 
+                            && before_current + last_height < n
+                            && str[i + last_height] 
+                                == str [before_current + last_height]) {
+                            ++last_height;
+                        }
+                        height[current] = last_height;
+                    }
+                }
+            }
+            ```
+- 倍增法
+  - 较易理解和实现，时间复杂度$O(nlog^2n)$，改用基数排序可以做到$O(nlogn)$
+  - 思路
+    - 计算初始每个字符的排序，注意相同字符的排序应该相同
+    - 每次将上一次排序的两个排序序号结果拼接（距离step），对拼接结果排序，并对step倍增。由此不断得到更长的后缀排序
+    - 用排序结果计算sa、rank，并进一步计算height
+    - 利用三个数组，完成题目内容
+  - 代码：以[最长重复子串（允许重叠）](https://leetcode.cn/problems/longest-duplicate-substring/description/)为例
+    ```cpp
+    string longestDupSubstring(string s) {
+        vector<int> rank(s.size(),0),sa(s.size(),0),height(s.size(),0);
+        // 倍增法排序
+        vector<pair<int,int>> sum(s.size());
+        vector<int> order(s.size(),0);
+        int step=1;
+        // 首轮排序
+        for(int i=0;i!=s.size();++i){
+            // 值和前缀下标
+            sum[i]=make_pair(s[i]-'a',i);
+        }
+        sort(sum.begin(),sum.end(),[](auto &a,auto &b){return a.first<b.first;});
+        // 整理排序结果
+        // 对于相同的数字，不排先后顺序
+        int currentRank=1;
+        for(int i=0;i!=s.size();++i){
+            // 判断是否增加rank
+            if(i!=0&&sum[i].first!=sum[i-1].first){
+                currentRank++;
+            }
+            order[sum[i].second]=currentRank;
+        }
+        // ********** 核心 **********
+        while(step<s.size()){
+            // 倍增
+            for(int i=0;i!=s.size();++i){
+                sum[i]=make_pair(order[i]*(s.size()+1)+(i+step>=s.size()?0:order[i+step]),i);
+            }
+            sort(sum.begin(),sum.end(),[](auto &a,auto &b){return a.first<b.first;});
+            // 整理排序结果
+            currentRank=1;
+            for(int i=0;i!=s.size();++i){
+                // 判断是否增加rank
+                if(i!=0&&sum[i].first!=sum[i-1].first){
+                    currentRank++;
+                }
+                order[sum[i].second]=currentRank;
+            }
+            // print(order);
+            step<<=1;
+        }
+        // 用排序结果更新rank、sa
+        // 注意前面为了方便计算采用的序号从1开始，这里改回来
+        for(int i=0;i!=s.size();++i){
+            rank[i]=order[i]-1;
+        }
+        for(int i=0;i!=s.size();++i){
+            sa[rank[i]]=i;
+        }
+        // 计算height
+        calculate_height(s,rank,sa,height);
+        // 选择具有最大height的任意一个
+        auto index=distance(height.begin(),max_element(height.begin(),height.end()));
+        // 注意先获取LCP长度
+        int length=height[index];
+        // 再将index从字典序的index，换为原串的index
+        index=sa[index];
+        return s.substr(index,length);
+    }
+    ```
+- DC3
+  - 较易实现，常数较大，时间复杂度$O(n)$。主要考验对基数排序的理解。尤其是字符串的特点，可以证明划分完的2个部分，内部一定是绝对有序的（长度不一样，不可能出现相等）
 - SA-IS算法（Induced Sort诱导排序）
-    - 思路：
-    - 代码
-        ```cpp
-        // To Do
-        ```
-- 参考：[后缀数组解析及应用](https://blog.csdn.net/yxuanwkeith/article/details/50636898?_=_)
+  - 较难实现，时间复杂度最优，$O(n)$
+- 参考：[后缀数组解析及应用](https://blog.csdn.net/yxuanwkeith/article/details/50636898?_=_)、参考[后缀数组：倍增法和DC3的简单理解](https://www.cnblogs.com/jianglangcaijin/p/6035937.html)、[后缀数组详解](https://zhuanlan.zhihu.com/p/561024497)、[后缀数组简介](https://oi-wiki.org/string/sa/)
 
 
 

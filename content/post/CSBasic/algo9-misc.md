@@ -214,7 +214,8 @@ math: true
 
 #### 后缀数组SA
 - 后缀数组（Suffix Array）：实现起来比较好理解，而且速度也不慢（不过一般需要引入额外的信息来解题）
-- 相关的术语和数据结构
+- 此节使用的相关的术语和数据结构
+    - $charAt[i]$：第i个字符
     - 第i个后缀/后缀i：以第i个字符为起点的后缀。可表示成$S[i]$，S代表原始字符串的后缀。
     - $rank[i]$：后缀i的排序排名
     - $sa[j]$：在$rank$中排名为$j$的后缀，在原串中的起始位置。有$sa[rank[i]]=i$。
@@ -328,7 +329,27 @@ math: true
   - 较易实现，常数较大，时间复杂度$O(n)$。主要考验对基数排序的理解。尤其是字符串的特点，可以证明划分完的2个部分，内部一定是绝对有序的（长度不一样，不可能出现相等）
 - SA-IS算法（Induced Sort诱导排序）
   - 较难实现，时间复杂度最优，$O(n)$
-- 参考：[后缀数组解析及应用](https://blog.csdn.net/yxuanwkeith/article/details/50636898?_=_)、参考[后缀数组：倍增法和DC3的简单理解](https://www.cnblogs.com/jianglangcaijin/p/6035937.html)、[后缀数组详解](https://zhuanlan.zhihu.com/p/561024497)、[后缀数组简介](https://oi-wiki.org/string/sa/)
+  - 术语：
+    - 填充结束字符\#：填充一个比原串所有字符都小的字符到字符串结尾，作为结束字符。本节以\#为例
+    - S型后缀：对后缀i，如果有字典序$S[i]<S[i+1]$，则为S型后缀。填充结束字符默认为S型。
+    - L型后缀：对后缀i，如果有字典序$S[i]>S[i+1]$，则为L型后缀
+    - 后缀类型递推性质：后缀类型可以从尾向头递推，规则为比较首字符，不等则显然，相等则继承上一个后缀的类型。即
+        </br><center>$ Type(S[i]) = \left\\{ \begin{array}{21}
+            Type(S[i+1]) & charAt[i] == charAt[i+1] \\\\
+            L.Type & charAt[i]>charAt[i+1] \\\\
+            S.Type & charAt[i]<charAt[i+1]
+        \end{array} \right.$
+        </center>
+    - 后缀类型排序性质：对后缀i和后缀j，如果charAt[i]=charAt[j]，且后缀i为S型，后缀j为L型，则必有字典序后缀i>后缀j。
+    - \*型后缀：一种特殊的S型后缀，要求其左侧紧前后缀（比它长1个字符的）是L型的。LMS（Left Most S-type）就表达了这个含义。\*型后缀起始位置的字符称为LMS字符，LMS子串是每两个最近的LMS字符构成的子串（包括两个LMS字符）。有如下性质
+        - 特殊的，\#是最短的LMS子串
+        - 两个LMS字符中间至少有一个L型后缀。因此其他LMS子串长度都必大于2。
+        - LMS子串的数量不超过原字符串长度的一半
+        - 所有LMS子串的长度之和为$O(原字符串长度)$
+        - 对任意两个LMS子串，不存在其中一个是另一个的真前缀。这一点可联系\*型后缀的定义来证明。
+        - 
+    - 
+- 参考：[后缀数组解析及应用](https://blog.csdn.net/yxuanwkeith/article/details/50636898?_=_)、参考[后缀数组：倍增法和DC3的简单理解](https://www.cnblogs.com/jianglangcaijin/p/6035937.html)、[后缀数组详解](https://zhuanlan.zhihu.com/p/561024497)、[后缀数组简介](https://oi-wiki.org/string/sa/)、[诱导排序与 SA-IS 算法](https://riteme.site/blog/2016-6-19/sais.html)
 
 
 

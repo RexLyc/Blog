@@ -65,7 +65,7 @@ Netty是Java网络编程中无法绕开的一个核心库，这里对其核心�
     - 单Reactor单线程
     - 单Reactor多线程：业务处理变为多线程
     - 主从Reactor多线程：1 + M + N模式，较少的连接接收线程（不一定为1），以及若干个处理连接收发数据的线程，以及若干个业务处理线程
-    > 常出现的，和Reactor模式对应的是Proactor模式，Reactor内部的执行流程仍然是同步的（非阻塞同步网络模式），数据I/O由用户进程处理（同步），Proactor则做到了异步，由系统完成I/O操作，用户回调只关注业务处理即可。总之**Reactor基于待完成的I/O事件**，而**Proactor基于以完成的I/O事件**。
+    > 常出现的，和Reactor模式对应的是Proactor模式，Reactor内部的执行流程仍然是同步的（非阻塞同步网络模式），数据I/O由用户进程处理（同步），Proactor则做到了异步，由系统完成I/O操作，用户回调只关注业务处理即可。总之**Reactor基于待完成的I/O事件**，而**Proactor基于已完成的I/O事件**。
 - Netty线程模型：以主从Reactor多线程为基础
     - 事件部分
         - NioEventLoop：内部通过Executor创建线程，循环从Selector中收取待处理的事件，以及TaskQueue中的任务
@@ -84,9 +84,10 @@ Netty是Java网络编程中无法绕开的一个核心库，这里对其核心�
         - Buffer：用于支持Channel读写的缓冲区，典型的类型是```ByteBuffer```
         - ServerBootStrap & BootStrap：服务器和客户端的启动类
         - Encoder & Decoder：本质上也是一种ChannelHandler，专门用于数据收发时的编解码。如果有需要，可以泛化XXXToXXXEncoder、XXXToXXXCodec。
-- 流程图
+- 流程图：TODO
 <!-- 插入一个  -->
 
+- 更多内容，移步[《Netty In Action》读书笔记]({{<relref "/content/post/book/netty-in-action.md">}})
 
 - Netty的典型代码
 ```java

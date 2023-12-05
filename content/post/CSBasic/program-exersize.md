@@ -58,6 +58,7 @@ math: true
 1. :yellow_circle: 950：[按递增顺序显示卡牌](https://leetcode-cn.com/problems/reveal-cards-in-increasing-order/)。重新排序卡牌，使得满足一定条件。考验模拟的思路。
 
 ###  搜索
+1. :yellow_circle: 2477：[到达首都的最小油耗](https://leetcode.cn/problems/minimum-fuel-cost-to-report-to-the-capital/description/)。自己写了个类似拓扑排序。实际上夸张了，这题直接从根开始深搜就行。每个节点统计子树的全部乘客，再向上返回。
 1. :rec_circle: 2258: [逃离火灾](https://leetcode.cn/problems/escape-the-spreading-fire/description/)。唯一需要特殊考虑的情况，是只有安全屋格子允许人和火同时抵达。优化思路，从起始位置和着火点分别BFS$\to$从安全屋反向BFS并记录路径$\to$不需要记录路径，只需要标记路径是从左侧还是右侧。题解里还有对等待时间二分查找+BFS，虽然效率低，但是二分的思路很有代表性。
 1. :yellow_circle: 39：[组合总数](https://leetcode-cn.com/problems/combination-sum/)。标准DFS。
 1. :yellow_circle: 40：[组合总数II](https://leetcode-cn.com/problems/combination-sum-ii/)。39题的变种。需要使用一些剪枝来避免重复。
@@ -105,6 +106,7 @@ math: true
 1. :yellow_circle: 2560: [打家劫舍 IV](https://leetcode.cn/problems/house-robber-iv/description/)。经典最小化最大值问题。这类问题就是针对这个值进行二分。而不是真的去模拟求出所有的最大值。另外该题需要想明白两点：先选一定不比后选更差（贪心策略的正确性，类似于优先选择最早完成的任务），另一点是二分的最终结果一定会存在于数组中（不用担心二分的结果不在原数组）。
 
 ###  字符串
+1. :red_circle: 828：[统计字符串中唯一字符](https://leetcode.cn/problems/count-unique-characters-of-all-substrings-of-a-given-string/description)。和题解的思路是一致的。把计算子串中的唯一字符，转向计算一个字符能在多少个子串中唯一。但是计算这种子串卡了很久。注意理解：计算在$(begin,end)$开区间内，包含middle位置的字符的子串的数量（其中$begin<middle<end$），就是$(middle-begin)*(end-middle)$。
 1. :red_circle: 1044：[最长重复子串](https://leetcode.cn/problems/longest-duplicate-substring/description/)。最长重复子串，等价于求所有后缀的最长公共前缀。后缀数组的样板题目。
 2. :green_circle: 28：[实现strstr](https://leetcode-cn.com/problems/implement-strstr/)。平均意义上又好写又快的[Sunday算法](https://blog.csdn.net/q547550831/article/details/51860017)。其实就是两条策略：失配后对比主串中此次参加匹配的子串后的下一个字符，如果在模式串中没有，则大跳，否则对齐到模式串从右数第一次出现的位置。
 3. :green_circle: 1071：[字符串的最大公因子](https://leetcode-cn.com/problems/greatest-common-divisor-of-strings/)。有个**题解非常精妙**，比较str1+str2==str2+str1，如果相等，返回gcd(str1.size(),str2.size())，否则返回0。

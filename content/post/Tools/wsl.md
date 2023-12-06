@@ -7,6 +7,7 @@ categories:
 tags:
 - VMWare
 - 子系统
+- 暂时废弃
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/wsl.png
 draft: true
@@ -14,6 +15,9 @@ draft: true
 ---
 WSL在经过一段时间的发展后，已经具备了一定的可用性。相对VMWare来说，有性能和易用性上的优点。
 <!--more-->
+
+> 暂时废弃，WSL2仍然不够稳定。
+
 ## 基础搭建
 1. 基本步骤：
     1. 在“启用或关闭Windows功能”中，打开虚拟机平台、Linux子系统两个选项即可。
@@ -29,7 +33,9 @@ WSL在经过一段时间的发展后，已经具备了一定的可用性。相�
 ## 开发环境
 ### 基本开发
 1. 更好用的命令行：推荐安装微软的全新[终端](https://learn.microsoft.com/zh-cn/windows/terminal/install)
-2. docker：查看[参考](#参考)中的相关链接
+2. docker：查看[参考](#参考)中的相关链接。可能会遇到的问题
+   1. 图形界面创建可能有问题，建议还是在命令行里用```docker run```
+   2. ubuntu22.04官方镜像无法进行```apt-get update```。**宿主机一侧的网桥并没有工作**。
 
 ### 交叉编译
 

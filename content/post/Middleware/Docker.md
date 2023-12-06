@@ -1,5 +1,5 @@
 ---
-title: "Docker：All-In-One"
+title: "Docker合集"
 date: 2023-07-31T15:56:50+08:00
 categories:
 - 计算机科学与技术

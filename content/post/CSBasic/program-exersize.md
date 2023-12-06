@@ -89,6 +89,7 @@ math: true
 1. :red_circle: 891：[子序列宽度之和](https://leetcode-cn.com/problems/sum-of-subsequence-widths/)。逆向思维，寻找子序列中的max/min$\to$固定max/min，计算有多少个序列。固定max/min，需要先对数组排序，然后按顺序取。随后可以通过数学推理，计算出所有序列的和的一个解析解表达式。
 1. :yellow_circle: 2028：[找出缺失的观测数据](https://leetcode-cn.com/problems/find-missing-observations/)。可以写搜索，效率还行（每种数字的数量都有上下限可用）。但[题解](https://leetcode-cn.com/problems/find-missing-observations/solution/zhao-chu-que-shi-de-guan-ce-shu-ju-by-le-0z7j/)给出了一种已知均值和整数的总数，可以直接构造出整数数组的方法。
 1. :red_circle: 1259：[不相交的握手](https://leetcode-cn.com/problems/handshakes-that-dont-cross/)。[非会员传送门](https://www.acwing.com/file_system/file/content/whole/index/content/1528105/)。可以用DP，但用数学更好。卡塔兰数+Lucas定理。
+2. :yellow_circle: 1094：[拼车](https://leetcode.cn/problems/car-pooling/description/)。看题解，用**差分数组**思想，前缀和和差分数组互为逆运算。将上下车视作加减人数，则可把任意位置的乘客数量看作对这个加减法的前缀和，最笨的方式是计算所有位置的前缀和。但实际上本体是一个区间修改，而且区间很小，那么可以做前缀和的逆运算，差分数组，差分数组只需要在区间修改的起始和终止位置进行调整。最后再用差分数组构建前缀和即可。
 
 ###  二分
 > 二分查找，最好的表示方式就是，left边界，remain查找区间长度。注意left+remain就是第一个超出区间的值，但是也有可能是查找结果，参考vector容器的end()。参考C++标准库[lower_bound的可能实现](https://en.cppreference.com/w/cpp/algorithm/lower_bound)。

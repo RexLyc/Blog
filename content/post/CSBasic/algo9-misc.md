@@ -1,5 +1,5 @@
 ---
-title: "算法导论其九：实用篇"
+title: "算法导论其九：进阶数据结构篇"
 date: 2022-03-29T10:23:48+08:00
 categories:
 - 计算机科学与技术
@@ -13,9 +13,8 @@ math: true
 ---
 本文是以实用角度出发，总结一些比赛和生产中常用的优秀算法和技巧。和算法导论关系不大了。
 <!--more-->
-## 高级数据结构
-### 树
-#### 线段树
+## 树
+### 线段树
 1. 是具有区间查询、区间更新能力的常用基础数据结构。
     > 做题别太呆，有些场合利用前缀和、差分数组等简单的数据结构就能解决。不一定所有的区间更新都得用线段树。
 3. 核心原理：
@@ -168,12 +167,12 @@ math: true
     1. [算法学习笔记(14): 线段树](https://zhuanlan.zhihu.com/p/106118909)
     2. [史上最详细的线段树教程](https://zhuanlan.zhihu.com/p/34150142)
 
-#### 主席树
+### 主席树
 
-#### 伸展树
+### 伸展树
 1. Splay树
 
-#### 树套树
+### 树套树
 树套树是指一个树的节点也是一个树的数据结构。当无法用简单的数据形式维护多维度信息时，可以考虑使用树套树。根据所需要维护信息的不同，可以选用不同种类的树，线段树、平衡树等。另外树套树多用于在线算法、动态开点的情况。对于允许离线的问题，应该考虑尽量不要使用此种高级数据结构，提高效率降低编程复杂度。
 1. 线段树套线段树
     - 经典例题：[三维偏序](https://www.luogu.com.cn/problem/P3810)
@@ -182,11 +181,11 @@ math: true
 2. 
 
 
-#### 前缀树
+### 前缀树
 - 一个小技巧是给字符串添加一个终止字符’$’，便于标记字符串的终止。
 - 参考：[前缀树(字典树、Trie树)](https://www.cnblogs.com/zhouzhiyao/p/12547142.html) 。
 
-#### 后缀树
+### 后缀树
 - 不再建议学习，可以转去学习后缀数组，实际上可以证明，后缀树的任意算法都可以用增强的后缀数组实现。
 - 讲的比较好的几篇：https://www.cnblogs.com/xubenben/p/3484988.html 、 https://www.cnblogs.com/xubenben/p/3486007.html 、 https://blog.csdn.net/aiphis/article/details/48489709 、https://www.cnblogs.com/gaochundong/p/suffix_tree.html。
 - 几个关键点:
@@ -199,10 +198,7 @@ math: true
     1. [后缀树Ukkonen构造法](https://blog.csdn.net/smbroe/article/details/42362347)
     1. [后缀树系列一:概念以及Ukk实现原理](https://blog.csdn.net/fjsd155/article/details/80211145)
 
-#### 其他树
-- 参考：[二叉树最近公共祖先（LCA）详解](https://www.hrwhisper.me/algorithm-lowest-common-ancestor-of-a-binary-tree/)
-
-### 可持久化
+## 可持久化
 [可持久化数据结构](https://quant67.com/post/algorithms/ads/persistent/persistent.html)的目标是对数据结构，以及结构变更过程中的所有修改进行记录。即能够查看到最新版本，所有历史版本。可持久化级别分为：
 1. 半持久化：读历史，写最新
 2. 全持久化：读历史，写历史
@@ -211,9 +207,9 @@ math: true
 这里以半持久化为例，展示对各种基础数据类型进行不同程度的改造
 
 
-### 数组
+## 数组
 
-#### 后缀数组SA
+### 后缀数组SA
 - 后缀数组（Suffix Array）：实现起来比较好理解，而且速度也不慢（不过一般需要引入额外的信息来解题）
 - 此节使用的相关的术语和数据结构
     - $charAt[i]$：第i个字符
@@ -398,23 +394,7 @@ math: true
         ```
 - 参考：[后缀数组解析及应用](https://blog.csdn.net/yxuanwkeith/article/details/50636898?_=_)、参考[后缀数组：倍增法和DC3的简单理解](https://www.cnblogs.com/jianglangcaijin/p/6035937.html)、[后缀数组详解](https://zhuanlan.zhihu.com/p/561024497)、[后缀数组简介](https://oi-wiki.org/string/sa/)、[诱导排序与 SA-IS 算法](https://riteme.site/blog/2016-6-19/sais.html)、[还在写倍增后缀数组? SA-IS算法了解一下~](https://www.luogu.com.cn/blog/ShadowassIIXVIIIIV/on-hou-zhui-shuo-zu-sa-is-suan-fa)、[SA-IS学习笔记 ](https://www.cnblogs.com/Flying2018/p/13848482.html)
 
-
-
-#### 树状数组
+### 树状数组
+- 树状数组的题目都可以用线段树解决
 - 参考：[树状数组详解](https://www.cnblogs.com/xenny/p/9739600.html)
 
-## 经典问题
-### RMQ区间最大值最小值查询
-- Tarjan的Sparse-Table算法
-    - 构建：$dp[i][j]$表示i为起点，长度为$2^j$的区间的最值。状态转移方程（可以理解为二分）为$dp[i][j]=min/max(dp[i][j-1]+dp[i+(1<<(j-1))][j-1])$。注意二层循环，j为外层（按照区间长度分治）。
-    - 查询：寻找小于等于区间范围的区间（或多个区间，可以重叠）。
-- 线段树：$O(n)$建立，$O(logn)$查询
-- 笛卡尔树+LCA+DP：$O(n)$建立，$O(1)$查询
-
-
-## 后端
-### 流量限制算法
-1. 漏桶：以绝对固定的速率接受请求并进行处理，像是一个桶以固定的速率漏水一样
-1. 令牌桶：以固定的速率向桶内放令牌，拿到令牌的请求可以进行处理，因此能够接受一定量的大并发
-1. 参考：
-    - [高并发系统限流-漏桶算法和令牌桶算法](https://www.cnblogs.com/xuwc/p/9123078.html)

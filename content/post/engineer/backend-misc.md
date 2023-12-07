@@ -2,11 +2,13 @@
 title: "工程技术：后端合集"
 date: 2023-12-06T13:14:26+08:00
 categories:
-- 
+- 开发
+- 工程实现
 tags:
-- 
-# thumbnailImagePosition: left
-# thumbnailImage: //example.com/image.jpg
+- 工程实现
+- 后端
+thumbnailImagePosition: left
+thumbnailImage: /images/thumbnail/engineer.png
 draft: true
 ---
 本文记录一些在后端开发中常见的一些工程技术，用来提高稳定性，提高性能等。可能是一些设计思路或实现范式。

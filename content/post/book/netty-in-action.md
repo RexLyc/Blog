@@ -15,6 +15,9 @@ draft: true
 ---
 Netty作为一个广泛应用的Java高性能网络框架，不仅可以作为框架使用，其本身的设计模式和思路也很值得学习。
 <!--more-->
+
+> 本章绝大多数内容均拷贝自原书，根据Netty、Java版本有一定变动。
+
 ## 基本架构
 1. 基本术语：
    1. Channel：在Netty中代表了到一个通信实体的连接，可以对连接进行打开、关闭，并对活跃连接上进行读写，
@@ -203,26 +206,76 @@ public class PeerClass {
    2. 接口：统一的消息处理接口、统一的异常处理、统一的编解码
    3. 流程：允许消息在不同的处理器之间流转
    4. 通用功能：日志、多线程
-1. Channel：对不同类型连接的抽象
-   1. 内置类型：NioSocketChannel、NioDatagramChannel等
+### Channel系
+1. ```Channel```：对不同类型连接的抽象
+   1. 内置类型：NIO（NioSocketChannel/NioDatagramChannel）、OIO（阻塞流）、Local（一个JVM内）、Epoll（Linux下推荐）、Embedded（一种特殊的用于嵌入其他ChannelHandler中的Channel）
    2. 关联：Pipeline。当Channel创建时，自动就创建了Pipeline，用来容纳各种消息处理器。
-2. EventLoop：
-   1. 关联：Channel、EventLoop、Thread、EventLoopGroup
+   3. **线程安全**
+2. ```ChannelHandler```：最常被继承的类型，业务核心一般就在相应的回调函数的实现中
+   1. 子接口：
+        - 入站：```ChannelInboundHandler```
+        - 出站：```ChannelOutBoundHandler```
+   2. Handler实现的功能包括但不限于：
+      1. 数据格式转换
+      2. 异常通知
+      3. Channel活跃状态变化通知
+      4. 用户自定义事件
+      5. Channel到EventLoop是注册、注销通知
+   3. 性能要求：不能在处理过程中使用同步阻塞接口（比如各类```ChannelFuture```的```sync```）
+3. ChannelPipeline：作为Channelhandler链的容器
+4. ChannelHandlerContext：当Handler添加到Pipeline中时，分配获得
+   1. 意义：代表handler和ChannelPipeline之间的绑定关系。多用于写出站数据，该数据将从出站的尾端开始流动。
+   > 虽然可以直接写入Channel，但会导致出战数据直接从下一个Handler开始流动。未复现出理解的效果。
+5. ChannelConfig：支持热更新的配置
+
+### 数据系
+1. 设计思考：网络传输的最小单位基本就是字节，而Java提供的ByteBuffer过于底层，接口复杂，对于网络通信来说不够方便。对缓冲区的设计应当考虑：
+   1. 性能：提高拷贝、移动效率
+   2. 容量：支持动态变化
+   3. 线程安全
+2. ```ByteBuf```：Netty的字节缓冲区组件
+   1. 特点：
+      1. 支持缓冲区类型扩展
+      2. 零拷贝支持
+      3. 容量按需增长
+      4. 读取、写入双索引（不需要原生Buffer的flip）
+      5. 支持链式调用、引用计数、池化
+   2. 缓冲区模式：
+      1. 堆缓冲区：创建并使用分配到堆中的数组。```ByteBuf.array()```
+      2. 直接缓冲区：直接使用外部分配的内存（Native分配，不在JVM的内存管理范围内），因为减少了从Native内存拷贝到JVM堆的过程，往往能提升性能。```ByteBuf.getBytes```
+      3. 复合缓冲区```CompositeByteBuf```：可由多个```ByteBuf```聚合而成。这在一些需要拼接数据内容的协议中十分实用，不同的```ByteBuf```往往由多个模块负责填充。最终聚合到一起，减少不必要的拷贝。示例代码
+        ```java
+        // 通过Unpooled创建非池化缓冲区
+        CompositeByteBuf messageBuf = Unpooled.compositeBuffer();
+        ByteBuf headerBuf = ...; // 可以是堆缓冲，也可以是直接缓冲
+        ByteBuf bodyBuf = ...;
+        // 将已有Buf合并为复合缓冲区
+        messageBuf.addComponents(headerBuf, bodyBuf);
+        // 业务操作
+        // ...
+        // 支持对Buf再分离
+        messageBuf.removeComponent(0);
+        for (ByteBuf buf : messageBuf) {
+            System.out.println(buf.toString());
+        }
+        // 或者通过直接缓冲区的访问方式访问
+        int length = messageBuf.readableBytes();
+        byte[] array = new byte[length];
+        messageBuf.getBytes(messageBuf.readerIndex(), array);
+        // 继续使用array
+        // ...
+        ```
+3. ```ByteBufHold```
+
+### 其他
+3. ```EventLoop```：
+   1. 关联：```Channel```、```EventLoop```、```Thread```、```EventLoopGroup```
    2. 关联关系：
         - 一个Group包含多个Loop
         - 一个Loop在生命周期内只绑定一个Thread
         - 一个Channel在生命周期内只注册到一个Loop
         - 一个Loop可以拥有多个Channel
-3. ChannelHandler：最常被继承的类型，业务核心一般就在相应的回调函数的实现中
-   1. 子接口：
-        - 入站：ChannelInboundHandler
-        - 出站：ChannelOutBoundHandler
-   2. 性能要求
-4. ChannelPipeline：作为Channelhandler链的容器
-5. ChannelHandlerContext：当Handler添加到Pipeline中时，分配获得
-   1. 意义：代表handler和ChannelPipeline之间的绑定关系。多用于写出站数据，该数据将从出站的尾端开始流动。
-   > 虽然可以直接写入Channel，但会导致出战数据直接从下一个Handler开始流动。未复现出理解的效果。
-6. 
+
 
 ## 核心架构
 ### BossGroup

@@ -230,18 +230,19 @@ public class PeerClass {
 
 ### 数据系
 1. 设计思考：网络传输的最小单位基本就是字节，而Java提供的ByteBuffer过于底层，接口复杂，对于网络通信来说不够方便。对缓冲区的设计应当考虑：
-   1. 性能：提高拷贝、移动效率
+   1. 性能：提高拷贝、移动效率、池化、控制GC
    2. 容量：支持动态变化
-   3. 线程安全
+   3. 访问：随机访问、顺序访问、能支持查找
+   4. 线程安全
 2. ```ByteBuf```：Netty的字节缓冲区组件
    1. 特点：
       1. 支持缓冲区类型扩展
       2. 零拷贝支持
       3. 容量按需增长
-      4. 读取、写入双索引（不需要原生Buffer的flip）
+      4. 读取、写入双索引（读写不需要切换，不需要做原生Buffer的flip操作）
       5. 支持链式调用、引用计数、池化
    2. 缓冲区模式：
-      1. 堆缓冲区：创建并使用分配到堆中的数组。```ByteBuf.array()```
+      1. 堆缓冲区：创建并使用分配到堆中的数组，又称支撑数组。```ByteBuf.array()```，可以通过```hasArray```来判断当前```Bytebuf```是否使用支撑数组。
       2. 直接缓冲区：直接使用外部分配的内存（Native分配，不在JVM的内存管理范围内），因为减少了从Native内存拷贝到JVM堆的过程，往往能提升性能。```ByteBuf.getBytes```
       3. 复合缓冲区```CompositeByteBuf```：可由多个```ByteBuf```聚合而成。这在一些需要拼接数据内容的协议中十分实用，不同的```ByteBuf```往往由多个模块负责填充。最终聚合到一起，减少不必要的拷贝。示例代码
         ```java
@@ -265,7 +266,22 @@ public class PeerClass {
         // 继续使用array
         // ...
         ```
-3. ```ByteBufHold```
+    3. 其他功能
+       1. 字节级读写：其中```get/set```不会调整读写索引，```read/write```会调整索引
+       2. 派生缓冲区：通过```slice```、```duplicate```等方式建立一个视图，和原缓冲区共享同一个数据源，浅拷贝
+       3. 复制：通过```ByteBuf.copy```、```Unpooled.copiedBuffer```，拷贝一个完全独立的新缓冲区，深拷贝
+       4. 为了支持池化，提高GC性能，提供引用计数```refCnt```。
+            > 需要考虑检测缓冲区泄露
+3. ```ByteBufHold```：一个用于保管ByteBuf的接口类型。
+   1. 作用：实现，并可以在其中保存其他属性字段，也用于支持池化等高级特性。
+4. ```ByteBufAllocator```接口：分配器，分配```ByteBuf```，也是实现ByteBuf池化的接口
+   1. 内置实现：```PooledByteByfAllocator```、```UnpooledByteBufAllocator```，顾名思义，前者池化，后者不池化。其中后者还提供了```Unpooled```静态工具类
+   2. 和```Channel```关系
+      1. 受ChannelConfig控制，也可以在启动服务器、客户端时修改分配器
+      2. 可以从```ChannelHandlerContext.alloc()```获取到分配器实例
+5. ```ByteBufUtil```：静态工具类
+    - ```hexdump()```方法
+
 
 ### 其他
 3. ```EventLoop```：

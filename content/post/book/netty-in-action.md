@@ -16,10 +16,15 @@ draft: true
 Netty作为一个广泛应用的Java高性能网络框架，不仅可以作为框架使用，其本身的设计模式和思路也很值得学习。
 <!--more-->
 
-> 本章绝大多数内容均拷贝自原书，根据Netty、Java版本有一定变动。
+> 本章绝大多数内容均拷贝自原书，根据Netty、Java版本有一定变动。Netty4.1.101Final。
+
+> Netty 5不建议使用
+
+> 不要单纯地学习使用框架，学习一个框架要学习它的设计思路
 
 ## 基本架构
-1. 基本术语：
+1. Netty的位置：在传输层以上，在应用层以下。负责将传输层的数据处理好，供上层应用业务使用。
+2. 基本术语：
    1. Channel：在Netty中代表了到一个通信实体的连接，可以对连接进行打开、关闭，并对活跃连接上进行读写，
    2. 回调：Netty使用回调来处理各类事件，使用回调时，须泛化实现对应接口的事件回调函数
    3. Future：Netty提供了自己的实现```ChannelFuture```，可以通过对其添加监听器```ChannelFutureListener```，作为另一种在事件结束时通知应用程序的方式
@@ -30,20 +35,19 @@ Netty作为一个广泛应用的Java高性能网络框架，不仅可以作为�
         - 流控制
         - 用户事件
         </br>这些事件将会根据其数据发送方向，分别在ChannelHandler中由预设、或用户实现的各种事件处理器进行处理，并支持对事件转发，达到链式处理的效果。
-2. 基本原理：
+3. 基本原理：
     - Netty基于NIO，整体原理就是由Selector监听I/O事件，并派发给对应的处理线程
     - Netty为每一个Channel创建一个事件循环EventLoop
     - EventLoop在执行期间注册回调，并将事件派发
-3. 重点类型：
+4. 重点类型：
    1. 各类handler：```SimpleChannelInboundHandler```、```ChannelHanderAdapter```，区别主要在于业务逻辑对消息的处理，以及对资源的处理（是否释放消息所用内存）。如果使用不当，可能会抛出资源无法释放等异常提示。
    2. ```ChannelHandlerContext```：同时持有关联的```Channel```，```Handler```，```Pipeline```。负责在```Handler```链上传递出站入站消息，向对端发送数据等功能。
-4. 样板代码：改动自原书，版本基于Netty-all 5.0.0.Alpha2
+5. 样板代码：改动自原书，版本基于Netty-all 4.1.101Final
 ```java
 // 回显服务端ChannelHandler
-// 书中ChannelInBoundHandlerAdapter已废弃
 // Sharable说明该Handler可供多个channel共享使用
 @ChannelHandler.Sharable
-public class MyServerChannelHandler extends ChannelHandlerAdapter {
+public class MyServerChannelHandler extends ChannelInboundHandlerAdapter {
 
     // 从通道中读取到数据的回调
     @Override
@@ -135,20 +139,13 @@ public class MyClientChannelHandler extends SimpleChannelInboundHandler<ByteBuf>
         ctx.writeAndFlush(Unpooled.copiedBuffer("Netty rocks!", StandardCharsets.UTF_8));
     }
 
-    // 若实现channelRead，其优先级高于messageReceive
-    // channelRead0已经取消
+    // 若实现channelRead
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf) throws Exception {
         System.out.println(
-                "Client  channelRead received: " + ((ByteBuf)msg).toString(CharsetUtil.UTF_8));
+                "Client  channelRead received: " + (((ByteBuf)byteBuf).toString(CharsetUtil.UTF_8)));
     }
 
-    // 唯一必须实现的接口
-    @Override
-    protected void messageReceived(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf) throws Exception {
-        System.out.println(
-                "Client messageReceived received: " + byteBuf.toString(CharsetUtil.UTF_8));
-    }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
@@ -200,33 +197,47 @@ public class PeerClass {
 }
 
 ```
-## 组件设计
+## 组件设计速览
 1. 先思考：做一个高性能的IO框架都需要什么
    1. 数据结构：表达不同类型的连接、表达不同的异步事件
    2. 接口：统一的消息处理接口、统一的异常处理、统一的编解码
    3. 流程：允许消息在不同的处理器之间流转
-   4. 通用功能：日志、多线程
+   4. 事件处理：能处理异步事件、也能兼容同步阻塞业务
+   5. 通用功能：日志、多线程
 ### Channel系
 1. ```Channel```：对不同类型连接的抽象
    1. 内置类型：NIO（NioSocketChannel/NioDatagramChannel）、OIO（阻塞流）、Local（一个JVM内）、Epoll（Linux下推荐）、Embedded（一种特殊的用于嵌入其他ChannelHandler中的Channel）
    2. 关联：Pipeline。当Channel创建时，自动就创建了Pipeline，用来容纳各种消息处理器。
    3. **线程安全**
-2. ```ChannelHandler```：最常被继承的类型，业务核心一般就在相应的回调函数的实现中
-   1. 子接口：
+2. ```ChannelHandler```：核心接口，业务核心一般就在相应的回调函数的实现中
+   1. 核心子接口：
         - 入站：```ChannelInboundHandler```
         - 出站：```ChannelOutBoundHandler```
-   2. Handler实现的功能包括但不限于：
+   2. 实用类型
+      1. ```ChannelInboundHandlerAdapter```：较为原始的入站处理器，自定义继承后，仍需要显式手动释放消息缓存
+      2. ```SimpleChannelInboundHandler```：会自动释放消息缓存，自定义继承后只需要执行业务逻辑
+   3. Handler实现的功能包括但不限于：
       1. 数据格式转换
       2. 异常通知
       3. Channel活跃状态变化通知
       4. 用户自定义事件
       5. Channel到EventLoop是注册、注销通知
-   3. 性能要求：不能在处理过程中使用同步阻塞接口（比如各类```ChannelFuture```的```sync```）
-3. ChannelPipeline：作为Channelhandler链的容器
-4. ChannelHandlerContext：当Handler添加到Pipeline中时，分配获得
+   4. 性能要求：不能在处理过程中使用同步阻塞接口（比如各类```ChannelFuture```的```sync```）。这是因为一个Channel只允许注册到一个EventLoop，因此EventLoop是一定要尽量不会阻塞的。对于这类需求，```ChannelPipeline.add```的重载中有提供EventLoopGroup的版本，可以传递一个自定义EventLoopGroup，在消息传递时，该Handler的事件将会由对应的事件循环负责。
+3. ```ChannelHandlerAdapter```：对Channelhandler的一个基本实现
+   1. 意义：由于消息的链式传输需要每一个Handler都向后传递消息，即使是用户不关心的事件，也要写一个样板代码```firexxxx(msg)```，这很无聊
+   2. 作用：提供了默认的透传实现，用户只需在适配器Adapter的基础上，选择自己感兴趣的接口进行自定义继承即可。
+4. ChannelPipeline：作为Channelhandler链的容器
+   1. 关联：Channel在创建后会分配到一个ChannelPipeline，二者相互绑定，且在生命周期内都是永久的。
+   2. 作用：
+      1. 通过各类```firexxx```，将消息传递给链中的下一个处理器
+      2. 通过```add / remove / replace```，允许运行时修改处理器链
+5. ChannelHandlerContext：当Handler添加到Pipeline中时，分配获得
    1. 意义：代表handler和ChannelPipeline之间的绑定关系。多用于写出站数据，该数据将从出站的尾端开始流动。
    > 虽然可以直接写入Channel，但会导致出战数据直接从下一个Handler开始流动。未复现出理解的效果。
-5. ChannelConfig：支持热更新的配置
+6. ChannelConfig：支持热更新的配置
+7. ChannelFuture：Channel相关的Future
+   1. 子类：
+      1. ChannelPromise：在写入通道等动作中用于标记执行成功与否
 
 ### 数据系
 1. 设计思考：网络传输的最小单位基本就是字节，而Java提供的ByteBuffer过于底层，接口复杂，对于网络通信来说不够方便。对缓冲区的设计应当考虑：
@@ -234,6 +245,7 @@ public class PeerClass {
    2. 容量：支持动态变化
    3. 访问：随机访问、顺序访问、能支持查找
    4. 线程安全
+   5. 防内存泄露
 2. ```ByteBuf```：Netty的字节缓冲区组件
    1. 特点：
       1. 支持缓冲区类型扩展
@@ -282,8 +294,7 @@ public class PeerClass {
 5. ```ByteBufUtil```：静态工具类
     - ```hexdump()```方法
 
-
-### 其他
+### 事件循环
 3. ```EventLoop```：
    1. 关联：```Channel```、```EventLoop```、```Thread```、```EventLoopGroup```
    2. 关联关系：
@@ -292,8 +303,39 @@ public class PeerClass {
         - 一个Channel在生命周期内只注册到一个Loop
         - 一个Loop可以拥有多个Channel
 
+### 工具类
+1. ```ReferenceCountUtil```：显式释放消息缓存的工具，其内自带有类型检查。
+
 
 ## 核心架构
+
+### 生命周期
+1. Channel的生命周期，按如下顺序
+    - ChannelUnregistered：未注册状态，指未注册到一个```EventLoop```
+    - ChannelRegistered
+    - ChannelActive：未激活状态，指未连接到远程节点
+    - ChannelInactive
+2. ChannelHandler的生命周期，除了处理出站入站数据，还有
+    - handlerAdded
+    - handlerRemoved
+    - exceptionCaught
+    - 更进一步的，对于具体的实现，还有更多特别的生命周期方法
+        1. ```ChannelInboundHandler```的部分生命周期方法
+           - channelUnregistered / channelRegistered
+           - channelActive / channelInactive
+           - channelReadComplete
+           - channelRead
+           - channelWritabilityChanged：代表可写性变化，受制于缓冲区，有时允许或不能再写入更多
+           - userEventTriggered：用户自定义事件回调，其调用来源是```fireUserEventTriggered```
+        2. ```ChannelOutboundHandler```的部分生命周期方法
+           - bind / connect：当处理器绑定到本地、远程地址时的回调
+           - disconnect
+           - close
+           - deregister：
+           - read
+           - write / flush
+
+
 ### BossGroup
 
 ### WorkerGroup

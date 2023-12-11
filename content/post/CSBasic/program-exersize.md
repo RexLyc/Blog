@@ -201,6 +201,7 @@ math: true
 1. :green_circle: 1114：[按序打印](https://leetcode-cn.com/problems/print-in-order/solution/)。条件变量、锁。
 
 ###  图论
+1. :yellow_circle: 1631：[最小体力消耗路径](https://leetcode.cn/problems/path-with-minimum-effort/description/)。思考了很久，最终意识到仍然是一个特殊的单源最短路题目。每次取出可扩展路径中最短的一个，扩展该点，并将该点所有边加入最小堆中。重复此过程直到终点被加入。注意C++的优先队列，在使用```std::less```的情况下是大顶堆，如果需要自定义数据结构的小顶堆，可以自定义一个形如```std::greater```语义的二元比较函数```comp```，并```priority_queue<your_struct, vector<your_struct>, decltype(comp)> small_queue;```
 1. :yellow_circle: 721：[账户合并](https://leetcode-cn.com/problems/accounts-merge/)。基础并查集题目。
 1. :yellow_circle: 1162：[地图分析](https://leetcode-cn.com/problems/as-far-from-land-as-possible/)。很有代表性的一道题目，巧妙地把问题转换为多源点BFS。[题解](https://leetcode-cn.com/problems/as-far-from-land-as-possible/solution/di-tu-fen-xi-by-leetcode-solution/)中甚至还有更精妙的DP解法。**值得二刷**。
 1. :yellow_circle: 207：[课程表](https://leetcode-cn.com/problems/course-schedule/)。拓扑排序。[wiki](http://en.wikipedia.org/wiki/Topological_sorting)。

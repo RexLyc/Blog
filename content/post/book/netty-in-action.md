@@ -229,11 +229,19 @@ public class PeerClass {
 4. ChannelPipeline：作为Channelhandler链的容器
    1. 关联：Channel在创建后会分配到一个ChannelPipeline，二者相互绑定，且在生命周期内都是永久的。
    2. 作用：
-      1. 通过各类```firexxx```，将消息传递给链中的下一个处理器
-      2. 通过```add / remove / replace```，允许运行时修改处理器链
+      1. 通过```add / remove / replace```，允许运行时修改处理器链
+      2. 通过各类```firexxx```，发出一个入站消息，并从**链首**的处理器开始处理（小心造成死循环）
+      3. 通过调用```read / write / bind / connect / disconnect / close / dereigster / flush / writeAndFlush```，来发出一个出站操作，该操作将会继续沿着当前调用链的顺序向下执行
+        > 注意，对于在同一个```ChannelHandlerContext```内的对象实例，通过```channel().write```，和```pipeline().write```的调用最终结果是一样的，都由是由绑定的```pipeline()```进行处理
+   3. 处理器链的顺序：[参考官网文档](https://netty.io/4.1/api/index.html)，入站口始终是链表首部、出站口始终是链表尾部，也就是说一个入站消息事件，会从链表首部开始向后传递，而一个出站消息事件，将从链表尾部开始向前传递。在传递过程中，不支持的处理器将会直接透传（如各个```Adapter```的实现），或者由```ChannelPipeline```操作进行跳过。
 5. ChannelHandlerContext：当Handler添加到Pipeline中时，分配获得
    1. 意义：代表handler和ChannelPipeline之间的绑定关系。多用于写出站数据，该数据将从出站的尾端开始流动。
-   > 虽然可以直接写入Channel，但会导致出战数据直接从下一个Handler开始流动。未复现出理解的效果。
+   2. 作用：
+       1. 所有和```ChannelPipeline```相同接口，均可使用，并且具有更短的调用链。即对于出站事件（如```write```），将会沿出站方向（链尾到链首），由下一个```ChannelOutBoundHandler```处理。对于入站事件，从入站顺序下一个开始处理。
+            ![ChannelPipeline和ChannelHandlerContext的区别](/images/javaSeries/netty-pipeline-ctx.drawio.png)
+       2. ChannelHandlerContext和Handler的绑定关系是唯一的，不可更改的。但Pipeline则允许修改，替换，重新编排。
+   
+   > 无论是Context还是Pipeline，当传递出站消息，执行出站操作时，请一定想清楚你要做什么。
 6. ChannelConfig：支持热更新的配置
 7. ChannelFuture：Channel相关的Future
    1. 子类：
@@ -334,6 +342,7 @@ public class PeerClass {
            - deregister：
            - read
            - write / flush
+3. 
 
 
 ### BossGroup
@@ -351,3 +360,5 @@ public class PeerClass {
 
 ## 参考资料
 1. 《Netty In Action》
+2. [Netty官网](https://netty.io/)
+3. [Netty官网中的手册部分-4.1版](https://netty.io/4.1/api/index.html)

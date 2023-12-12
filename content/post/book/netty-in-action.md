@@ -76,6 +76,7 @@ public class MyServerChannelHandler extends ChannelInboundHandlerAdapter {
 
     // 异常处理
     // 正常情况下，各个Handler链式处理消息或者异常，因此应当至少有一个exceptionCaught实现
+    // 如果一个用户实现的都没有，会在链尾标记为未处理
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         cause.printStackTrace();
@@ -323,22 +324,23 @@ public class PeerClass {
 
 
 ## 核心架构
+在了解了组件设计之后，本章节将会讲述一些核心架构的内容
 
-### 生命周期
+### 生命周期相关
 1. Channel的生命周期，按如下顺序
     - ChannelUnregistered：未注册状态，指未注册到一个```EventLoop```
     - ChannelRegistered
     - ChannelActive：未激活状态，指未连接到远程节点
     - ChannelInactive
 2. ChannelHandler的生命周期，除了处理出站入站数据，还有
-    - handlerAdded
-    - handlerRemoved
-    - exceptionCaught
-    - 更进一步的，对于具体的实现，还有更多特别的生命周期方法
-        1. ```ChannelInboundHandler```的部分生命周期方法
-           - channelUnregistered / channelRegistered
-           - channelActive / channelInactive
-           - channelReadComplete
+    - handlerAdded：当handler添加到Pipeline中
+    - handlerRemoved：移除
+    - exceptionCaught：处理过程中产生错误时
+    - 更进一步的，对于具体的通信功能实现，还有更多特别的和生命周期相关的方法
+        1. ```ChannelInboundHandler```的部分方法
+           - channelUnregistered / channelRegistered：当所在channel已经取消/注册到EventLoop
+           - channelActive / channelInactive：所在channel连接成功/不再连接
+           - channelReadComplete：上一轮读操作完成
            - channelRead
            - channelWritabilityChanged：代表可写性变化，受制于缓冲区，有时允许或不能再写入更多
            - userEventTriggered：用户自定义事件回调，其调用来源是```fireUserEventTriggered```
@@ -347,22 +349,62 @@ public class PeerClass {
            - disconnect：当准备断开时的回调
            - close：请求关闭Channel时回调
            - deregister：请求从Pipeline中注销时回调
-           - read：请求从Channel中读取更多数据时的回调
+           - read：请求从Channel中读取更多数据时的回调，根据需要选择是否调用```read```以传递给下一个。
            - write / flush：写入数据
             > 关于OutBoundHandler中的read，参考[netty碎碎念](https://www.cnblogs.com/FlyAway2013/p/14952753.html)，简而言之，read方法将会触发新一轮的入站事件，如果不在read中向前传播，那么新的数据就不会读取。出站入站事件中的数据都需要按照pipeline进行一轮一轮的处理，因此需要进行控制。
-3. ChannelPipeline、ChannelHandlerContext
+            
+            > 将read和ChannelConfig.setAutoRead进行配合，可以实现反应式系统的回压（back-pressure）特性，就是说，当处理不过来的时候，就不要再读取更多的输入了，并且要反馈给数据流的上层。
+            
 3. ```@Shareable```注解：对于Handler，允许绑定到多个Pipeline，因此他们也会拥有多个Context。但是这种处理器，必须用Sharable进行标注。原因也很明显，此时这些Handler将在不同的线程中被调用，必须保证线程安全性。
     1. 共享Handler的意义：可以跨Channel收集一些信息。
+4. 异常处理：
+   1. 入站事件只需要啊重写exceptionCaught函数即可
+   1. 出站事件相对复杂
+      1. 对于具有ChannelFuture、ChannelPromise返回值或参数的方法，可以通过对返回值、参数设置相应的回调、状态值来处理异常情况
+      2. 如果出站事件抛出异常，监听ChannelFuture、ChannelPromise事件的位置也会收到通知
+
+### 线程模型
+当我们已经有了针对网络通信事件的处理组件和基本流程之后，现在的问题是如何通过线程运行，来组织这些事件的处理。而且要满足：稳定、高效、可扩展。
+
+这些任务就落在了对线程模型的设计上。即如何在线程内将各类I/O事件编排成具体可处理的任务，发放给各个所属的线程执行，如何保证线程安全。
+
+Netty的线程模型EventLoop是在Java的concurrent包内的Executor的基础上继承发展而来。EventLoop扩展了ExcheduledExecutorService的各种方法。在实际运行时，Channel可以通过相同的API，给绑定的EventLoop直接提交任务，例如：
+```java
+Channel ch;
+// 60s后调度一次
+ScheduledFuture<?> future = ch.eventLoop().schedule(
+    new Runnable() {
+        @Override
+        public void run() {
+        System.out.println("60 seconds later");
+        }
+    }, 60, TimeUnit.SECONDS);
+// 甚至可以取消
+future.cancel(true);
+```
+
+目前在Netty4中，有以下几点值得注意：
+1. 所有的入站事件、出站事件，都统一由所绑定的EventLoop处理
+2. 由EventLoop所在线程提交的任务，将会被立刻执行。这种判断由Netty利用```inEventLoop()```自动完成。
+3. 对于非EventLoop所在线程的其他线程所提交的任务，将会排队调度，稍后执行。这个特性让用户扩展ChannelHandler的方法时，仍然可以不考虑同步问题。因为最终都需要被EventLoop执行调度。
+4. 鉴于前面两点，再次重申，在Handler中不要将任何过于耗时的任务放到EventLoop中执行。对于过于耗时的任务，应当建立单独的EventExecutor进行处理。在创建Handler时就应当考虑传递一个EventExecutorGroup。
+    ```java
+    EventExecutorGroup myExec = new DefaultEventExecutorGroup(2);
+    MyServerChannelHandler serverHandler = new MyServerChannelHandler();
+    // 在启动代码的ChannelInit中
+    ch.pipeline().addLast(myExec,serverHandler);
+    
+    // 在handler中使用ChannelHandlerContext
+    // 或者其他executor接口，如schedule、execute等
+    ctx.executor().submit(new Runnable {/*...*/});
+    ```
+    > **注意区分**EventExecutor和inEventLoop的作用。前者是把耗时任务提交给其他线程。后者是测试当前代码是否是EventLoop线程执行的。上文中的  ```ctx.executor().submit```  仍然有可能由非EventLoop线程调用。
+5. 事件处理遵循先入先出原则，以保证消息处理顺序正确
+
+虽然设计上倾向于使用异步模型的通信方式。但即使是必须使用OIO阻塞模型的通信接口，也可以通过限制一个EventLoop内只绑定一个Channel，同时添加事件超时时间来完成兼容。
 
 
-### BossGroup
-
-### WorkerGroup
-
-
-## 线程模型
-
-## 编解码器
+### 编解码器
 
 ## 网络协议
 

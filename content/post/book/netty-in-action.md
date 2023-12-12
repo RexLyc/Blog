@@ -242,10 +242,11 @@ public class PeerClass {
    3. 处理器链的顺序：[参考官网文档](https://netty.io/4.1/api/index.html)，入站口始终是链表首部、出站口始终是链表尾部，也就是说一个入站消息事件，会从链表首部开始向后传递，而一个出站消息事件，将从链表尾部开始向前传递。在传递过程中，不支持的处理器将会直接透传（如各个```Adapter```的实现），或者由```ChannelPipeline```操作进行跳过。
 5. ChannelHandlerContext：当Handler添加到Pipeline中时，分配获得
    1. 意义：代表handler和ChannelPipeline之间的绑定关系。多用于写出站数据，该数据将从出站的尾端开始流动。
+   2. 关联：每一个Handler被加入Pipeline时，都会为其创建一个唯一，与之绑定的ChannelHandlerContext
    2. 作用：
        1. 所有和```ChannelPipeline```相同接口，均可使用，并且具有更短的调用链。即对于出站事件（如```write```），将会沿出站方向（链尾到链首），由下一个```ChannelOutBoundHandler```处理。对于入站事件，从入站顺序下一个开始处理。
             ![ChannelPipeline和ChannelHandlerContext的区别](/images/JavaSeries/netty-pipeline-ctx.drawio.png)
-       2. ChannelHandlerContext和Handler的绑定关系是唯一的，不可更改的。但Pipeline则允许修改，替换，重新编排。
+       2. ChannelHandlerContext和Handler的绑定关系是唯一的，不可更改的。但Pipeline则允许修改，替换，重新编排。因此可以在Handler中保存Context，以在其他场景下使用。
    
    > 无论是Context还是Pipeline，当传递出站消息，执行出站操作时，请一定想清楚你要做什么。
 6. ChannelConfig：支持热更新的配置
@@ -342,13 +343,16 @@ public class PeerClass {
            - channelWritabilityChanged：代表可写性变化，受制于缓冲区，有时允许或不能再写入更多
            - userEventTriggered：用户自定义事件回调，其调用来源是```fireUserEventTriggered```
         2. ```ChannelOutboundHandler```的部分生命周期方法
-           - bind / connect：当处理器绑定到本地、远程地址时的回调
-           - disconnect
-           - close
-           - deregister：
-           - read
-           - write / flush
-3. 
+           - bind / connect：当请求绑定到本地、远程地址时的回调（绑定和连接是一种出站事件）
+           - disconnect：当准备断开时的回调
+           - close：请求关闭Channel时回调
+           - deregister：请求从Pipeline中注销时回调
+           - read：请求从Channel中读取更多数据时的回调
+           - write / flush：写入数据
+            > 关于OutBoundHandler中的read，参考[netty碎碎念](https://www.cnblogs.com/FlyAway2013/p/14952753.html)，简而言之，read方法将会触发新一轮的入站事件，如果不在read中向前传播，那么新的数据就不会读取。出站入站事件中的数据都需要按照pipeline进行一轮一轮的处理，因此需要进行控制。
+3. ChannelPipeline、ChannelHandlerContext
+3. ```@Shareable```注解：对于Handler，允许绑定到多个Pipeline，因此他们也会拥有多个Context。但是这种处理器，必须用Sharable进行标注。原因也很明显，此时这些Handler将在不同的线程中被调用，必须保证线程安全性。
+    1. 共享Handler的意义：可以跨Channel收集一些信息。
 
 
 ### BossGroup

@@ -24,6 +24,12 @@ Netty作为一个广泛应用的Java高性能网络框架，不仅可以作为�
 
 ## 基本架构
 1. Netty的位置：在传输层以上，在应用层以下。负责将传输层的数据处理好，供上层应用业务使用。
+2. 架构核心：Netty也是一种反应式架构，参考[反应式宣言](https://www.reactivemanifesto.org/zh-CN)。具体来说，具有
+    1. 即时响应性（Responsive）：注于提供快速而一致的响应时间，可靠且已知的反馈上限，一致的服务质量，对于错误也能尽快发现并处理。
+    2. 回弹性（Resilient）：系统在出现失败时仍然能保持即时响应性。
+    3. 弹性（Elastic）：对负载进行响应，能够自动增加、减少资源来适应。
+    4. 消息驱动（Message Driven）：依赖于异步的消息传递，确保松耦合、隔离、边界明确。
+    > 消息驱动是手段，回弹性、弹性是形式，即时响应性是最终体现的价值。
 2. 基本术语：
    1. Channel：在Netty中代表了到一个通信实体的连接，可以对连接进行打开、关闭，并对活跃连接上进行读写，
    2. 回调：Netty使用回调来处理各类事件，使用回调时，须泛化实现对应接口的事件回调函数
@@ -238,7 +244,7 @@ public class PeerClass {
    1. 意义：代表handler和ChannelPipeline之间的绑定关系。多用于写出站数据，该数据将从出站的尾端开始流动。
    2. 作用：
        1. 所有和```ChannelPipeline```相同接口，均可使用，并且具有更短的调用链。即对于出站事件（如```write```），将会沿出站方向（链尾到链首），由下一个```ChannelOutBoundHandler```处理。对于入站事件，从入站顺序下一个开始处理。
-            ![ChannelPipeline和ChannelHandlerContext的区别](/images/javaSeries/netty-pipeline-ctx.drawio.png)
+            ![ChannelPipeline和ChannelHandlerContext的区别](/images/JavaSeries/netty-pipeline-ctx.drawio.png)
        2. ChannelHandlerContext和Handler的绑定关系是唯一的，不可更改的。但Pipeline则允许修改，替换，重新编排。
    
    > 无论是Context还是Pipeline，当传递出站消息，执行出站操作时，请一定想清楚你要做什么。

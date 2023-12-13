@@ -11,6 +11,7 @@ tags:
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/netty.png
 draft: true
+mermaid: true
 
 ---
 Netty作为一个广泛应用的Java高性能网络框架，不仅可以作为框架使用，其本身的设计模式和思路也很值得学习。
@@ -368,7 +369,48 @@ public class PeerClass {
 
 这些任务就落在了对线程模型的设计上。即如何在线程内将各类I/O事件编排成具体可处理的任务，发放给各个所属的线程执行，如何保证线程安全。
 
-Netty的线程模型EventLoop是在Java的concurrent包内的Executor的基础上继承发展而来。EventLoop扩展了ExcheduledExecutorService的各种方法。在实际运行时，Channel可以通过相同的API，给绑定的EventLoop直接提交任务，例如：
+```mermaid
+classDiagram
+    Executor <|-- ExecutorService
+    ExecutorService <|-- AbstractExecutorService
+    ExecutorService <|-- ScheduledExecutorService
+
+    AbstractExecutorService <|-- EventExecutorGroup
+    ScheduledExecutorService <|-- EventExecutorGroup
+
+    EventExecutorGroup <|-- EventExecutor
+    EventExecutorGroup <|-- EventLoopGroup
+    EventExecutor <|-- AbstractEventExecutor
+    EventExecutor <|-- EventLoop
+    AbstractEventExecutor <|-- SingleThreadEventExecutor
+    SingleThreadEventExecutor <|-- SingleThreadEventLoop
+    EventLoop <|-- SingleThreadEventLoop
+    SingleThreadEventLoop <|-- ThreadPerChannelEventLoop
+
+    
+namespace java-util-concurrent {
+    class Executor
+    class ExecutorService
+    class AbstractExecutorService
+    class ScheduledExecutorService
+}
+
+namespace io-netty-util-concurrent {
+    class EventExecutorGroup
+    class EventExecutor
+    class AbstractEventExecutor
+    class SingleThreadEventExecutor
+}
+
+namespace io-netty-channel {
+    class EventLoopGroup
+    class EventLoop
+    class SingleThreadEventLoop
+    class ThreadPerChannelEventLoop
+}
+```
+
+如上图所示。Netty的线程模型EventLoop是在Java的concurrent包内的Executor的基础上继承发展而来。EventLoop扩展了ExcheduledExecutorService的各种方法。在实际运行时，Channel可以通过相同的API，给绑定的EventLoop直接提交任务，例如：
 ```java
 Channel ch;
 // 60s后调度一次
@@ -402,6 +444,32 @@ future.cancel(true);
 5. 事件处理遵循先入先出原则，以保证消息处理顺序正确
 
 虽然设计上倾向于使用异步模型的通信方式。但即使是必须使用OIO阻塞模型的通信接口，也可以通过限制一个EventLoop内只绑定一个Channel，同时添加事件超时时间来完成兼容。
+
+### 引导
+> Bootstrap，一个在多种场合下都能看见的词汇，它的原意是用于提鞋的带子。对应了系统启动，引导期间的窘状。
+
+引导的一个定义是：对应用程序进行配置，使它运行起来的过程。在Netty中，这个过程在服务器和客户端两侧有不同的含义。对于服务器端，代表了启动一个父Channel并接收来自客户的连接，为其创建子Channel的过程。对于客户端，则是创建一个Channel用于连接服务器的过程。
+```mermaid
+classDiagram
+    Cloneable <|-- AbstractBootstrap
+    AbstractBootstrap <|-- Bootstrap
+    AbstractBootstrap <|-- ServerBootstrap
+
+    class Cloneable {
+        << interface >>
+    }
+```
+
+通用的引导过程由AbstractBootstrap负责，Bootstrap内是专供客户端的，Server则是专供服务器端的。这里展开一下AbstractBootstrap的详细定义
+```java
+public abstract class AbstractBootstrap
+    <B extends AbstractBootstrap<B,C>,C extends Channel>
+
+// 而子类的定义是
+public class Bootstrap
+    extends AbstractBootstrap<Bootstrap,Channel>
+```
+在阅读Netty代码时，经常有类似的定义方式。非常令人困惑。总的来说，这里的泛型参数的条件是，当前类的一个子类。而这样做的目的是为了支持在一个继承体系内，子类和父类均能使用链式调用（即```A.setA().setB().setC()```），相关内容参考[Java链式调用的继承：泛型](https://blog.csdn.net/fyyyr/article/details/112302821)
 
 
 ### 编解码器

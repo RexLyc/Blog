@@ -219,6 +219,7 @@ math: true
 2. :red_circle: 2603: [收集树中金币](https://leetcode.cn/problems/collect-coins-in-a-tree/description/)。看了题解，核心是对图做变换：剪枝、去叶子节点。**思考最终路径的规则**：任何一条路径最多只需要走两次，路径终点到（最远的）有金币的节点距离为2。因此变换有两条：递归删除所有无金币的叶子节点，对最终树进行2次删除叶子节点的操作。最终剩下的边，每个都会遍历。
 
 ###  数据结构
+1. :red_circle: 2132：[用邮票贴满网格图](https://leetcode.cn/problems/stamping-the-grid/description/)。看的题解，非常典型的二维前缀和、二维差分数组的题目。凡是计算一个矩形区域，甚至更高维的一个区域，都可以用n维的前缀和。但这道题目更厉害的是对差分数组的理解。最终求是否存在一个点没有被覆盖过。这个时候实际上需要计算出所有点的覆盖次数（一个前缀和），为了求这个，可以先求出其差分数组，即某个顶点开始覆盖一个矩形（四个角分别+1、-1），在对其求和。
 1. :red_circle: 2454：[下一个更大元素IV](https://leetcode.cn/problems/next-greater-element-iv/description/)。自己写了一个单调栈，但是时间复杂度不够好，用记账法估计我觉得也是$O(n)$，但是常数很大。[题解值得一看](https://leetcode.cn/problems/next-greater-element-iv/solutions/)。实际上对于第二大，第三大，都可以用类似的方式解决。思考思路是，**先找到第一大**（用一个单调栈），将这些有第一大元素的值拿到一个优先队列或者单调栈中，然后再找这些已知有第一大元素的第二大元素。
 1. :red_circle: 2179：[统计数组中好三元组数目](https://leetcode-cn.com/problems/count-good-triplets-in-an-array/)。核心题解思路是，以变量y遍历第一个列表，视作三元组的中间元素，并统计第二个列表中，位于y前面的变量中，有多少也在第一个列表中y位置之前出现过。这个统计的信息，恰好可以用[树状数组](https://zhuanlan.zhihu.com/p/93795692)来进行维护。由此达到$O(nlogn)$。
 1. :green_circle: 496：[下一个更大元素I](https://leetcode-cn.com/problems/next-greater-element-i/)。自己写的是$O(n^2)$，题解中推荐使用单调栈。

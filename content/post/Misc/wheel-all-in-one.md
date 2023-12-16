@@ -10,7 +10,7 @@ tags:
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/wheel.png
 ---
-不要重复造轮子！本篇记录一些非常厉害好用的轮子。
+不要重复造轮子！本篇记录一些非常厉害好用的轮子，即一些类似于awesome-xxx的实用工具。
 <!--more-->
 ## 跨语言
 1. thrift：一个可以生成多语言的服务开发框架，可以很轻松的完成客户端-服务端开发。[Apache Thrift官方链接](https://thrift.apache.org/)
@@ -65,3 +65,6 @@ thumbnailImage: /images/thumbnail/wheel.png
       # docker容器内容替换
       docker cp ./xhtmlsummary.php xxxx:/opt/bitnami/dokuwiki/inc/parser/xhtmlsummary.php
       ```
+
+## 图形编程
+1. Manim：非常流行且强大的Python绘图工具。Youtube、bilibili上都有很多博主在使用。可以创建好看且流畅的动画。用来做教学，演示算法流程再好不过。[仓库链接](https://github.com/3b1b/manim)

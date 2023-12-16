@@ -321,48 +321,117 @@ public class PeerClass {
         - 一个Loop可以拥有多个Channel
 
 ### 工具类
-1. ```ReferenceCountUtil```：显式释放消息缓存的工具，其内自带有类型检查。
+1. ```ReferenceCountUtil```：显式处理消息缓存的引用计数的工具，其内自带有类型检查。```retain```用于保持计数防止回收，```release```用于尝试自动释放。
+2. ```AttribyteKey<>```：用于创建属性集的键，主要用两个静态方法```newInstance```、```valueOf```。
 
 
 ## 核心架构
-在了解了组件设计之后，本章节将会讲述一些核心架构的内容
+在了解了组件设计之后，本章节将会讲述一些核心架构的内容，包括一些类型的详解，也包括一些惯用技巧。
 
-### 生命周期相关
-1. Channel的生命周期，按如下顺序
-    - ChannelUnregistered：未注册状态，指未注册到一个```EventLoop```
-    - ChannelRegistered
-    - ChannelActive：未激活状态，指未连接到远程节点
-    - ChannelInactive
-2. ChannelHandler的生命周期，除了处理出站入站数据，还有
-    - handlerAdded：当handler添加到Pipeline中
-    - handlerRemoved：移除
-    - exceptionCaught：处理过程中产生错误时
-    - 更进一步的，对于具体的通信功能实现，还有更多特别的和生命周期相关的方法
-        1. ```ChannelInboundHandler```的部分方法
-           - channelUnregistered / channelRegistered：当所在channel已经取消/注册到EventLoop
-           - channelActive / channelInactive：所在channel连接成功/不再连接
-           - channelReadComplete：上一轮读操作完成
-           - channelRead
-           - channelWritabilityChanged：代表可写性变化，受制于缓冲区，有时允许或不能再写入更多
-           - userEventTriggered：用户自定义事件回调，其调用来源是```fireUserEventTriggered```
-        2. ```ChannelOutboundHandler```的部分生命周期方法
-           - bind / connect：当请求绑定到本地、远程地址时的回调（绑定和连接是一种出站事件）
-           - disconnect：当准备断开时的回调
-           - close：请求关闭Channel时回调
-           - deregister：请求从Pipeline中注销时回调
-           - read：请求从Channel中读取更多数据时的回调，根据需要选择是否调用```read```以传递给下一个。
-           - write / flush：写入数据
-            > 关于OutBoundHandler中的read，参考[netty碎碎念](https://www.cnblogs.com/FlyAway2013/p/14952753.html)，简而言之，read方法将会触发新一轮的入站事件，如果不在read中向前传播，那么新的数据就不会读取。出站入站事件中的数据都需要按照pipeline进行一轮一轮的处理，因此需要进行控制。
+### Channel和Handler
+Channel的生命周期，按如下顺序
+- ChannelUnregistered：未注册状态，指未注册到一个```EventLoop```
+- ChannelRegistered
+- ChannelActive：未激活状态，指未连接到远程节点
+- ChannelInactive
+
+ChannelHandler的生命周期，除了处理出站入站数据，还有
+- handlerAdded：当handler添加到Pipeline中
+- handlerRemoved：移除
+- exceptionCaught：处理过程中产生错误时
+- 更进一步的，对于具体的通信功能实现，还有更多特别的和生命周期相关的方法
+    1. ```ChannelInboundHandler```的部分方法
+       - channelUnregistered / channelRegistered：当所在channel已经取消/注册到EventLoop
+       - channelActive / channelInactive：所在channel连接成功/不再连接
+       - channelReadComplete：上一轮读操作完成
+       - channelRead
+       - channelWritabilityChanged：代表可写性变化，受制于缓冲区，有时允许或不能再写入更多
+       - userEventTriggered：用户自定义事件回调，其调用来源是```fireUserEventTriggered```
+    2. ```ChannelOutboundHandler```的部分生命周期方法
+       - bind / connect：当请求绑定到本地、远程地址时的回调（绑定和连接是一种出站事件）
+       - disconnect：当准备断开时的回调
+       - close：请求关闭Channel时回调
+       - deregister：请求从Pipeline中注销时回调
+       - read：请求从Channel中读取更多数据时的回调，根据需要选择是否调用```read```以传递给下一个。
+       - write / flush：写入数据
+        > 关于OutBoundHandler中的read，参考[netty碎碎念](https://www.cnblogs.com/FlyAway2013/p/14952753.html)，简而言之，read方法将会触发新一轮的入站事件，如果不在read中向前传播，那么新的数据就不会读取。出站入站事件中的数据都需要按照pipeline进行一轮一轮的处理，因此需要进行控制。
+        
+        > 将read和ChannelConfig.setAutoRead进行配合，可以实现反应式系统的回压（back-pressure）特性，就是说，当处理不过来的时候，就不要再读取更多的输入了，并且要反馈给数据流的上层。
             
-            > 将read和ChannelConfig.setAutoRead进行配合，可以实现反应式系统的回压（back-pressure）特性，就是说，当处理不过来的时候，就不要再读取更多的输入了，并且要反馈给数据流的上层。
-            
-3. ```@Shareable```注解：对于Handler，允许绑定到多个Pipeline，因此他们也会拥有多个Context。但是这种处理器，必须用Sharable进行标注。原因也很明显，此时这些Handler将在不同的线程中被调用，必须保证线程安全性。
-    1. 共享Handler的意义：可以跨Channel收集一些信息。
-4. 异常处理：
-   1. 入站事件只需要啊重写exceptionCaught函数即可
-   1. 出站事件相对复杂
-      1. 对于具有ChannelFuture、ChannelPromise返回值或参数的方法，可以通过对返回值、参数设置相应的回调、状态值来处理异常情况
-      2. 如果出站事件抛出异常，监听ChannelFuture、ChannelPromise事件的位置也会收到通知
+Handler的```@Shareable```注解，标记了这个Handler类型的实例允许绑定到多个Pipeline，因此运行时一个Handler也会面对多个Context（函数参数）。此时这些Handler将有可能在不同的线程中被调用，必须保证线程安全性。共享Handler非常使用，可以跨Channel收集一些信息。
+
+异常处理：
+1. 入站事件只需要啊重写exceptionCaught函数即可
+2. 出站事件相对复杂
+   1. 对于具有ChannelFuture、ChannelPromise返回值或参数的方法，可以通过对返回值、参数设置相应的回调、状态值来处理异常情况
+   2. 如果出站事件抛出异常，监听ChannelFuture、ChannelPromise事件的位置也会收到通知
+
+Netty还额外提供了一种特殊的Channel，EmbeddedChannel，这种通道是专门用于对已有的ChannelHandler、ChannelPipeline进行**单元测试**的。本质上就是在单元测试的层面上去模拟一个远程的通信接口。他有五个主要的接口。
+| 函数名 | 函数作用 |
+| --- | --- |
+| writeOutBound | 向ChannelPipeline写入一个出站事件，将会完整流经各个OutBoundHandler |
+| readOutBound | 读取ChannelPipeline最终的出站数据 |
+| writeInBound | 向ChannelPipeline写入一个入站事件，将会完整的流经各个InBoundHandler |
+| readInBound | 读取ChannelPipeline最终的入站结果 |
+| finish | 关闭通道，处理/取消剩余任务，并返回是否有可处理的出站、入站数据 |
+
+下面是原书展示的一个入站消息基本测试用法示例
+```java
+// 一个解码器（Handler处理器的一种）
+public class FixedLengthFrameDecoder extends ByteToMessageDecoder {
+    private final int frameLength;
+
+    public FixedLengthFrameDecoder(int frameLength) {
+        if (frameLength <= 0) {
+            throw new IllegalArgumentException(
+                    "frameLength must be a positive integer: " + frameLength);
+        }
+        this.frameLength = frameLength;
+    }
+
+    @Override
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in,
+                          List<Object> out) throws Exception {
+        // 只有在缓冲区可用长度超过指定长度后才进行一次读取
+        while (in.readableBytes() >= frameLength) {
+            ByteBuf buf = in.readBytes(frameLength);
+            out.add(buf);
+        }
+    }
+}
+
+// 在单元测试文件中
+class FixedLengthFrameDecoderTest {
+    @Test
+    public void testFramesDecoded() {
+        ByteBuf buf = Unpooled.buffer();
+        for (int i = 0; i < 9; i++) {
+            buf.writeByte(i);
+        }
+        ByteBuf input = buf.duplicate();
+        // 测试一个以满足固定数据长度为处理要求的解码器。
+        EmbeddedChannel channel = new EmbeddedChannel(
+                new FixedLengthFrameDecoder(3));
+
+// write bytes
+        assertTrue(channel.writeInbound(input.retain()));
+        assertTrue(channel.finish());
+// read messages
+        ByteBuf read = (ByteBuf) channel.readInbound();
+        assertEquals(buf.readSlice(3), read);
+        read.release();
+        read = (ByteBuf) channel.readInbound();
+        assertEquals(buf.readSlice(3), read);
+        read.release();
+        read = (ByteBuf) channel.readInbound();
+        assertEquals(buf.readSlice(3), read);
+        read.release();
+        assertNull(channel.readInbound());
+        buf.release();
+    }
+}
+```
+
 
 ### 线程模型
 当我们已经有了针对网络通信事件的处理组件和基本流程之后，现在的问题是如何通过线程运行，来组织这些事件的处理。而且要满足：稳定、高效、可扩展。
@@ -471,8 +540,90 @@ public class Bootstrap
 ```
 在阅读Netty代码时，经常有类似的定义方式。非常令人困惑。总的来说，这里的泛型参数的条件是，当前类的一个子类。而这样做的目的是为了支持在一个继承体系内，子类和父类均能使用链式调用（即```A.setA().setB().setC()```），相关内容参考[Java链式调用的继承：泛型](https://blog.csdn.net/fyyyr/article/details/112302821)
 
+下面先讲解一下客户端的引导方式。客户端```Bootstrap```其实不仅用于客户端，也用于无连接协议（这种类型协议没有服务器和客户端的区分）。具体来说，此类引导类需要做的事情包括
+| 函数名 | 函数描述 |
+| --- | --- |
+| group | 设置EventLoopGroup |
+| channel | 设置将要使用的Channel类 |
+| localAddress | 设置本地地址、端口，没有就随机 |
+| bind | 尝试绑定Channel，也可设置新的localAddress |
+| option | 设置ChannelOption，缓冲区，保活机制等，只对新创建的Channel有效 |
+| attr | 设置Channel属性值，用户自定义的扩展数据，只对新创建的Channel有效 |
+| handler | 设置处理器 |
+| clone | 为了便于创建类似配置的Channel，允许浅拷贝当前引导类 |
+| remoteAddress | 设置远程连接地址 |
+| connect | 尝试连接远程，也可设置新的remoteAddress |
 
-### 编解码器
+需要注意的是，虽然Netty同时支持NIO、OIO，即异步和同步两种风格的通信模型。但是不能将两种组件混用。在引导类的配置中，NIOEventLoopGroup不能用于OIOSocketChannel。这是很显然的，因为不同的通信模型，他们对待EventLoop、Channel的方式，和两者的映射关系等都不一样。
+
+引导服务器端要相对复杂一些。```Bootstrap```有的方法，```ServerBootStrap```基本都有，但语义有所不同，上面的各个函数在```ServerBootStrap```中指的都是```ServerChannel```。也就是相当于接收连接的部分，而连接成功之后，会将对应连接的远程通信创建成一个子Channel。此时额外有一些函数供其使用，包括
+| 函数名 | 函数描述 |
+| --- | --- |
+| childOption | 子Channel配置 |
+| childAttr | 子Channel属性 |
+| childHandler | 子Channel所用的处理器 |
+
+这里还要强调一下，所谓```ServerChannel```的Handler到底在处理什么呢。实际上如果你写一下测试代码就会发现。ServerChannel的Handler中的msg，实际上就是将要创建的子Channel。那么在实际的开发中，可以用这一步对连接的细节做一些检查处理。
+```java
+@ChannelHandler.Sharable
+public class MyServerChannelHandler extends ChannelInboundHandlerAdapter {
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        // 和前面一样，都需要传递给后续处理
+        ctx.fireChannelRead(msg);
+        if(msg instanceof NioSocketChannel){
+            System.out.println("here is server channel read");
+            return;
+        } else {
+            System.out.println("here is child channel read");
+        }
+    }
+}
+```
+
+而在实际应用中，也会遇到二者的结合。比如一个代理服务器，它将接收客户端请求，并作为客户端再向上游服务器请求数据。此时可以根据性能的需要。选择这个请求所涉及的两个Channel是用同一个EventLoopGroup（一般来说更推荐），还是创建新的EventLoopGroup。无论怎么做，一定要清楚一点，位于同一个线程中的Channel业务处理将会更快（直接调用），如果一个消息的处理跨线程（或者说是跨EventLoop），将会保存到调度任务中，并稍后再执行。
+
+关闭引导类，释放资源，本质上就是在关闭EventLoopGroup，因此只需要操作对应的事件循环组关闭退出即可，引导类本身并不需要进行特别的处理。
+```java
+group.shutdownGracefully();
+```
+
+## 编解码器
+通过上一章节的讲述，```Channel```、```EventLoop```、```Bootstrap```，这三类组件，我们已经了解了Netty是如何完成I/O框架的组织。接下来，本章节将会专门讲述从传输层到应用层的关键组件：编解码器。编解码器实际上仍然在为ChannelPipeline中的Handler服务，所以也不难想象到，起始编解码器本身也是Handler的一种。
+
+### 解码器
+解码器一共有两个大类：
+- 将字节数据转换为指定类型的消息：```ByteToMessageDecoder```，```ReplayingDecoder```。二者的区别主要在于是否需要自己判断读取的字节数足够转型为一个目标类型，前者不能，会直接异常。而后者会在内部抛出异常，自动停止转换，并等待更多的字节数再尝试。
+- 将指定类型的消息转换为另一种类型的消息：```MessageToMessageDecoder```
+
+抽象类```ByteToMessageDecoder```，核心函数是```decode```，```decodeLast```（当通道不再活跃时被调用）。正如上面所说，这个抽象类的问题在于，必须自己考虑缓冲区中的字节数是否满足类型转换需求。比如
+```java
+public class ToIntegerDecoder extends ByteToMessageDecoder {
+@Override
+public void decode(ChannelHandlerContext ctx, ByteBuf in,
+                    List<Object> out) throws Exception {
+        // 判断是否满足int需求
+        if (in.readableBytes() >= 4) {
+            out.add(in.readInt());
+        }
+    }
+}
+```
+
+抽象类```ReplayingDecoder```，则提供了一个改造了的```ReplayingDecoderByteBuf```，它包装了传入的缓冲区，当长度不足时，会抛出一个```Signal```，```Decoder```会捕获该信号异常，循环读取直到长度满足要求（核心逻辑可见```callDecode```函数），阅读该函数可知对解码器的要求是，要么每次调用获得新的解码输出，要么变更解码状态（发异常信号）。和前面的解码器相比整体性能较差，但是更容易编写。此时用户的写法是，
+```java
+public class ToIntegerDecoder2 extends ReplayingDecoder<Void> {
+    @Override
+    public void decode(ChannelHandlerContext ctx, ByteBuf in,
+                        List<Object> out) throws Exception {
+        // 由基类自动检查
+        out.add(in.readInt());
+    }
+}
+```
+
+### 编码器
+
 
 ## 网络协议
 

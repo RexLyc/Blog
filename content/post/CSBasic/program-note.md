@@ -101,6 +101,30 @@ math: true
     - %2，等价于&1
 1. 用数组代替哈希表
 1. 2维数组展开到1为手动计算下标
+2. 对于动态开点线段树等，在运行时会创建大量对象的程序，可以在使用中引入一点点池化的思路，具体可见[题目](https://leetcode.cn/problems/count-integers-in-intervals/solutions/1495396/by-endlesscheng-clk2/comments/2195672)，简而言之
+    ```cpp
+    class YourSolution {
+    public:
+        static bool IsPooled;
+        static YourSolution *poolInstance;
+
+        void* operator new(size_t size){
+            if(!isPooled){
+                poolInstance = new YourSolution[1e5]; // 或者你想要的大小
+                isPooled = true;
+            }
+            // 很不负责任的分配方式，但是做题够用了
+            return pollInstance++;
+        }
+
+        void* operator delete(void *prt) noexcept {};
+
+        // ... 剩余的内容
+    }
+
+    bool YourSolution::IsPooled;
+    YourSolution* YourSolution::poolInstance = nullptr;
+    ```
 
 ## 经典书籍
 1. 《程序员面试经典》

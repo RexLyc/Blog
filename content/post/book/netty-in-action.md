@@ -622,6 +622,29 @@ public class ToIntegerDecoder2 extends ReplayingDecoder<Void> {
 }
 ```
 
+抽象泛型类```MessageToMessageDecoder<>```，该类型的用法是用原始类型作为泛型类型参数，并在解码器中将其转换为自己想要的新类型，例如
+```java
+public class IntegerToStringDecoder extends
+    MessageToMessageDecoder<Integer> {
+
+    @Override
+    public void decode(ChannelHandlerContext ctx, Integer msg
+        List<Object> out) throws Exception {
+        // 转换成String放到输出里
+        out.add(String.valueOf(msg));
+    }
+}
+```
+
+另外在解码器阶段，需要考虑缓冲过长问题。如果我们收到了一个过于长的数据，确实有可能导致缓冲区耗尽内存。作为一个负责任的框架，Netty提供了一个异常来专门描述这个情况：```TooLongFrameException```。当你发现缓冲区剩余字节过多的时候，可以考虑抛弃所有字节，形如
+```java
+int readable = in.readableBytes();
+if (readable > MAX_FRAME_SIZE) {
+    in.skipBytes(readable);
+    throw new TooLongFrameException("Frame too big!");
+}
+```
+
 ### 编码器
 
 

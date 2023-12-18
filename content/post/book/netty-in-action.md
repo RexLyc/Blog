@@ -646,9 +646,50 @@ if (readable > MAX_FRAME_SIZE) {
 ```
 
 ### 编码器
+编码器用于实现对出战消息的处理，和解码器类似，也提供了从消息到字节```MessageToByteEncoder```，和从消息到消息```MessageToMessageEncoder```。共两种大类的编码器。分别提供两种抽象函数供继承
+```java
+// MessageToByteEncoder<InputDataType>
+encode(ChannelHandlerContext ctx, InputDataType msg, ByteBuf out);
 
+// MessageToMessageEncoder<InputDataType>
+encode(ChannelHandlerContext ctx, InputDataType msg, List<Object> out);
+```
+
+### 编解码器
+在ChannelHandler章节，可能会有一个疑问，为什么会有处理器同事是入站处理器和出站处理器。本节就是这种类型处理器的最常见应用：编解码器。有些时候，在同一个类型中完成入站和出战消息的编解码是更方便的。它们同时具有上述解码器、编码器的抽象函数。
+
+比较特别的是对于消息类型，其抽象类定义如下
+```java
+public abstract class MessageToMessageCodec<INBOUND_IN, OUTBOUND_IN> 
+    extends ChannelDuplexHandler {
+    
+    // 将OUTBOUND_IN消息类型，转换为INBOUND_IN
+    protected abstract void encode(ChannelHandlerContext var1
+            , OUTBOUND_IN var2, List<Object> var3) throws Exception;
+
+    // 将INBOUND_IN消息类型，转换为OUTBOUND_IN
+    protected abstract void decode(ChannelHandlerContext var1
+            , INBOUND_IN var2, List<Object> var3) throws Exception;
+}
+```
+
+考虑到在一个类中实现编解码器，会对设计模式产生一定的负面影响，影响可复用性。显然也还有一种更优雅的形式：分别编写入站和出站的基本逻辑，再将处理器组合（而不是继承后写在一起）
+```java
+public class CombinedChannelDuplexHandler<I extends ChannelInboundHandler, O extends ChannelOutboundHandler>
+    extends ChannelDuplexHandler {
+    // 内部分别保存入站和出站处理
+    private I inboundHandler;
+    private O outboundHandler;
+}
+```
 
 ## 网络协议
+Netty已经内置了对大量网络协议的Channel、ChannelHandler支持，下表中列出一些对应的代表。
+
+| 类名称 | 类别 | 作用 |
+| --- | --- | --- |
+| SslChannelInitializer | ChannelInitializer | 基于Channel进一步初始化一个Ssl通信信道 |
+| SslHandler | ChannelHandler | 进行Ssl协议握手，对数据加解密 |
 
 ## 案例分析
 

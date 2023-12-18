@@ -94,7 +94,8 @@ math: true
 
 ###  二分
 > 二分查找，最好的表示方式就是，left边界，remain查找区间长度。注意left+remain就是第一个超出区间的值，但是也有可能是查找结果，参考vector容器的end()。参考C++标准库[lower_bound的可能实现](https://en.cppreference.com/w/cpp/algorithm/lower_bound)。
- 
+
+1. :yellow_circle: 162：[寻找峰值](https://leetcode.cn/problems/find-peak-element/description/)。虽然也知道是二分，但还是看了题解。题解将这种通用思路总结为**迭代爬坡**法：选中点，根据中点左右的大小，选一个爬坡方向，留那一半的区间。**思考过程**，先从$O(n)$的方式开始思考，单纯线性爬坡肯定是可以的，那么其实将其改造为二分也就不难想象和证明了。有点像下面题目：[山脉数组中查找目标值](https://leetcode-cn.com/problems/find-in-mountain-array/)的前半部分。
 1. :yellow_circle: 33：[搜索旋转排序数组](https://leetcode-cn.com/problems/search-in-rotated-sorted-array)。自己写了很久总有问题。[精选题解](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/solution/ji-jian-solution-by-lukelee/)。很考虑分类讨论能力和对二分查找的理解。**值得二刷**。
 1. :yellow_circle: 540：[有序数组中的单一元素](https://leetcode-cn.com/problems/single-element-in-a-sorted-array)。利用有序性。
 1. :red_circle: 4：[寻找两个正序数组的中位数](https://leetcode-cn.com/problems/median-of-two-sorted-arrays/)。经典的二分查找题目。普通的二分$O(log(m+n))$，以及利用中位数性质的二分$O(log(min(m,n))$（典型的**数量关系**，一个数组划分后，另一个数组理论上的划分位置是固定的）。还要注意特殊情况处理。**值得二刷**。

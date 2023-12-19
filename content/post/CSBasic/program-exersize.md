@@ -95,6 +95,7 @@ math: true
 ###  二分
 > 二分查找，最好的表示方式就是，left边界，remain查找区间长度。注意left+remain就是第一个超出区间的值，但是也有可能是查找结果，参考vector容器的end()。参考C++标准库[lower_bound的可能实现](https://en.cppreference.com/w/cpp/algorithm/lower_bound)。
 
+1. :yellow_circle: 1901：[寻找峰值II](https://leetcode.cn/problems/find-a-peak-element-ii/description/)。自己写的二分仍不能达到题目的时间复杂度要求。官方题解的办法需要一点巧妙的证明的思路：某一行的最大值一定可以是峰值（之一），求某一行的最大值是$O(n)$的，在此基础上去二分，这个元素的上下如果某一个比这个元素还大，那就抛弃另一侧，因为这个更大的元素所在的一侧，一定有某一行的最大值是峰值（并不是说另一侧没有，只是说这一侧一定有）。其实仍然是迭代爬坡法，只不过是针对每一行的最大值进行爬坡。
 1. :yellow_circle: 162：[寻找峰值](https://leetcode.cn/problems/find-peak-element/description/)。虽然也知道是二分，但还是看了题解。题解将这种通用思路总结为**迭代爬坡**法：选中点，根据中点左右的大小，选一个爬坡方向，留那一半的区间。**思考过程**，先从$O(n)$的方式开始思考，单纯线性爬坡肯定是可以的，那么其实将其改造为二分也就不难想象和证明了。有点像下面题目：[山脉数组中查找目标值](https://leetcode-cn.com/problems/find-in-mountain-array/)的前半部分。
 1. :yellow_circle: 33：[搜索旋转排序数组](https://leetcode-cn.com/problems/search-in-rotated-sorted-array)。自己写了很久总有问题。[精选题解](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/solution/ji-jian-solution-by-lukelee/)。很考虑分类讨论能力和对二分查找的理解。**值得二刷**。
 1. :yellow_circle: 540：[有序数组中的单一元素](https://leetcode-cn.com/problems/single-element-in-a-sorted-array)。利用有序性。

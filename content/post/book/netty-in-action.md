@@ -346,7 +346,7 @@ ChannelHandler的生命周期，除了处理出站入站数据，还有
        - channelReadComplete：上一轮读操作完成
        - channelRead
        - channelWritabilityChanged：代表可写性变化，受制于缓冲区，有时允许或不能再写入更多
-       - userEventTriggered：用户自定义事件回调，其调用来源是```fireUserEventTriggered```
+       - userEventTriggered：用户自定义事件回调，其调用来源是```fireUserEventTriggered```。通过该方法，Netty提供了对用户自定义事件的扩展能力
     2. ```ChannelOutboundHandler```的部分生命周期方法
        - bind / connect：当请求绑定到本地、远程地址时的回调（绑定和连接是一种出站事件）
        - disconnect：当准备断开时的回调
@@ -645,6 +645,12 @@ if (readable > MAX_FRAME_SIZE) {
 }
 ```
 
+最后总结一些内置的实用的解码器
+- DelimiterBasedFrameDecoder：基于分隔符区分数据帧
+- LineBasedFrameDecoder：基于行区分数据帧
+- FixedLengthFrameDecoder：定长数据帧
+- LengthFieldBasedFrameDecoder：从协议报文的长度域中提取长度，并根据长度截取数据帧
+
 ### 编码器
 编码器用于实现对出战消息的处理，和解码器类似，也提供了从消息到字节```MessageToByteEncoder```，和从消息到消息```MessageToMessageEncoder```。共两种大类的编码器。分别提供两种抽象函数供继承
 ```java
@@ -683,15 +689,98 @@ public class CombinedChannelDuplexHandler<I extends ChannelInboundHandler, O ext
 }
 ```
 
-## 网络协议
-Netty已经内置了对大量网络协议的Channel、ChannelHandler支持，下表中列出一些对应的代表。
+## 网络协议和连接管理
+Netty已经内置了对大量网络协议的Channel、ChannelHandler支持，以及一些实用的数据类型。Netty的链式处理的设计，以及对于处理器的设计，使得可以复用组件，以完成复杂协议的构建。
+
+比如将Http、Ssl的处理器结合起来，就完成了对Https的支持，下表中列出对Https协议的实现中，实用的一些类型代表。Netty
 
 | 类名称 | 类别 | 作用 |
 | --- | --- | --- |
-| SslChannelInitializer | ChannelInitializer | 基于Channel进一步初始化一个Ssl通信信道 |
 | SslHandler | ChannelHandler | 进行Ssl协议握手，对数据加解密 |
+| DecoderResult | 消息数据类型 | 表示一个解码结果，其内有解码成功与否的信号 |
+| HttpObject | 消息数据类型 | 抽象类，表示Http协议数据内容（有多个子类，分别表示完整、部分Http数据） |
+| HttpRequestEncoder | MessageToByteEncoder | 将HttpRequest等类型编码为字节（不一定是一次完整的Http报文） |
+| HttpObjectAggregator | MessageToMessageDecoder | 将多个Http协议数据（头、体）聚合成一个完整的Http报文 |
+| HttpClientCodec | Codec | Http客户端编解码器 |
+| HttpContentCompressor | ChannelHandler | Http压缩处理器 |
+
+而对于WebSocket协议，有以下几种类型
+| 类名称 | 类别 | 作用 |
+| --- | --- | --- |
+| WebSocketFrame | 缓冲数据类型 | 协议数据基类，可进一步分为文本、二进制等数据帧，和Ping/Pong、Close等控制帧 |
+| WebSocketServerProtocolHandler | MessageToMessageHandler、ChannelOutBoundHandler | 处理WebSocket协议服务器端逻辑 |
+
+在协议之外，Netty也提供了一些通用的连接管理处理器，比如对超时，空闲的处理，一些常见的处理器如下
+| 类名称 | 类别 | 作用 |
+| --- | --- | --- |
+| IdleStateHandler | ChannelHandler | 如果空闲超过配置的时间，则发送一个IdleStateEvent事件，由后续的userEventTriggered处理 |
+| ReadTimeoutHandler | ChannelHandler | 指定时间间隔内没有收到任何入站数据，抛出异常来关闭对应的Channel |
+
+除此之外，Netty还提供了对于大量数据的发送时的内存利用问题。因为是大量文件，所以以文件收发为例。相比于解码器面对过量数据时的直接抛弃，编码阶段必须有更好设计的方案：结合**流式传输**以及**零拷贝技术**。书中的代码示例如下
+```java
+// ========== 示例一 ==========
+FileInputStream in = new FileInputStream(file);
+// 对于直接发送文件的情况，如果平台支持零拷贝技术，直接用FileRegion
+FileRegion region = new DefaultFileRegion(
+    in.getChannel(), 0, file.length());
+// 发送和回调
+channel.writeAndFlush(region).addListener(
+    new ChannelFutureListener() {
+    @Override
+    public void operationComplete(ChannelFuture future)
+        throws Exception {
+        if (!future.isSuccess()) {
+            Throwable cause = future.cause();
+            // Do something
+        }
+    }
+});
+
+
+// ========== 示例二 ==========
+// 当需要对传输的文件数据进行流式处理时
+public class ChunkedWriteHandlerInitializer
+    extends ChannelInitializer<Channel> {
+
+    private final File file;
+    private final SslContext sslCtx;
+    public ChunkedWriteHandlerInitializer(File file, SslContext sslCtx) {
+        this.file = file;
+        this.sslCtx = sslCtx;
+    }
+
+    @Override
+    protected void initChannel(Channel ch) throws Exception {
+        // 按顺序添加ssl加密处理器、分块写处理器、流式写处理器
+        ChannelPipeline pipeline = ch.pipeline();
+        pipeline.addLast(new SslHandler(sslCtx.newEngine(ch.alloc())));
+        pipeline.addLast(new ChunkedWriteHandler());
+        pipeline.addLast(new WriteStreamHandler());
+    }
+
+    public final class WriteStreamHandler
+        extends ChannelInboundHandlerAdapter {
+
+        @Override
+        public void channelActive(ChannelHandlerContext ctx)
+            throws Exception {
+            // 从文件数据转为到分块流式数据
+            super.channelActive(ctx);
+            ctx.writeAndFlush(new ChunkedStream(new FileInputStream(file)));
+        }
+    }
+}
+```
+
+在Netty框架中，对大量数据的处理思路很值得借鉴。
+- 对于入站数据，如果过大到无法处理，应当即时发现并抛弃，或者通过回压等方式告知下游，降低输入压力
+- 对于出站数据，通过流式处理、分块处理，避免一次性分配过多内存、耗尽内存，并在处理过程中引入零拷贝等其他提高性能的技术
+
 
 ## 案例分析
+从WebSocket协议看Pipeline的动态变化：
+1. WebSocket协议是基于Http协议的，因此在一开始的处理时，Pipeline中的处理器一定是包括全部的Http处理器，并同时包含WebSocket协议的处理器
+2. 在完成WebSocket协议握手之后，Http协议处理器就不再需要了，此时需要从Pipeline中移除这些处理器（Http编解码器）以提高性能，并添加上WebSocket的处理器（WebSocket编解码器）
 
 ## 参考资料
 1. 《Netty In Action》

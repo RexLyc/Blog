@@ -710,6 +710,39 @@ Netty已经内置了对大量网络协议的Channel、ChannelHandler支持，以
 | WebSocketFrame | 缓冲数据类型 | 协议数据基类，可进一步分为文本、二进制等数据帧，和Ping/Pong、Close等控制帧 |
 | WebSocketServerProtocolHandler | MessageToMessageHandler、ChannelOutBoundHandler | 处理WebSocket协议服务器端逻辑 |
 
+另外对于无连接协议UDP，Netty也提供了相应的技术支持，常见的类型有
+| 类名称 | 类别 | 作用 |
+| --- | --- | --- |
+| AddresssedEnvelope | 消息数据类型 | 包装了目标地址的消息类型 |
+| DatagramPacket | 缓冲消息类型 | 用于数据报协议的数据包 |
+| DatagramChannel | Channel | UDP协议基本Channel类型 |
+
+注意在无连接协议UDP中，地址不是和通道绑定的，而是和消息绑定的。也就是说每一个添加到出站事件中的数据包，都要赋予其目的地址，也因此引导类代码也略有不同。在此保留一段书中给出的编码器中的代码
+```java
+// LogEvent是自定义消息类型
+// 实现从LogEvent到DatagramPacket的编码
+public class LogEventEncoder extends MessageToMessageEncoder<LogEvent> {
+    private final InetSocketAddress remoteAddress;
+    public LogEventEncoder(InetSocketAddress remoteAddress) {
+        this.remoteAddress = remoteAddress;
+    }
+
+    @Override
+    protected void encode(ChannelHandlerContext channelHandlerContext,
+        LogEvent logEvent, List<Object> out) throws Exception {
+        byte[] file = logEvent.getLogfile().getBytes(CharsetUtil.UTF_8);
+        byte[] msg = logEvent.getMsg().getBytes(CharsetUtil.UTF_8);
+        ByteBuf buf = channelHandlerContext.alloc()
+                    .buffer(file.length + msg.length + 1);
+        buf.writeBytes(file);
+        buf.writeByte(LogEvent.SEPARATOR);
+        buf.writeBytes(msg);
+        out.add(new DatagramPacket(buf, remoteAddress));
+    }
+}
+```
+
+
 在协议之外，Netty也提供了一些通用的连接管理处理器，比如对超时，空闲的处理，一些常见的处理器如下
 | 类名称 | 类别 | 作用 |
 | --- | --- | --- |
@@ -781,6 +814,15 @@ public class ChunkedWriteHandlerInitializer
 从WebSocket协议看Pipeline的动态变化：
 1. WebSocket协议是基于Http协议的，因此在一开始的处理时，Pipeline中的处理器一定是包括全部的Http处理器，并同时包含WebSocket协议的处理器
 2. 在完成WebSocket协议握手之后，Http协议处理器就不再需要了，此时需要从Pipeline中移除这些处理器（Http编解码器）以提高性能，并添加上WebSocket的处理器（WebSocket编解码器）
+
+
+
+## 总结
+Netty在设计上，推荐的使用逻辑：
+1. 根据业务、通讯协议，选择已有或者自定义消息、Channel、ChannelHandler，并将其在引导类中进行装配
+2. 使用已有，或者自定义的编解码器，将业务数据逐步转换为传输消息，传输字节
+3. 合理的记录日志，收集通信统计数据
+4. 对于过大的缓冲区消耗保持警惕
 
 ## 参考资料
 1. 《Netty In Action》

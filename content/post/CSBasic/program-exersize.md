@@ -83,6 +83,7 @@ math: true
 1. :red_circle: 407：[接雨水II](https://leetcode-cn.com/problems/trapping-rain-water-ii/)。直观上是寻找低点并扩散，但实际本题是从外向内扩展，即假定外围有一圈水，并且从最矮处开始扩展（短板效应）。经典的**反向思路**的BFS。BFS可以偶尔尝试把从内向外，转为从外向内。
 
 ###  数学
+1. :yellow_circle: 1954：[收集足够苹果的最小花园周长](https://leetcode.cn/problems/minimum-garden-perimeter-to-collect-enough-apples/description/)。自己写的纯暴力，实际上本体是二分加通项公式。平方和通项公式$\frac{n(n+1)(2n+1)}{6}$。
 1. :green_circle: 914：[卡牌分组](https://leetcode-cn.com/problems/x-of-a-kind-in-a-deck-of-cards)。简单的gcd（最大公约数）题目。[欧几里得gcd、扩展欧几里得](https://zhuanlan.zhihu.com/p/58241990)
 1. :yellow_circle: 343：[整数拆分](https://leetcode-cn.com/problems/integer-break/)。从数字分析入手，发现所有的拆分方式中，拆出最多的3是最优解。
 1. :yellow_circle: 365：[水壶问题](https://leetcode-cn.com/problems/water-and-jug-problem/)。基础款可以写个BFS。但由于是判定问题，其实可以直接参考**扩展欧几里得**、**裴蜀定理**。
@@ -110,6 +111,7 @@ math: true
 1. :yellow_circle: 2560: [打家劫舍 IV](https://leetcode.cn/problems/house-robber-iv/description/)。经典最小化最大值问题。这类问题就是针对这个值进行二分。而不是真的去模拟求出所有的最大值。另外该题需要想明白两点：先选一定不比后选更差（贪心策略的正确性，类似于优先选择最早完成的任务），另一点是二分的最终结果一定会存在于数组中（不用担心二分的结果不在原数组）。
 
 ###  字符串
+1. :red_circle: 100158：[转换字符串的最小成本 II](https://leetcode.cn/problems/minimum-cost-to-convert-string-ii/description/)。周赛题目，和题解思路基本一致，但是本题卡常数，必须用Trie树优化，将字符串离散化，提升字符串匹配速度。写烦了，**抄了题解**。
 1. :red_circle: 828：[统计字符串中唯一字符](https://leetcode.cn/problems/count-unique-characters-of-all-substrings-of-a-given-string/description)。和题解的思路是一致的。把计算子串中的唯一字符，转向计算一个字符能在多少个子串中唯一。但是计算这种子串卡了很久。注意理解：计算在$(begin,end)$开区间内，包含middle位置的字符的子串的数量（其中$begin<middle<end$），就是$(middle-begin)*(end-middle)$。
 1. :red_circle: 1044：[最长重复子串](https://leetcode.cn/problems/longest-duplicate-substring/description/)。最长重复子串，等价于求所有后缀的最长公共前缀。后缀数组的样板题目。
 2. :green_circle: 28：[实现strstr](https://leetcode-cn.com/problems/implement-strstr/)。平均意义上又好写又快的[Sunday算法](https://blog.csdn.net/q547550831/article/details/51860017)。其实就是两条策略：失配后对比主串中此次参加匹配的子串后的下一个字符，如果在模式串中没有，则大跳，否则对齐到模式串从右数第一次出现的位置。

@@ -129,6 +129,7 @@ math: true
 14. :red_circle: 6093：[设计一个文本编辑器](https://leetcode.cn/problems/design-a-text-editor/)。（看了题解）脑筋急转弯级别的困难题。很容易陷入到写一个链表结构的数据结构中（很难写）。但实际上，可以看作是类似两个栈，分别是前缀和后缀。左右移动就是两个栈来回压入，插入删除则是对前缀的压入和弹出。
 
 ###  动态规划
+1. :red_circle: 1349：[参加考试的最大学生数](https://leetcode.cn/problems/maximum-students-taking-exam/description/)。抄了题解。没想到正确的状态设计的思路。每一行的可坐人数和当前行的坐法，以及上一行的坐法有关。而每一行的坐法可以用```bitmask```来表示，之后再对两行的```bitmask```进行暴力匹配。从而算出每一个状态下的最多人数。只要能想到**正确的状态设计**就成功了。可以从题目的数据范围去思考。另外题解中还提到了转换为[二分图模型](https://leetcode.cn/problems/maximum-students-taking-exam/solutions/101748/can-jia-kao-shi-de-zui-da-xue-sheng-shu-by-leetcod/comments/2201755)，以及[插头DP（轮廓线DP）](https://oi-wiki.org/dp/plug/)。
 1. :red_circle: 1671：[得到山形数组的最少删除次数](https://leetcode.cn/problems/minimum-number-of-removals-to-make-mountain-array/description/)。自己写的是$O(n^2)$的动态规划，对每个位置，求两次递减子序列。但实际上本题可参考[最长递增子序列](https://leetcode-cn.com/problems/longest-increasing-subsequence/)。求LIS类问题，是有$O(nlogn)$方法的。
 1. :yellow_circle: 2008：[出租车的最大盈利](https://leetcode.cn/problems/maximum-earnings-from-taxi/description/)。自己写的是对订单DP+二分。题解中有另一种对位置DP+哈希表，实际上只需要回溯考虑同一终点的所有行程。没有绝对的好坏，不过本题的数据规模确实是哈希表更好。
 1. :red_circle: 689：[三个无重叠子数组的最大和](https://leetcode.cn/problems/maximum-sum-of-3-non-overlapping-subarrays/description/)。思考方向比较顺畅：从一个最大和子数组，到两个，再到三个，可以很自然的思考出来动态规划方程。本质还是背包问题。

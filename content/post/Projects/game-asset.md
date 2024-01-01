@@ -57,11 +57,14 @@ draft: true
          | 操作名称 | 快捷键 | 注意 |
          | --- | --- | --- |
          | 调整衰减编辑区域大小 | 按住F并左右移动鼠标调整 | |
-         | 调整衰减羽化 | 按住Shift + F并左右调整鼠标 |
+         | 调整衰减羽化 | 按住Shift + F并左右调整鼠标 | |
          | Clay粘土 | C | 增减模型（圆形笔） |
          | Clay Strip粘土条 |  | 增减模型（方形笔） |
          | Smooth平滑 | Shift + S | 使模型平滑 |
          | Grab抓取 | G | 拖拽模型，按Ctrl是沿着法向移动 |
+         | Draw Face Set | | 用画笔框选点集（长按按Ctrl选择点集） |
+         | 隐藏/恢复点集 | H/Shift | 可以隐藏已经选择的点集 |
+
 
          > 注1：大部分工具，同时按下Ctrl可以使效果反向（隆起/凹陷）、Shift则是平滑
 
@@ -98,7 +101,8 @@ draft: true
          6. 耳朵面部不应在重拓扑之前雕刻过多细节，会导致重拓扑变得非常困难。
          7. 在合适的情况下，为顶点分组
          8. 编辑软体结构，用粘土（C）雕刻效果往往优于拖拽（G）
-         9. **多看多练**
+         9. 通过隐藏Face Set面集，控制对不同部位的雕刻，变换。
+         10. **多看多练**
 
          > 在Blender的任意位置，都可以通过F1获取帮助文档
       8. 界面特别说明
@@ -117,6 +121,7 @@ draft: true
    2. WaveForm:
       1. 收费软件的免费版本，有一些限制，但不影响使用。
       2. 不能直接和Minilab联动
+      3. 教程：[Ot-学习如何使用Tracktion Waveform教程](https://www.bilibili.com/video/BV1mW4y1k7dS)
 3. 音源软件
    1. Kontakt：不打开DAW，单独使用时没有声音
    2. Native Access：综合性的app，提供各类音乐资源。买了一个东亚乐器包
@@ -137,7 +142,9 @@ draft: true
 1. FluidFlux：流体插件
 
 ## 资源网站
+1. [Online Courses：一个综合在线课程网站](https://online-courses.club/)
 1. [ANATOMY360：一个提供精细三维重建模型的网站](http://anatomy360.info/)
 1. [【教程】Blender + UE5 游戏角色建模材质绑定动画全流程](https://www.bilibili.com/video/BV1MY4y1X7gn/)
 1. [【中文字幕】UE5与Blender完整游戏环境制作工作流程视频教程](https://www.bilibili.com/video/BV1Ft4y1T7KW)
 1. [Blender学习笔记：一个Q版人物](https://space.bilibili.com/27462787/channel/collectiondetail?sid=902549)
+2. [一个通过交互式游戏学习Bezier贝塞尔曲线的网站](https://bezier.method.ac/)

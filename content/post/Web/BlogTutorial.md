@@ -75,6 +75,9 @@ thumbnailImage: /images/thumbnail/lycStamp.png
     - 第二步：去head.html中利用插值表达式引用该html。
     - 第三步：最好是在markdown开头的Front Matter部分添加math: true。也可以在toml中全局启用MathJax。
     - 参考：[使用MathJax在Hugo的Markdown中绘制公式](https://note.qidong.name/2018/03/hugo-mathjax/)
+- Mermeid支持（使用代码段绘制流程图等）
+    - 在script.html中添加对应代码
+    - 参考：[使用Mermaid在hugo的Markdown中绘制UML](https://note.qidong.name/2020/07/mermaid/)、[mermaid在线练习](https://mermaid-js.github.io/mermaid-live-editor/edit)、[官方教程](https://mermaid.js.org/intro/)
 - 使用其他人的主题，可以考虑使用bootcdn对js、css等进行加速，但注意只能使用主题中限定的版本。
 - 标记草稿
     - Front Matter（就是markdown开头），添加标记
@@ -109,7 +112,7 @@ thumbnailImage: /images/thumbnail/lycStamp.png
             [outputs]
                 home = ["HTML","RSS","JSON"]
             ```
-        1. themes/你的主题/layouts/_default/index.json，新增：
+        2. themes/你的主题/layouts/_default/index.json，新增：
             ```json
             // 该文件就是生成的json文件的模板，指示Hugo生成的索引格式和内容
             {{- $.Scratch.Add "index" slice -}}
@@ -120,7 +123,7 @@ thumbnailImage: /images/thumbnail/lycStamp.png
             {{- end -}}
             {{- $.Scratch.Get "index" | jsonify -}}
             ```
-        1. themes/你的主题/layouts/partials/search.html，新增：
+        3. themes/你的主题/layouts/partials/search.html，新增：
             ```html
             <!-- 根据你自己的喜好，添加一个展示搜索结果的页面 -->
             <!-- 一定要有一个可供修改的入口元素 -->
@@ -128,7 +131,7 @@ thumbnailImage: /images/thumbnail/lycStamp.png
                 <!-- ...  -->
             </div>
             ```
-        1. themes/你的主题/layouts/partials/sidebar.html，修改：
+        4. themes/你的主题/layouts/partials/sidebar.html，修改：
             ```html
             <!-- 根据你自己的喜好，把搜索页面和搜索入口添加到原有页面中 -->
             <!-- 这里我选择添加到导航栏 -->
@@ -146,7 +149,7 @@ thumbnailImage: /images/thumbnail/lycStamp.png
             <script src="/js/fuse.min.js"></script>
             <script src="/js/search.js"></script>
             ```
-        1. themes/你的主题/static/js/search.js，新增：
+        5. themes/你的主题/static/js/search.js，新增：
             ```js
             // 页面基础逻辑，略
             // ...

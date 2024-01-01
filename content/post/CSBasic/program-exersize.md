@@ -58,6 +58,9 @@ math: true
 1. :yellow_circle: 950：[按递增顺序显示卡牌](https://leetcode-cn.com/problems/reveal-cards-in-increasing-order/)。重新排序卡牌，使得满足一定条件。考验模拟的思路。
 
 ###  搜索
+1. :red_circle: 2646：[最小化旅行的价格总和](https://leetcode.cn/problems/minimize-the-total-price-of-the-trips/description/)。看了题解。可以说是树上DP经典题目了，下次别忘了就行。另外也算是在考察LCA（最近公共祖先）。
+1. :yellow_circle: 2477：[到达首都的最小油耗](https://leetcode.cn/problems/minimum-fuel-cost-to-report-to-the-capital/description/)。自己写了个类似拓扑排序。实际上夸张了，这题直接从根开始深搜就行。每个节点统计子树的全部乘客，再向上返回。
+1. :rec_circle: 2258: [逃离火灾](https://leetcode.cn/problems/escape-the-spreading-fire/description/)。唯一需要特殊考虑的情况，是只有安全屋格子允许人和火同时抵达。优化思路，从起始位置和着火点分别BFS$\to$从安全屋反向BFS并记录路径$\to$不需要记录路径，只需要标记路径是从左侧还是右侧。题解里还有对等待时间二分查找+BFS，虽然效率低，但是二分的思路很有代表性。
 1. :yellow_circle: 39：[组合总数](https://leetcode-cn.com/problems/combination-sum/)。标准DFS。
 1. :yellow_circle: 40：[组合总数II](https://leetcode-cn.com/problems/combination-sum-ii/)。39题的变种。需要使用一些剪枝来避免重复。
 1. :yellow_circle: 94：[二叉树的中序遍历](https://leetcode-cn.com/problems/binary-tree-inorder-traversal/)。普通写法没什么。迭代写法就需要一点东西了，可参考[二叉树遍历方法大全](https://www.cnblogs.com/sunshuyi/p/12680577.html)、[Morris遍历](https://www.freesion.com/article/2475651348/)。尤其注意思考Morris后序遍历的反转操作。
@@ -80,6 +83,7 @@ math: true
 1. :red_circle: 407：[接雨水II](https://leetcode-cn.com/problems/trapping-rain-water-ii/)。直观上是寻找低点并扩散，但实际本题是从外向内扩展，即假定外围有一圈水，并且从最矮处开始扩展（短板效应）。经典的**反向思路**的BFS。BFS可以偶尔尝试把从内向外，转为从外向内。
 
 ###  数学
+1. :yellow_circle: 1954：[收集足够苹果的最小花园周长](https://leetcode.cn/problems/minimum-garden-perimeter-to-collect-enough-apples/description/)。自己写的纯暴力，实际上本体是二分加通项公式。平方和通项公式$\frac{n(n+1)(2n+1)}{6}$。
 1. :green_circle: 914：[卡牌分组](https://leetcode-cn.com/problems/x-of-a-kind-in-a-deck-of-cards)。简单的gcd（最大公约数）题目。[欧几里得gcd、扩展欧几里得](https://zhuanlan.zhihu.com/p/58241990)
 1. :yellow_circle: 343：[整数拆分](https://leetcode-cn.com/problems/integer-break/)。从数字分析入手，发现所有的拆分方式中，拆出最多的3是最优解。
 1. :yellow_circle: 365：[水壶问题](https://leetcode-cn.com/problems/water-and-jug-problem/)。基础款可以写个BFS。但由于是判定问题，其实可以直接参考**扩展欧几里得**、**裴蜀定理**。
@@ -87,10 +91,13 @@ math: true
 1. :red_circle: 891：[子序列宽度之和](https://leetcode-cn.com/problems/sum-of-subsequence-widths/)。逆向思维，寻找子序列中的max/min$\to$固定max/min，计算有多少个序列。固定max/min，需要先对数组排序，然后按顺序取。随后可以通过数学推理，计算出所有序列的和的一个解析解表达式。
 1. :yellow_circle: 2028：[找出缺失的观测数据](https://leetcode-cn.com/problems/find-missing-observations/)。可以写搜索，效率还行（每种数字的数量都有上下限可用）。但[题解](https://leetcode-cn.com/problems/find-missing-observations/solution/zhao-chu-que-shi-de-guan-ce-shu-ju-by-le-0z7j/)给出了一种已知均值和整数的总数，可以直接构造出整数数组的方法。
 1. :red_circle: 1259：[不相交的握手](https://leetcode-cn.com/problems/handshakes-that-dont-cross/)。[非会员传送门](https://www.acwing.com/file_system/file/content/whole/index/content/1528105/)。可以用DP，但用数学更好。卡塔兰数+Lucas定理。
+2. :yellow_circle: 1094：[拼车](https://leetcode.cn/problems/car-pooling/description/)。看题解，用**差分数组**思想，前缀和和差分数组互为逆运算。将上下车视作加减人数，则可把任意位置的乘客数量看作对这个加减法的前缀和，最笨的方式是计算所有位置的前缀和。但实际上本体是一个区间修改，而且区间很小，那么可以做前缀和的逆运算，差分数组，差分数组只需要在区间修改的起始和终止位置进行调整。最后再用差分数组构建前缀和即可。
 
 ###  二分
-> 二分大多是返回下界，写的时候注意考虑边界情况（上下界相同，相差1），每次上下界的修改（是否需要+-1），确保可以返回正常结束并返回。
- 
+> 二分查找，最好的表示方式就是，left边界，remain查找区间长度。注意left+remain就是第一个超出区间的值，但是也有可能是查找结果，参考vector容器的end()。参考C++标准库[lower_bound的可能实现](https://en.cppreference.com/w/cpp/algorithm/lower_bound)。
+
+1. :yellow_circle: 1901：[寻找峰值II](https://leetcode.cn/problems/find-a-peak-element-ii/description/)。自己写的二分仍不能达到题目的时间复杂度要求。官方题解的办法需要一点巧妙的证明的思路：某一行的最大值一定可以是峰值（之一），求某一行的最大值是$O(n)$的，在此基础上去二分，这个元素的上下如果某一个比这个元素还大，那就抛弃另一侧，因为这个更大的元素所在的一侧，一定有某一行的最大值是峰值（并不是说另一侧没有，只是说这一侧一定有）。其实仍然是迭代爬坡法，只不过是针对每一行的最大值进行爬坡。
+1. :yellow_circle: 162：[寻找峰值](https://leetcode.cn/problems/find-peak-element/description/)。虽然也知道是二分，但还是看了题解。题解将这种通用思路总结为**迭代爬坡**法：选中点，根据中点左右的大小，选一个爬坡方向，留那一半的区间。**思考过程**，先从$O(n)$的方式开始思考，单纯线性爬坡肯定是可以的，那么其实将其改造为二分也就不难想象和证明了。有点像下面题目：[山脉数组中查找目标值](https://leetcode-cn.com/problems/find-in-mountain-array/)的前半部分。
 1. :yellow_circle: 33：[搜索旋转排序数组](https://leetcode-cn.com/problems/search-in-rotated-sorted-array)。自己写了很久总有问题。[精选题解](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/solution/ji-jian-solution-by-lukelee/)。很考虑分类讨论能力和对二分查找的理解。**值得二刷**。
 1. :yellow_circle: 540：[有序数组中的单一元素](https://leetcode-cn.com/problems/single-element-in-a-sorted-array)。利用有序性。
 1. :red_circle: 4：[寻找两个正序数组的中位数](https://leetcode-cn.com/problems/median-of-two-sorted-arrays/)。经典的二分查找题目。普通的二分$O(log(m+n))$，以及利用中位数性质的二分$O(log(min(m,n))$（典型的**数量关系**，一个数组划分后，另一个数组理论上的划分位置是固定的）。还要注意特殊情况处理。**值得二刷**。
@@ -104,21 +111,28 @@ math: true
 1. :yellow_circle: 2560: [打家劫舍 IV](https://leetcode.cn/problems/house-robber-iv/description/)。经典最小化最大值问题。这类问题就是针对这个值进行二分。而不是真的去模拟求出所有的最大值。另外该题需要想明白两点：先选一定不比后选更差（贪心策略的正确性，类似于优先选择最早完成的任务），另一点是二分的最终结果一定会存在于数组中（不用担心二分的结果不在原数组）。
 
 ###  字符串
-1. :green_circle: 28：[实现strstr](https://leetcode-cn.com/problems/implement-strstr/)。平均意义上又好写又快的[Sunday算法](https://blog.csdn.net/q547550831/article/details/51860017)。其实就是两条策略：失配后对比主串中此次参加匹配的子串后的下一个字符，如果在模式串中没有，则大跳，否则对齐到模式串从右数第一次出现的位置。
-1. :green_circle: 1071：[字符串的最大公因子](https://leetcode-cn.com/problems/greatest-common-divisor-of-strings/)。有个**题解非常精妙**，比较str1+str2==str2+str1，如果相等，返回gcd(str1.size(),str2.size())，否则返回0。
-1. :yellow_circle: 8：[字符串转整数atoi](https://leetcode-cn.com/problems/string-to-integer-atoi)。凡是计算，都要考虑中间步骤、最终结果，**是否会溢出**。尤其是结果不会溢出，但是粗暴的中间计算会，一定要注意。
-1. :构建回文串检测: 1177：[构建回文串检测](https://leetcode-cn.com/problems/can-make-palindrome-from-substring/)。计算各个奇偶性并进行判断即可。
-1. :yellow_circle: 820：[单词的压缩编码](https://leetcode-cn.com/problems/short-encoding-of-words/)。使用Trie树(前缀树、字典树)[题解](https://leetcode-cn.com/problems/short-encoding-of-words/solution/dan-ci-de-ya-suo-bian-ma-by-leetcode-solution/)。
-1. :yellow_circle: 151：[反转字符串里的单词](https://leetcode-cn.com/problems/reverse-words-in-a-string/)。小技巧，先翻转小单词，再翻转整体，等价于把单词位置进行对调。
-1. :yellow_circle: 647：[回文子串](https://leetcode-cn.com/problems/palindromic-substrings/)。先使用[Manacher算法](https://www.jianshu.com/p/116aa58b7d81)求出全部回文子串，结果显然。**值得二刷**。
-1. :red_circle: 1044：[最长重复子串](https://leetcode-cn.com/problems/longest-duplicate-substring/)。二分法+Rabin-Karp算法（实现不好就超时）。后缀数组+最长公共子串。***没做完***
-1. :red_circle: 65：[有效数字](https://leetcode-cn.com/problems/valid-number/)。直接上状态机，参考[题解](https://leetcode-cn.com/problems/valid-number/solution/biao-qu-dong-fa-by-user8973/)中提到的编译原理DFA。
-1. :red_circle: 466：[统计重复个数](https://leetcode-cn.com/problems/count-the-repetitions/)。题材非常新颖的一道。统计字符串之间的循环节。注意：参考小数的循环，字符串的循环节不一定从第一节字符串开始（前面可能有一个前缀）。[题解传送门](https://leetcode-cn.com/problems/count-the-repetitions/solution/tong-ji-zhong-fu-ge-shu-by-leetcode-solution/)。**值得二刷**。
-1. :red_circle: 1153：[字符串转化](https://leetcode-cn.com/problems/string-transforms-into-another-string/)。[非会员传送门](https://blog.csdn.net/qq_17550379/article/details/99404963)。很新颖的一道题目。判断类题目不需要给出解，**只需要判断**。本题只需要判断是否可能完成转换：不能具有全部26个字母，不能有相同字母需要修改为不同字母。
-1. :red_circle: 212：[单词搜索II](https://leetcode-cn.com/problems/word-search-ii/)。经典前缀树（字典树、Trie树）题目。可以看一下题解的[优化实现](https://leetcode-cn.com/problems/word-search-ii/solution/dan-ci-sou-suo-ii-by-leetcode-solution-7494/)。
-1. :red_circle: 6093：[设计一个文本编辑器](https://leetcode.cn/problems/design-a-text-editor/)。（看了题解）脑筋急转弯级别的困难题。很容易陷入到写一个链表结构的数据结构中（很难写）。但实际上，可以看作是类似两个栈，分别是前缀和后缀。左右移动就是两个栈来回压入，插入删除则是对前缀的压入和弹出。
+1. :red_circle: 100158：[转换字符串的最小成本 II](https://leetcode.cn/problems/minimum-cost-to-convert-string-ii/description/)。周赛题目，和题解思路基本一致，但是本题卡常数，必须用Trie树优化，将字符串离散化，提升字符串匹配速度。写烦了，**抄了题解**。
+1. :red_circle: 828：[统计字符串中唯一字符](https://leetcode.cn/problems/count-unique-characters-of-all-substrings-of-a-given-string/description)。和题解的思路是一致的。把计算子串中的唯一字符，转向计算一个字符能在多少个子串中唯一。但是计算这种子串卡了很久。注意理解：计算在$(begin,end)$开区间内，包含middle位置的字符的子串的数量（其中$begin<middle<end$），就是$(middle-begin)*(end-middle)$。
+1. :red_circle: 1044：[最长重复子串](https://leetcode.cn/problems/longest-duplicate-substring/description/)。最长重复子串，等价于求所有后缀的最长公共前缀。后缀数组的样板题目。
+2. :green_circle: 28：[实现strstr](https://leetcode-cn.com/problems/implement-strstr/)。平均意义上又好写又快的[Sunday算法](https://blog.csdn.net/q547550831/article/details/51860017)。其实就是两条策略：失配后对比主串中此次参加匹配的子串后的下一个字符，如果在模式串中没有，则大跳，否则对齐到模式串从右数第一次出现的位置。
+3. :green_circle: 1071：[字符串的最大公因子](https://leetcode-cn.com/problems/greatest-common-divisor-of-strings/)。有个**题解非常精妙**，比较str1+str2==str2+str1，如果相等，返回gcd(str1.size(),str2.size())，否则返回0。
+4. :yellow_circle: 8：[字符串转整数atoi](https://leetcode-cn.com/problems/string-to-integer-atoi)。凡是计算，都要考虑中间步骤、最终结果，**是否会溢出**。尤其是结果不会溢出，但是粗暴的中间计算会，一定要注意。
+5. :构建回文串检测: 1177：[构建回文串检测](https://leetcode-cn.com/problems/can-make-palindrome-from-substring/)。计算各个奇偶性并进行判断即可。
+6. :yellow_circle: 820：[单词的压缩编码](https://leetcode-cn.com/problems/short-encoding-of-words/)。使用Trie树(前缀树、字典树)[题解](https://leetcode-cn.com/problems/short-encoding-of-words/solution/dan-ci-de-ya-suo-bian-ma-by-leetcode-solution/)。
+7. :yellow_circle: 151：[反转字符串里的单词](https://leetcode-cn.com/problems/reverse-words-in-a-string/)。小技巧，先翻转小单词，再翻转整体，等价于把单词位置进行对调。
+8. :yellow_circle: 647：[回文子串](https://leetcode-cn.com/problems/palindromic-substrings/)。先使用[Manacher算法](https://www.jianshu.com/p/116aa58b7d81)求出全部回文子串，结果显然。**值得二刷**。
+9. :red_circle: 1044：[最长重复子串](https://leetcode-cn.com/problems/longest-duplicate-substring/)。二分法+Rabin-Karp算法（实现不好就超时）。后缀数组+最长公共子串。***没做完***
+10. :red_circle: 65：[有效数字](https://leetcode-cn.com/problems/valid-number/)。直接上状态机，参考[题解](https://leetcode-cn.com/problems/valid-number/solution/biao-qu-dong-fa-by-user8973/)中提到的编译原理DFA。
+11. :red_circle: 466：[统计重复个数](https://leetcode-cn.com/problems/count-the-repetitions/)。题材非常新颖的一道。统计字符串之间的循环节。注意：参考小数的循环，字符串的循环节不一定从第一节字符串开始（前面可能有一个前缀）。[题解传送门](https://leetcode-cn.com/problems/count-the-repetitions/solution/tong-ji-zhong-fu-ge-shu-by-leetcode-solution/)。**值得二刷**。
+12. :red_circle: 1153：[字符串转化](https://leetcode-cn.com/problems/string-transforms-into-another-string/)。[非会员传送门](https://blog.csdn.net/qq_17550379/article/details/99404963)。很新颖的一道题目。判断类题目不需要给出解，**只需要判断**。本题只需要判断是否可能完成转换：不能具有全部26个字母，不能有相同字母需要修改为不同字母。
+13. :red_circle: 212：[单词搜索II](https://leetcode-cn.com/problems/word-search-ii/)。经典前缀树（字典树、Trie树）题目。可以看一下题解的[优化实现](https://leetcode-cn.com/problems/word-search-ii/solution/dan-ci-sou-suo-ii-by-leetcode-solution-7494/)。
+14. :red_circle: 6093：[设计一个文本编辑器](https://leetcode.cn/problems/design-a-text-editor/)。（看了题解）脑筋急转弯级别的困难题。很容易陷入到写一个链表结构的数据结构中（很难写）。但实际上，可以看作是类似两个栈，分别是前缀和后缀。左右移动就是两个栈来回压入，插入删除则是对前缀的压入和弹出。
 
 ###  动态规划
+1. :red_circle: 1349：[参加考试的最大学生数](https://leetcode.cn/problems/maximum-students-taking-exam/description/)。抄了题解。没想到正确的状态设计的思路。每一行的可坐人数和当前行的坐法，以及上一行的坐法有关。而每一行的坐法可以用```bitmask```来表示，之后再对两行的```bitmask```进行暴力匹配。从而算出每一个状态下的最多人数。只要能想到**正确的状态设计**就成功了。可以从题目的数据范围去思考。另外题解中还提到了转换为[二分图模型](https://leetcode.cn/problems/maximum-students-taking-exam/solutions/101748/can-jia-kao-shi-de-zui-da-xue-sheng-shu-by-leetcod/comments/2201755)，以及[插头DP（轮廓线DP）](https://oi-wiki.org/dp/plug/)。
+1. :red_circle: 1671：[得到山形数组的最少删除次数](https://leetcode.cn/problems/minimum-number-of-removals-to-make-mountain-array/description/)。自己写的是$O(n^2)$的动态规划，对每个位置，求两次递减子序列。但实际上本题可参考[最长递增子序列](https://leetcode-cn.com/problems/longest-increasing-subsequence/)。求LIS类问题，是有$O(nlogn)$方法的。
+1. :yellow_circle: 2008：[出租车的最大盈利](https://leetcode.cn/problems/maximum-earnings-from-taxi/description/)。自己写的是对订单DP+二分。题解中有另一种对位置DP+哈希表，实际上只需要回溯考虑同一终点的所有行程。没有绝对的好坏，不过本题的数据规模确实是哈希表更好。
+1. :red_circle: 689：[三个无重叠子数组的最大和](https://leetcode.cn/problems/maximum-sum-of-3-non-overlapping-subarrays/description/)。思考方向比较顺畅：从一个最大和子数组，到两个，再到三个，可以很自然的思考出来动态规划方程。本质还是背包问题。
 1. :green_circle: 121、122：买卖股票的最佳时机[I](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock/)/[II](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-ii/)。有通用DP模板。
 1. :yellow_circle: 309：[最佳买卖股票时机含冷冻期](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/)。$dp[i][j]$代表第i天结束，手中有j支股票的最大收益。
 1. :yellow_circle: 877：[石子游戏](https://leetcode-cn.com/problems/stone-game)。博弈类问题的DP。但实际上，本题先手必胜。**值得二刷**。
@@ -160,6 +174,7 @@ math: true
 1. :red_circle: 711：[不同岛屿的数量II](https://leetcode-cn.com/problems/number-of-distinct-islands-ii/)。[非会员传送门](https://blog.csdn.net/pianzang5201/article/details/93503836)。和694不同的地方在于这里会有旋转和翻转。其实这个就能很好的考验对于哈希的理解。只要换一个哈希思路，就能保证翻转、旋转不变性。即对形状坐标序列进行排序，并选择字典序最小的作为该形状的记录。
 
 ###  多指针 & 滑动窗口
+1. :yellow_circle: 2516：[每种字符至少取K个](https://leetcode.cn/problems/take-k-of-each-character-from-left-and-right/description/)。自己写了对保留部分长度进行二分的。题解是滑动窗口（双指针）效率更高。
 1. :green_circle: 26：[删除数组重复项](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-array/)。输入已经有序，单向双指针扫描。
 1. :green_circle: 141：[环形链表](https://leetcode-cn.com/problems/linked-list-cycle/)。快慢指针。如果链表中存在循环，一定会相遇。
 1. :green_circle: 27：[移除元素](https://leetcode-cn.com/problems/remove-element/)。从左右两侧分别开始，将需要移除的元素覆盖。
@@ -192,6 +207,7 @@ math: true
 1. :green_circle: 1114：[按序打印](https://leetcode-cn.com/problems/print-in-order/solution/)。条件变量、锁。
 
 ###  图论
+1. :yellow_circle: 1631：[最小体力消耗路径](https://leetcode.cn/problems/path-with-minimum-effort/description/)。思考了很久，最终意识到仍然是一个特殊的单源最短路题目。每次取出可扩展路径中最短的一个，扩展该点，并将该点所有边加入最小堆中。重复此过程直到终点被加入。注意C++的优先队列，在使用```std::less```的情况下是大顶堆，如果需要自定义数据结构的小顶堆，可以自定义一个形如```std::greater```语义的二元比较函数```comp```，并```priority_queue<your_struct, vector<your_struct>, decltype(comp)> small_queue;```
 1. :yellow_circle: 721：[账户合并](https://leetcode-cn.com/problems/accounts-merge/)。基础并查集题目。
 1. :yellow_circle: 1162：[地图分析](https://leetcode-cn.com/problems/as-far-from-land-as-possible/)。很有代表性的一道题目，巧妙地把问题转换为多源点BFS。[题解](https://leetcode-cn.com/problems/as-far-from-land-as-possible/solution/di-tu-fen-xi-by-leetcode-solution/)中甚至还有更精妙的DP解法。**值得二刷**。
 1. :yellow_circle: 207：[课程表](https://leetcode-cn.com/problems/course-schedule/)。拓扑排序。[wiki](http://en.wikipedia.org/wiki/Topological_sorting)。
@@ -209,6 +225,11 @@ math: true
 2. :red_circle: 2603: [收集树中金币](https://leetcode.cn/problems/collect-coins-in-a-tree/description/)。看了题解，核心是对图做变换：剪枝、去叶子节点。**思考最终路径的规则**：任何一条路径最多只需要走两次，路径终点到（最远的）有金币的节点距离为2。因此变换有两条：递归删除所有无金币的叶子节点，对最终树进行2次删除叶子节点的操作。最终剩下的边，每个都会遍历。
 
 ###  数据结构
+1. :yellow_ciecle: 2735：[收集巧克力](https://leetcode.cn/problems/collecting-chocolates/description/)。名为中等，实为困难。自己写的是$O(n^2)$的动态规划，实际上本题有$O(n)$的单调栈+二次差分解法，思路比较复杂，参考[题解](https://leetcode.cn/problems/collecting-chocolates/solutions/2580148/shou-ji-qiao-ke-li-by-leetcode-solution-bjyp/)。
+1. :yellow_circle: 2866：[美丽塔II](https://leetcode.cn/problems/beautiful-towers-ii/description/)。思考过程是从暴力解法入手。很容易发现计算结果就是等价于构造一个递增/递减子数组，就很容易想到单调栈。主要的坑还是```int```和```long long int```的转型问题。
+1. :red_circle: 2276：[统计区间中的整数数目](https://leetcode.cn/problems/count-integers-in-intervals/description/)。动态开点线段树标准题。记住一个思路，动态开点的根区间是整个区间范围，而不是一点一点扩大的（会出现树不平衡问题）。一个评论中提到的[池化技术](https://leetcode.cn/problems/count-integers-in-intervals/solutions/1495396/by-endlesscheng-clk2/comments/2195672)非常有趣，值得一看。
+1. :red_circle: 2132：[用邮票贴满网格图](https://leetcode.cn/problems/stamping-the-grid/description/)。看的题解，非常典型的二维前缀和、二维差分数组的题目。凡是计算一个矩形区域，甚至更高维的一个区域，都可以用n维的前缀和。但这道题目更厉害的是对差分数组的理解。最终求是否存在一个点没有被覆盖过。这个时候实际上需要计算出所有点的覆盖次数（一个前缀和），为了求这个，可以先求出其差分数组，即某个顶点开始覆盖一个矩形（四个角分别+1、-1），在对其求和。
+1. :red_circle: 2454：[下一个更大元素IV](https://leetcode.cn/problems/next-greater-element-iv/description/)。自己写了一个单调栈，但是时间复杂度不够好，用记账法估计我觉得也是$O(n)$，但是常数很大。[题解值得一看](https://leetcode.cn/problems/next-greater-element-iv/solutions/)。实际上对于第二大，第三大，都可以用类似的方式解决。思考思路是，**先找到第一大**（用一个单调栈），将这些有第一大元素的值拿到一个优先队列或者单调栈中，然后再找这些已知有第一大元素的第二大元素。
 1. :red_circle: 2179：[统计数组中好三元组数目](https://leetcode-cn.com/problems/count-good-triplets-in-an-array/)。核心题解思路是，以变量y遍历第一个列表，视作三元组的中间元素，并统计第二个列表中，位于y前面的变量中，有多少也在第一个列表中y位置之前出现过。这个统计的信息，恰好可以用[树状数组](https://zhuanlan.zhihu.com/p/93795692)来进行维护。由此达到$O(nlogn)$。
 1. :green_circle: 496：[下一个更大元素I](https://leetcode-cn.com/problems/next-greater-element-i/)。自己写的是$O(n^2)$，题解中推荐使用单调栈。
 1. :yellow_circle: 731：[我的日程安排]。看了题解，第一种是可以用两个set，分别存储无重叠时间段，和有一重重叠的时间段，新加入时间段不允许和一重重叠的时间段再重叠。另有题解[边界计数](https://leetcode-cn.com/problems/my-calendar-ii/solution/wo-de-ri-cheng-an-pai-biao-ii-by-leetcode/)，[线段树基础题型](https://leetcode-cn.com/problems/my-calendar-ii/solution/xian-duan-shu-dong-tai-kai-dian-lan-duo-336be/)，**值得二刷**。
@@ -228,6 +249,7 @@ math: true
 1. :red_circle: 862：[和至少为K的最短子数组](https://leetcode-cn.com/problems/shortest-subarray-with-sum-at-least-k/solution/he-zhi-shao-wei-k-de-zui-duan-zi-shu-zu-by-leetcod/)。结合多种思路，前缀和（加速）+单调栈（因为有负数，不能简单滑动窗口）+二分（加速）。**值得思考**。
 1. :red_circle: 1606：[找到处理最多请求的服务器](https://leetcode-cn.com/problems/find-servers-that-handled-most-number-of-requests/)。典型的多种数据结构配合。思考思路：需要有一个数据结构有序保存服务器当前任务结束时刻，还需要有一个数据结构有序保存空闲服务器序号。思维上**不要局限于单一数据结构**解决所有需求。
 1. :red_circle: 732：[我的日程安排表III](https://leetcode-cn.com/problems/my-calendar-iii/)。经典线段树板子，需要动态增加节点。即抛弃build过程，在update过程中（具体就是push_down）过程中，进行原来的节点分裂。
+2. :red_circle: 2736：[最大和查询](https://leetcode.cn/problems/maximum-sum-queries/description/)。看了[题解](https://leetcode.cn/problems/maximum-sum-queries/solutions/2530255/jian-dan-bao-li-xian-duan-shu-by-ketus82-tes0/)。还是线段树。**同一下标的多维度的值也可以用线段树进行区间维护**。线段树**并不要求区间之间一定满足什么关系**，看题目内容，可能要遍历很多的区间，必要的时候可以通过剪枝。其实仔细思考能发现本题的几个要点：和的极大值可以通过区间维护，两个加数的极小值/极大值也可以通过区间维护。如此就能通过排除
 
 ###  其他
 1. :green_circle: 665：[非递减数列](https://leetcode-cn.com/problems/non-decreasing-array/)。不简单的简单题，**值得二刷**。考虑情况要完整。

@@ -24,10 +24,12 @@ thumbnailImage: /images/thumbnail/todo.jpg
     - [ ] UI测试，同步、异步接口的测试处理
     - [x] 测试中的异常处理
     - [ ] 网络化、批量化
+    - [ ] 添加重做撤销功能（可持久化数据结构）
 1. [x] Android
 1. [ ] 基于UE5的地铁数字孪生系统
     - 智能维修、[爆炸动画](https://docs.unrealengine.com/5.1/zh-CN/setting-up-xr-explode-animations-in-unreal-engine/)
-1. [ ] 把PC版的页面文章宽度增加一些.
+1. [ ] 把PC版的页面文章宽度增加一些
+2. [ ] 算法分析，所有的分析方式（尤其是势函数法）
 
 ## 更新一
 1. [x] linux-shell - 8h
@@ -97,6 +99,7 @@ thumbnailImage: /images/thumbnail/todo.jpg
 1. 参加一些线下技术论坛、创业论坛
 1. read&write (可以写一些有意义的活动心得、感悟)
 1. 玩一下历年的年度游戏
+2. 学英语，主要是听力、词汇量
 
 ## 待读书清单
 - 计划必读

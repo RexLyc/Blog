@@ -67,7 +67,39 @@ math: true
     - 基本原理：使用若干二进制位（一个bit向量）存储标记值，使用一组哈希函数，每个哈希函数都能映射任意一位，将其置为1，那么此时
         - 如果待检测数据，使用所有哈希函数后都存在某一个哈希输出的指定bit找不到“1”标记，说明该数据一定未录入
         - 如果待检测数据，使用哈希函数后都能找到“1”标记，则该数据可能已经录入
-
+1. 差分数组
+    - 理解差分数组的核心在于，理解差分数组是前缀和的逆运算。
+    - 进阶：多次差分。但一个区间的值的修改，满足一个一次函数规则，那么可以用二次差分来累计区间修改。即对差分数组求差分数组。
+    - 应用场景：
+        - 求和、求前缀和很困难、很耗时。那就尝试先求出差分数组
+    - 例子：
+        - 对一个区间上的所有值+1，相比于暴力的对每一个值+1，或者用线段树，此时只需要用差分数组在区间首尾分别+1/-1，简单有效。
+        - 对一个二维矩形内的所有值进行修改，此时更明显，暴力的每个值+1，或者用线段树都非常麻烦，此时用差分数组在矩形的四个角分别+1/-1，简单有效
+1. LIS最长递增子序列
+    - $O(n^2)$的并不难写，但是这类非常基础的问题是有$O(nlogn)$写法的。
+    - 思路是：
+        - 顺序遍历每一个数字
+        - 尝试将其按大小顺序放入数组$d$中，利用二分找到位置
+            - 如果放置位置在数组$d$的尾部，则记录当前长度
+            - 如果放置位置在中间，直接替换不做处理
+    - 证明：实际上是直接构造出了最长递增子序列。只不过数组$d$中任意时刻中，某一个位置上值不一定真的在该最长子序列内，但是一定有一个历史版本是正确的。如果有需要可以使用可持久化数据结构。
+    - 代码示例
+        ```cpp
+        int lengthOfLIS(vector<int>& nums) {
+            if(nums.empty())
+                return 0;
+            vector<int> dp(nums.size(),0);
+            size_t len=0;
+            for(auto t:nums){
+                auto pos = lower_bound(dp.begin(),dp.begin()+len,t);
+                *pos = t;
+                if(pos==dp.begin()+len){
+                    len++;
+                }
+            }
+            return len;
+        }
+        ```
 ## 海量数据处理
 - 参考：[海量数据处理面试专题](https://blog.csdn.net/v_july_v/article/details/6685962)
 
@@ -94,6 +126,30 @@ math: true
     - %2，等价于&1
 1. 用数组代替哈希表
 1. 2维数组展开到1为手动计算下标
+2. 对于动态开点线段树等，在运行时会创建大量对象的程序，可以在使用中引入一点点池化的思路，具体可见[题目](https://leetcode.cn/problems/count-integers-in-intervals/solutions/1495396/by-endlesscheng-clk2/comments/2195672)，简而言之
+    ```cpp
+    class YourSolution {
+    public:
+        static bool IsPooled;
+        static YourSolution *poolInstance;
+
+        void* operator new(size_t size){
+            if(!isPooled){
+                poolInstance = new YourSolution[1e5]; // 或者你想要的大小
+                isPooled = true;
+            }
+            // 很不负责任的分配方式，但是做题够用了
+            return pollInstance++;
+        }
+
+        void* operator delete(void *prt) noexcept {};
+
+        // ... 剩余的内容
+    }
+
+    bool YourSolution::IsPooled;
+    YourSolution* YourSolution::poolInstance = nullptr;
+    ```
 
 ## 经典书籍
 1. 《程序员面试经典》
@@ -127,3 +183,4 @@ math: true
 1. [July《十五个经典算法研究与总结》索引](https://blog.csdn.net/sailinglt/article/details/79323509)
 1. [国家队资料](https://github.com/enkerewpo/OI-Public-Library)
 1. [图算法总结](https://www.cnblogs.com/Ace-Monster/p/9439557.html)
+2. 强烈推荐[OI Wiki](https://oi-wiki.org/)，推荐其中关于数据结构、图论、计算几何的部分。

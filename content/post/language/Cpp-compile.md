@@ -151,10 +151,120 @@ math: true
     - 编译时：包装目标函数，并以#define等形式进行函数替换。用编译选项-I优先使用本地包装的头文件。
     - 链接时：指定编译选项--wrap，提示链接器变更符号引用的解析方式。
     - 运行时：修改LD_PRELOAD环境变量，指定共享库路径，优先加载这里的运行库。一般会由包装程序内部再以dlsym来动态加载原始目标函数。包装程序需要编译为动态链接库。
+## C和C++互操作
+1. C++中调用C代码：因为C++和C在链接层面上，会出现符号不一致的情况，因此如果C++想要调用C，必须进行一定的处理。才能使C语言生成的符号链接在C++的链接过程中可见。
+   - 在C语言的头文件中
+        ```c
+        // MSVC官方示例
+        // MyHeader.h 
+
+        // 必须限定只在C++内调用C的时候才通过条件编译
+        // C中没有extern "C"这种写法
+        #ifdef __cplusplus
+        extern "C" {  
+        #endif
+
+        #ifdef DLL_EXPORT
+            // dllexport用于说明该函数，将要导出到dll为其他程序使用
+            // 可以通过编译器选项，控制函数默认不导出
+            __descspec(dllexport) void YourFunc();
+        #else
+            // dllimport用于说明该函数，在链接使用的时候是由外部引入
+            // dllimport用于使用时
+            // 推荐添加，但实际上不添加也可能通过
+            __declspec(dllimport) void YourFunc();
+        #endif
+
+        #ifdef __cplusplus
+        }
+        #endif
+        ```
+    - 在C++中使用C代码
+        ```cpp
+        // 真正重要的，这一步指示该编译单元是由C语言产生
+        extern "C" {
+        #include "MyHeader.h"
+        }
+        ```
+    > 注意：C语言的代码单元仍然由C语言编译器完成编译。C++调用C时，通过```extern```只是用来告知编译器和连接器，对于该部分代码，使用C风格的编译和链接方式（比如符号名）。
+2. C中调用C++代码：比较麻烦，因为C++中存在类和重载等特性，需要对这些内容进行一定的包装。
+    - C++中
+        ```cpp
+        // 完全正常编写的C++类型
+        // MyClass.h
+        class MyClass {
+        public:
+            MyClass();
+            ~MyClass();
+            int DoSth();
+        }
+
+        // MyClass.cpp
+        #include<iostream>
+        MyClass::MyClass() {
+            std::cout<<"hello from MyClass constructor"<<std::endl;
+        }
+
+        MyClass:~MyClass() {
+            std::cout<<"hello from MyClass deconstructor"<<std::endl;
+        }
+
+        int MyClass::DoSth() {
+            // do sth.
+            return 0;
+        }
+
+        // 为C调用准备的C++包装函数
+        // MyClassWrapper.h
+        // 这个头文件最终会给C语言使用，因此必须用宏来控制属于C++的部分
+        #ifdef __cplusplus
+        extern "C" {
+        #endif
+
+        void new_my_class(void **ptr);
+        int do_sth_my_class(void **ptr);
+        void release_my_class(void **ptr);
+
+        #ifdef __cplusplus
+        }
+        #endif
+
+        // 实现包装的源文件
+        // MyClassWrapper.cpp
+        #include "MyClassWrapper.h"
+        // 注意这个文件仍然是C++语言
+        #include <iostream>
+
+        void new_my_class(void **ptr){
+            std::cout<<"before construct"<<std::endl;
+            *ptr = new MyClass();
+        }
+
+        int do_sth_my_class(void **ptr){
+            return ((MyClass*)*ptr)->DoSth();
+        }
+
+        void release_my_class(void **ptr){
+            delete ((MyClass*)*ptr);
+        }
+        ```
+    - C中
+        ```c
+        // main.c
+        #include "MyClassWrapper.h"
+        #include "stdio.h"
+        int main(){
+            void *ptr;
+            new_my_class(&ptr);
+            do_sth_my_class(&ptr);
+            release_my_class(&ptr);
+            return 0;
+        }
+        ```
 ## 常用指令
 ### GCC & G++
 1. 概述：gcc和g++分别是GNU旗下用于c和c++的编译器
-1. 常用命令、选项示例：
+2. 常用命令、选项示例：
     ```bash
     # 用-o指定输出文件的名字
     gcc main.c -o main
@@ -177,7 +287,7 @@ math: true
     # 等价于
     gcc -Wl,--wrap,malloc -Wl,--wrap,free -o hello hello.c myMalloc.o
     ```
-1. 其他实用编译选项：
+3. 其他实用编译选项：
     | 选项 | 功能 |
     | --- | --- |
     | -fno-common | 禁止多重定义符号，提示错误 |
@@ -204,7 +314,7 @@ math: true
     | -shared | 尽可能使用动态库 |
 ### GDB
 1. gdb是一个基于命令行的，交互式的debug工具。对于没有gui界面的情况，可以使用。但现在已经是2022年啦，如果有gui，还是建议用gui吧。
-1. 启用：
+2. 启用：
     ```sh
     # 编译时需要至少打开-g选项
     gcc -g main.c -o main
@@ -213,7 +323,7 @@ math: true
     # 可以使用gdb调试一个正在运行的服务
     gdb 程序名 程序id
     ```
-1. gdb常用指令：
+3. gdb常用指令：
     | 命令 | 简写 | 功能 |
     | --- | --- | --- |
     | 回车 |  |  重复执行上一条命令 |
@@ -246,10 +356,10 @@ math: true
     | delete breakpoints 断点编号 | | 删除断点 |
     | enable/disable breakpoints 断点编号 | | 启用/禁用断点 |
     | quit | q | 推出gdb |
-1. gdb命令行选项：
+4. gdb命令行选项：
     | 选项 | 简写 | 功能 |
     | -tui | - | 用tui展示调试页面 |
-1. 条件断点的使用说明
+5. 条件断点的使用说明
     ```sh
     # 创建普通断点
     (gdb) break 10
@@ -271,7 +381,7 @@ math: true
 ## 常用项目级工具
 ### CMakeLists
 1. 概述：CMake是一个跨平台的C/C++构建文件生成工具，也支持一些其他语言。但是最主要的功能还是给C/C++语言项目使用。其在Windows上一般生成Visual Studio工程，在Linux下一般生成Makefile。
-1. 用法：
+2. 用法：
     1. 编写CMakeLists.txt
     2. 编写对应的工程
     3. 惯用方式
@@ -281,7 +391,7 @@ math: true
         cmake ../
         make
         ```
-1. 以一个典型的CMakeLists.txt为例
+3. 以一个典型的CMakeLists.txt为例
     ```sh
     # 指定所需要的cmake的最低版本
     cmake_minimum_required(VERSION 3.10)
@@ -336,7 +446,7 @@ math: true
     INSTALL(TARGETS ${export_targets} DESTINATION bin)
     INSTALL(FILES ${exports_includes} DESTINATION include)
     ```
-1. 如果需要将宏从CMake引入到代码中，则需要配合专门指令
+4. 如果需要将宏从CMake引入到代码中，则需要配合专门指令
     ```sh
     # CMake文件内
     # .in文件需要一定的编写，.h则会由cmake自动生成
@@ -350,7 +460,7 @@ math: true
     // 获取选项宏
     #cmakedefine USE_MYDEP
     ```
-1. 一些基础指令指路：
+5. 一些基础指令指路：
     | 名称 | 功能 |
     | --- | --- |
     | PROJECT | 设定项目名称、版本 |
@@ -364,7 +474,7 @@ math: true
     | SET | 设置普通、用户可修改、不可修改、环境变量 |
     | ADD_CUSTOM_COMMAND | 执行用户自定义脚本 |
     | EXPORT | 将本项目导出（生成.cmake配置），给其他项目使用 |
-1. cmake中的各种内置变量、命令行选项非常重要，可以多看多了解
+6. cmake中的各种内置变量、命令行选项非常重要，可以多看多了解
 ### Makefile
 &emsp;&emsp;2022年了，目前还是建议使用CMake等跨平台生成方案。在Linux系平台上，CMake将会生成Makefile。
 ### Visual Studio
@@ -386,7 +496,7 @@ math: true
         sudo aptitude install build-essential
         # 接下来会提示一些可行的解决方案，升级、降级等谨慎选择
         ```
-1. CMake
+2. CMake
     1. SET(CMAKE_INSTALL_PREFIX)无效：和SET本身有关，可以使用SET(CMAKE_INSTALL_PREFIX "/your/path" CACHE PATH "注释" FORCE)。[方法来源](https://stackoverflow.com/questions/39481958/setting-cmake-install-prefix-from-cmakelists-txt-file)
         - 实际上应当尽量不使用FORCE，应该用链接中的方法。    
 ## 其他常用指令
@@ -418,7 +528,7 @@ math: true
     - dumpbin：msvc的COFF/PE文件查看器
 ## 参考资料
 1. 《程序员的自我修养：链接、装载与库》
-1. 《深入理解计算机系统（第三版）》第七章链接
-1. [CMake官方文档](https://cmake.org/cmake/help/latest/index.html)
-1. [CMake入门实战](https://www.hahack.com/codes/cmake/)
-1. [CMake官方教程](https://cmake.org/cmake/help/latest/guide/tutorial/index.html)
+2. 《深入理解计算机系统（第三版）》第七章链接
+3. [CMake官方文档](https://cmake.org/cmake/help/latest/index.html)
+4. [CMake入门实战](https://www.hahack.com/codes/cmake/)
+5. [CMake官方教程](https://cmake.org/cmake/help/latest/guide/tutorial/index.html)

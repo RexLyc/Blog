@@ -9,7 +9,7 @@ tags:
 - 教程
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/mc.png
-draft: true
+# draft: true
 
 ---
 Minecraft!
@@ -21,6 +21,9 @@ Minecraft!
       2. [Paper](https://papermc.io/)：Spigot分支,目前更推荐,追求性能
 2. 服务器Mod管理
 3. 客户端Mod管理
+4. 整合包
+   1. 服务器整合
+   2. 客户端整合
 
 ## 参考
 1. [bilibili文章：【MC开服】服务端超详细优化教程](https://www.bilibili.com/read/cv17603010/)

@@ -10,7 +10,7 @@ tags:
 - 信息安全
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/security.jpg
-draft: true
+# draft: true
 
 ---
 本文从实际的工程实施中的应用角度，记录一些信息安全工具的常见用法。

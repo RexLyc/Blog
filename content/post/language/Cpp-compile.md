@@ -190,10 +190,76 @@ math: true
 2. C中调用C++代码：比较麻烦，因为C++中存在类和重载等特性，需要对这些内容进行一定的包装。
     - C++中
         ```cpp
-        
+        // 完全正常编写的C++类型
+        // MyClass.h
+        class MyClass {
+        public:
+            MyClass();
+            ~MyClass();
+            int DoSth();
+        }
+
+        // MyClass.cpp
+        #include<iostream>
+        MyClass::MyClass() {
+            std::cout<<"hello from MyClass constructor"<<std::endl;
+        }
+
+        MyClass:~MyClass() {
+            std::cout<<"hello from MyClass deconstructor"<<std::endl;
+        }
+
+        int MyClass::DoSth() {
+            // do sth.
+            return 0;
+        }
+
+        // 为C调用准备的C++包装函数
+        // MyClassWrapper.h
+        // 这个头文件最终会给C语言使用，因此必须用宏来控制属于C++的部分
+        #ifdef __cplusplus
+        extern "C" {
+        #endif
+
+        void new_my_class(void **ptr);
+        int do_sth_my_class(void **ptr);
+        void release_my_class(void **ptr);
+
+        #ifdef __cplusplus
+        }
+        #endif
+
+        // 实现包装的源文件
+        // MyClassWrapper.cpp
+        #include "MyClassWrapper.h"
+        // 注意这个文件仍然是C++语言
+        #include <iostream>
+
+        void new_my_class(void **ptr){
+            std::cout<<"before construct"<<std::endl;
+            *ptr = new MyClass();
+        }
+
+        int do_sth_my_class(void **ptr){
+            return ((MyClass*)*ptr)->DoSth();
+        }
+
+        void release_my_class(void **ptr){
+            delete ((MyClass*)*ptr);
+        }
         ```
     - C中
         ```c
+        // main.c
+        #include "MyClassWrapper.h"
+        #include "stdio.h"
+        int main(){
+            void *ptr;
+            new_my_class(&ptr);
+            do_sth_my_class(&ptr);
+            release_my_class(&ptr);
+            return 0;
+        }
         ```
 ## 常用指令
 ### GCC & G++

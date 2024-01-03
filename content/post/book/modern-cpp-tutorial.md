@@ -240,3 +240,109 @@ mermaid: true
         return;
     }
     ```
+
+## 函数对象和Lambda表达式
+从C++11引入lambda表达式，其基本形式如
+```cpp
+[捕获列表](参数列表) mutable(可选) 异常属性 -> 返回类型 {
+// 函数体
+}
+```
+
+在C++14，又为其补充了表达式捕获，使其拥有了对右值的捕获能力，示例如下
+```cpp
+auto important = std::make_unique<int>(1);
+// 在之前的情况下，因为只能捕获值或引用，此时独占智能指针important无法被捕获
+// C++14允许表达式捕获，这样就可以使用右值
+auto add = [v1 = 1, v2 = std::move(important)](int x, int y) -> int {
+    return x+y+v1+(*v2);
+};
+std::cout << add(3,4) << std::endl;
+```
+
+此外，C++14还支持了泛型lambda，这一特性在C++11中并不支持，其写法就是使用```auto```对参数进行类型推导，例如
+```cpp
+auto add = [](auto x, auto y) {
+    return x + y;
+}
+```
+
+> 值得注意的是，如果lambda表达式内部想要递归，则不能用auto自动推导lambda表达式的类型，需要手动指定，例如```function<int(int,int)> doSth = /*..递归调用doSth..*/```。
+
+Lambda表达式的本质是一个很像函数对象的类类型对象（闭包对象）。而且**当捕获列表为空**时，Lambda表达式还能够和函数指针进行转换。为了协调统一这些概念，C++11开始引入了函数对象概念，即```std::function```。
+
+函数对象统一了所有的可调用类型，可以更安全方便的对函数、函数指针等可调用内容进行复制存储调用。在此基础上又提供了很多实用的工具，如绑定函数调用参数的```bind / placeholders```，例如
+```cpp
+void foo(int a, int b, int c) {
+	cout <<"foo: " << a << " " << b << " " << c << endl;
+}
+int main() {
+    // 第一个参数用占位符暂时代替，给出了后两个参数
+	auto fooBind = bind(foo, placeholders::_1, 1, 2);
+    // 此时只需要传入1个参数，也就是_1位置的占位符
+	fooBind(3);
+    // 占位符数量和编号和正式调用时的参数相对应
+    auto fooBind2 = bind(foo, placeholders::_1, 1, placeholders::_2);
+    fooBind2(2,3);
+    // 也可以使用同一个占位符
+    auto fooBind2_dup = bind(foo, placeholders::_2, 1, placeholders::_2);
+    fooBind2_dup(2,3); // 输出为3 1 3
+    return 0;
+}
+```
+
+## 容器
+本章节主要记录一些容器的使用习惯推荐
+1. ```array```：在数组长度固定的情况下，用```array```代替传统```[]```和```vector```。
+2. 初值列可用于对关联容器的初始化，例如
+    ```cpp
+    std::unordered_map<int, std::string> u = {
+        {1, "1"},
+        {3, "3"},
+        {2, "2"}
+    };
+    ```
+3. C++17引入的实用工具：```variant```、```optional```、```any```
+    - ```any```：类，存储任何可复制构造类型的对象、内置类型，通过```any_cast```进行转型并访问。
+    - ```optional```：类模板，任意时刻可包含一个值，或者为空。
+    - ```variant```：类模板，类型安全的联合体。其构造函数有相对复杂的语法，[参考](https://zh.cppreference.com/w/cpp/utility/variant/variant)，基本示例如
+        ```cpp
+        // 用 std::string{"ABCDE", 3}; 初始化第一个可选项类型
+        // 理解代码需联系初值列和参数展开
+        std::variant<std::string, std::vector<int>, bool> var{
+            std::in_place_index<0>, "ABCDE", 3};
+        
+        assert(var.index() == 0);
+        std::cout << std::get<std::string>(var) << std::endl; // "ABC"
+        ```
+    - 工具：
+        - ```std::get```：```get```对多种类型都有重载
+        - ```std::in_place, std::in_place_type, std::in_place_index, std::in_place_t, std::in_place_type_t, std::in_place_index_t```：一系列构造指示，用来说明将一个值作为哪个类型选项来构造```variant```
+4. 元组
+    - 基本用法：```tuple```、```make_tuple```，拆包```std::get<>()```、```std::tie()```。但是```get<>```有一个重大的缺点就是其访问的内容的下标或类型是模板参数，需要在编译期决定，例如
+        ```cpp
+        auto t = std::make_tuple(1,2.2,'3');
+        auto t1 = std::get<0>();
+        // 当使用类型get时，要求元组中没有重复类型的元素
+        auto td = std::get<double>();
+        ```
+    - ```std::tuple_cat```：元组合并
+    - ```std::tuple_size<>::value```：获取利用类型萃取元组大小
+    - C++17引入了```variant<>```，提供了同时容纳多种类型的变量存储能力，可以理解为更安全的union。而且借助```variant```能进一步提高元组的运行期访问能力，例如。
+        ```cpp
+        template <size_t n, typename... T>
+        constexpr std::variant<T...> _tuple_index(const std::tuple<T...>& tpl, size_t i) {
+            if constexpr (n >= sizeof...(T))
+                throw std::out_of_range(" 越界.");
+            // 利用递归，找到i==n的情况，并原位构造variant，且该值构造为第n个variant选项
+            if (i == n)
+                return std::variant<T...>{ std::in_place_index<n>, std::get<n>(tpl) };
+            return _tuple_index<(n < sizeof...(T)-1 ? n+1 : 0)>(tpl, i);
+        }
+
+        template <typename... T>
+        constexpr std::variant<T...> tuple_index(const std::tuple<T...>& tpl, size_t i) {
+            return _tuple_index<0>(tpl, i);
+        }
+        ```
+    > 理解元组主要是理解它的类型和值，C++的元组之间，不同模板参数的元组完全是不同的类型。

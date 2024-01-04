@@ -198,6 +198,7 @@ math: true
 1. :yellow_circle: 355：[设计推特](https://leetcode-cn.com/problems/design-twitter/)。思考的时候可以参考下基础算法题。本体实际上是合并k个有序链表。
 
 ###  位运算
+1. :yellow_circle: 2397：[被列覆盖的最多行数](https://leetcode.cn/problems/maximum-rows-covered-by-columns/description/)。二进制枚举，但是固定1的数量。可以进行[Gosper's-Hack优化](https://zhuanlan.zhihu.com/p/360512296)。
 1. :green_circle: 231：[2的幂](https://leetcode-cn.com/problems/power-of-two/solution/)。直接用n&n-1。
 1. :yellow_circle: 201：[数字范围按位与](https://leetcode-cn.com/problems/bitwise-and-of-numbers-range/)。纯暴力遍历不可取。题解即求两个数字的[二进制下的公共前缀](https://leetcode-cn.com/problems/bitwise-and-of-numbers-range/)，里面提到了用于去除二进制串最右侧1的，Brian Kernighan算法。
 1. :yellow_circle: 320：[列举单词的全部缩写](https://leetcode-cn.com/problems/generalized-abbreviation/)。[非会员链接](https://blog.csdn.net/qq_21201267/article/details/107859696)。可以用**二进制运算**，每个bit位代表是否用数字进行缩写，并最终输出。实现上比回溯的效率高很多。当然本质上还是$O(2^n)$。

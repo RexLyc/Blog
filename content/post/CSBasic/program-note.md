@@ -58,10 +58,19 @@ math: true
     - 位运算不保证跨平台通用，实际生产中使用时需要注意
     - 无临时变量交换两个数的值：异或^
     - 二进制下统计1的个数、去掉最低位的1：n&(n-1)
+    - lowbit，保留最低位的1：n&-n。
     - 查表法：统计1的个数（分四个字节）、计算奇偶校验位
     - 子集枚举
+        - 其中：针对生成n元集合的k元子集，可用Gosper's Hack优化。能够在$O(1)$时间内获得升序的下一个子集二进制串。
     - 寻找一个/两个仅出现一次的数（其余两次）：异或^
+    - 其实很多位运算在GCC中已经有内建函数：```__builtin_ctz```、```__builtin_clz```、```__builtin_parity```等
     - 更多技巧请参考：[位运算](https://blog.csdn.net/deaidai/article/details/78167367?utm_source=distribute.pc_relevant.none-task)、[位运算奇技淫巧](https://blog.csdn.net/holmofy/article/details/79360859)。
+1. 组合与排列
+    - C++中提供了```next_permutation```，按字典序进行全排列，获取下一个排列（直到最小字典序），基本思路如下
+        1. 找到尾部的最长降序序列
+        2. 将最长降序序列前的第一个值$A$，和序列中第一个比$A$大的值交换
+        3. 翻转现在尾部的最长降序序列
+        > 整体思路很简单，就是从尾部构造一个刚好比当前序列字典序更大的下一个序列。
 1. 布隆过滤器：
     - 对于海量数据，判断一个数据：是否一定不在集合中，或者是否可能在集合中。即要么能100%确定数据一定不存在，要么就有一定误判率确定数据存在。
     - 基本原理：使用若干二进制位（一个bit向量）存储标记值，使用一组哈希函数，每个哈希函数都能映射任意一位，将其置为1，那么此时
@@ -153,7 +162,7 @@ math: true
 
 ## 经典书籍
 1. 《程序员面试经典》
-    - 08.07，全排列的生成：可以去看[C++的next_permutation的实现](https://zh.cppreference.com/w/cpp/algorithm/next_permutation)
+    - 08.07，全排列的生成：可以去看[C++的next_permutation的实现](https://zh.cppreference.com/w/cpp/algorithm/next_permutation)。标准库主要是对```reverse_iterator```的使用非常精妙。
     - 16.01，无临时变量交换数字：异或
     - 08.04，幂集：使用二进制位运算
     - 08.05，递归乘法：不用*做乘法，用递归

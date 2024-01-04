@@ -85,6 +85,7 @@ mermaid: true
         ```
     1. 显式禁用默认函数，```=delete```，显式使用默认函数```=default```
     2. 强枚举类型：```enum class```
+    3. 智能指针：```unique_ptr```、```shared_ptr```、```weak_ptr```
 
 1. ```constexpr```：指示编译器该表达式、函数，需要在编译期被编译为常量表达式。有以下几点值得注意
     - ```constexpr```和```const```在语义上的区别，前者说明（可能）是一个编译期常量表达式，后者说明是一个不可修改的常量（但其值则可能是运行期给出）。
@@ -346,3 +347,121 @@ int main() {
         }
         ```
     > 理解元组主要是理解它的类型和值，C++的元组之间，不同模板参数的元组完全是不同的类型。
+
+## 并行和并发
+C++引入的几个基本类型
+- ```thread```：线程
+- ```mutex```：基础互斥锁
+    - ```lock_guard```：离开作用域自动释放
+    - ```unique_lock```：离开作用域自动释放，也可手动提前释放/再上锁
+- ```future```：访问一个异步操作的结果，通过 ````std::async```` 、```std::packaged_task```或```std::promise```创建。在调用```get/wait```以及**析构**时会阻塞当前线程，以等待结果。
+    - ```package_task<>```：包装一个函数，是可调用对象，本身并不具备开辟新线程的能力。
+    - ````std::async````：异步的运行一个函数（也可以选择在当前线程中执行），还可以选择惰性求值。
+    - ```std::promise```：一次性使用的，存储值、异常的类型。是更方便的并发同步、数据同步工具类型。通过```promise```推送数据，```future```获取消息。
+    > 三种类型的功能各不相同，但都具有创建future的能力。想传值用promise，想自定义包装用packaged_task，想无脑异步用async。
+    示例代码
+    ```cpp
+    // 拷贝自cppreference
+
+    // 来自 packaged_task 的 future
+    std::packaged_task<int()> task([](){ return 7; }); // 包装函数
+    std::future<int> f1 = task.get_future();  // 获取 future
+    std::thread(std::move(task)).detach(); // 在线程上运行
+
+    // 来自 async() 的 future
+    std::future<int> f2 = std::async(std::launch::async, [](){ return 8; });
+
+    // 来自 promise 的 future
+    std::promise<int> p;
+    std::future<int> f3 = p.get_future();
+    std::thread( [&p]{ p.set_value_at_thread_exit(9); }).detach();
+
+    std::cout << "Waiting..." << std::flush;
+    f1.wait();
+    f2.wait();
+    f3.wait();
+    std::cout << "Done!\nResults are: "
+                << f1.get() << ' ' << f2.get() << ' ' << f3.get() << '\n';
+    ```
+- ```condition_variable```：条件变量。消费端在```wait```时自动释放锁，唤醒后自动获取锁。生产端用```notify_one / notify_all```控制唤醒。
+
+
+在C++11之后，为了进一步提高性能，也开始出现了对无锁编程的支持，具体是用原子变量和内存顺序模型两个内容来完成的。具体原理还会牵扯到缓存一致性等问题，可以详细参考阅读[原子操作与内存模型/序/屏障](https://zhuanlan.zhihu.com/p/611868395)。下文是单独对C++的内存顺序模型做一个总结。
+
+原子变量```atomic<>```。类模板，原子类型，通过CPU支持的CAS指令等原子操作去修改变量。但并不是每个平台都能支持真正的无锁，可以用```is_lock_free```进行判断。
+
+有了原子变量，还不能直接把原子变量当成一种互斥或同步的手段，这是因为现代编译器、CPU，都有可能会对指令重排。编译器的重排可能出于指令优化的考虑，CPU的重排则可能是出于执行速度的考虑，避免CPU空转。因此任何操作，尤其是在原子操作附近的临界区中的操作，并不能保证顺序和代码顺序是一致的。表现上就是，这一段代码单线程执行不会有任何问题，但是如果在多线程环境下，就会出错。这一点的复现依赖于平台，偏强内存一致性模型的主要是x86，偏弱内存一致性有PowerPC、MIPS、ARM，RISC-V则两种都有支持。
+
+对于内存顺序不一致的情况。不同的CPU都提供了底层的指令来明确地插入内存屏障。但这种底层的方法显然需要进行进一步的抽象。因此C++需要有一种比较高层的抽象模型，对关键的代码指定其内存一致性模型，避免编译器和CPU指令重排造成错误的运行结果。
+
+因此C++11开始引入内存顺序模型：```std::memory_order```。问题要从一致性开始说，为了尽量提高并发性能，对若干变量的修改，不应当强制要求立刻对所有线程可见，也不应当强制要求变量修改的可见性是顺序的，具体来说，可将这种并发种不同线程之间的数据一致性分类为四个等级：
+1. 线性一致性：完全线性化的修改，表现上就像是单核心单线程处理。
+2. 顺序一致性：读取数据一定能够读取到最近一次的修改
+3. 因果一致性：只对有因果、依赖性的数据之间的同步做要求，而无关数据之间的修改不做要求
+4. 最终一致性：类似于分布式系统的最终一致，最终一定有某个时刻，修改将会对所有线程可见
+
+一致性模型不仅给出了多线程之间的读写要求，更重要的是对一个线程内部的读写顺序要求。对于这四种一致性情况，C++使用了6种内存模型来表达，分别是
+1. ```std::memory_order_relaxed```：宽松顺序
+3. ```std::memory_order_release```、```std::memory_order_consume```：释放-消费顺序
+4. 2. ```std::memory_order_release```、```std::memory_order_acquire```：释放-获取顺序
+4. ```memory_order_acq_rel```：释放-获取顺序
+4. ```std::memory_order_seq_cst```：顺序一致顺序
+
+在实际应用中顺序一致性是最强的约束，也是C++默认的内存序。在实际编码中，肯定要优先保证正确性，而性能的优化则是一个很复杂的问题。并发算法更重要一些，并不是说无锁一定高效。在个别场景下，锁操作尤其是自旋锁可能会比无锁数据结构有更高的性能。
+
+## 其他不太实用的
+### 正则表达式
+C++11引入[正则表达式](https://zh.cppreference.com/w/cpp/regex)，具有匹配、搜索、替换三种功能。其主要类型和作用如下:
+- ```std::regex```：类模板，存储正则表达式，可以根据需要选择支持的正则表达式语法（ECMA、awk等）、匹配条件（如无视大小写等）
+- ```std::sub_match```：类模板，通过begin/end存储一个匹配的起始/结束。
+- ```std::match_result```：类模板，存储所有匹配结果，一般常用的是```std::cmatch```（const char *）、```std::smatch```（string）。其内存储了若干个```sub_matches```。
+- ```regex_match()```：函数模板，只考虑完全匹配，即整个原数据刚好可以被正则表达式描述。
+- ```regex_search()```：函数模板，考虑部分匹配，每一次匹配，可以获得匹配结果，匹配结果前缀，匹配结果的后缀。对后缀循环，就能计算出全部的匹配。
+- ```regex_replace()```：函数模板，对匹配结果进行替换，替换所用的正则表达式语法也是可选的。
+- ```regex_iterator```：迭代正则表达式的匹配，可以通过原数据和正则表达式进行构造，可以通过迭代器遍历直接获得类似于```regex_search```的效果。通过迭代器可以获得```match_result```，无法获得子匹配的情况。
+- ```regex_token_iterator```：每个匹配结果和子匹配的迭代器，实现上内部可能持有```regex_iterator```，可以遍历匹配结果，以及每次匹配的某个指定子匹配。而且还可以通过调整构造函数参数，遍历由匹配片段分割的各个失配片段。
+
+其基本使用如下例子所示
+```cpp
+// 拷贝自cppreference
+std::string s = "Some people, when confronted with a problem, think "
+    "\"I know, I'll use regular expressions.\" "
+    "Now they have two problems.";
+
+// 使用ECMA正则语法，大小写不敏感
+std::regex self_regex("REGULAR EXPRESSIONS",
+        std::regex_constants::ECMAScript | std::regex_constants::icase);
+
+// 返回结果true/false表示是否存在部分匹配
+if (std::regex_search(s, self_regex)) {
+    std::cout << "Text contains the phrase 'regular expressions'\n";
+}
+
+std::regex word_regex("(\\w+)");
+// 匹配所有单词，构造匹配结果迭代器
+auto words_begin = 
+    std::sregex_iterator(s.begin(), s.end(), word_regex);
+auto words_end = std::sregex_iterator();
+
+std::cout << "Found "
+            << std::distance(words_begin, words_end)
+            << " words\n";
+
+const int N = 6;
+std::cout << "Words longer than " << N << " characters:\n";
+for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
+    // 匹配结果是smatch，也就是match_result<string>
+    std::smatch match = *i;
+    std::string match_str = match.str();
+    if (match_str.size() > N) {
+        std::cout << "  " << match_str << '\n';
+    }
+}
+
+// 替换，$&代表将匹配的子结果整体保留，并前后添加方括号
+std::regex long_word_regex("(\\w{7,})");
+std::string new_s = std::regex_replace(s, long_word_regex, "[$&]");
+std::cout << new_s << '\n';
+```
+
+> 目前来说，C++标准库中的正则表达式性能很可能还是很差（看平台和编译器），很多时候不如Python3的re，在实际使用场景下需要谨慎使用。

@@ -519,10 +519,312 @@ int main(){
 ```
 
 ### 协程
-C++20引入协程，具体内容可参考[CppReference协程](https://zh.cppreference.com/w/cpp/language/coroutines)。
+C++20引入协程，具体内容可参考[CppReference协程](https://zh.cppreference.com/w/cpp/language/coroutines)，[非常推荐：渡劫C++协程](https://www.bennyhuo.com/2022/03/09/cpp-coroutines-01-intro/)。在C++20标准下，协程的使用比较底层，并不适合直接使用，实际上官方的目的也是提供给库编写者使用，实际工程中需要自行封装或者用其他封装好的库。
 
-### 概念
-约束和概念是C++20引入的用来规范、简化模板编程的，具体内容可参考[CppReference约束与概念](https://en.cppreference.com/w/cpp/language/constraints)。
+什么是协程，这一点在不同的语言中有着类似但是又不完全相同的定义。C++20引入的协程，要求是**必须**在函数体内部包含```co_await```、```co_yield```、```co_return```，其基本语法如下，
+```cpp
+// 由表达式给出awaiter对象
+// awaiter对象需要完成协程在暂停点前后的逻辑
+co_await 表达式
+
+// 等价于调用 co_await promise.yield_value(表达式)
+co_yield 表达式
+co_yield {初值列}
+
+// 
+co_return 表达式
+
+```
+
+C++20的协程主要有几个类型，简单列举如下
+1. 承诺对象：承诺对象没有继承和实现上的限制，但是需要具有一些要求的接口，比如```initial_suspend```、```final_suspend```、```unhandled_exception```等。同时承诺对象也负责协程句柄的创建。该对象交给协程内部操纵，通过该对象提交结果或异常。默认行为是在创建协程时构造（进入协程体函数之前），协程退出（正常/异常）时析构。
+    > 在实际使用中，为了保证承诺对象的生命周期能够覆盖业务需要，协程退出的析构，很可能需要交给上层对象处理。因此需要在```final_suspend```阶段选择挂起```suspend_always```，而不是继续执行导致销毁。
+3. 协程句柄（handle）：由协程外部操纵，用于恢复协程执行（```resume```）、切换协程所在线程、销毁协程帧（```destroy```）。协程句柄类型内当然也有承诺对象，因此外部也是可以从承诺对象获得数据的。
+4. 协程状态：内部对象，包含承诺对象、协程形参、暂停点信息、生命周期跨过当前暂停点的变量
+5. awaiter对象：该对象在进入暂停点时构造，离开暂停点恢复协程时析构。可以用来处理一些需要短暂跨过暂停点的数据。在awaiter对象中可以获得协程句柄。
+
+> 对于这些类型的限制，需要从模板、概念中获得，比如查看```coroutine_traits```。
+
+了解了类型之后，还需要对一些概念进行解释
+1. 暂停点：由```co_await```、```co_yield```触发，执行流到这里将会返回给调用者，协程保存状态。暂停点是协程最重要的概念。一定要明白协程的暂停返回，恢复执行的特点。而且协程在暂停点恢复执行时，不一定还在原来的线程，用户可以把它切换走。
+
+下面转载一段实现序列生成器的协程用法
+```cpp
+// 拷贝自https://github.com/bennyhuo/CppCoroutines/blob/master/02.sequence_2.cpp 添加注释
+
+//
+// Created by benny on 2022/1/31.
+//
+#define __cpp_lib_coroutine
+#include <coroutine>
+#include <exception>
+#include <iostream>
+#include <thread>
+// 序列生成器
+struct Generator {
+
+  class ExhaustedException : std::exception {};
+
+  struct promise_type {
+    int value;
+    bool is_ready = false;
+
+    std::suspend_always initial_suspend() { return {}; };
+
+    std::suspend_always final_suspend() noexcept { return {}; }
+
+    // 对 co_yield value; 的处理
+    std::suspend_always yield_value(int value) {
+      // 存储数据并标记为可用
+      this->value = value;
+      is_ready = true;
+      // 协程挂起
+      return {};
+    }
+
+    // 对未捕获异常的处理
+    void unhandled_exception() {
+
+    }
+
+    Generator get_return_object() {
+      // 结构化绑定
+      return Generator{std::coroutine_handle<promise_type>::from_promise(*this)};
+    }
+    
+    // 对 co_return; 的处理
+    void return_void() {}
+  };
+
+  // 存储协程句柄
+  std::coroutine_handle<promise_type> handle;
+  
+  // 序列生成器相当于协程的外部
+  bool has_next() {
+    if (handle.done()) {
+      return false;
+    }
+
+    // 未结束，且没有可用值，从暂停点唤醒
+    if (!handle.promise().is_ready) {
+      handle.resume();
+    }
+
+    // 从暂停点暂停后，再判断一次
+    if (handle.done()) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  // 获取序列下一个值
+  int next() {
+    if (has_next()) {
+      handle.promise().is_ready = false;
+      return handle.promise().value;
+    }
+    throw ExhaustedException();
+  }
+
+  // 要求必须显示调用
+  // 该构造函数实际由promise_type的get_return_type负责调用
+  explicit Generator(std::coroutine_handle<promise_type> handle) noexcept
+      : handle(handle) {}
+
+  // 允许移动
+  Generator(Generator &&generator) noexcept
+      : handle(std::exchange(generator.handle, {})) {}
+
+  // 禁止拷贝
+  Generator(Generator &) = delete;
+  Generator &operator=(Generator &) = delete;
+
+  // 保证二者生命周期的长度正确
+  ~Generator() {
+    if (handle) handle.destroy();
+  }
+};
+
+// 自然数序列生成
+Generator sequence() {
+  int i = 0;
+  while (i < 5) {
+    co_yield i++;
+  }
+}
+
+// 斐波那契数列序列生成
+Generator fibonacci() {
+  co_yield 0;
+  co_yield 1;
+
+  int a = 0;
+  int b = 1;
+  while (true) {
+    co_yield a + b;
+    b = a + b;
+    a = b - a;
+  }
+}
+
+// 作为对比，普通的生成器
+class Fibonacci {
+ public:
+  int next() {
+    if (a == -1) {
+      a = 0;
+      b = 1;
+      return 0;
+    }
+
+    int next = b;
+    b = a + b;
+    a = b - a;
+    return next;
+  }
+
+ private:
+  int a = -1;
+  int b = 0;
+};
+
+int main() {
+  auto generator = fibonacci();
+  auto fib = Fibonacci();
+  for (int i = 0; i < 10; ++i) {
+    if (generator.has_next()) {
+      std::cout << generator.next() << " " << fib.next() << std::endl;
+    } else {
+      break;
+    }
+  }
+  return 0;
+}
+```
+
+### 概念和约束
+概念和约束是C++20引入的用来规范、简化模板编程的，具体内容可参考[CppReference约束与概念](https://zh.cppreference.com/w/cpp/language/constraints)。在原有的代码中，模板匹配的最终失败往往会产生一系列难以阅读的编译错误。而且对于类型的判断需要用到大量模板元技巧，大大提高了使用门槛。概念和约束旨在结束这一混乱的场面。
+
+概念是用来描述一种对模板形参的约束的，它的定义方式如下，
+```cpp
+// 约束表达式是能够在编译器计算出true、false的
+// 类似现有的模板元is_xxx<T>::value
+template < 模板形参列表 >
+concept 概念名 [可选属性] = 约束表达式;
+```
+
+约束则使用各类概念来对实际使用的模板形参进行限制，它的使用方式如下，
+```cpp
+// 假定Incrementable Decrementable是两个概念
+template<Incrementable T>
+void f(T) requires Decrementable<T>;
+
+// 或者
+template<typename T>	
+requires Incrementable<T> && Decrementable<T>
+void f(T);
+```
+
+概念和约束在使用过程中可以使用合取、析取，原子约束，也可以嵌套。其中关于原子约束、类型转换、约束歧义的要求可能比较难以理解，建议[参考Concept详解以及个人理解](https://zhuanlan.zhihu.com/p/266086040)。简而言之：
+1. requires后的表达式，必须具有显式的bool类型，即使能隐式转换也不行
+2. 原子约束是不包含任何合取和析取的约束，在编译器进行模板约束规范化时产生（就是拿着模板实参去约束表达式中替换形参并验证）。由于编译器需要根据不同的约束条件的强弱来作为模板展开时的选择参考，因此需要能够区分不同的约束的优先级。对于能够满足更严格约束的，用更严格约束的模板进行展开。这个选择过程中最大的问题在于需要消除歧义。例如CppReference的示例代码
+    ```cpp
+    template<class T>
+    constexpr bool is_meowable = true;
+    
+    template<class T>
+    constexpr bool is_cat = true;
+    
+    template<class T>
+    concept Meowable = is_meowable<T>;
+    
+    template<class T>
+    concept BadMeowableCat = is_meowable<T> && is_cat<T>;
+    
+    template<class T>
+    concept GoodMeowableCat = Meowable<T> && is_cat<T>;
+    
+    template<Meowable T>
+    void f1(T); // #1
+    
+    template<BadMeowableCat T>
+    void f1(T); // #2
+    
+    template<Meowable T>
+    void f2(T); // #3
+    
+    template<GoodMeowableCat T>
+    void f2(T); // #4
+    
+    void g()
+    {
+        f1(0); // 错误，有歧义：无法比较两种约束的强弱
+            // BadMeowableCat 和 Meowable 中的原子约束is_meowable<T>虽然看起来一样
+            // 但是他们实际上是不同的原子约束（不在同一行），可以类比菱形继承
+    
+        f2(0); // OK，调用 #4，它比 #3 具有更强的约束
+            // GoodMeowableCat 是从 Meowable 获得其 is_meowable<T>，他们是相等的
+    }
+    ```
+    > 原子约束相等的要求：在规范化（进行形参替换时）来自同一行、形参映射等价
+
+concept还可以和requires进一步结合，产生requires表达式定义的概念，有四种不同种类的要求，可以描述更为复杂的逻辑，[参考requires 表达式](https://zh.cppreference.com/w/cpp/language/requires)。
+```cpp
+// 来自CppReference，添加注解
+
+// 第一类，简单要求，判断语句是否满足语法
+template<typename T>
+concept Addable = requires (T a, T b)
+{
+    a + b; // "需要表达式 a+b 可以被编译为有效的表达式"
+};
+
+// 第二类，类型要求，判断是否具备类成员，是否能满足类型运算
+template<typename T>
+concept C = requires
+{
+    typename T::inner; // 需要嵌套成员名
+    typename S<T>;     // 需要类模板特化
+    typename Ref<T>;   // 需要别名模板替换
+};
+
+// 第三类，复合要求，用于判断一个表达式是否合法，语法比较特殊，用 {表达式} [noexcept可选] [-> ...返回类型要求];
+// 判断表达式是否合法，是否noexcept，判断返回类型约束是否满足
+template<typename T>
+concept C2 = requires(T x)
+{
+    // 表达式 *x 必须合法
+    // 并且 类型 T::inner 必须存在
+    // 并且 *x 的结果必须可以转换为 T::inner
+    {*x} -> std::convertible_to<typename T::inner>;
+ 
+    // 表达式 x + 1 必须合法
+    // 并且 std::same_as<decltype((x + 1)), int> 必须满足
+    // 即, (x + 1) 必须为 int 类型的纯右值
+    {x + 1} -> std::same_as<int>;
+ 
+    // 表达式 x * 1 必须合法
+    // 并且 它的结果必须可以转换为 T
+    {x * 1} -> std::convertible_to<T>;
+};
+
+// 第四类，嵌套要求，requires里requires
+template<class T>
+concept Semiregular = DefaultConstructible<T> &&
+    CopyConstructible<T> && Destructible<T> && CopyAssignable<T> &&
+requires(T a, std::size_t n)
+{  
+    requires Same<T*, decltype(&a)>; // 嵌套："Same<...> 被求值为真"
+    { a.~T() } noexcept; // 复合："a.~T()" 是不会抛出的合法表达式
+    requires Same<T*, decltype(new T)>; // 嵌套："Same<...> 被求值为真"
+    requires Same<T*, decltype(new T[n])>; // 嵌套
+    { delete new T }; // 复合
+    { delete new T[n] }; // 复合
+};
+```
+
+一些常见的约束可见[概念库 (C++20)](https://c-cpp.com/cpp/concepts.html)
 
 ## 其他杂项
 

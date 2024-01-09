@@ -112,6 +112,7 @@ math: true
 12. :yellow_circle: 2560: [打家劫舍 IV](https://leetcode.cn/problems/house-robber-iv/description/)。经典最小化最大值问题。这类问题就是针对这个值进行二分。而不是真的去模拟求出所有的最大值。另外该题需要想明白两点：先选一定不比后选更差（贪心策略的正确性，类似于优先选择最早完成的任务），另一点是二分的最终结果一定会存在于数组中（不用担心二分的结果不在原数组）。
 
 ###  字符串
+1. :yellow_circle: 2707：[字符串中的额外字符](https://leetcode.cn/problems/extra-characters-in-a-string/description/)。动态规划的部分很好想，字符串还是Trie树经典优化。Trie特别适合需要按前缀/后缀顺序测试字符串是否存在的情况。一旦发现某个前缀/后缀已经不可能存在，就可以结束当前位置的所有测试。
 1. :red_circle: 100158：[转换字符串的最小成本 II](https://leetcode.cn/problems/minimum-cost-to-convert-string-ii/description/)。周赛题目，和题解思路基本一致，但是本题卡常数，必须用Trie树优化，将字符串离散化，提升字符串匹配速度。写烦了，**抄了题解**。
 1. :red_circle: 828：[统计字符串中唯一字符](https://leetcode.cn/problems/count-unique-characters-of-all-substrings-of-a-given-string/description)。和题解的思路是一致的。把计算子串中的唯一字符，转向计算一个字符能在多少个子串中唯一。但是计算这种子串卡了很久。注意理解：计算在$(begin,end)$开区间内，包含middle位置的字符的子串的数量（其中$begin<middle<end$），就是$(middle-begin)*(end-middle)$。
 1. :red_circle: 1044：[最长重复子串](https://leetcode.cn/problems/longest-duplicate-substring/description/)。最长重复子串，等价于求所有后缀的最长公共前缀。后缀数组的样板题目。

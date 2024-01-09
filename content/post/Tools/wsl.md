@@ -16,7 +16,7 @@ draft: true
 WSL在经过一段时间的发展后，已经具备了一定的可用性。相对VMWare来说，有性能和易用性上的优点。
 <!--more-->
 
-> 暂时废弃，WSL2仍然不够稳定。
+> 谨慎使用，WSL2仍然不够稳定。
 
 ## 基础搭建
 1. 基本步骤：
@@ -34,8 +34,35 @@ WSL在经过一段时间的发展后，已经具备了一定的可用性。相�
 ### 基本开发
 1. 更好用的命令行：推荐安装微软的全新[终端](https://learn.microsoft.com/zh-cn/windows/terminal/install)
 2. docker：查看[参考](#参考)中的相关链接。可能会遇到的问题
-   1. 图形界面创建可能有问题，建议还是在命令行里用```docker run```
-   2. ubuntu22.04官方镜像无法进行```apt-get update```。**宿主机一侧的网桥并没有工作**。
+   1. ~~图形界面创建可能有问题，建议还是在命令行里用```docker run```~~
+   2. ~~ubuntu22.04官方镜像无法进行```apt-get update```。**宿主机一侧的网桥并没有工作**。~~
+      > 尚未有结论，但是看起来wsl中的docker工作方式略有不同，其网桥无法通过```brctl```、```ip addr```观测到，可以用```docker network ls```看一下
+   4. 在尝试安装elasticsearch的过程中，使用图形化界面绑定端口，发现该端口是容器映射到wsl2，需要在做一步从wsl2映射到windows，[参考](https://blog.csdn.net/keyiis_sh/article/details/113819244)，powershell执行如下指令
+      ```powershell
+      # 先查看wsl的地址
+      wsl -- ifconfig
+      # listenXXX是windows侧，connectXXX是wsl侧
+      netsh interface portproxy add v4tov4 listenport=7777 listenaddress=0.0.0.0 connectport=7777 connectaddress=172.22.153.228
+      # 查看映射配置
+      netsh interface portproxy show all
+      ```
+
+### ElasticSearch
+参考[命令来源](https://ion-utale.medium.com/how-to-install-elasticsearch-with-kibana-on-wsl-2-docker-engine-90d6335a07c0)，主要需要考虑将ElasticSearch和Kibana连接起来
+```bash
+# wsl2内
+docker network create es-stack-network
+# 根据你所使用的版本
+docker run -d --name elasticsearchdb --net es-stack-network -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:8.11.3
+
+docker run -d --name kibana-es-ui --net es-stack-network -e "ELASTICSEARCH_URL=http://elasticsearchdb:9200"  -p 5601:5601 kibana:8.11.3
+
+# ====== windows ======
+netsh interface portproxy add v4tov4 listenport=5601 listenaddress=0.0.0.0 connectport=5601 connectaddress=172.22.153.228
+```
+注意
+1. 初次启动需要进行一次token的验证，先去es下的bin中生成，再去kibana下查看验证码。
+2. 初次启动kibana需要密码，也可以从es下的bin重置
 
 ### 交叉编译
 

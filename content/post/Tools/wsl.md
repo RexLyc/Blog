@@ -65,6 +65,7 @@ netsh interface portproxy add v4tov4 listenport=5601 listenaddress=0.0.0.0 conne
 注意
 1. 初次启动需要进行一次token的验证，先去es下的bin中生成，再去kibana下查看验证码。
 2. 初次启动kibana需要密码，也可以从es下的bin重置
+3. 非初次启动记得先启动ES，确定ES日志中显示OK，再启动Kibana。否则Kibana会永远显示ES Server未就绪。
 
 ### 交叉编译
 

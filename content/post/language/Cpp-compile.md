@@ -460,7 +460,23 @@ math: true
     // 获取选项宏
     #cmakedefine USE_MYDEP
     ```
-5. 一些基础指令指路：
+5. CMake的扩展模块提供了更加强大的使用能力，常用的如FetchContent（自动获取依赖库）
+    ```CMakeLists
+    # 引入依赖库，需提供地址，下面是普通连接和GIT仓库两种形式
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG        703bd9caab50b139428cea1aaff9974ebee5742e # release-1.10.0
+    )
+    FetchContent_Declare(
+        myCompanyIcons
+        URL      https://intranet.mycompany.com/assets/iconset_1.12.tar.gz
+        URL_HASH MD5=5588a7b18261c20068beabfb4f530b87
+    )
+    # 该指令确保返回时，依赖项完成编译
+    FetchContent_MakeAvailable(googletest myCompanyIcons)
+    ```
+6. 一些基础指令指路：
     | 名称 | 功能 |
     | --- | --- |
     | PROJECT | 设定项目名称、版本 |
@@ -474,16 +490,115 @@ math: true
     | SET | 设置普通、用户可修改、不可修改、环境变量 |
     | ADD_CUSTOM_COMMAND | 执行用户自定义脚本 |
     | EXPORT | 将本项目导出（生成.cmake配置），给其他项目使用 |
+6. cmake常用指令
+    ```bash
+    cmake -S . -B build # 当前目录为源文件目录（包含CMakeLists.txt），构建到build文件夹中
+    ```
 6. cmake中的各种内置变量、命令行选项非常重要，可以多看多了解
-### Makefile
-&emsp;&emsp;2022年了，目前还是建议使用CMake等跨平台生成方案。在Linux系平台上，CMake将会生成Makefile。
-### Visual Studio
-&emsp;&emsp;2022年了，目前还是建议使用CMake等跨平台生成方案。在Windows系平台上，CMake将会生成vxcproj/sln等文件。
+### 平台相关
+还是建议使用CMake等跨平台生成方案，在各平台上，根据需求也可以改用平台专属构建工具
+- Mainfile
+- Visual Studio
+
+### VSCode
+VSCode中也可以进行一定程度的跨平台开发构建。其配置文件位于工程的.vscode文件夹内，主要文件有四个。都可以在VSCode中自动快捷生成一个模板配置。
+- settings.json：保存项目的整体配置信息，例如，对于一个C++项目，典型的内容。在右下角选择
+    ```cpp
+    {
+        "C_Cpp.default.compilerPath": "/usr/bin/g++"
+    }
+    ```
+- c_cpp_properties.json：根据项目语言，会有不同的名称xx_properties。在这里配置相关语言的一些专用配置，比如标准、编译器路径等。
+    ```cpp
+    {
+        "configurations": [
+            {
+                "name": "Linux",
+                "compilerPath": "/usr/bin/g++",
+                "cppStandard": "c++20",
+                "intelliSenseMode": "linux-gcc-x64",
+                "includePath": [
+                    "${workspaceFolder}/**"
+                ],
+                "defines": []
+            }
+        ],
+        "version": 4
+    }
+    ```
+- tasks.json：保存项目的一些执行任务，最常见的就是构建任务。通过终端（Terminal）→配置任务（Configure Tasks），会根据当前活跃文档自动尝试生成一个任务。其内容形如。
+    ```cpp
+    {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "type": "cppbuild",
+                // 该任务的表示名称，对应launch中的preLaunchTask
+                "label": "C/C++: g++ build active file",
+                "command": "/usr/bin/g++",
+                "args": [
+                    "-fdiagnostics-color=always",
+                    "-g",
+                    "${file}",
+                    "-o",
+                    "${fileDirname}/main"
+                ],
+                "options": {
+                    "cwd": "${fileDirname}"
+                },
+                "problemMatcher": [
+                    "$gcc"
+                ],
+                "group": {
+                    "kind": "build",
+                    "isDefault": true
+                },
+                "detail": "compiler: /usr/bin/g++"
+            }
+        ]
+    }
+    ```
+- launch.json：启动程序，对应Visual Studio中的运行、调试运行
+    ```cpp
+    {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "C++ Launch",
+                "type": "cppdbg",
+                "preLaunchTask": "C/C++: g++ build active file",
+                "request": "launch",
+                "program": "${workspaceFolder}/main",
+                "cwd": "${fileDirname}",
+                "stopAtEntry": false,
+                "targetArchitecture": "x64",
+                "launchCompleteCommand": "exec-run",
+                "linux": {
+                    "MIMode": "gdb",
+                    "miDebuggerPath": "/usr/bin/gdb"
+                },
+                "osx": {
+                    "MIMode": "lldb"
+                },
+                "windows": {
+                    "MIMode": "gdb",
+                    "miDebuggerPath": "C:\\MinGw\\bin\\gdb.exe"
+                }
+            }
+            
+        ]
+    }
+    ```
+
 ## 其他构建工具
 ### 测试工具
 1. Google Test
     - 一个Google开源C++单元测试框架
     - 参考：[玩转GoogleTest](https://www.cnblogs.com/coderzh/archive/2009/04/06/1426755.html)
+1. GPerfTools
+2. FlameGraph
+3. GProf
+
 ## 一些坑
 1. Linux/Ubuntu
     1. 使用cmake时，可能会出现错误：check for working C compiler: /usr/bin/cc -- broken

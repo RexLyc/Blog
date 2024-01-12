@@ -83,7 +83,8 @@ EXPECT_EQ(Factorial(0), 1);
 // 同一个大组名称会被归类到一起
 TEST(FactorialTest, HandlesPositiveInput) {
 EXPECT_EQ(Factorial(3), 6);
-EXPECT_EQ(Factorial(8), 40320);
+// 任意测试宏后面都可以跟着一个标准IO输出流，用来输出必要信息
+EXPECT_EQ(Factorial(8), 40320) << "Factorail(8)";
 }
 
 
@@ -155,6 +156,28 @@ int main(int argc, char **argv) {
     return RUN_ALL_TESTS();
 }
 ```
+
+GoogleTest还有很多[高级](https://google.github.io/googletest/advanced.html)的功能，因为内容繁杂，建议查阅文档，这里简单列举一下功能和大致用法，
+| 测试功能 | 实现方式 | 示例代码（如有）| 备注 |
+| --- | --- | --- | --- |
+| 显式的标记成功/失败 | 宏 | ```SUCCESS() / FAILED() ``` | 失败会立刻结束测试 |
+| 添加一次错误样例 | 宏 | ```ADD_FAILURE()``` | 添加一个错误，还会继续运行 |
+| 检测异常抛出 | 宏 | ```EXPECT_THROW(statement,exception_type)``` | statement可以是任意表达式 |
+| 提供更好的测试错误信息 | 可调用对象 | ```testing::AssertionResult``` | 对于PRED类测试，可以包装待测试函数返回更好的错误信息，而不是只有简单的true/false |
+| 浮点数比较 | 可调用对象 | ```testing::FLoatLE``` | 放到EXPECT_PRED/THAT等中使用 |
+| 更多的字符串比较工具 | 可调用对象 | ```testing::HasSubstr``` | 用于EXPECT_THAT等 |
+| 类型断言 | 类模板 | ```testing::StaticAssertType<T1,T2>``` | 判断类型是否相等，注意受模板限制，只有真正实例化才能触发判断，如果待实例化内容被优化了，这条测试无法获得判断结果 |
+| 调过测试 | 宏 | ```GTEST_SKIP()``` | 可以放到Fixture类SetUp，或者TEST/TEST_F等任意GTest流程函数中 |
+| 打印任意变量 | 可调用对象 | ```testing::PrintToString(x)``` | 返回字符串 |
+| 自定义任意变量的打印 | 函数模板重载 | ```AbslStringfy(Sink &sink, YourType t)``` | 定义为友元函数，或者在同一命名空间 |
+| 死亡测试 | 宏 | ```ASSERT_DEATH、EXPECT_EXIT``` | 在指定条件下，程序应当立即结束，死亡测试负责这种情况 |
+| 额外的日志 | 函数 | ```testing::Test::RecordProperty(key,value)``` | 打印到日志 |
+
+
+
+一些限制
+1. 会产生fatal类的错误测试宏（如```FAIL_*```、```ASSERT_*```），无法使用在非void返回值的函数中，这是因为GoogleTest对在测试过程中未使用C++异常。如果一定有返回值需要处理，需要将```int foo(int x)```，转换为```void foo(int x,int *ret)```。或者不要使用fatal类的错误测试宏，改用```ADD_FAILURE_*```、```EXCEPT_*```。
+
 
 具体测试工具
 | 工具类型 | 工具名 |

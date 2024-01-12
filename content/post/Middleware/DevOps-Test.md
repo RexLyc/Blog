@@ -172,7 +172,7 @@ GoogleTest还有很多[高级](https://google.github.io/googletest/advanced.html
 | 自定义任意变量的打印 | 函数模板重载 | ```AbslStringfy(Sink &sink, YourType t)``` | 定义为友元函数，或者在同一命名空间 |
 | 死亡测试 | 宏 | ```ASSERT_DEATH、EXPECT_EXIT``` | 在指定条件下，程序应当立即结束，死亡测试负责这种情况 |
 | 额外的日志 | 函数 | ```testing::Test::RecordProperty(key,value)``` | 打印到日志 |
-
+| 全局SetUp/TearDown | 类继承 | ```testing::Environment``` | 继承并重写Env的SetUp/TearDown |
 
 
 一些限制

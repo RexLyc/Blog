@@ -102,8 +102,9 @@ ELK套件：
     "_type":"",
     // 文档ID，插入时可以指定，或者由ES生成
     "_id":"",
-    // 
+    // 文档更新时的递增号
     "_version": 1,
+    // 序列号，用于确保索引不会查询到旧文档
     "_seq_no": 1,
     // 在查询时反馈，表示是否搜索到
     "found": true,
@@ -119,6 +120,15 @@ ELK套件：
 
 ## 搭建
 单机docker搭建：参考[ElasticSearch&Kibana]({{<relref "/content/post/Tools/wsl.md#elasticsearch">}})
+
+此外，对于ElasticSearch，有一些插件值得关注。例如
+1. 分词器：将输入的连续文本进行分词的模块，自带的标准分词器对于中文等语言的分词效果并不好（他会把所有的字单独拆开），通过为ES安装相关插件来解决。
+  ```bash
+  # 在elasticsearch安装目录下
+  ./bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v8.11.3/elasticsearch-analysis-ik-8.11.3.zip
+  ```
+  对分词器使用和效果测试在后面会提到。
+
 
 集群搭建：To Do
 
@@ -139,33 +149,224 @@ ELK套件：
     ```
 3. 任何能够使用RESTful API的方式
 
-下面用Console的语法风格，介绍一些基本的语法，注意版本8.11.3。ES中主要有URL检索、DSL（领域特定语言）检索（其实就是带上一个描述查询需求的JSON结构体）
+下面用Console的语法风格，介绍一些在索引创建、映射创建、文档插入方面的基本的语法，注意版本8.11.3。。
 ```kibana
 // 创建索引
+PUT my-simple-index
+{
+    "mappings":{
+        "properties":{
+            "id":{
+                "type":"long"
+            },
+            "name":{
+                "type":"text",
+                // 对分词器进行配置
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word"
+            },
+            "age":{
+                "type": "double"
+            }
+        }
+    }
+}
 
-// 插入文档
-// 更新文档
+// 对已存在索引，更新mapping，增加字段
+PUT my-simple-index/_mapping
+{
+  "properties": {
+      "money":{
+        "type":"double"
+      }
+    }
+}
+
+// 查看索引信息
+GET my-simple-index
+// 查看映射信息
+GET my-simple-index/_mapping
+
+// 插入文档，索引/_doc/文档ID
+PUT my-simple-index/_doc/1
+{
+  "id":234,
+  "name":"liyicheng",
+  "age":12
+}
+
+// 更新文档，仍然是PUT
+PUT my-simple-index/_doc/1
+{
+  "id":666,
+  "name":"liyicheng",
+  "age":12
+}
+
 // 更新文档时执行脚本
+POST my-simple-index/_update/1
+{
+  "script" : {
+    "source": "ctx._source.id += params.count",
+    "lang": "painless",
+    "params" : {
+      "count" : 4
+    }
+  }
+}
+
 // 删除文档
+get my-simple-index/_doc/1
 
 // 冻结索引
 // 删除索引
-
-// 按字段搜索
+DELETE my-simple-index
 
 // 批量操作
+// 批量更新（插入），注意格式必须满足一行一个，不能展开，否则会序列化错误
+PUT my-simple-index/_bulk
+{"index":{"_id":"1"}}
+{"name":"John Doe","age":23,"bir":"2012-12-12"}
+{"index":{"_id":"2"}}
+{"name":"Jane Doe","age":24,"bir":"2012-12-12"}
+
+// 也可以不提供index，由ES自行填充
+PUT my-simple-index/_bulk
+{"index":{}}
+{"name":"rex lyc","age":266}
+
+// 更新一个文档的同时，删除一个文档
+POST my-simple-index/_bulk
+{"update":{"_id":"1"}}
+{"doc":{"age":20}}
+{"delete":{"_id":"2"}}
+
+// 测试分词器，注意需要安装插件
+post _analyze
+{
+  "text":"测试分词器",
+  "analyzer":"ik_smart"
+}
 
 ```
 
-接下来还有一些复杂的搜索
+相比较于插入，搜索的用法和功能都更多变一些。ES中主要有URL检索、DSL（领域特定语言）检索（推荐，其实就是带上一个描述查询需求的JSON结构体）。ES的查询操作有两大种类，查询（query）和过滤（filter），使用时应当先过滤（只筛选符合的，性能高），再进行匹配（会计算得分，慢）。而且ES会对过滤进行一定的缓存，进一步加快速度。
+下面记录一些基础的搜索用法。
 ```kibana
+// URL检索，按age升序
+GET my-simple-index/_search?sort=age:asc
+
+// 带有较多选项的查询
+GET my-simple-index/_search
+{
+  // 查询条件
+  "query": {
+    // bool 表达式
+    "bool": {
+      // should代表 或||
+      "should": [{
+          // 区间查询
+          "range": {
+            "age": {
+              "gte": 10,
+              "lte": 2000
+            }
+          }
+        },
+        {
+          // 单个字段，要求desc字段内容为测试
+          "term": {
+            "desc": {
+              "value": "测试"
+            }
+          }
+        }
+      ]
+    }
+  },
+  // 只返回每个文档的该字段
+  // 满足查询条件，但没有该字段的记录也会被统计，这里只改变返回的展示
+  "_source": ["desc"], 
+  // 返回的排序
+  "sort": [
+    {
+      "age": {
+        "order": "desc"
+      }
+    }
+  ],
+  // 每页的数量和当前页数
+  "size":10,
+  "from":1
+}
+
+
+// bool查询，和过滤器一同使用
+GET my-simple-index/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "term": {
+            "desc": {
+              "value": "测试"
+            }
+          }
+        }
+        ],
+        // 过滤器内的语法和匹配是类似的
+        "filter": [
+          {
+            "range": {
+              "age": {
+                "gte": 10,
+                "lte": 2000
+              }
+            }
+          }
+        ]
+    }
+  },
+  // 没有该字段的记录也会被统计，这里只改变返回的展示
+  "_source": ["desc"], 
+  "sort": [
+    {
+      "age": {
+        "order": "desc"
+      }
+    }
+    ],
+    "size":10,
+    "from":1
+}
 
 ```
+
+
+
+
 
 ## 核心原理
+### 基础结构和流程
+1. 文档：以JSON表示的，自包含（同时包含字段和取值）、层次型、结构灵活（可以缺少/多余一些字段）。和关系型数据库不同的是，文档并不是模式化的，ES的文档是无模式的。并不要求文档都有相同的字段，受限于同一种模式。
+    > 不要求模式化，并不代表不要求字段类型一致。对于设定的取值应为整型的字段，传递字符串也是非法的。
+1. 映射：通过设定，或者自动解析的方式，将一个文档进行逻辑上的划分，分为不同的字段。
+2. 索引：索引是映射的容器，一个索引存储在磁盘的同一组文件中，索引存储了映射的所有字段，以及一些索引级别的设置。
+3. 分布式数据结构：
+   1. 索引分片：为了提高处理速度，在多节点的ES集群中，索引会被分片，不同的节点处理一个索引的一部分。索引分片是ES将数据进行节点间移动的最小单位。分为主分片和分片副本。
+   2. 分片副本：对于每个分片而言，为了提高可靠性，会在不同节点存储一些副本。
+4. 索引（Indexing）一篇文档：文档被发送到一个随机的主分片，并由该主分片负责对这次的文档进行索引操作。并对该主分片和分片副本进行数据同步。
+5. 搜索索引：在索引的完整分片集合中进行搜索，集合中的分片可以是主分片也可以是副本。因此副本不仅作为容错，也提供负载均衡能力。
+
+<!-- TODO：插入流程图示意 -->
 
 
 
 
 ## 参考资料
 《ElasticSearch 实战》
+
+[官方文档ElasticSearch Current Reference](https://www.elastic.co/guide/en/elasticsearch/reference/current/elasticsearch-intro.html)
+
+[Kibana用户指南Console](https://segmentfault.com/a/1190000016391736)

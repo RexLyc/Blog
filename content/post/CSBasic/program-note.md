@@ -40,21 +40,78 @@ math: true
         - 参考：[MIT公开课（分治法和FFT）](https://www.youtube.com/watch?v=iTMn0Kt18tg) 、[博客园-快速傅里叶变换（FFT）详解](https://www.cnblogs.com/wangyh1008/p/9325715.html)、http://picks.logdown.com/posts/177631-fast-fourier-transform、以及[一个比较好的迭代](https://leetcode-cn.com/problems/multiply-strings/solution/fftjie-fa-by-kuai-xue-shi-qing-2/)
     - 参考：[大数乘法高效算法](https://blog.csdn.net/u010983881/article/details/77503519)
 1. 字符串匹配：
+    - 前缀函数：所谓前缀函数，即计算各个前缀子串中，最长的相等的真前缀和真后缀的长度的函数。[参考](https://oi-wiki.org/string/kmp/)。例如对字符串```abcabcd```，其前缀```a```没有相等的真前缀和真后缀，前缀```abcab```最长的相等真前缀和真后缀是```ab```。前缀函数是KMP的基础。
     - 总结：
-        - KMP：构造next数组，最长的相等前缀、后缀
+        - KMP：构造next数组，最长的相等前缀、后缀。KMP的最坏时间复杂度是$O(n+m)$，对于绝大多数情况都是够用的。下面是示例代码
+            ```cpp
+            vector<int> gen_next(string P) {
+                // 一个比较好的字符串例子是：abcabdabc
+                vector<int> next(P.size());
+                if (P.empty()) {
+                    return next;
+                }
+
+                next[0] = -1;
+                int k = -1;
+                for (int i = 1; i < P.size(); ++i) {
+                    // 利用之前的结果(最妙的部分），当前位置失配，则递归向前
+                    // 此举实际上是不断缩减当前匹配所用的真前/后缀长度
+                    while (k != -1 && P[k+1] != P[i]) {
+                        k = next[k];
+                    }
+                    // 找到能匹配当前位置所在真后缀的，真前缀
+                    if (P[k+1] == P[i]) {
+                        ++k;
+                    }
+                    next[i] = k;
+                }
+                return next;
+            }
+
+            // 稍加改造的KMP，能一次性返回所有匹配位置
+            vector<int> kmp(const string& T, const string& P) {
+                vector<int> result={};
+                if (P.size() > T.size()) { // 模式串比主串还大，肯定不匹配
+                    return result; // 不匹配返回
+                }
+
+                auto next = gen_next(P);
+                int j = 0;
+                for (int i = 0; i < T.size(); ++i) {
+                    // i不动，j向前，直到能匹配真前缀
+                    // 也相当于将模式串向后移动
+                    while (j > 0 && T[i] != P[j]) {
+                        j = next[j - 1] + 1;
+                    }
+                    if (T[i] == P[j]) {
+                        ++j;
+                    }
+                    if (j == P.size()) {
+                        // 记录一次匹配
+                        result.push_back(i - P.size() + 1);
+                        // 由于需要计算所有的匹配，因此将j向前一个真前缀位置移动
+                        // 下一次匹配不会早于这个位置
+                        j = next[j-1] + 1;
+                        continue;
+                        // return i - P.size() + 1;
+                    }
+                }
+                return result;
+            }
+            ```
         - BM：过于复杂，而且很长
-        - Sunday：启发式，好写又好用，两个条件：适配时先看目标串的下一个待匹配字符，如果不存在于模式串中，则直接大跳，否则移动模式串到最右侧第一个能匹配到该待匹配字符的位置。
+        - Sunday：启发式，好写又好用，两个条件：失配时先看目标串的下一个待匹配字符，如果不存在于模式串中，则直接大跳，否则移动模式串到最右侧第一个能匹配到该待匹配字符的位置。
     - 参考：
         - [BF、KMP、BM、Sunday详解](https://www.cnblogs.com/Syhawk/p/4077295.html)
         - [从头到尾彻底理解KMP](https://blog.csdn.net/v_july_v/article/details/7041827)
         - [BF、RK、BM、KMP、Trie树、AC自动机](https://blog.csdn.net/weixin_40805537/article/details/89044710)
-1. 回文字符串Manacher算法：
+2. 回文字符串Manacher算法：
     - 概述：$O(n)$时间求字符串的全部回文子串
     - 核心原理：当前中心C，右边界R，待求$p[i]$，关于C镜像$p[2*C-i]$，只有当镜像回文长度会超出当前C的回文的左边界，或者直接赋值镜像p回文长度会超过右边界R，才需要中心扩展法
     - 参考：[马拉车算法详解](https://zhuanlan.zhihu.com/p/70532099)
-1. 正则表达引擎
+3. 正则表达引擎
     - 参考：[正则表达引擎的原理](https://www.cnblogs.com/snake-hand/p/3153396.html)
-1. 位运算技巧
+4. 位运算技巧
     - 位运算不保证跨平台通用，实际生产中使用时需要注意
     - 无临时变量交换两个数的值：异或^
     - 二进制下统计1的个数、去掉最低位的1：n&(n-1)
@@ -65,18 +122,18 @@ math: true
     - 寻找一个/两个仅出现一次的数（其余两次）：异或^
     - 其实很多位运算在GCC中已经有内建函数：```__builtin_ctz```、```__builtin_clz```、```__builtin_parity```等
     - 更多技巧请参考：[位运算](https://blog.csdn.net/deaidai/article/details/78167367?utm_source=distribute.pc_relevant.none-task)、[位运算奇技淫巧](https://blog.csdn.net/holmofy/article/details/79360859)。
-1. 组合与排列
+5. 组合与排列
     - C++中提供了```next_permutation```，按字典序进行全排列，获取下一个排列（直到最小字典序），基本思路如下
         1. 找到尾部的最长降序序列
         2. 将最长降序序列前的第一个值$A$，和序列中第一个比$A$大的值交换
         3. 翻转现在尾部的最长降序序列
         > 整体思路很简单，就是从尾部构造一个刚好比当前序列字典序更大的下一个序列。
-1. 布隆过滤器：
+6. 布隆过滤器：
     - 对于海量数据，判断一个数据：是否一定不在集合中，或者是否可能在集合中。即要么能100%确定数据一定不存在，要么就有一定误判率确定数据存在。
     - 基本原理：使用若干二进制位（一个bit向量）存储标记值，使用一组哈希函数，每个哈希函数都能映射任意一位，将其置为1，那么此时
         - 如果待检测数据，使用所有哈希函数后都存在某一个哈希输出的指定bit找不到“1”标记，说明该数据一定未录入
         - 如果待检测数据，使用哈希函数后都能找到“1”标记，则该数据可能已经录入
-1. 差分数组
+7. 差分数组
     - 理解差分数组的核心在于，理解差分数组是前缀和的逆运算。
     - 进阶：多次差分。但一个区间的值的修改，满足一个一次函数规则，那么可以用二次差分来累计区间修改。即对差分数组求差分数组。
     - 应用场景：
@@ -84,7 +141,7 @@ math: true
     - 例子：
         - 对一个区间上的所有值+1，相比于暴力的对每一个值+1，或者用线段树，此时只需要用差分数组在区间首尾分别+1/-1，简单有效。
         - 对一个二维矩形内的所有值进行修改，此时更明显，暴力的每个值+1，或者用线段树都非常麻烦，此时用差分数组在矩形的四个角分别+1/-1，简单有效
-1. LIS最长递增子序列
+8. LIS最长递增子序列
     - $O(n^2)$的并不难写，但是这类非常基础的问题是有$O(nlogn)$写法的。
     - 思路是：
         - 顺序遍历每一个数字

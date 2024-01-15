@@ -183,3 +183,7 @@ GoogleTest还有很多[高级](https://google.github.io/googletest/advanced.html
 | 工具类型 | 工具名 |
 | --- | --- |
 | 二元测试宏 | EXPECT_EQ、EXPECT_NE、EXPECT_STREQ |
+
+
+## 参考
+[《BPF 之巅：洞悉Linux系统和应用性能》读书笔记（四）火焰图 - Grissom的文章 - 知乎](https://zhuanlan.zhihu.com/p/671121116)

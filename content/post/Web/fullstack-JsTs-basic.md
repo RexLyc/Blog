@@ -23,4 +23,6 @@ thumbnailImage: /images/thumbnail/fullstack.jpg
     - 空变量===undefined成立，而且空变量!==null成立，但空变量==null也成立
     - null==undefined成立，但null!==undefined成立
     - 总之：==和===的主要区别是==会尝试进行类型转换，转换后相等即可，===要求类型内容完全一致
-1. 
+
+## 推荐工具
+[一个有依赖库的在线运行环境：JavaScript PlayGround](https://playcode.io/)

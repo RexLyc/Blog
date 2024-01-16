@@ -55,6 +55,60 @@ math: true
     2. 枚举一个集合的全部子集。
     > 压缩的结果大多可以表示为$dp[s]$，其中$s$代表了一种可能的状态。
 
+1. 数位DP：一类非常明显的题目。当题目考察内容是形如计算一个数字的各个数位满足一些条件时的统计信息。这种时候就是数位DP。典型题目：[统计整数数目](https://leetcode.cn/problems/count-of-integers/description/)、[统计特殊整数](https://leetcode.cn/problems/count-special-integers/description/)。教程可以参考[OI-Wiki数位DP](https://oi-wiki.org/dp/number/)。这里给出统计特殊整数的典型解答。记忆化搜索是最常见，最好写的形式。
+    ```cpp
+    class Solution {
+    public:
+        // #define N 11
+        // #define M (1<<11)
+        // int dp[N][M];
+        unordered_map<int,int> dp;
+        vector<int> nums;
+
+        inline int combine(int index,int mask,bool limit,bool start) {
+            int result=0;
+            result=(index<<11) | mask | (limit<<16) | (start<<17);
+            return result;
+        }
+
+        // 记忆化搜索
+        int dfs(int index,int mask,bool limit,bool start){
+            if(index==nums.size())
+                return 1;
+            // 合并index、mask、limit、start
+            if(dp.find(combine(index,mask,limit,start))!=dp.end())
+                return dp[combine(index,mask,limit,start)];
+            int up=limit?nums[index]:9;
+            int res=0;
+            // cout<<index<<" "<<mask<<" "<<limit<<" "<<up<<endl;
+            for(int i=0;i<=up;++i){
+                if(mask&(1<<i))
+                    continue;
+                // 注意前导0是可以重复的，此时不应当计入mask
+                if(i==0&&!start){
+                    res +=dfs(index+1,mask,limit && i==up,false);
+                } else {
+                    // i!=0 || start
+                    res +=dfs(index+1,mask|(1<<i),limit && i==up,true);
+                }
+            }
+            dp[combine(index,mask,limit,start)]=res;
+            return res;
+        }
+
+        int countSpecialNumbers(int n) {
+            while(n){
+                nums.push_back(n%10);
+                n/=10;
+            }
+            reverse(nums.begin(),nums.end());
+
+            // digit index, digit mask, limit
+            return dfs(0,0,true,false)-1;
+        }
+    };
+    ```
+
 2. 插头DP：也称为连通性状态压缩DP，轮廓线DP。状态压缩的一些特例，不仅需要压缩状态，而且需要维护状态之间的连通信息。基本术语：轮廓线（已决策状态和未决策状态的分界线）、
     1. 骨牌覆盖，在一个$n \times m$的棋盘中，放置$1\ times 2$或$2 \times 1$的多米诺骨牌（即横放、竖放），问方案总数。参考[HDU 1400 插头DP，状压DP](https://blog.csdn.net/qq_43822233/article/details/108114908)。
         ```cpp

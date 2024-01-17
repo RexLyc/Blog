@@ -116,8 +116,23 @@ curryFunc(1,2,3);
 
 
 ## ToDo函数式C++
-在C++20标准实现curry、compose
+在C++中实现curry、compose
 ```cpp
+// compose 简单实现，模板递归
+// 存在的问题：对调用链上的输入输出类型未作检验、只支持单一参数、参数拷贝性能问题、
+template<typename F>
+auto compose(F fh) {
+	return [&](auto x)  {return fh(x); };
+}
+
+template<typename F,typename ...Funcs>
+auto compose(F fh,Funcs...ft) {
+	return [&](auto x)  {
+		return fh(compose(ft...)(x));
+	};
+}
+
+
 
 ```
 

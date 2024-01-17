@@ -236,6 +236,18 @@ mermaid: true
         // 用折叠表达式push_back
         (v.push_back(args), ...);
     }
+
+    // 结合折叠表达式和泛型lambda
+    auto test = [](auto ...data) {
+        // 很有趣的现象，如果这里是引用捕获，会造成后变长参数列表data2覆盖data的值，发生错误
+        return [=](auto ...data2) {
+            std::string sum = ((std::to_string(data) + " ") + ...);
+            sum += " | ";
+            sum += ((std::to_string(data2) + " ") + ...);
+            std::cout << "in lamda lamda: " <<sum << std::endl;
+        };
+    };
+    test(-1,-2,-3)(1,2,3,4);
     ```
 1. 非类型模板参数推导，允许使用```auto```指示编译器推导非类型模板参数的类型，形如
     ```cpp

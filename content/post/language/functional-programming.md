@@ -11,8 +11,10 @@ thumbnailImage: /images/thumbnail/function-lambda.jpg
 draft: true
 
 ---
-虽然听起来唬人，但函数式编程出现也已经有数十年的历史了。本文从应用角度出发，记录一些函数式编程思想的应用方式。
+虽然听起来唬人，但函数式编程出现也已经有数十年的历史了。本文从应用角度出发，记录一些基础的函数式编程思想的应用方式。
 <!--more-->
+
+> 本文主要参考Gitbook《Professor Frisby's Mostly Adequate Guide to Functional Programming》
 
 ## 基本概念
 1. 函数是一等公民：函数和内置类型变量、对象一样，可以存储到变量，数组中，可以作为参数传递。
@@ -59,13 +61,16 @@ draft: true
     3. 自由定理
     4. 类型约束：将签名用作类型约束
 8. 函子：
-    1. Functor函子：一种汉字，是实现了map函数接口，并遵守特定规则的容器类型。是最基本的运算和功能单位。将一个容器变为另一个容器。函数式编程某种程度上就是编写各种函子并进行组合的过程。
+    1. Functor函子：一种函子，是实现了map函数接口，并遵守特定规则的容器类型。是最基本的运算和功能单位。将一个容器变为另一个容器。函数式编程某种程度上就是编写各种函子并进行组合的过程。
     1. Pointed函子：实现了Of方法，将new封装在Of内部，并返回函子
     1. Maybe函子：这一类函子在任意时刻，对容器内的值考虑其为空的可能性。
     1. Either函子：包含Left函子、Right函子两种情况。右值是正常，左值为异常。表达条件运算，也更适合用于处理异常。
     2. Monad函子：在函子运算过程中，经常会出现函子嵌套的场景（尤其是用函子包装不纯操作时）。Monad函子作用于有嵌套结构的函子，将其最外层的函子剥离。一个monad函子是同时实现Of、join方法的函子。是Pointed函子的升级。此外，Monad函子也经常将join和map结合，形成接口chain，简化了配对的join/map，并支持链式调用。
-    3. applicative函子：
+    3. applicative函子：实现了ap方法的Pointed函子，而且这类函子所保管的值是一个函子。对applicative函子```F```，有```F.of(x).map(f) == F.of(f).ap(F.of(x))```，对单个对象来说，map实际上等价于of + ap（获取一个函数，作用于当前对象，并返回一个对象）。就是说，ap方法能够将一个Functor作用于另一个Functor。替代Monad函子，尤其是在希望打破链式顺序，能够并行执行的场合。
+    
+    > 注1：applicative函子在ap方法操作过程中还保持容器类型不变。但Monad函子不保证，他可能在chain方法调用流程中变动容器类型。
 9. 如何处理不纯的操作：包装不纯的部分，并延后执行，将最终的执行交给用户
+10. ToDo进阶概念：自然变换（用于对函子进行类型变换）、伴随函子、极限和余极限。（11、12、13章等未学习）
 
 ## 范畴学
 > 函数式编程背后由范畴学提供理论支撑，这里有必要对相关概念再进行一点展开。
@@ -76,11 +81,14 @@ draft: true
 
 对范畴的抽象：将不同的范畴本身看作一个对象，态射就是表示这些范畴之间的关系。
 
+
 函子（编程中的概念）：将[范畴学概念中的函子](https://zh.wikipedia.org/wiki/%E5%87%BD%E5%AD%90)引入到编程中，是函数式编程最重要的一种数据类型、基本的功能和数据单位。
 - 定义：一个容器，包含值，以及值之间的变形关系（函数）。根据需要，函子来负责实现不同的映射。
 - 例子：
     - Functor函子：实现了map函数并遵循特定规则的容器。特定规则指（只含有一个属性值、实现map函数）。map函数中的输入函数，就是单个范畴内的态射。此时的Functor函子就是实现了map语义的，一个范畴间的映射。
 
+
+各类函子的实现目的，并不是给出什么必不可少的语言功能。只是在满足范畴学理论的情况下，拓展出来的各种更好用的基础设施。
 <!-- 插入图片？ -->
 
 ## 函数式JS
@@ -102,6 +110,19 @@ curryFunc(1)(2,3);
 curryFunc(1,2,3);
 ```
 
+关于函数组合，在基本概念这一节已经有详细的一个描述。理解Pointfree的写法，就可以说是理解了组合。
+
+在书中集中给出了关于[重要函数](https://mostly-adequate.gitbook.io/mostly-adequate-guide/appendix_a)、[数学结构](https://mostly-adequate.gitbook.io/mostly-adequate-guide/appendix_b)、[Pointfree工具](https://mostly-adequate.gitbook.io/mostly-adequate-guide/appendix_c)的示例代码。
+
+
+## ToDo函数式C++
+在C++20标准实现curry、compose
+```cpp
+
+```
+
+
+## ToDo 关于协变反变逆变不变
 
 ## 参考
 [Professor Frisby's Mostly Adequate Guide to Functional Programming](https://mostly-adequate.gitbook.io/mostly-adequate-guide/)

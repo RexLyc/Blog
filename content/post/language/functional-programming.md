@@ -119,7 +119,7 @@ curryFunc(1,2,3);
 在C++中实现curry、compose
 ```cpp
 // compose 简单实现，模板递归
-// 存在的问题：对调用链上的输入输出类型未作检验、只支持单一参数、参数拷贝性能问题、
+// 存在的问题：对调用链上的输入输出类型未作检验、只支持单一参数、参数拷贝性能问题
 template<typename F>
 auto compose(F fh) {
 	return [&](auto x)  {return fh(x); };

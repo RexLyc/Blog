@@ -132,7 +132,31 @@ auto compose(F fh,Funcs...ft) {
 	};
 }
 
+// curry 简单实现，模板递归
+template <typename Func, typename... Args>
+auto curry_helper(Func func, Args... args) {
+    // is_invocable_v是C++17支持的，判断
+	if constexpr (std::is_invocable_v<Func, Args...>) {
+		// 如果函数、参数已经可以被调用了
+		return std::invoke(func, args...);
+	}
+	else {
+		// 返回一个能继续接收实参lambda函数
+		return [=](auto... moreArgs) {
+            // 折叠表达式
+			return curry_helper(func, args..., moreArgs...);
+		};
+	}
+}
 
+// curry化接口
+template <typename Func>
+auto curry(Func func) {
+    // 返回柯里化后的函数，一个可以接收任意参数的lambda表达式
+	return [func](auto... args) {
+		return curry_helper(func, args...);
+	};
+}
 
 ```
 

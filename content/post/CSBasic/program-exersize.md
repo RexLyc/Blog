@@ -132,6 +132,7 @@ math: true
 18. :red_circle: 6093：[设计一个文本编辑器](https://leetcode.cn/problems/design-a-text-editor/)。（看了题解）脑筋急转弯级别的困难题。很容易陷入到写一个链表结构的数据结构中（很难写）。但实际上，可以看作是类似两个栈，分别是前缀和后缀。左右移动就是两个栈来回压入，插入删除则是对前缀的压入和弹出。
 
 ###  动态规划
+1. :red_circle: 2809：[使数组和小于等于x的最小时间](https://leetcode.cn/problems/minimum-time-to-make-array-sum-at-most-x/description/)。抄了题解。问题还是在于状态设计。困难的动态规划一般都是需要进行一系列附加的思考。反而最后的状态转移方程并不一定复杂。本题中有若干个要点需要理解，剩余总和的组成（初始总和+添加总和*i-被减少的总和）。因此最小化剩余总和，就转化为了最大化被减少的总和。当需要选择一系列数据进行最大化，我们就有一个典型的模型：01背包。而本题更复杂的思考就在于，选择的顺序一定是按照nums2从小到大。因此按照从小到大去状态转移，就解决了动态规划问题的无后效性。
 1. :red_circle: 1349：[参加考试的最大学生数](https://leetcode.cn/problems/maximum-students-taking-exam/description/)。抄了题解。没想到正确的状态设计的思路。每一行的可坐人数和当前行的坐法，以及上一行的坐法有关。而每一行的坐法可以用```bitmask```来表示，之后再对两行的```bitmask```进行暴力匹配。从而算出每一个状态下的最多人数。只要能想到**正确的状态设计**就成功了。可以从题目的数据范围去思考。另外题解中还提到了转换为[二分图模型](https://leetcode.cn/problems/maximum-students-taking-exam/solutions/101748/can-jia-kao-shi-de-zui-da-xue-sheng-shu-by-leetcod/comments/2201755)，以及[插头DP（轮廓线DP）](https://oi-wiki.org/dp/plug/)。
 1. :red_circle: 1671：[得到山形数组的最少删除次数](https://leetcode.cn/problems/minimum-number-of-removals-to-make-mountain-array/description/)。自己写的是$O(n^2)$的动态规划，对每个位置，求两次递减子序列。但实际上本题可参考[最长递增子序列](https://leetcode-cn.com/problems/longest-increasing-subsequence/)。求LIS类问题，是有$O(nlogn)$方法的。
 1. :yellow_circle: 2008：[出租车的最大盈利](https://leetcode.cn/problems/maximum-earnings-from-taxi/description/)。自己写的是对订单DP+二分。题解中有另一种对位置DP+哈希表，实际上只需要回溯考虑同一终点的所有行程。没有绝对的好坏，不过本题的数据规模确实是哈希表更好。

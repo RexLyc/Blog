@@ -108,7 +108,7 @@ math: true
 10. :red_circle: 363：[矩形区域不超过K的最大数值和](https://leetcode-cn.com/problems/max-sum-of-rectangle-no-larger-than-k/)。本题是前缀和+二分。注意当题目中出现**不超过XXX**的字样的时候，说明出现了不等式，而这一般意味着可以对中间结果进行排序（或使用动态有序的数据结构），并用二分进行查找。
 11. :red_circle: 410：[分割数组的最大值](https://leetcode-cn.com/problems/split-array-largest-sum/)。DP和记忆化搜索复杂度太高怎么办？一定要学[题解](https://leetcode-cn.com/problems/split-array-largest-sum/solution/fen-ge-shu-zu-de-zui-da-zhi-by-leetcode-solution/)，非常经典的二分思路，对待求结果进行**二分测试**。先设定一个最大值，超过该值就进行划分，如果划分数组的数量符合要求。再进一步用二分确定最大值的范围。
     - 仔细思考。如果搜索，则相当于是求出了过多的信息（很多种划分方式的最大值都被算出来了）。
-    - 只要是结果有大小顺序，都可以用二分测试来计算。
+    - 只要是结果有大小顺序，都可以用二分测试来计算。只不过二分的指标可能是非常和原始思路有很大区别。
 12. :yellow_circle: 2560: [打家劫舍 IV](https://leetcode.cn/problems/house-robber-iv/description/)。经典最小化最大值问题。这类问题就是针对这个值进行二分。而不是真的去模拟求出所有的最大值。另外该题需要想明白两点：先选一定不比后选更差（贪心策略的正确性，类似于优先选择最早完成的任务），另一点是二分的最终结果一定会存在于数组中（不用担心二分的结果不在原数组）。
 
 ###  字符串
@@ -230,7 +230,8 @@ math: true
 2. :red_circle: 2603: [收集树中金币](https://leetcode.cn/problems/collect-coins-in-a-tree/description/)。看了题解，核心是对图做变换：剪枝、去叶子节点。**思考最终路径的规则**：任何一条路径最多只需要走两次，路径终点到（最远的）有金币的节点距离为2。因此变换有两条：递归删除所有无金币的叶子节点，对最终树进行2次删除叶子节点的操作。最终剩下的边，每个都会遍历。
 
 ###  数据结构
-1. :yellow_ciecle: 2735：[收集巧克力](https://leetcode.cn/problems/collecting-chocolates/description/)。名为中等，实为困难。自己写的是$O(n^2)$的动态规划，实际上本题有$O(n)$的单调栈+二次差分解法，思路比较复杂，参考[题解](https://leetcode.cn/problems/collecting-chocolates/solutions/2580148/shou-ji-qiao-ke-li-by-leetcode-solution-bjyp/)。
+1. :red_circle: 100213：[按距离统计房屋对数目II](https://leetcode.cn/problems/count-the-number-of-houses-at-a-certain-distance-ii/description/)。周赛，自己想写一个完全基于数学的分类讨论，但是漏洞百出。[题解](https://leetcode.cn/problems/count-the-number-of-houses-at-a-certain-distance-ii/solutions/2613373/yong-che-xiao-de-fang-shi-si-kao-pythonj-o253/)提供的思路是分类讨论，用差分数组统计。总之，差分数组是$O(n)$复杂度的好帮手，可以把若干次区间修改的时间复杂度大大简化。
+1. :yellow_circle: 2735：[收集巧克力](https://leetcode.cn/problems/collecting-chocolates/description/)。名为中等，实为困难。自己写的是$O(n^2)$的动态规划，实际上本题有$O(n)$的单调栈+二次差分解法，思路比较复杂，参考[题解](https://leetcode.cn/problems/collecting-chocolates/solutions/2580148/shou-ji-qiao-ke-li-by-leetcode-solution-bjyp/)。
 1. :yellow_circle: 2866：[美丽塔II](https://leetcode.cn/problems/beautiful-towers-ii/description/)。思考过程是从暴力解法入手。很容易发现计算结果就是等价于构造一个递增/递减子数组，就很容易想到单调栈。主要的坑还是```int```和```long long int```的转型问题。
 1. :red_circle: 2276：[统计区间中的整数数目](https://leetcode.cn/problems/count-integers-in-intervals/description/)。动态开点线段树标准题。记住一个思路，动态开点的根区间是整个区间范围，而不是一点一点扩大的（会出现树不平衡问题）。一个评论中提到的[池化技术](https://leetcode.cn/problems/count-integers-in-intervals/solutions/1495396/by-endlesscheng-clk2/comments/2195672)非常有趣，值得一看。
 1. :red_circle: 2132：[用邮票贴满网格图](https://leetcode.cn/problems/stamping-the-grid/description/)。看的题解，非常典型的二维前缀和、二维差分数组的题目。凡是计算一个矩形区域，甚至更高维的一个区域，都可以用n维的前缀和。但这道题目更厉害的是对差分数组的理解。最终求是否存在一个点没有被覆盖过。这个时候实际上需要计算出所有点的覆盖次数（一个前缀和），为了求这个，可以先求出其差分数组，即某个顶点开始覆盖一个矩形（四个角分别+1、-1），在对其求和。

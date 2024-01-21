@@ -37,6 +37,7 @@ thumbnailImage: /images/thumbnail/todo.jpg
     - 工具：perf、gperftool、gprof、gdb、flamegraph
 1. [ ] 博客填充
     - 所有内容较少的页面，尽量填充（也就是说快点把该学的东西补上来）
+    - 在复习的过程中，补齐应有的图片
 3. [ ] 基于UE5的地铁数字孪生系统
     - 智能维修、[爆炸动画](https://docs.unrealengine.com/5.1/zh-CN/setting-up-xr-explode-animations-in-unreal-engine/)
 4. [ ] 把PC版的页面文章宽度增加一些

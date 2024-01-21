@@ -373,11 +373,136 @@ GET my-simple-index/_search
 正如关系型数据库中数据表之间可以进行关联，ES这种文档数据库，也可以控制文档之间的关系，比如让文档之间的字段相互有关联，或者字段是嵌套的文档等等。
 
 文档之间的关系通常有以下几种形式：
-1. 对象类型：允许将一个对象作为文档字段的值。对象内再包含具体的多个字段。
-2. 嵌套文档：
-3. 文档间的父子关系：
-4. 反规范化：
-5. 应用端的连接：
+1. 对象类型：允许将一个对象作为文档字段的值。对象内再包含具体的多个字段。也可以形成一个对象数组。例如
+    ```json
+    // 提交的数据格式
+    {
+      "address":[
+        {
+          "city":"paris",
+          "steet":"central"
+        },
+        {
+          "city":"new york",
+          "steet":"broadway"
+        }
+      ]
+    }
+
+    // 注意在实际的存储中，这段数据更倾向于被处理成
+    {
+      "address.city":["paris","new york"],
+      "address.street":["central","broadway"]
+    }
+    ```
+2. 嵌套文档：对象类型存在一个问题。如果一个字段是对象数组，那么在查询时，可能错误的匹配到了属于多个对象的不同字段值。此时如果将对象改为单独的文档，就可以避免这种问题。嵌套文档将每一个对象放到一个单独的文档中，所有的对象文档组成一个分块，存储在和主文档接近的位置。
+    > 例如上面对象类型中的address字段，如果查询时选择城市为paris，且街道为broadway的，这篇文档是会被选中的。但逻辑上这样的匹配是错误的。
+    > 这从一个侧面说明了，ES提供的基于分词的查询的算法并不是绝对智能的。他并不会判断一次匹配是否跨越了一个数组类型字段的多个对象边界。
+    此时的解决方案是使用嵌套，只需要在设定映射时指定为nested即可，例如
+    ```kibana
+    PUT doc-relation
+    {
+      "mappings": {
+        "properties": {
+          "location":{
+            // 注意是用来说明一个属性是嵌套文档
+            "type": "nested", 
+            "properties": {
+              "city":{
+                "type":"text"
+              },
+              "street":{
+                "type":"text"
+              }
+            }
+          },
+          "title":{
+            "type":"text"
+          }
+        }
+      }
+    }
+
+    // 此时搜索也需要用nested指定路径
+    GET doc-relation/_search
+    {
+      "query": {
+        "nested": {
+          "path": "location", 
+          "query": {
+            "bool": {
+              "must": [
+                {"match":{"location.city": "beijing"}},
+                {"match":{"location.street": "chang an"}}
+              ]
+            }
+          }
+        }
+      }
+    }
+    ```
+    > 嵌套文档在配置映射时，也可以通过include_in_*字段，来保持允许将文档内的数据，同时索引到原始文档。也就是说可以同时使用嵌套查询，和普通查询。
+3. 文档间的父子关系：对象、嵌套关系还是有一个限制。这些文档关系仍然过于紧密。当我们需要修改一部分文档内容时，往往需要修改全部相关的索引文件（比如倒排索引项中的出现次数、位置）。但如果使用完全不同类型的文档去存储数据。在映射中指定文档之间的父子关系。这样在处理文档数据变更时可以完全互相独立处理，无需考虑依赖问题。父文档中只存储父子关系，不存储子文档中的任何数据。父子关系的优缺点都很明显。应当只在有必要的时候进行使用：当索引数据包含一对多的关系，并且其中一个实体的数量远远超过另一个的时候。代码改自[一起学ES](https://cloud.tencent.com/developer/article/2372964?areaId=106001)。
+    ```kibana
+    // 父文档除了多一个父子关系字段，没什么特别的
+    PUT doc-join-relation
+    {
+      "mappings": {
+        "properties": {
+          "title":{
+            "type": "text"
+          },
+          "join_field":{
+            // join代表父子关系
+            "type": "join",
+            "relations":{
+              // 父文档中的映射名：子文档中的映射名
+              "blogs":"comments"
+            }
+          }
+        }
+      }
+    }
+
+    // 插入也没什么特别的
+    PUT doc-join-relation/_doc/1
+    {
+      "title": "Elasticsearch Join 示例",
+      // 记录映射关系
+      "join_field": "blogs"
+    }
+
+    // 子文档也是在同一个索引下，使用routing来保证到同一分片
+    PUT doc-join-relation/_doc/2?routing=1
+    {
+      "title": "很棒的博客",
+      "join_field": {
+        "name": "comments",
+        // 一个子文档字段只能有一个父文档
+        "parent": "1"
+      }
+    }
+
+    GET doc-join-relation/_search
+    {
+      "query": {
+        // 用has_child来对子文档进行要求
+        "has_child": {
+          "type": "comments",
+          "query": {
+            "match_all": {}
+          },
+          // 随父文档一并返回子文档
+          "inner_hits": {}
+        }
+      }
+    }
+    ```
+    > 注意：使用了父子关系的文档，因为需要对完全不同的索引文件进行处理，显然会在搜索过程中有更差的效率。而且也需要考虑文件的路由问题。必须让父子文档位于一个节点。
+5. 反规范化：将一些数据重复存储，避免在查询的时候要多次进行“连接”等操作。但缺点也很明显，数据冗余带来的性能和业务逻辑问题。
+6. 应用端的连接：将需要进行连接的数据，分多次查询。并在客户端程序中，对返回数据再进行连接。
+
+文档间关系不影响后续的各种分析、相关性搜索、数据聚集。这些功能都可以在不同的文档间关系上得到应有的实现。
 
 ### 分析器
 当一个文档发送到ES的指定分片时，就开始了这篇文档的分析流程。一般来说分析器流程有三个子模块，在创建索引的时候也可以在```setting```中对这三个部分进行定制。
@@ -488,9 +613,175 @@ POST my-simple-index2/_search
 ```
 
 ### 集群
+ElasticSearch需要面对海量的文档数据。分布式处理能力是其强大的根本。根据需要，ES可以很方便的扩展集群。关于集群的一些静态的配置在```elasticsearch.yml```中，另外也有一些和索引相关的配置，是在运行期可以修改的。
+
+ES节点发现的方式有广播和单播，主要使用广播。ES作为一个分布式系统，实现了主节点选举、识别错误等功能。其中识别错误是指，主节点对所有节点发出请求，以检测其他节点是否能够正常工作。在实际使用中需要正确的对主节点数量、选举进行配置，避免发生脑裂。
+
+对于集群的健康情况，可以通过```GET _cluster/health```查询得到。一个基本的JSON结果如下。
+```json
+{
+  "cluster_name": "docker-cluster",
+  // 因为存在未分配副本分片，健康状态为yellow
+  "status": "yellow",
+  "timed_out": false,
+  "number_of_nodes": 1,
+  "number_of_data_nodes": 1,
+  // 活跃主分片数量
+  "active_primary_shards": 43,
+  "active_shards": 43,
+  "relocating_shards": 0,
+  "initializing_shards": 0,
+  // 未分配分片数量
+  "unassigned_shards": 6,
+  "delayed_unassigned_shards": 0,
+  "number_of_pending_tasks": 0,
+  "number_of_in_flight_fetch": 0,
+  "task_max_waiting_in_queue_millis": 0,
+  "active_shards_percent_as_number": 87.75510204081633
+}
+```
+同一个文档的副本分片不能和主分片放置在一起，因此对于只有单节点的ES，他们实际上处于“不健康”的状态。当有新节点加入后，ES会尝试将分片在所有节点上进行均匀分配。
+
+对于集群数量的修改，主要有三种：新增节点、删除节点、停用节点。删除节点的风险很高，而且很容易出现yellow“不健康”状态。更好的办法是停用一个节点。在停用节点流程中，ES将会停止分配任何分片到被停用的节点上。
+
+集群健康状态为红色时，代表因为网络或节点故障，有一些数据永久丢失（暂时不能被查询到）。这时就需要恢复对应的节点和网络。
+
+实际上用户主要需要考虑的是对于索引内的分片配置。例如对于如下配置。
+```json
+// 索引doc-relation
+"doc-relation": {
+  "settings": {
+    "index": {
+      "routing": {
+        "allocation": {
+          "include": {
+            "_tier_preference": "data_content"
+          }
+        }
+      },
+      // 分片数量
+      "number_of_shards": "1",
+      // 基于可用节点的数量自动分配副本数量，默认为false（禁用）
+      "auto_expand_replicas": "0-3",
+      "provided_name": "doc-relation",
+      "creation_date": "1705674175334",
+      // 副本数量
+      "number_of_replicas": "1",
+      "uuid": "e5bD7WqsREOPa3YvUcbLAw",
+      "version": {
+        "created": "8500003"
+      }
+    }
+  }
+}
+```
+
+另外ES还提供了别名、路由两个功能。先说一下别名。别名是在索引之上的抽象，可以对多个索引绑定相同的别名，而且一个索引也可以绑定多个别名。当然也通过别名可以来查询、过滤文档。
+```kibana
+PUT doc-join-relation/_alias/myalias
+PUT doc-relation/_alias/myalias
+
+// 查看myalias别名的所有索引
+GET _alias/myalias
+// 查看doc-relation索引的全部别名
+GET doc-relation/_alias
+
+// 为别名配置别名过滤器
+POST _aliases
+{
+  "actions": [
+    {
+      "add": {
+        // 指定别名、索引、以及对该索引的过滤方式
+        "index": "doc-join-relation",
+        "alias": "myalias",
+        "filter": {
+          "term": {
+            "title": "很棒的博客"
+          }
+        }
+      }
+    }
+  ]
+}
+
+// 通过别名来查询
+GET myalias/_search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+```
+
+路由很好理解，决定索引分片存储在哪个节点，以及决定去哪个节点查询索引分片数据。默认情况下，ES会使用文档ID的哈希值去进行路由。但是这个完全随机性的路由方式显然不够优秀。对于那些经常在查询中体现相同性质的文档。如果能够将他们路由到同一个节点（比如经常按属性A分类查询，那么就按属性A的值去进行散列并路由），显然能提高查询速度。不过应当注意的是，用户指定路由的情况下，ES会放弃对文档ID的判重，因此需要用户自行保证。而且由于查询操作只会被限定在符合路由的节点上发生，因此也需要用户保证同节点存储了所需要的全部数据。例子如下
+```kibana
+// 想要看出路由的区别，必须先组成多节点的集群
+
+// 通过URL给出路由值
+PUT doc-relation/_doc/1?routing=test
+{
+  "title":"what",
+  "content":"myaliasContent"
+}
+
+// 查询指定路由值指向的节点的文档数据
+POST myalias/_search?routing=test
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+// 查看在test路由值下的分片节点
+GET myalias/_search_shards?routing=test
 
 
-## 性能优化
+// 配置别名过滤器中的路由字段
+POST _aliases
+{
+  "actions": [
+    {
+      "add": {
+        // 指定别名、索引、以及对该索引的过滤方式
+        "index": "doc-join-relation",
+        "alias": "myalias",
+        "filter": {
+          "term": {
+            "title": "很棒的博客"
+          }
+        },
+        // 各个别名所代表的索引数据中，只返回满足该路由条件的文档
+        "routing":"test"
+      }
+    }
+  ]
+}
+
+```
+
+
+## 性能优化思路
+1. 合并请求：减少网络通信性能损失，使用bulk进行批量处理
+2. 优化Lucene分段：ES接收文档后，会处理并缓存，再进一步存储到内存中的分段结构（Segments），分段会时不时的写入磁盘。这个过程中几乎每一部都是很耗时的操作。
+    - 刷新Refresh：从缓存（不可被查询到）写入到分段中（可被索引）
+    - 冲刷Flush：从分段写入磁盘
+    - 分段合并：分段是不断从缓存创建的，对多个小分段的处理不如一个大分段的处理。因此合并分段可以提高速度。
+3. 权衡索引速度和查询速度
+4. 预热和内存：充分利用过滤器缓存、分片缓存。
+5. 谨慎使用脚本：如果有需要，可以使用Java编写，并将其以插件形式植入ES的运行时。
+6. JVM优化
+
+
+## 其他
+1. cat API：对于许多信息都有可视化效果更好的查询接口。但一定注意，官方设计这个接口的目的**只是为了**人工在命令行或者kibana使用，而不是给应用程序使用。用法例如
+    ```kibana
+    // 查询全部节点
+    GET _cat/nodes
+
+    // 查询全部索引
+    GET _cat/indices
+    ```
 
 
 ## 参考资料

@@ -67,6 +67,41 @@ netsh interface portproxy add v4tov4 listenport=5601 listenaddress=0.0.0.0 conne
 2. 初次启动kibana需要密码，也可以从es下的bin重置
 3. 非初次启动记得先启动ES，确定ES日志中显示OK，再启动Kibana。否则Kibana会永远显示ES Server未就绪。
 
+### Hadoop
+docker desktop内提供的镜像都不太好。推荐参考[big-data-europe](https://cjlise.github.io/hadoop-spark/Setup-Hadoop-Cluster/)。直接使用一个完整的hadoop环境的docker compose构建。docker desktop目前已经继承了docker compose，所以可以直接使用docker-compose.yml。下面是对该教程的指令总结
+```bash
+git clone 
+
+# 核心就是一句话
+docker-compose up -d
+
+# 可以看到hadoop已经启动
+curl http://localhost:9870/
+
+# 另外该例子还提供了一个简单的MapReduce程序供测试
+# 在wsl2主机侧下载并拷贝给namenode
+wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-mapreduce-examples/2.7.1/hadoop-mapreduce-examples-2.7.1-sources.jar
+docker cp ./hadoop-mapreduce-examples-2.7.1-sources.jar namenode:/tmp
+
+# 先进入到namenode节点，后文均位于namenode下
+docker exec -it namenode bash
+cd /tmp
+mkdir input
+# 准备两个文件
+echo "Hello World" >input/f1.txt
+echo "Hello Docker" >input/f2.txt
+# 创建hdfs文件夹，名为input
+hadoop fs -mkdir -p input
+# 将当前的input文件夹拷贝过去
+hdfs dfs -put ./input/* input
+
+# 执行hadoop，mapreduce任务
+hadoop jar hadoop-mapreduce-examples-2.7.1-sources.jar org.apache.hadoop.examples.WordCount input output
+# 查看结果
+hdfs dfs -cat output/part-r-00000
+
+```
+
 ### 交叉编译
 
 ### 显卡

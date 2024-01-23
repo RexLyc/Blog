@@ -20,6 +20,38 @@ draft: true
 - 白盒测试
 - 压力测试
 
+## 工具
+### GPerfTools
+Google腿出的性能测试工具，Google Performance Tools。GPerfTools也是以源代码形式发布的测试工具。在使用前需要在开发环境中进行编译再使用。下面是基本的编译安装步骤。
+```bash
+# 编译安装gperftools
+# 依赖libtool(编译用）、libunwind（一个堆栈工具）、graphviz&ghostscript（绘图、PDF）
+apt install libtool graphviz ghostscript
+
+# 选择合适的libunwind版本
+wget https://github.com/libunwind/libunwind/archive/refs/tags/v1.8.0.tar.gz
+# 省去解压缩步骤
+autoreconf -i
+./configure
+make -j4
+sudo make install
+
+# 选择合适的gperftool版本
+wget https://github.com/gperftools/gperftools/archive/refs/tags/gperftools-2.15.tar.gz
+# 省去解压缩步骤
+./autogen.sh
+./configure
+make -j4
+sudo make install
+```
+
+使用中，主要有侵入和非侵入两种模式，以及[cpu](https://gperftools.github.io/gperftools/cpuprofile.html)、[malloc](https://gperftools.github.io/gperftools/tcmalloc.html)、[heap check](https://gperftools.github.io/gperftools/heap_checker.html)、[heap profile](https://gperftools.github.io/gperftools/heapprofile.html)等profiler。非侵入例如。
+```bash
+# 生成pdf报告
+
+```
+
+
 ## 测试框架
 ### GoogleTest
 

@@ -27,8 +27,14 @@ Hadoop是由Apache Lucene创始人Doug Cutting创建的。Doug Cutting一直致�
     # 下载2023年全部数据
     wget -r -nH ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-lite/2023 --ftp-user=anonymous --ftp-password=你的邮箱
     ```
-
 > Hadoop作为大数据处理生态解决方案。其生态中的各个组件也并不是简单接入就能适用于所有业务场景。在技术选型时，要充分对比各种方案。
+
+## 一些坑：
+1. Hadoop执行程序是需要打包程序，上传到集群上执行的，因此对于MapReduce程序，如果想要调试的话，是不能无配置就直接在本机调试（没有那些Jar）。但本地调试还是很重要的，参考[How to Set Up Hadoop on Windows: A Step-by-Step Guide](https://medium.com/@DataEngineeer/how-to-set-up-hadoop-on-windows-a-step-by-step-guide-37d1ab4bee57)、[MapReduce的本地运行模式（debug调试）](https://blog.csdn.net/qq_38200548/article/details/84057611)
+    - 暂未成功
+    - 另外也可以调研一下其他调试方式。
+3. Hadoop的各类依赖在Maven中可能会产生依赖冲突，需要通过插件进行exclude解决。
+
 
 ## HDFS
 

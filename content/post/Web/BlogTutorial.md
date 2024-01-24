@@ -206,6 +206,7 @@ thumbnailImage: /images/thumbnail/lycStamp.png
 ## Wiki类网站参考
 &emsp;&emsp;看看其他的知识分享类网站的建设逻辑，可以向博客中添加有用的部分。
 - 链接：[Confluence](https://www.atlassian.com/software/confluence)、[MediaWiki](https://www.mediawiki.org/)、[DokuWiki](https://www.dokuwiki.org/dokuwiki)、[BlueSpice](https://bluespice.com/)
+- ToDo：添加幻灯片功能，参考用[Hugo制作网页PPT](https://zhuanlan.zhihu.com/p/98055846)
 
 ## 参考资料
 1. [emoji编码查询网站](https://www.webfx.com/tools/emoji-cheat-sheet/)

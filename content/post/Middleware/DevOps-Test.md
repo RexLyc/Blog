@@ -21,8 +21,30 @@ draft: true
 - 压力测试
 
 ## 工具
+测试工具的种类非常多，而且也没有放诸四海皆有效的一个通用完整工具。
+
+### Perf
+Linux下内核级支持的一个工具，主要用于对当前CPU上的执行情况进行采样分析。但其数据可视化效果比较差，一般会和其他工具结合。下面列举一些性能测试场景的使用案例。
+```bash
+# 对全部进程采样60秒，频率99HZ，保留调用堆栈
+perf record -F 99 -a -g -- sleep 60
+
+# 查看全部支持的perf event
+perf list
+# 注意有些事件只有在sudo权限下才可被观测
+sudo perf list
+
+# -e指定采样的事件，对缺页异常进行30秒的采样
+sudo perf record -e page-faults -a -g -- sleep 30 && perf script > memory.perf
+
+# 采样块设备事件
+sudo perf record -e block:block_rq_insert -a -g -- sleep 30 && perf script > block.perf
+```
+
+> WSL2对Perf的支持并不一定很好。Perf性能测试最好在原生Linux系统上进行。
+
 ### GPerfTools
-Google腿出的性能测试工具，Google Performance Tools。GPerfTools也是以源代码形式发布的测试工具。在使用前需要在开发环境中进行编译再使用。下面是基本的编译安装步骤。
+Google推出的性能测试工具，Google Performance Tools。GPerfTools也是以源代码形式发布的测试工具。在使用前需要在开发环境中进行编译再使用。下面是基本的编译安装步骤。
 ```bash
 # 编译安装gperftools
 # 依赖libtool(编译用）、libunwind（一个堆栈工具）、graphviz&ghostscript（绘图、PDF）
@@ -45,16 +67,65 @@ make -j4
 sudo make install
 ```
 
-使用中，主要有侵入和非侵入两种模式，以及[cpu](https://gperftools.github.io/gperftools/cpuprofile.html)、[malloc](https://gperftools.github.io/gperftools/tcmalloc.html)、[heap check](https://gperftools.github.io/gperftools/heap_checker.html)、[heap profile](https://gperftools.github.io/gperftools/heapprofile.html)等profiler。非侵入例如。
+使用中，主要有侵入和非侵入两种模式，以及[cpu](https://gperftools.github.io/gperftools/cpuprofile.html)、[malloc](https://gperftools.github.io/gperftools/tcmalloc.html)、[heap check](https://gperftools.github.io/gperftools/heap_checker.html)、[heap profile](https://gperftools.github.io/gperftools/heapprofile.html)等profiler。
+
+非侵入是指不修改代码，只在运行前调整环境变量和加载环境，并进行测试。例如
 ```bash
 # 生成pdf报告
 
 ```
 
+### PProf
+前面的Perf、GPerfTool都是Profiling工具，就是生成采样数据的工具。PProf是用来对数据做一定程度的可视化，一般生成文本，或者pdf文档。也可以用于执行数据转换（比如从gperftool到perf数据）
+
+### FlameGraph
+[FlameGraph](https://github.com/brendangregg/FlameGraph)是一个非常强大的，性能测试数据可视化工具。它主要提供了以下几种内容的数据可视化
+  1. CPU：展示CPU调用堆栈深度，以及采样次数之间的对比信息
+  1. Memory：展示对内存的释放分配信息
+  1. Off-CPU：展示CPU受I/O等原因的阻塞信息，此时进程不在CPU上执行，因此名为Off-CPU
+  1. Hot/Cold：将CPU、Off-CPU图进行结合，在同一个图内展示活跃部分和阻塞部分
+  1. Differential：性能差分图。对于一些在持续优化的代码，使用这种图形能够快速对比代码优化工作在不同的函数上带来的时间减少、时间增长，以得知性能优化成果
+注意火焰图的纵坐标是调用堆栈，代表了调用的父子信息。横坐标是采样的命中次数，以及按名称的排序，**不是运行时的顺序**。在横轴上越长的函数，代表其相对被调用的次数越多（运行时间越长），可能存在性能问题。
+
+> 参考：开发者提供的[视频分享教程](https://www.youtube.com/watch?v=D53T1Ejig1Q)
+
+FlameGraph本身并不提供采样工具，它需要其他工具获得的性能采样数据来进行绘制。一个基本的CPU火焰图使用流程如下。
+```bash
+# FlameGraph以git仓库形式发放
+git clone git@github.com:brendangregg/FlameGraph.git
+cd FlameGraph
+
+# 先用perf工具对全部进程采样60秒，频率99HZ
+perf record -F 99 -a -g -- sleep 60
+# 此时会生成perf.data二进制数据，将其转为文本数据
+perf script > output.perf
+# 为了下一步的绘图，用FlameGraph的工具对其进行折叠
+./stackcollapse-perf.pl output.perf > output.folded
+# 绘制svg
+./flamegraph.pl output.folded > output.svg
+```
+
+其他类型的火焰图的创建流程类似，只不过根据所创建的类型，在最后生成svg图片的参数上有所不同，例如
+```bash
+# 一次完成从perf script结果的折叠和绘图，绘制成为内存类型（缺页异常），数据来源见Perf章节
+./stackcollapse-perf.pl < memory.perf | ./flamegraph.pl --color=mem \
+    --title="Page Faults" --countname="pages" > memory.svg
+
+# 对I/O导致Off-CPU的情况的采样，数据来源见Perf章节
+./stackcollapse-perf.pl < block.perf | ./flamegraph.pl --color=io \
+    --title="Block I/O Flame Graph" --countname="I/O" > block.svg
+
+# 差分图，先对CPU采样做两次折叠
+./stackcollapse-perf.pl out.stack1 > out.stack1.folded
+./stackcollapse-perf.pl out.stack2 > out.stack2.folded
+# 用difffolded计算区别，并调用输出绘图
+./difffolded.pl out.stack1.folded out.stack2.folded| ./flamegraph.pl > diff.svg
+```
+
+FlameGraph在CPU、内存、Off-CPU、Differential等各方面都有不同的子类型。根据测试需要，对专门的图形进行研究。
 
 ## 测试框架
 ### GoogleTest
-
 [GoogleTest](https://google.github.io/googletest/)是Google开源的C++使用的测试框架，源代码形式发布，使用CMake、Bazel等可以很方便的集成到项目环境中，下面是一个典型的接入GoogleTest的CMake工程文件
 ```CMakeLists
 cmake_minimum_required(VERSION 3.14)
@@ -400,7 +471,12 @@ GoogleTest还有很多[高级](https://google.github.io/googletest/advanced.html
 1. 会产生fatal类的错误测试宏（如```FAIL_*```、```ASSERT_*```），无法使用在非void返回值的函数中，这是因为GoogleTest对在测试过程中未使用C++异常。如果一定有返回值需要处理，需要将```int foo(int x)```，转换为```void foo(int x,int *ret)```。或者不要使用fatal类的错误测试宏，改用```ADD_FAILURE_*```、```EXCEPT_*```。
 
 
+## 值得关注
+1. 大佬[Brendan Gregg's Homepage](https://www.brendangregg.com/index.html)。性能测试专家。参与开发了很多性能测试工具。而且其本人非常乐于在各种论坛分享，因此有很多教学视频资料可以在主页上找到。
+
 ## 参考
 [《BPF 之巅：洞悉Linux系统和应用性能》读书笔记（四）火焰图 - Grissom的文章 - 知乎](https://zhuanlan.zhihu.com/p/671121116)
 
 [GoogleTest官方Examples](https://github.com/google/googletest/tree/main/googletest/samples)
+
+《性能之巅：洞悉系统、企业与云计算》，即《Systems Performance: Enterprise and the Cloud》

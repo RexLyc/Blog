@@ -12,7 +12,7 @@ thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/webrtc.png
 draft: true
 ---
-
+从webrtc入手，了解一点多媒体相关的信息技术。
 <!--more-->
 ## 概述
 1. 一些术语：
@@ -44,18 +44,45 @@ draft: true
    4. 设备层：Capture、Render、Network
 
 ## 基本原理
+
+一个1对1通信的基本架构-流程图如下
+![WebRTC架构图1：1](/images/screenshot/webrtc/signal-1on1-arch-flow.png)
+
+图中展示了一对一通信的整体架构和流程。其中
+1. 检测客户端上可用的音视频设备
+2. 开始采集
+3. 录制
+4. 打开同信令服务器的通信
+5. 创建```RTCPeerConnection```对象，绑定音视频数据
+6. 获得当前客户端在NAT映射中外网端口/IP（通过STUN/TURN进行NAT穿透）
+7. 通过信令服务器将Call/Called（主叫被叫）地址发送给对端
+8. 通过RCPeerConnection建立连接
+
 ### 信令服务器
-&emsp;&emsp; 信令服务器提供通信双方在业务层上的管理、以及信息的交换。完成用户创建房间、进入/退出房间，交换双方IP和端口等功能。
+信令服务器提供通信双方在业务层上的管理、以及信息的交换。完成用户创建房间、进入/退出房间，交换双方IP和端口等功能。所谓信令，也就是包含这些管理事件的信息。信令服务器需要对信令进行顺序限制，这种限制称为时序关系。
+
+信令也分为客户端发起和服务端发起两个种类，一个简单的信令设计如下
+1. 客户端发起：join、leave、message，代表客户端加入、离开、发送消息（用于同步各种元信息）
+2. 服务端发起：joined、left、full，代表确认客户端加入、确认离开、房间满员
+
+信令服务器的基本实现就是这样了。实际上，只要你能有办法达成这些接口，无论你使用什么网络协议都是可用的。通常情况下，还是会使用基于TCP等可靠连接的上层协议，如HTTP/HTTPS、WS/WSS。
+
+### 
 
 ## 实战内容
-1. 
+一个支持RTSP接入的服务器端、以及前端Demo
 
 ## 其他内容
+### 术语
+1. STUN：Session Traversal Utilities for NAT，NAT会话穿越实用工具
+2. TURN：Traversal Using Relay NAT，中继穿越NAT
+
 ### 常见问题和方法
 1. 减少数据量：压缩、SVC技术、Simulcast技术、动态码率、甩帧
 2. 适当增加时延：缓冲队列
 3. 提高网络质量：降低丢包、延迟、抖动。NACK/RTX、FEC前向纠错、JitterBufer、NetEQ、拥塞控制
 4. 快速评估带宽：Goog-REMB、Goog-TCC、NADA、SCReAM
+
 
 ## 参考
 1. 《WebRTC音视频实时互动技术》

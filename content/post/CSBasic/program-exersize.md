@@ -212,6 +212,7 @@ math: true
 1. :green_circle: 1114：[按序打印](https://leetcode-cn.com/problems/print-in-order/solution/)。条件变量、锁。
 
 ###  图论
+1. :red_circle: 2846：[边权重均等查询](https://leetcode.cn/problems/minimum-edge-weight-equilibrium-queries-in-a-tree/description/)。想到了是LCA问题，但是没想到路径之后如何优化对路径的求解。这个题的思路非常值得思考，其实是图论、或者是树上问题的一个**通用思路**，就是如果一个问题的求解，**满足结合律**。比如两点之间的某种数值，满足结合律、交换律。那么就可以通过求解到同一个点的数值，再求差值来做到。例如求$f(a,b)$可能很难（或者时间复杂度很高），但是可以求$f(x,a)$和$f(x,b)$，再进行$f(x,a)+f(x,b)-2\timesf(0,x)$。另外本题也考察了LCA，必须使用优于朴素算法的解法。
 1. :yellow_circle: 1631：[最小体力消耗路径](https://leetcode.cn/problems/path-with-minimum-effort/description/)。思考了很久，最终意识到仍然是一个特殊的单源最短路题目。每次取出可扩展路径中最短的一个，扩展该点，并将该点所有边加入最小堆中。重复此过程直到终点被加入。注意C++的优先队列，在使用```std::less```的情况下是大顶堆，如果需要自定义数据结构的小顶堆，可以自定义一个形如```std::greater```语义的二元比较函数```comp```，并```priority_queue<your_struct, vector<your_struct>, decltype(comp)> small_queue;```
 1. :yellow_circle: 721：[账户合并](https://leetcode-cn.com/problems/accounts-merge/)。基础并查集题目。
 1. :yellow_circle: 1162：[地图分析](https://leetcode-cn.com/problems/as-far-from-land-as-possible/)。很有代表性的一道题目，巧妙地把问题转换为多源点BFS。[题解](https://leetcode-cn.com/problems/as-far-from-land-as-possible/solution/di-tu-fen-xi-by-leetcode-solution/)中甚至还有更精妙的DP解法。**值得二刷**。

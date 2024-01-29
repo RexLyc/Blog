@@ -48,32 +48,50 @@ draft: true
 一个1对1通信的基本架构-流程图如下
 ![WebRTC架构图1：1](/images/screenshot/webrtc/signal-1on1-arch-flow.png)
 
-图中展示了一对一通信的整体架构和流程。其中
+图中展示了一对一通信的一个简化的整体架构和流程。其中
 1. 检测客户端上可用的音视频设备
 2. 开始采集
 3. 录制
 4. 打开同信令服务器的通信
 5. 创建```RTCPeerConnection```对象，绑定音视频数据
 6. 获得当前客户端在NAT映射中外网端口/IP（通过STUN/TURN进行NAT穿透）
-7. 通过信令服务器将Call/Called（主叫被叫）地址发送给对端
-8. 通过RCPeerConnection建立连接
+7. 通过信令服务器进行媒体协商、交换Candidate（Call主叫/Called被叫的地址端口等）。
+8. 通过```RTCPeerConnection```建立连接
 
 ### 信令服务器
 信令服务器提供通信双方在业务层上的管理、以及信息的交换。完成用户创建房间、进入/退出房间，交换双方IP和端口等功能。所谓信令，也就是包含这些管理事件的信息。信令服务器需要对信令进行顺序限制，这种限制称为时序关系。
 
 信令也分为客户端发起和服务端发起两个种类，一个简单的信令设计如下
-1. 客户端发起：join、leave、message，代表客户端加入、离开、发送消息（用于同步各种元信息）
+1. 客户端发起：join、leave、message，分别代表客户端加入、离开、发送消息（用于同步各种元信息）
 2. 服务端发起：joined、left、full，代表确认客户端加入、确认离开、房间满员
+
+信令服务器在通信双方发起真正连接之前，负责传输各种元数据。具体有两个最重要的部分：交换SDP、交换Candidate。
+
+交换SDP：Session Description Protocol会话描述协议。对于WebRTC而言，这一步交换也叫做媒体协商。双方需要协定在通信过程中使用的所有多媒体信息。比如支持的加密协议、使用的编解码协议等等。
+
+交换Candidate，在媒体协商通过之后。两者需要交换用于建立网络连接所需的信息。一个Candidate至少由一个三元组（协议、地址、端口）组成。对于同一台机器，往往会提供多个Candidate（比如有多个网卡、多个地址）供其他机器连接。双方将会从最高优先级到最低优先级依次尝试建立连接。
 
 信令服务器的基本实现就是这样了。实际上，只要你能有办法达成这些接口，无论你使用什么网络协议都是可用的。通常情况下，还是会使用基于TCP等可靠连接的上层协议，如HTTP/HTTPS、WS/WSS。
 
-### 
+### ICE实现
+上一节提供了一个信令服务器的基本要求。本小节将会具体展开其中的ICE流程。也就是在媒体协商之后，尝试建立连接的步骤。
+
+正如上一章节所说，在一个会话中的双方，可以有多种通信连接方式。对于最常用的UDP协议，其[Candidate](https://datatracker.ietf.org/doc/html/rfc5245#section-4.1.1.1)至少有如下4种。在了解这四种之前，需要先弄明白NAT协议，以及STUN/TURN服务。
+1. host连接：即通过ip地址、域名等方式，能够用地址直连。
+2. srflx
+3. prflx
+4. relay
+
+### 流和轨
+多媒体内容被抽象为MediaStream和MediaStreamTrack。一个MediaStreamTrack是一个单独多媒体数据种类，比如视频、音频。一个MediaStream则是若干个需要进行事件同步的MediaStreamTrack。
 
 ## 实战内容
 一个支持RTSP接入的服务器端、以及前端Demo
 
 ## 其他内容
 ### 术语
+1. NAT：网络地址转换协议。在出口路由器上，将内网IP、端口，映射为出口的外网IP、端口。[NAT的实现](https://info.support.huawei.com/info-finder/encyclopedia/zh/NAT.html)中也有不同的策略和分类。
+   1. 从STUN协议中对NAT的分类：完全锥形、限制锥形、端口限制锥形、对称型NAT。这些分类的区分方式，是判断外网程序能否通过一个经过NAT映射后的外网IP+外网端口，去访问内网主机。
 1. STUN：Session Traversal Utilities for NAT，NAT会话穿越实用工具
 2. TURN：Traversal Using Relay NAT，中继穿越NAT
 

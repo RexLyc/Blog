@@ -15,8 +15,23 @@ math: true
 <!--more-->
 ## 常用版子
 1. 二分
+    ```cpp
+    int L=0;
+    int R=INT_MAX;
+    int step=R-L;
+    while(step>1){
+        int mid=L+step/2;
+        if(check(mid)){
+            L=mid;
+        } else {
+            R=mid;
+        }
+        step=R-L;
+    }
+    return L;
+    ```
     - 参考STL实现：[lower_bound](https://zh.cppreference.com/w/cpp/algorithm/lower_bound)、[upper_bound](https://zh.cppreference.com/w/cpp/algorithm/upper_bound)
-1. Partition
+3. Partition
     - 参考STL实现：[partition](https://en.cppreference.com/w/cpp/algorithm/partition)
 
 ## 巧妙小算法

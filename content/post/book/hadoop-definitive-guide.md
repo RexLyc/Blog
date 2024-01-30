@@ -35,6 +35,8 @@ Hadoop是由Apache Lucene创始人Doug Cutting创建的。Doug Cutting一直致�
 ## HDFS
 当数据的大小超过一台独立的物理计算机的存储能力时，就有必要对数据进行分区，并分布存储到网络内的多个计算机上。HDFS就是Hadoop生态中，负责完成这一任务的子系统。全称是Hadoop Distributed File System，有时也称为DFS。
 
+当然实际上Hadoop的文件系统概念是一个抽象概念，只需要实现了FileSystem类的都可以作为其文件系统进行使用。除了HDFS外，还有LocalFileSystem、WebHdfsFileSystem、SWebHdfsFileSystem、HarFileSystem、ViewFileSystem、FTPFileSystem等等。因此虽然主要面向HDFS，但是仍然应当主要面向FileSystem、FileContext这些抽象类/接口进行编程。
+
 HDFS是为专门的场景而设计的，即需要以流式的访问模式，来存取超大文件，并能运行于（相对）廉价的商用硬件集群之上。具体来说，有以下几个特点。
 1. 目标是支持较多的超大文件，而不是海量的小文件
 2. 流式数据访问：一次写入、多次读取，会在数据上进行长时间的分析。不要求低时间延迟
@@ -50,6 +52,13 @@ hdfs fsck / -files -blocks
 hdfs dfs -ls
 hdfs dfs -cat ./output3/part-00000
 
+# 在namenode节点上，将本地磁盘文件/tmp/temp.txt，写入到hdfs（实际上是namenode服务，端口9000）的/user/root/路径下
+hadoop fs -copyFromLocal /tmp/temp.txt hdfs://localhost:9000/user/root/temp.txt
+# 从HDFS拷贝回本地路径（实际上，在正确配置了core-site.xml之后，是可以省略hdfs://localhost:9000的）
+hadoop fs -copyToLocal /user/root/output3/part-00000 /tmp
+
+hadoop fs -mkdir /user/root/test-dir
+hadoop fs -ls /
 
 ```
 
@@ -67,6 +76,60 @@ HDFS的核心设计有以下几种概念：
 
 **高可用HA**，虽然前文提到了namenode的容灾方案。但是恢复的过程仍然会非常漫长。包括且不限于：将文件系统树加载到内存，重放编辑日志，接收到足够多的datanode的注册。这个过程是冷启动，随着块数的增加而增加。Hadoop2开始，针对该问题引入了活动-备用（active-standby）namenode，在活动namenode失效时，备用会立刻接管。甚至可以根据需要，配置若干个namenode，并由选举产生活动namenode。在这种方案下，活动和备用切换时不会有明显的中断。
 
+HDFS的接口，虽然HDFS提供了HTTP、C等接口，但主要使用应该还是在Java中。值得注意的是，并不是所有文件系统都能支持所有操作。比如文件内容追加```FileSystem.append()```，就不是所有文件系统都支持的。这一点在调用FileSystem的API时会受到异常。下面是几种使用方式。
+```java
+// 一个简单的办法是使用URL进行访问，但这需要修改URL的工厂
+// 通过设置URL的工厂方法，支持对Hadoop文件系统的URL协议
+URL.setURLStreamHandlerFactory(new FsUrlStreamHandlerFactory());
+try{
+    // 访问Windows本地文件系统
+    // in = new URL("file:///E:/Hadoop/hadoop-3.3.0/data/input/t1.txt").openStream();
+    // 访问HDFS
+    in = new URL("hdfs://user/root/output3/part-00000").openStream();
+    byte[] data= new byte[1024];
+    in.read(data);
+    String a=new String(data);
+    System.out.println("data："+a);
+
+} catch (Exception e){
+    e.printStackTrace();
+} finally {
+    IOUtils.closeStream(in);
+}
+
+
+// 一个更通用的办法是使用FileSystem的API
+// fs在创建时可以通过配置来获取当前的文件系统（需配置core-slite.xml等）
+FileSystem fs = FileSystem.get(job);
+OutputStream out = fs.create(new Path("E:/Hadoop/hadoop-3.3.0/data/input/t3.txt"));
+try{
+    // 如当前配置了Windows本地文件系统，输入Windows本地路径
+    in = fs.open(new Path("E:/Hadoop/hadoop-3.3.0/data/input/t1.txt"));
+    // 将流式数据输出到标准输出
+    IOUtils.copyBytes(in,System.out,1024,false);
+    ((FSDataInputStream)in).seek(0);
+    IOUtils.copyBytes(in,out,1024,false);
+    ((FSDataInputStream)in).seek(0);
+    IOUtils.copyBytes(in,out,1024,false);
+} catch (Exception e){
+    e.printStackTrace();
+} finally {
+    // 
+    IOUtils.closeStream(out);
+}
+```
+
+一次对HDFS的读取过程主要有6个步骤，其中最重要的流程就是从namenode读取到所需文件的块信息（块信息存在内存中），并进一步去对应datanode上读取数据，不同的块可以并发去不同的datanode读取。这些过程都是用RPC方式完成的。
+![hdfs读取文件过程](/images/book/hadoop/hdfs-data-access.png)
+
+一次对HDFS的写入过程则稍微复杂一些，重点是需要在namenode上创建块信息（要先选择一组最适合的datanode），并在写入完成后更新完善块信息。HDFS客户端只负责将块数据流式的传输给第一个datanode，后续datanode将会链式传递数据（并链式确认）以保证将数据发到所有需要存储块副本的datanode。
+![hdfs写入文件过程](/images/book/hadoop/hdfs-data-write.png)
+
+**数据一致性**，作为一个分布式系统，HDFS当然也需要考虑数据的一致性模型。为了性能，HDFS牺牲了强一致性。即当前块正在写入内容不保证立即可见，当前块写入完成后对新的读取可见。
+
+如果对一致性有要求，可以手动调用以下的FileSystem接口。
+1. ```hflush```，立刻刷新写入数据到所有的datanode的写入管道，对新的读取可见。但不保证datanode写磁盘完成。掉电丢失数据。
+2. ```hsync```，确保写入磁盘完成。
 
 
 ## Yarn

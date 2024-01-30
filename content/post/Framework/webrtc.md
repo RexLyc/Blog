@@ -74,13 +74,26 @@ draft: true
 信令服务器的基本实现就是这样了。实际上，只要你能有办法达成这些接口，无论你使用什么网络协议都是可用的。通常情况下，还是会使用基于TCP等可靠连接的上层协议，如HTTP/HTTPS、WS/WSS。
 
 ### ICE实现
-上一节提供了一个信令服务器的基本要求。本小节将会具体展开其中的ICE流程。也就是在媒体协商之后，尝试建立连接的步骤。
+ICE交互式连接建立协议。上一节提供了一个信令服务器的基本要求。本小节将会具体展开其中的ICE流程。也就是在媒体协商之后，尝试建立连接的步骤。
 
-正如上一章节所说，在一个会话中的双方，可以有多种通信连接方式。对于最常用的UDP协议，其[Candidate](https://datatracker.ietf.org/doc/html/rfc5245#section-4.1.1.1)至少有如下4种。在了解这四种之前，需要先弄明白NAT协议，以及STUN/TURN服务。
-1. host连接：即通过ip地址、域名等方式，能够用地址直连。
-2. srflx
-3. prflx
-4. relay
+正如上一章节所说，在一个会话中的双方，可以有多种通信连接方式。对于最常用的UDP协议，其[Candidate](https://datatracker.ietf.org/doc/html/rfc5245#section-4.1.1.1)至少有如下4种。在了解这四种之前，需要先弄明白NAT协议，以及STUN/TURN服务。下面按优先级从高到低列举对应的四种方式
+1. host连接：即通过ip地址、域名等方式，能够用地址直连
+2. srflx（服务器端路由反射）：该方法使用客户端请求STUN/TURN服务器时，STUN服务器观测到的，客户端在NAT外网侧的地址
+3. prflx（对端路由反射）：在ICE过程中逐渐发现的，体现了实际流量在网络路径中的一种变化。
+4. relay（中继）：TURN服务器提供的中继地址
+
+关于srflx和prflx。它们都是利用STUN协议进行的绑定，前者使用STUN服务器观测到的外网地址，后者是在具体的打洞过程中，逐渐发现的。以下内容来自GPT-4。
+```markdown
+1. 初始交换: WebRTC的两个端点通过信令服务器交换它们的ICE候选，这包括主机（host）、服务器反射型（srflx）、和中继（relay）。这一步还没有涉及prflx候选。
+
+2. 连接检测开始: 每个端点使用收集到的候选信息开始进行STUN绑定请求，尝试直接与对方建立连接。这个过程中，每个端点不仅仅尝试发送数据，也在监听接收数据。
+
+3. 发现prflx候选: 当一个端点通过其非prflx候选（例如host或srflx）向对方发送STUN请求时，如果通过的路径由于网络配置（如NAT设备）而被修改，对方收到的请求来源IP地址/端口与已知的任何候选不匹配。这时，接收端可以识别出这个新的源IP地址/端口对，这实际上反映了发送方的流经NAT后的外部（公共）IP地址/端口信息。接收端将这个信息作为prflx候选添加到自己的候选列表中，并可以通过STUN响应将其发送回原请求方。
+
+4. 使用prflx候选: 一旦被发现并通过独立的连接检测确认是可用的，这个prflx候选就可以被使用来建立或维持端到端的连接。这种候选通常表明路径的某个地方有NAT设备对流量进行了修改。
+
+在这个过程中，prflx候选的“计算”实际上是通过网络实际的响应和交互动态发现的，而非通过某种固定算法计算得到。这与host、srflx、relay这些更静态、预先可知的候选类型形成了对比，后者可以通过直接交互或配置得到。
+```
 
 ### 流和轨
 多媒体内容被抽象为MediaStream和MediaStreamTrack。一个MediaStreamTrack是一个单独多媒体数据种类，比如视频、音频。一个MediaStream则是若干个需要进行事件同步的MediaStreamTrack。
@@ -92,8 +105,12 @@ draft: true
 ### 术语
 1. NAT：网络地址转换协议。在出口路由器上，将内网IP、端口，映射为出口的外网IP、端口。[NAT的实现](https://info.support.huawei.com/info-finder/encyclopedia/zh/NAT.html)中也有不同的策略和分类。
    1. 从STUN协议中对NAT的分类：完全锥形、限制锥形、端口限制锥形、对称型NAT。这些分类的区分方式，是判断外网程序能否通过一个经过NAT映射后的外网IP+外网端口，去访问内网主机。
-1. STUN：Session Traversal Utilities for NAT，NAT会话穿越实用工具
-2. TURN：Traversal Using Relay NAT，中继穿越NAT
+1. STUN：Session Traversal Utilities for NAT，[NAT会话穿越实用工具](https://info.support.huawei.com/info-finder/encyclopedia/zh/STUN.html)。STUN协议为C/S架构，服务器为客户端提供自身和对端的NAT信息。分为两个步骤，探测和打洞。
+   1. 探测阶段：算法示意可见[Wiki介绍](https://zh.wikipedia.org/wiki/STUN)。无法穿透的可能主要有三种：不支持UDP、防火墙、对称型NAT。在这一步客户端能得知自己是否位于NAT设备后，以及对端的地址。
+   2. 打洞阶段：客户端向对端的地址持续发送两种报文（NAT前地址、NAT后地址），直到联通（发送报文，并等待双方的NAT设备都建立表项）。注意如果在同一个内网，则使用NAT前地址就可以联通。
+      > 双对称型很难打洞，但如果只有一个对称型，仍然可以通过控制打洞顺序来完成NAT穿透
+
+2. TURN：Traversal Using Relay NAT，中继穿越NAT。当STUN无法满足时（比如对称型NAT），可能需要使用TURN。这是一种中继穿越方式，需要公网的TURN服务器具备足够的带宽。
 
 ### 常见问题和方法
 1. 减少数据量：压缩、SVC技术、Simulcast技术、动态码率、甩帧

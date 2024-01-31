@@ -67,7 +67,9 @@ draft: true
 
 信令服务器在通信双方发起真正连接之前，负责传输各种元数据。具体有两个最重要的部分：交换SDP、交换Candidate。
 
-交换SDP：Session Description Protocol会话描述协议。对于WebRTC而言，这一步交换也叫做媒体协商。双方需要协定在通信过程中使用的所有多媒体信息。比如支持的加密协议、使用的编解码协议等等。
+交换SDP，Session Description Protocol会话描述协议。对于WebRTC而言，这一步交换也叫做媒体协商。双方需要协定在通信过程中使用的所有多媒体信息。比如支持的加密协议、使用的编解码协议等等。WebRTC对SDP协议进行了一定程度的扩展。而且SDP中有些字段，对于WebRTC来说是没有用的，比如对于连接所用的协议端口，因为WebRTC有专门的ICE流程，所以这些端口都只是象征性的内容。
+![webrtc中使用的sdp协议内容](/images/book/webrtc/webrtc-sdp-summary.png)
+从这份协议内容中也可以看出，其实一次WebRTC的通信过程，需要的元信息就是这些SDP中需要交换的内容：会话、媒体、连接、安全性、服务质量（feedback）、扩展。
 
 交换Candidate，在媒体协商通过之后。两者需要交换用于建立网络连接所需的信息。一个Candidate至少由一个三元组（协议、地址、端口）组成。对于同一台机器，往往会提供多个Candidate（比如有多个网卡、多个地址）供其他机器连接。双方将会从最高优先级到最低优先级依次尝试建立连接。
 
@@ -110,7 +112,17 @@ ICE交互式连接建立协议。上一节提供了一个信令服务器的基�
    2. 打洞阶段：客户端向对端的地址持续发送两种报文（NAT前地址、NAT后地址），直到联通（发送报文，并等待双方的NAT设备都建立表项）。注意如果在同一个内网，则使用NAT前地址就可以联通。
       > 双对称型很难打洞，但如果只有一个对称型，仍然可以通过控制打洞顺序来完成NAT穿透
 
-2. TURN：Traversal Using Relay NAT，中继穿越NAT。当STUN无法满足时（比如对称型NAT），可能需要使用TURN。这是一种中继穿越方式，需要公网的TURN服务器具备足够的带宽。
+2. TURN：Traversal Using Relay NAT，中继穿越NAT。当STUN无法满足时（比如对称型NAT），可能需要使用TURN。这是一种中继穿越方式，需要公网的TURN服务器具备足够的带宽。TURN也依赖STUN协议，它有两种发送数据的方式。
+   1. Send/Data indication指令：用XOR-PEER-ADDRESS/DATA属性，在每一次传输都指明数据，以及目标Peer的地址。
+   2. ChannelBind指令：在创建连接时就制定好参与一个通道的Peer，此后每次发送的时候指明Channel。
+   > 注1：注意区分TURN协议中的TURN Client和Peer。Client是发起一次TURN协议Allocation请求的客户端，其他参与者称为Peer。当然也可以让通信双方都是TURN Client。TURN服务器会为TURN Client准备一个Relay地址，任何发送到Relay地址的数据，都会被转发给对应的TURN Client。
+   > 注2：TURN Client向TURN Server发送数据时，用XOR_PEER_ADDRESS、Channel等方式，决定数据发送给哪个Peer。
+
+3. SDP内容中常见的协议栈：UDP/TLS/RTP/SAVPF
+   1. 协议最底层是UDP
+   2. 在UDP之上，用DTLS进行传输层加密
+   3. 再之上运行RTP，以及RTCP
+   4. 最上层使用SAVPF进行反馈控制
 
 ### 常见问题和方法
 1. 减少数据量：压缩、SVC技术、Simulcast技术、动态码率、甩帧
@@ -118,6 +130,8 @@ ICE交互式连接建立协议。上一节提供了一个信令服务器的基�
 3. 提高网络质量：降低丢包、延迟、抖动。NACK/RTX、FEC前向纠错、JitterBufer、NetEQ、拥塞控制
 4. 快速评估带宽：Goog-REMB、Goog-TCC、NADA、SCReAM
 
+### 关注点
+1. ORTC对SDP的替代，以及由此带来的RTC开发风格的变化。
 
 ## 参考
 1. 《WebRTC音视频实时互动技术》

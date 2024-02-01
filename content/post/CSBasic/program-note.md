@@ -181,6 +181,33 @@ math: true
             return len;
         }
         ```
+9. 对顶堆：动态维护一个序列上的第k大的数字，k的值可以变化。常见的一类需求，是动态维护一个序列上的中位数（不断有新数加入）。
+    - 原理：维护一个大顶堆，堆里是较小的一半数字。再维护一个小顶对，堆里是较大的一半数字。
+    - 示例代码
+        ```cpp
+        // 大根堆，维护前一半元素（存小值）
+        priority_queue<int, vector<int>, less<int> > a;
+        // 小根堆，维护后一半元素（存大值）
+        priority_queue<int, vector<int>, greater<int> > b;
+        
+        // 对于t中的每个数字
+        for(auto&x: nums){
+            if (a.empty() || x <= a.top())
+                a.push(x);
+            else
+                b.push(x);
+            // 对对顶堆进行调整
+            if (a.size() > (a.size() + b.size() + 1) / 2) {
+                b.push(a.top());
+                a.pop();
+            } else if (a.size() < (a.size() + b.size() + 1) / 2) {
+                a.push(b.top());
+                b.pop();
+            }
+            // 根据你的业务需求，计算数据
+        }
+        ```
+
 ## 海量数据处理
 - 参考：[海量数据处理面试专题](https://blog.csdn.net/v_july_v/article/details/6685962)
 

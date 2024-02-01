@@ -97,8 +97,35 @@ ICE交互式连接建立协议。上一节提供了一个信令服务器的基�
 在这个过程中，prflx候选的“计算”实际上是通过网络实际的响应和交互动态发现的，而非通过某种固定算法计算得到。这与host、srflx、relay这些更静态、预先可知的候选类型形成了对比，后者可以通过直接交互或配置得到。
 ```
 
+### RTP和RTCP
+WebRTC的核心传输协就是RTP和RTCP。在追求实时性的流式传输场景中，UDP要比TCP更优秀。因此主要考虑的也是基于UDP的应用场景。
+
+![RTP协议数据包结构示意](/images/book/webrtc/rtp-protocol.png)
+一些对于音视频数据流很重要的RTP头部字段：序号（判断乱序和丢包）、PT&SSRC（标记载荷数据类型、轨、数据源）、版本、Padding填充标记、CSRC（数据具体组成，比如一个数据由三个音频轨混音）、M标记（Marker标记一帧数据结束）、其他扩展字段（X标记、扩展字段类型、扩展字段内容）。
+
+RTP协议簇中另一个协议就是RTCP，他和RTP都是应用层的协议。RTCP会对RTP进行控制，RTCP支持的消息类型很多，下面列举一些常见的类型
+| PT载荷标识 | 缩写 | 全称 |
+| --- | --- | --- |
+| 200 | SR | Sender Report，发送端报告，包含一段时间内的发包数量等数据 |
+| 201 | RR | Receiver Report，接收端报告，包含一段时间内的丢包量、丢包率、延时 |
+| 202 | SDES | Source Description Packet，描述音视频媒体源 |
+| 203 | BYE | Goodby Packet，标记媒体源下线 |
+| 204 | APP | Application-defined，预留的应用层可解析内容 |
+| 205 | RTPFB | Generic RTP Feedback，RTP传输层面反馈报文 |
+| 206 | PSFB | Payload-specific Feedback，RTP上层业务负载层面的反馈报文 |
+
+![RTCP协议数据包结构示意](/images/book/webrtc/rtcp-protocol.png)
+RTCP的头字段相对简单，主要是版本、Padding填充标记、PT载荷、长度。
+
+RTCP进行反馈最重要的是RTPFB、PSFB这两种类型的报文，其数据部分会再填充不同类型的子报文，以实现对发送方的反馈。
+1. RTPFB：NACK（常规丢包反馈）、TMMBR/TMMBN（废弃，和码流有关）、TFB（TCC算法反馈报文，用于为发送端计算下行带宽）
+2. PSFB：PLI（无法解码的接收端，请求一帧关键帧）、FIR（新加入会话的接收端，请求一帧关键帧）、REMB（接收端的带宽评估反馈）
+
 ### 流和轨
 多媒体内容被抽象为MediaStream和MediaStreamTrack。一个MediaStreamTrack是一个单独多媒体数据种类，比如视频、音频。一个MediaStream则是若干个需要进行事件同步的MediaStreamTrack。
+
+## 源码指南
+1. RtpPacket：封装对RTP协议的读写
 
 ## 实战内容
 一个支持RTSP接入的服务器端、以及前端Demo

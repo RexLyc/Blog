@@ -259,6 +259,7 @@ math: true
 2. :red_circle: 2736：[最大和查询](https://leetcode.cn/problems/maximum-sum-queries/description/)。看了[题解](https://leetcode.cn/problems/maximum-sum-queries/solutions/2530255/jian-dan-bao-li-xian-duan-shu-by-ketus82-tes0/)。还是线段树。**同一下标的多维度的值也可以用线段树进行区间维护**。线段树**并不要求区间之间一定满足什么关系**，看题目内容，可能要遍历很多的区间，必要的时候可以通过剪枝。其实仔细思考能发现本题的几个要点：和的极大值可以通过区间维护，两个加数的极小值/极大值也可以通过区间维护。如此就能通过排除
 
 ###  其他
+1. :red_circle: LCP24：[数字游戏](https://leetcode.cn/problems/5TxKeK/description/)。抄了题解，自己在想差分数组，完全想歪了。本题最厉害的是对数组的预处理。把求满足```num[j]==num[j]+1```的数组，转换为求令所有```num[j]-j```相等的数组，从而变成了求中位数，并进一步用对顶堆来解决。有两个题目和这个相关，分别是[462：最小操作使数组相等II](https://leetcode.cn/problems/minimum-moves-to-equal-array-elements-ii/description/)、[295：数据流的中位数](https://leetcode.cn/problems/find-median-from-data-stream/description/)。
 1. :green_circle: 665：[非递减数列](https://leetcode-cn.com/problems/non-decreasing-array/)。不简单的简单题，**值得二刷**。考虑情况要完整。
 1. :yellow_circle: 78：[求全部子集](https://leetcode-cn.com/problems/subsets)。使用vector一定减少内存重分配。
 1. :yellow_circle: 169：[找众数](https://leetcode-cn.com/problems/majority-element)。Boyer-Moore投票算法。维护当前众数和计数器。相等+1，否则-1。变为0则更换数字。

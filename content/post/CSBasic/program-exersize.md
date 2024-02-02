@@ -57,6 +57,13 @@ math: true
 ###  模拟
 1. :yellow_circle: 950：[按递增顺序显示卡牌](https://leetcode-cn.com/problems/reveal-cards-in-increasing-order/)。重新排序卡牌，使得满足一定条件。考验模拟的思路。
 
+### 贪心
+1. :yellow_circle: 1686：[石子游戏VI](https://leetcode.cn/problems/stone-game-vi/description/)。看了题解。回合制的对抗类的决策问题，一般就是贪心或者搜索。可以先考虑贪心。本题的关键点在于能想到对于一轮决策的最优选择，取决于$(a_i-b_j)-(a_j-b_i)$的正负，并进一步转化为$(a_i+b_i)-(a_j+b_j)$，从而明白其实只需要对和做一次排序，就可以贪心了。
+
+### 博弈
+> 单独提出一类，经常出现的思路是，最小化一个最大值，或者最大化一个最小值。但思考这种内容，虽然实际不复杂，却往往很绕脑筋。
+1. :yellow_circle: 1140：[石子游戏II](https://leetcode.cn/problems/stone-game-ii/description/)。看了题解。自己想到了需要对未来的决策做最小化，但是始终没绕明白，写复杂了。实际上不需要区分轮次，每一次的DFS输入参数都是统一的，```(begin，M)```就够了，结果代表该时刻的最优决策。
+
 ###  搜索
 1. :red_circle: 2646：[最小化旅行的价格总和](https://leetcode.cn/problems/minimize-the-total-price-of-the-trips/description/)。看了题解。可以说是树上DP经典题目了，下次别忘了就行。另外也算是在考察LCA（最近公共祖先）。
 1. :yellow_circle: 2477：[到达首都的最小油耗](https://leetcode.cn/problems/minimum-fuel-cost-to-report-to-the-capital/description/)。自己写了个类似拓扑排序。实际上夸张了，这题直接从根开始深搜就行。每个节点统计子树的全部乘客，再向上返回。

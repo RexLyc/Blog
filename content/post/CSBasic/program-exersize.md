@@ -62,7 +62,9 @@ math: true
 
 ### 博弈
 > 单独提出一类，经常出现的思路是，最小化一个最大值，或者最大化一个最小值。但思考这种内容，虽然实际不复杂，却往往很绕脑筋。
-1. :yellow_circle: 1140：[石子游戏II](https://leetcode.cn/problems/stone-game-ii/description/)。看了题解。自己想到了需要对未来的决策做最小化，但是始终没绕明白，写复杂了。实际上不需要区分轮次，每一次的DFS输入参数都是统一的，```(begin，M)```就够了，结果代表该时刻的最优决策。
+1. :yellow_circle: 1140：[石子游戏II](https://leetcode.cn/problems/stone-game-ii/description/)。看了题解。自己想到了需要对未来的决策做最小化，但是始终没绕明白，写复杂了。实际上不需要区分轮次，每一次的DFS输入参数都是统一的，```(begin，M)```就够了，结果代表该时刻的最优决策。考虑到计算实际是从尾部开始严格向前递推。所以可以很容易的转换为动态规划写法。
+2. :red_circle: 1406：[石子游戏III](https://leetcode.cn/problems/stone-game-iii/description/)。做完II应该直接就能做。不过注意记忆化搜索实际上会比直接动态规划慢，函数的**递归调用的时间消耗**非常大。用记忆化搜索是无法完成的。
+3. :yellow_circle: 1690：[石子游戏VII](https://leetcode.cn/problems/stone-game-vii/description/)。还是一样，这次应该能想到还是对最左右两种决策做最大化。值得注意的是本次搜索的值应该直接就是每一轮得分的差值，这是最好算的，而且能直接运用到递归的过程中。直接计算某一个人的得分反而没有办法利用下去。和其他石子游戏一样，熟练之后应该放弃记忆化搜索，DP的写法能达到最大效率。
 
 ###  搜索
 1. :red_circle: 2646：[最小化旅行的价格总和](https://leetcode.cn/problems/minimize-the-total-price-of-the-trips/description/)。看了题解。可以说是树上DP经典题目了，下次别忘了就行。另外也算是在考察LCA（最近公共祖先）。
@@ -139,6 +141,7 @@ math: true
 18. :red_circle: 6093：[设计一个文本编辑器](https://leetcode.cn/problems/design-a-text-editor/)。（看了题解）脑筋急转弯级别的困难题。很容易陷入到写一个链表结构的数据结构中（很难写）。但实际上，可以看作是类似两个栈，分别是前缀和后缀。左右移动就是两个栈来回压入，插入删除则是对前缀的压入和弹出。
 
 ###  动态规划
+1. :yellow_circle: 1567：[乘积为正数的最长子数组长度](https://leetcode.cn/problems/maximum-length-of-subarray-with-positive-product/description/)。自己写了一个用前缀乘积的。题解也是类似的分类讨论（dp[i]以i为结尾的正数、负数的最长长度）的动态规划思想。没什么特别的，注意细节就行。
 1. :red_circle: 2809：[使数组和小于等于x的最小时间](https://leetcode.cn/problems/minimum-time-to-make-array-sum-at-most-x/description/)。抄了题解。问题还是在于状态设计。困难的动态规划一般都是需要进行一系列附加的思考。反而最后的状态转移方程并不一定复杂。本题中有若干个要点需要理解，剩余总和的组成（初始总和+添加总和*i-被减少的总和）。因此最小化剩余总和，就转化为了最大化被减少的总和。当需要选择一系列数据进行最大化，我们就有一个典型的模型：01背包。而本题更复杂的思考就在于，选择的顺序一定是按照nums2从小到大。因此按照从小到大去状态转移，就解决了动态规划问题的无后效性。
 1. :red_circle: 1349：[参加考试的最大学生数](https://leetcode.cn/problems/maximum-students-taking-exam/description/)。抄了题解。没想到正确的状态设计的思路。每一行的可坐人数和当前行的坐法，以及上一行的坐法有关。而每一行的坐法可以用```bitmask```来表示，之后再对两行的```bitmask```进行暴力匹配。从而算出每一个状态下的最多人数。只要能想到**正确的状态设计**就成功了。可以从题目的数据范围去思考。另外题解中还提到了转换为[二分图模型](https://leetcode.cn/problems/maximum-students-taking-exam/solutions/101748/can-jia-kao-shi-de-zui-da-xue-sheng-shu-by-leetcod/comments/2201755)，以及[插头DP（轮廓线DP）](https://oi-wiki.org/dp/plug/)。
 1. :red_circle: 1671：[得到山形数组的最少删除次数](https://leetcode.cn/problems/minimum-number-of-removals-to-make-mountain-array/description/)。自己写的是$O(n^2)$的动态规划，对每个位置，求两次递减子序列。但实际上本题可参考[最长递增子序列](https://leetcode-cn.com/problems/longest-increasing-subsequence/)。求LIS类问题，是有$O(nlogn)$方法的。

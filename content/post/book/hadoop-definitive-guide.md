@@ -301,6 +301,45 @@ mapred streaming -input input -output output3 -mapper /bin/cat -reducer /usr/bin
 ```
 
 
+在MapReduce开发中，有一些技巧值得考虑
+1. 使用xml配置文件对应用进行配置，而不是硬编码
+    ```java
+    Configuration conf = new Configuration();
+    conf.addResource("configuration-1.xml");
+    // 同名的属性会覆盖
+    conf.addResource("configuration-2.xml");
+    ```
+3. 对Mapper和Reduce编写单元测试。
+    > 存疑：MRunit库已经很久不维护了
+5. 在本地的伪分布式环境中，并在小型数据集上完整执行程序。见[一些坑](#一些坑)
+6. 对任务做一定程度的性能测试，提高MapReduce的性能，这些调优包括但不限于：均衡mapper/reducer的数量和任务量（不要启动过多的mapper/reducer），通过combiner减少中间数据传输，对map的输出进行压缩，自定义序列化，调整shuffle过程。
+7. 编写更多种类的作业，来组合完成复杂的任务。而不是写出一个非常复杂的作业，来完成单一的业务。
+   > 当各种Hadoop作业出现组合时，构成所谓的工作流。工作流引擎就是负责处理作业之间的依赖关系，并正确的调度作业运行。不同类型的任务都可以组合在一起（MapReduce、Hive等）
+
+### 工作流程
+在Yarn章节中，已经介绍了一个通用的Yarn作业的基本工作流程。本节针对MapReduce做一些特别的说明。
+
+![MapReduce作业流程](/images/book/hadoop/yarn-mapreduce-process.png)
+
+图中流程分别是
+1. 第1步：启动作业
+2. 第2~4步：JobSummiter进行实际的作业提交，请求应用ID，检查输入输出是否正确，将资源（程序/配置）拷贝到共享文件系统，正式提交运行
+3. 第5~9步：作业的初始化，这一阶段相对比较复杂
+   1. Yarn调度器在一个节点上分配一个容器，作为Application Master
+   2. Application Master决定参与此次MapReduce作业的各个任务节点
+      - 如果任务是小任务（uberized），就和自己在一个JVM里直接执行。
+      - 否则，分别为Map任务和Reduce任务发出请求，向Yarn调度器申请资源。优先分配Map，Map优先数据本地化。Reduce则没有这个本地化的限制。
+      - 在执行之前，为所有参与计算的节点，获取到所需的输入数据分片、运行程序、配置等
+4. 第10步：执行
+   - 执行阶段可能有多个任务副本（根据配置），他们执行同一套输入。协议将保证只会有一个输出被接收。
+   - 对于异常情况，由于大家在不同的JVM中运行，因此并不会影响到整体作业。失败的任务重新启动即可。
+
+> 关于Streaming，Yarn会为其专门启动一个Map、Reduce的Java程序，但是会将其输入输出，分别以标准IO的方式，绑定给对应的外部进程。对Yarn来说是一样的。
+
+虽然对程序执行状态的观察并不容易。但是MapReduce还是尽力为用户提供了相应的状态以供查询。
+- 状态分类：每一个任务的状态（运行中、成功、失败）、Map/Reduce进度、用户可控制的作业计数器、用户代码中的状态消息或描述
+- 状态通信方式：map任务、reduce任务，和Application Master进行通信。定期报告进度和状态
+- 提供了作业完成通知选项供配置
 
 ## 生态
 ### HBase和Hive

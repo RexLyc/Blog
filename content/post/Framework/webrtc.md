@@ -118,13 +118,32 @@ RTP协议簇中另一个协议就是RTCP，他和RTP都是应用层的协议。R
 RTCP的头字段相对简单，主要是版本、Padding填充标记、PT载荷、长度。
 
 RTCP进行反馈最重要的是RTPFB、PSFB这两种类型的报文，其数据部分会再填充不同类型的子报文，以实现对发送方的反馈。
-1. RTPFB：NACK（常规丢包反馈）、TMMBR/TMMBN（废弃，和码流有关）、TFB（TCC算法反馈报文，用于为发送端计算下行带宽）
+1. RTPFB：NACK（常规丢包反馈）、TMMBR/TMMBN（废弃，和码率有关）、TFB（TCC算法反馈报文，用于为发送端计算下行带宽）
 2. PSFB：PLI（无法解码的接收端，请求一帧关键帧）、FIR（新加入会话的接收端，请求一帧关键帧）、REMB（接收端的带宽评估反馈）
+
+### 拥塞控制
+WebRTC被广泛应用的原因就是其具备非常优秀的服务质量。通过增加带宽、减少数据量、提高音视频质量、适当增加时延以及更准确的带宽评估等方法来提升音视频服务质量的。在这些方法中，减少数据量、适当增加时延和更准确的带宽评估被统称为拥塞控制。
+
+WebRTC有多种拥塞控制算法可供选择，如：GCC（Google Congestion Control）、BBR（Bottleneck Bandwidth and Round-trip propagation time）、PCC（Performance-oriented Congestion Control）。其中GCC是最常用的算法。
+
+![GCC的Transport-CC算法](/images/book/webrtc/transport-cc.png)
+GCC：基于延时对网络状态进行评估，这种手段主要是为了防止发生网络拥塞。具体仍然有多种算法实现，如Goog-REMB、Transport-CC（上图）两种。前者是在接收端进行网络质量的估算，并反馈给发送端调整码率。后者是接收端简单的反馈网络质量数据（延时、丢包率等），在发送端直接统一进行网络质量估算和控制。评估的内容就是网络的**带宽**。
+   > 网络质量估计的算法核心，分别是[卡尔曼滤波器](https://www.kalmanfilter.net/CN/background_cn.html)，TrendLine滤波器。
+
+另外还有一种基于丢包的拥塞评估算法。在网络中确实出现大量丢包时进行使用。算法利用丢包率分类处理，低于2%认为网络质量较好，可以提高码率，2%~10%说明匹配，不用调整，大于10%说明网络质量差需要降低码率。
+
+![webrtc的拥塞控制流程](/images/book/webrtc/webrtc-network-control.png)
+如图所示是WebRTC的拥塞控制流程。系统在初始状态下，设定一个初始带宽（比如500kbps），并发送数据，等待RTCP数据报的反馈，并进一步评估带宽，控制编码器和Pacer，调整视频编码码率，以及发送时的码率。并依次循环工作。
+
+对拥塞控制算法的性能评价主要从两方面进行：和其他连接并存时的性能（公平性，既不过分抢占，也不会发生“饥饿”），对网络带宽波动的响应情况。理想中的拥塞控制算法应该能做到：对网络带宽变化尽快响应（不考虑丢包），和其他网络流量公平共存（各种不同协议），在有丢包发生的网络环境中尽快评估带宽、调整码率并保持平稳。
 
 ### 流和轨
 多媒体内容被抽象为MediaStream和MediaStreamTrack。一个MediaStreamTrack是一个单独多媒体数据种类，比如视频、音频。一个MediaStream则是若干个需要进行事件同步的MediaStreamTrack。
 
 ## 源码指南
+### 环境搭建
+
+### 部分类型
 1. RtpPacket：封装对RTP协议的读写
 
 ## 实战内容
@@ -163,3 +182,5 @@ RTCP进行反馈最重要的是RTPFB、PSFB这两种类型的报文，其数据�
 ## 参考
 1. 《WebRTC音视频实时互动技术》
 2. [P2P技术原理浅析](https://keenjin.github.io/2021/04/p2p/)
+3. [WebRTC中文网](https://webrtc.org.cn/)
+4. [声网开发者社区](https://www.rtcdeveloper.cn/cn/community/)

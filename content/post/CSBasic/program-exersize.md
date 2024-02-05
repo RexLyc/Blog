@@ -141,6 +141,7 @@ math: true
 18. :red_circle: 6093：[设计一个文本编辑器](https://leetcode.cn/problems/design-a-text-editor/)。（看了题解）脑筋急转弯级别的困难题。很容易陷入到写一个链表结构的数据结构中（很难写）。但实际上，可以看作是类似两个栈，分别是前缀和后缀。左右移动就是两个栈来回压入，插入删除则是对前缀的压入和弹出。
 
 ###  动态规划
+1. :red_circle: 1125：[最小的必要团队](https://leetcode.cn/problems/smallest-sufficient-team/description/)。想到了状态压缩，但是没想到DP。看了一下题解思路很简单。对状态压缩进行DP，最暴力的方式就是枚举当前所有状态，再加上一个新状态，构成状态转移即可。
 1. :yellow_circle: 1567：[乘积为正数的最长子数组长度](https://leetcode.cn/problems/maximum-length-of-subarray-with-positive-product/description/)。自己写了一个用前缀乘积的。题解也是类似的分类讨论（dp[i]以i为结尾的正数、负数的最长长度）的动态规划思想。没什么特别的，注意细节就行。
 1. :red_circle: 2809：[使数组和小于等于x的最小时间](https://leetcode.cn/problems/minimum-time-to-make-array-sum-at-most-x/description/)。抄了题解。问题还是在于状态设计。困难的动态规划一般都是需要进行一系列附加的思考。反而最后的状态转移方程并不一定复杂。本题中有若干个要点需要理解，剩余总和的组成（初始总和+添加总和*i-被减少的总和）。因此最小化剩余总和，就转化为了最大化被减少的总和。当需要选择一系列数据进行最大化，我们就有一个典型的模型：01背包。而本题更复杂的思考就在于，选择的顺序一定是按照nums2从小到大。因此按照从小到大去状态转移，就解决了动态规划问题的无后效性。
 1. :red_circle: 1349：[参加考试的最大学生数](https://leetcode.cn/problems/maximum-students-taking-exam/description/)。抄了题解。没想到正确的状态设计的思路。每一行的可坐人数和当前行的坐法，以及上一行的坐法有关。而每一行的坐法可以用```bitmask```来表示，之后再对两行的```bitmask```进行暴力匹配。从而算出每一个状态下的最多人数。只要能想到**正确的状态设计**就成功了。可以从题目的数据范围去思考。另外题解中还提到了转换为[二分图模型](https://leetcode.cn/problems/maximum-students-taking-exam/solutions/101748/can-jia-kao-shi-de-zui-da-xue-sheng-shu-by-leetcod/comments/2201755)，以及[插头DP（轮廓线DP）](https://oi-wiki.org/dp/plug/)。
@@ -241,6 +242,7 @@ math: true
 2. :red_circle: 2603: [收集树中金币](https://leetcode.cn/problems/collect-coins-in-a-tree/description/)。看了题解，核心是对图做变换：剪枝、去叶子节点。**思考最终路径的规则**：任何一条路径最多只需要走两次，路径终点到（最远的）有金币的节点距离为2。因此变换有两条：递归删除所有无金币的叶子节点，对最终树进行2次删除叶子节点的操作。最终剩下的边，每个都会遍历。
 
 ###  数据结构
+1. :red_circle: 239：[滑动窗口的最大值](https://leetcode.cn/problems/sliding-window-maximum/description/)。$O(nlogn)$的大顶堆并不难想。但是题解提到了**单调栈思想的双端队列**。很有意思。在一个滑动窗口中，统计最大值，考虑一个更大的数加入之后所有更小数均可以从队尾弹出，另外超过窗口范围的大数从队首弹出，因此只需要用一个双端队列即可，能达到$O(n)$复杂度。
 1. :red_circle: 100213：[按距离统计房屋对数目II](https://leetcode.cn/problems/count-the-number-of-houses-at-a-certain-distance-ii/description/)。周赛，自己想写一个完全基于数学的分类讨论，但是漏洞百出。[题解](https://leetcode.cn/problems/count-the-number-of-houses-at-a-certain-distance-ii/solutions/2613373/yong-che-xiao-de-fang-shi-si-kao-pythonj-o253/)提供的思路是分类讨论，用差分数组统计。总之，差分数组是$O(n)$复杂度的好帮手，可以把若干次区间修改的时间复杂度大大简化。
 1. :yellow_circle: 2735：[收集巧克力](https://leetcode.cn/problems/collecting-chocolates/description/)。名为中等，实为困难。自己写的是$O(n^2)$的动态规划，实际上本题有$O(n)$的单调栈+二次差分解法，思路比较复杂，参考[题解](https://leetcode.cn/problems/collecting-chocolates/solutions/2580148/shou-ji-qiao-ke-li-by-leetcode-solution-bjyp/)。
 1. :yellow_circle: 2866：[美丽塔II](https://leetcode.cn/problems/beautiful-towers-ii/description/)。思考过程是从暴力解法入手。很容易发现计算结果就是等价于构造一个递增/递减子数组，就很容易想到单调栈。主要的坑还是```int```和```long long int```的转型问题。

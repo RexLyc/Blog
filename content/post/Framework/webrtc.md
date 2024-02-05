@@ -137,17 +137,93 @@ GCC：基于延时对网络状态进行评估，这种手段主要是为了防�
 
 对拥塞控制算法的性能评价主要从两方面进行：和其他连接并存时的性能（公平性，既不过分抢占，也不会发生“饥饿”），对网络带宽波动的响应情况。理想中的拥塞控制算法应该能做到：对网络带宽变化尽快响应（不考虑丢包），和其他网络流量公平共存（各种不同协议），在有丢包发生的网络环境中尽快评估带宽、调整码率并保持平稳。
 
+最后整体的数据流图如下
+![webrtc数据流](/images/book/webrtc/webrtc-dataflow.png)
+
 ### 流和轨
 多媒体内容被抽象为MediaStream和MediaStreamTrack。一个MediaStreamTrack是一个单独多媒体数据种类，比如视频、音频。一个MediaStream则是若干个需要进行事件同步的MediaStreamTrack。
 
+流的编解码由WebRTC内部处理，对于视频、音频，WebRTC都提供了多种编解码器进行使用。由上一节可知，编码器在实际运行时输出的码率受拥塞控制管理。
+
+此外在流中还可能混合FEC编码。FEC即前向纠错（forward error correction）。通过在数据中添加FEC数据帧，在部分数据包丢失时，直接利用已接收数据包，和FEC数据帧，恢复丢失的数据包。
+
 ## 源码指南
 ### 环境搭建
+由于WebRTC源码非常庞大，而且其在不同平台上的实现不尽相同，因此本节仅记录书上提到的部分内容。并未尝试实际搭建。
+
+书中的环境推荐：Windows 10（10.0.1.19041+），Visual Studio 2019+，NTFS文件系统（需要大文件支持）
+
+搭建步骤
+1. 下载、编译WebRTC源码的工具集[depot_tools](https://storage.googleapis.com/chrome-infra/depot_tools.zip)
+2. 执行指令
+   ```sh
+   mkdir webrtc -checkout
+   cd webrtc -checkout
+   # fetch gclient都是depot_tools的工具
+   fetch --nohooks webrtc
+   gclient sync
+
+   cd src
+   gn gen out/Default
+   ninja -C out/Default
+   ```
+> 如果有网络问题，建议使用国内声网的镜像
+
+目录阅读指南
+
+主目录
+
+| 目录 | 说明 |
+| --- | --- |
+| api | WebRTC接口层，为浏览器提供的接口 |
+| audio | 音频引擎 |
+| base_override | 编译时使用 |
+| call | 呼叫逻辑接口层 |
+| common_audio | 音频算法 |
+| common_videosdk | 视频算法 |
+| data | 存放那个音视频数据 |
+| examples | WebRTC Demo |
+| logging | 日志相关代码 |
+| media | 媒体引擎层，会调用音视频引擎 |
+| modules | 存放一些比较独立的模块 |
+| p2p | 端到端网络 |
+| pc | PeerConnection相关 |
+| rtc_base | 存放一些基础代码 |
+| rtc_tools | 存放一些服务质量相关的工具 |
+| sdk | 存放移动端代码 |
+| stats | 存放各种统计信息 |
+| system_wrapper | 操作系统相关代码 |
+| tools_webrtc | 存放一些WebRTC性能相关的工具 |
+| video | 视频引擎 |
+
+modules目录
+| 目录 | 说明 |
+| --- | --- |
+| audio_coding | 音频编码 |
+| audio_device | 音频设备 |
+| audio_mixer | 混音相关 |
+| audio_processing | 音频3A处理 |
+| congestion_controller | 拥塞控制，TCC、BBR等 |
+| desktop_capture | 桌面采集 |
+| pacing | 平滑处理 |
+| remote_bitrate_estimator | 远端带宽评估 |
+| rtp_rtcp | 协议 |
+| third_party | 第三方库 |
+| utility | 线程相关工具 |
+| video_capture | 视频采集 |
+| video_coding | 视频编码 |
+| video_processing | 视频特效处理 |
+| bitrate_controller | 本地带宽评估，TCC |
+
+### 模型
+![webrtc线程](/images/book/webrtc/webrtc-thread-model.png)
+
 
 ### 部分类型
 1. RtpPacket：封装对RTP协议的读写
 
 ## 实战内容
-一个支持RTSP接入的服务器端、以及前端Demo
+一个支持RTMP接入的服务器端、以及前端Demo
 
 ## 其他内容
 ### 术语
@@ -163,6 +239,7 @@ GCC：基于延时对网络状态进行评估，这种手段主要是为了防�
    2. ChannelBind指令：在创建连接时就制定好参与一个通道的Peer，此后每次发送的时候指明Channel。
    > 注1：注意区分TURN协议中的TURN Client和Peer。Client是发起一次TURN协议Allocation请求的客户端，其他参与者称为Peer。当然也可以让通信双方都是TURN Client。TURN服务器会为TURN Client准备一个Relay地址，任何发送到Relay地址的数据，都会被转发给对应的TURN Client。
    > 注2：TURN Client向TURN Server发送数据时，用XOR_PEER_ADDRESS、Channel等方式，决定数据发送给哪个Peer。
+3. [SRS服务器](https://ossrs.net/lts/zh-cn/)：一个开箱即用、开源的视频解决方案，支持多种协议的多媒体数据。
 
 3. SDP内容中常见的协议栈：UDP/TLS/RTP/SAVPF
    1. 协议最底层是UDP

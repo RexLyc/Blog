@@ -217,12 +217,20 @@ modules目录
 
 ### 模型
 ![webrtc线程](/images/book/webrtc/webrtc-thread-model.png)
-WebRTC使用多线程来完成各个部分的业务。WebRTC的线程有两个层次。
+线程模型：WebRTC使用多线程来完成各个部分的业务。WebRTC的线程有两个层次。
 1. 第一层：网络线程、工作线程以及信令线程。信令线程可以直接使用主线程。
 2. 第二层：网络、工作、信令线程会根据业务创建子线程。
    1. 工作线程创建的子线程：视频编码线程、解码线程、音频编码线程、Pacer线程
    2. 信令线程（主线程）创建的子线程：视频采集、视频渲染、音频采集、音频渲染
 > 第二层线程是否存在，以及存在数量，都和业务相关。并不是绝对的。
+
+
+
+![webrtc网络模块](/images/book/webrtc/network-module.png)
+网络模型：WebRTC的网络模块主要有八个部分（还有一些非核心内容）。在网络连接的建立过程中，主要有2个步骤
+1. 收集Candidate
+2. 创建连接
+
 
 ### 部分接口设计
 1. 线程切换：在有了线程模型之后，就需要考虑数据在不同线程之间的流转方式。WebRTC将数据流转抽象为不同线程对一个任务消息的输入输出。内部使用消息队列来完成同步。具体的API有多种调用：Send/Post/Invoke/PostTask，分别支持同步和异步的不同用法。本段代码引用都**省略了同步锁**。
@@ -351,6 +359,78 @@ WebRTC使用多线程来完成各个部分的业务。WebRTC的线程有两个�
       }
    }
    ```
+
+2. 线程对外接口：为了将WebRTC内核代码和应用层进行隔离，WebRTC在对外提供接口时也使用了线程切换。而且提供接口的线程也只有信令线程和工作线程。例如PeerConnection接口，用于创建对端连接，媒体流。WebRTC将信令线程和工作线程的接口封装出了接口代理层。在使用接口代理层时，不必担心所调用的接口是哪个线程。对接口代理层的实现使用了宏。
+   ```cpp
+   // 部分宏相关代码示例
+   BEGIN_SIGNALING_PROXY_MAP(PeerConnectionFactory)
+
+   // 示例，实际宏参数更为复杂
+   PROXY_METHOD4(
+      refptr<PeerConnectionInterface>,
+      CreatePeerConnection,
+      const PeerConnectionInterface::RTCConfiguration&,
+      std::unique_ptr<cricket::PortAllocator>,
+      PeerConnectionObserver *
+   )
+
+   END_PROXY_MAP()
+
+
+   // 利用这些宏，可以很方便的组装一个接口代理，预编译后会形成如下类型
+   class PeerConnectionFactoryProxyWithInterface;
+   typedef PeerConnectionFactoryProxyWithInterface
+            PeerConnectionFactoryProxy;
+   class PeerConnectionFactoryProxyWithInterface : 
+            PeerConnectionFactoryInterface {
+      // 忽略参数
+      CreatePeerConnection(/*...*/) {
+         MethodCall<C,r,/*...*/> call(c_, &C::method,/*...*/);
+         return call.Marshal(RTC_FROM_HERE, signaling_thread_);
+      }
+   }
+
+   // 其中MethodCall是对Handler和Message的实现
+   class MethodCall : public rtc::Message, public rtc::MessageHandler {
+      // 包装函数
+      R Marshal(const rtc::Location& posted_from, rtc::Thread *t){
+         Intenal::SynchronousMethodCall(this).Invoke(posted_from, t);
+         return r_.moved_result();
+      }
+
+      void OnMessage(rtc::Message*) {
+         Invoke(/*...*/);
+      }
+
+      void Invoke(/*...*/) {
+         // r_是ReturnType
+         r_.Invoke(c_, m_, /*...*/);
+      }
+   }
+
+   // SynchronousMethodCall是Data、Handler的实现
+   class SynchronousMethodCall : public rtc::MessageData, public rtc::MessageHandler {
+      void Invoke(const rtc::Location& posted_from, rtc::Thread* t) {
+         // 线程切换
+         t->Post(posted_from, this, 0);
+         e->Wait();
+      }
+
+      void OnMessage(rtc::Message*) {
+         proxy->OnMessage(nullptr);
+         e->Set();
+      }
+   }
+
+   class ReturnType {
+      void Invoke(C* c, M m, Args&& ...args){
+         // 对PeerConnection来说，c->*m才是真正调用到PeerConnectionFactory::CreatePeerConnection()
+         r_ = (c->*m)(std::forward<Args>(args)...);
+      }
+   }
+   ```
+
+1. 网络模块
 
 ### 部分类型设计
 1. RtpPacket：封装对RTP协议的读写

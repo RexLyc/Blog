@@ -217,9 +217,142 @@ modules目录
 
 ### 模型
 ![webrtc线程](/images/book/webrtc/webrtc-thread-model.png)
+WebRTC使用多线程来完成各个部分的业务。WebRTC的线程有两个层次。
+1. 第一层：网络线程、工作线程以及信令线程。信令线程可以直接使用主线程。
+2. 第二层：网络、工作、信令线程会根据业务创建子线程。
+   1. 工作线程创建的子线程：视频编码线程、解码线程、音频编码线程、Pacer线程
+   2. 信令线程（主线程）创建的子线程：视频采集、视频渲染、音频采集、音频渲染
+> 第二层线程是否存在，以及存在数量，都和业务相关。并不是绝对的。
 
+### 部分接口设计
+1. 线程切换：在有了线程模型之后，就需要考虑数据在不同线程之间的流转方式。WebRTC将数据流转抽象为不同线程对一个任务消息的输入输出。内部使用消息队列来完成同步。具体的API有多种调用：Send/Post/Invoke/PostTask，分别支持同步和异步的不同用法。本段代码引用都**省略了同步锁**。
 
-### 部分类型
+   对于Post/PostTask，以下是书中摘取的部分核心代码。PostTask是对Post的进一步封装，能够更方便的使用匿名Lambda函数完成OnMessage处理。
+   ```cpp
+   // 所有线程，都需要有数据流转能力
+   // 只截取书中引用的核心代码，每个函数的实际具体实现都更加复杂
+   class Thread {
+      // 线程内的Post函数声明和核心实现
+      // 记录了来源线程、消息处理器、消息类型ID、消息数据指针
+      // time_sensitive已被废弃
+      virtual void Post(const Location& posted_from ,
+            MessageHandler* phandler ,
+            uint32_t id = 0,
+            MessageData* pdata = nullptr ,
+            bool time_sensitive = false) {
+         // Post是异步调用，因此只需将任务入队
+         Message msg;
+         msg.posted_from = posted_from;
+         msg.phandler = phandler;
+         msg.message_id = id;
+         msg.pdata = pdata;
+         messages_.push_back(msg);
+      }
+
+      // 消息处理循环
+      bool ProcessMessage(int cmsLoop) {
+         while(true){
+            Message msg;
+            // 从队列中获取一个待处理任务
+            if(!Get(&msg, cmsNext))
+               return !IsQuitting();
+            // 分发处理
+            Dispatch(&msg);
+         }
+      }
+
+      // 分发处理
+      void Dispatch(Message *pmsg) {
+         pmsg->phandler->OnMessage(pmsg);
+      }
+
+      // PostTask是对Post的封装，此处省略task类型
+      // 总之task中包含了数据，也包含了处理函数
+      void PostTask(T task) {
+         Post(RTC_FROM_HERE,
+               &queue_task_handler_,
+               /*id=*/0,
+               new P(std::move(task)));
+      }
+
+      // PostTask使用举例
+      // 将匿名函数转换为QueuedTask
+      // PostTask(webrtc::ToQueuedTask([](){ /*...*/ });
+   }
+   
+   // Post参数中，实现MessageHandler需要重写OnMessage函数，例如
+   class BaseChannel : public rtc::MessageHandler {
+      // 自定义处理过程
+      void OnMessage(rtc::Message* pmsg) override;
+   }
+
+   // PostTask中使用的queue_task_handler_的类型，这里同样略去类型T
+   class QueueTaskHandler : public rtc::MessageHandler {
+      void OnMessage(rtc::Message* pmsg) override {
+         auto* data = static_cast<T>(msg->pdata);
+         // 还原成任务
+         std::unique_ptr<T> task = std::move(data->data());
+         if(!task->Run()){
+            // ...
+         }
+      }
+   }
+   ```
+
+   和前述方法不同，Send/Invoke方法， 虽然进行了线程切换，但是执行结果是同步返回的。代码引用如下。
+   ```cpp
+   class Thread {
+      // 参数和Post没有本质区别
+      virtual void Send(const Location& posted_from ,
+            MessageHandler* phandler ,
+            uint32_t id = 0,
+            MessageData* pdata = nullptr) {
+         // 第一步也是创建Message对象，略去
+         Message msg;
+         // ...
+
+         // 第二部确保发送任务的线程，和Thread对象进行绑定。
+         // 创建一个新的线程，可能用于代表当前线程完成计算任务
+         // 该线程并不一定真正执行工作，具体要看ThreadManager、Thread::Current()
+         AutoThread thread;
+         // 获取当前可供执行任务的目标线程（此current指的是ThreadManager提供的可用线程）
+         Thread* current_thread = Thread::Current();
+
+         // 内部仍然是调用PostTask
+         // 此处的Task有两个匿名函数
+         PostTask(webrtc::ToQueuedTask(
+            // 一个是处理任务
+            [msg]()mutable {
+               msg.phandler->OnMessage(&msg);
+            },
+            // 一个是完成后清理现场，并通知处理完成
+            // 这样设计的目的，就是将两个匿名函数的功能分开，后者明显和业务无关
+            [this,&ready, current_thread] {
+               ready = true;
+               current_thread->socketserver()->WakeUp();
+            }
+         ));
+
+         // 开始等待同步返回
+         while(!ready){
+            current_thread->socketserver()->Wait();
+         }
+      }
+   }
+
+   // 其中AutoThread类型构造形如
+   AutoThread::AutoThread(): Thread(SocketServer::CreateDefault(),false) {
+      // 如果当前的线程未绑定线程对象
+      if(!ThreadManager::Instance()->CurrentThread()) {
+         // 初始化
+         DoInit();
+         // 将当前线程绑定到线程对象this
+         ThreadManager::Instance()->SetCurrentThread(this);
+      }
+   }
+   ```
+
+### 部分类型设计
 1. RtpPacket：封装对RTP协议的读写
 
 ## 实战内容

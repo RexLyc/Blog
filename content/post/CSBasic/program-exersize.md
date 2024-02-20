@@ -242,6 +242,7 @@ math: true
 2. :red_circle: 2603: [收集树中金币](https://leetcode.cn/problems/collect-coins-in-a-tree/description/)。看了题解，核心是对图做变换：剪枝、去叶子节点。**思考最终路径的规则**：任何一条路径最多只需要走两次，路径终点到（最远的）有金币的节点距离为2。因此变换有两条：递归删除所有无金币的叶子节点，对最终树进行2次删除叶子节点的操作。最终剩下的边，每个都会遍历。
 
 ###  数据结构
+1. :yellow_circle: 103：[二叉树的锯齿形层序遍历](https://leetcode.cn/problems/binary-tree-zigzag-level-order-traversal/description/)。可以正常遍历记录层次遍历结果，再对中间结果进行后处理（隔行反转）。但题解中的方法更简便，对于这种需要调整遍历方向的，使用**双向队列**的方式更简便。
 1. :red_circle: 239：[滑动窗口的最大值](https://leetcode.cn/problems/sliding-window-maximum/description/)。$O(nlogn)$的大顶堆并不难想。但是题解提到了**单调栈思想的双端队列**。很有意思。在一个滑动窗口中，统计最大值，考虑一个更大的数加入之后所有更小数均可以从队尾弹出，另外超过窗口范围的大数从队首弹出，因此只需要用一个双端队列即可，能达到$O(n)$复杂度。
 1. :red_circle: 100213：[按距离统计房屋对数目II](https://leetcode.cn/problems/count-the-number-of-houses-at-a-certain-distance-ii/description/)。周赛，自己想写一个完全基于数学的分类讨论，但是漏洞百出。[题解](https://leetcode.cn/problems/count-the-number-of-houses-at-a-certain-distance-ii/solutions/2613373/yong-che-xiao-de-fang-shi-si-kao-pythonj-o253/)提供的思路是分类讨论，用差分数组统计。总之，差分数组是$O(n)$复杂度的好帮手，可以把若干次区间修改的时间复杂度大大简化。
 1. :yellow_circle: 2735：[收集巧克力](https://leetcode.cn/problems/collecting-chocolates/description/)。名为中等，实为困难。自己写的是$O(n^2)$的动态规划，实际上本题有$O(n)$的单调栈+二次差分解法，思路比较复杂，参考[题解](https://leetcode.cn/problems/collecting-chocolates/solutions/2580148/shou-ji-qiao-ke-li-by-leetcode-solution-bjyp/)。

@@ -14,6 +14,9 @@ draft: true
 ---
 从webrtc入手，了解一点多媒体相关的信息技术。
 <!--more-->
+
+> 本书在详解部分，主要以Windows下的实现为主，因此在实际的线程模型、网络模型、多媒体设备API方面，不同系统会有所差异。但无伤大雅。
+
 ## 概述
 1. 一些术语：
    1. PCM（Pulse Code Modulation）：脉冲编码调制，音频的原始数据
@@ -215,7 +218,7 @@ modules目录
 | video_processing | 视频特效处理 |
 | bitrate_controller | 本地带宽评估，TCC |
 
-### 模型
+### 核心设计
 ![webrtc线程](/images/book/webrtc/webrtc-thread-model.png)
 线程模型：WebRTC使用多线程来完成各个部分的业务。WebRTC的线程有两个层次。
 1. 第一层：网络线程、工作线程以及信令线程。信令线程可以直接使用主线程。
@@ -231,6 +234,36 @@ modules目录
 1. 收集Candidate
 2. 创建连接
 
+
+音视频采集和播放
+![音频处理流程](/images/book/webrtc/webrtc-audio-process.png)
+音频处理的主要模块包括：ADM、音频引擎。在WebRTC进行音频协商时，会使用ADM启动两个线程，分别用于采集音频数据、播放音频数据。
+1. 音频采集线程：驱动设备按照采样参数采集数据，每一帧数据交付到AudioDeviceBufer处理，并由音频引擎对其进行重采样到目标规格，并做前处理（回音消除、降噪）。后续进行编码、平滑处理。
+   > 音频前处理可能由硬件完成，在这种情况下，AP模块（AudioProcess）将会跳过软件处理步骤。
+1. 音频播放线程：由网络线程将数据交给音频引擎，进行解码，解码后做混音，再写入AudioDeviceBufer，并最终向声卡缓冲区填充数据。
+
+![视频处理流程](/images/book/webrtc/webrtc-video-process.png)
+理解视频处理流程主要理解两点，一个是抽象概念VideoTrack、一个是视频数据的相关对象的创建以及流转顺序
+1. VideoTrack：VideoTrack一头连接视频源（VideoTrackSource），一头连接编码器（VideoStreamEncoder）或本地预览窗口。
+   ```cpp
+   // VideoTrackSource，创建视频源
+   // 创建过程中会根据采集设备，启动对应驱动，采集视频数据
+   rtc::scoped_refptr<CapturerTrackSource>
+      video_device = CapturerTrackSource::Create();
+
+   // VideoTrack，创建轨
+   rtc::scoped_refptr<webrtc::VideoTrackInterface>
+      video_track_(
+         peer_connection_factory_ ->CreateVideoTrack(
+            kVideoLabel ,
+            video_device
+         );
+      );
+   // 设置目标，即视频轨的消费者
+   main_wnd_ ->StartLocalRenderer(video_track_);
+   ```
+2. 视频数据流转：创建VideoTrack（内部创建VideoSource、VcmCapturer）、设置本地预览或远程发送（为VcmCapturer添加回调）、VideoCaptureModule获取视频数据、回调VcmCapturer、转交给VideoBroadcaster进行分发
+   ![视频数据流转](/images/book/webrtc/webrtc-video-dataflow.png)
 
 ### 部分接口设计
 1. 线程切换：在有了线程模型之后，就需要考虑数据在不同线程之间的流转方式。WebRTC将数据流转抽象为不同线程对一个任务消息的输入输出。内部使用消息队列来完成同步。具体的API有多种调用：Send/Post/Invoke/PostTask，分别支持同步和异步的不同用法。本段代码引用都**省略了同步锁**。
@@ -430,7 +463,7 @@ modules目录
    }
    ```
 
-1. 网络模块
+1. 编解码模块：这部分的设计目标就是统一性，切换编解码器，对于上层业务应当是透明的。
 
 ### 部分类型设计
 1. RtpPacket：封装对RTP协议的读写
@@ -459,6 +492,7 @@ modules目录
    2. 在UDP之上，用DTLS进行传输层加密
    3. 再之上运行RTP，以及RTCP
    4. 最上层使用SAVPF进行反馈控制
+4. sink：原意是沉没。在计算机行业中，对于流式数据场景，sink指代数据流的接收端。
 
 ### 常见问题和方法
 1. 减少数据量：压缩、SVC技术、Simulcast技术、动态码率、甩帧

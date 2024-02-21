@@ -227,9 +227,73 @@ modules目录
 
 
 ![webrtc网络模块](/images/book/webrtc/network-module.png)
-网络模型：WebRTC的网络模块主要有八个部分（还有一些非核心内容）。在网络连接的建立过程中，主要有2个步骤
-1. 收集Candidate
-2. 创建连接
+网络模型：WebRTC的网络模块主要有八个部分（还有一些非核心内容），和图中编号对应的他们分别是
+1. 数据包发送时的调用栈（接收反之同理）：BaseChannel接收待发送数据、切换到网络线程并逐个类进行处理（组包、加密、发送）
+2. 网络模块接口：收集本地Candidate、添加远端Candidate
+3. 底层端口分配
+4. 网络端口抽象
+5. 创建抽象Socket：为UDP、TCP、STUN等协议提供统一的网络接口
+6. 底层Socket封装
+7. Socket工厂类
+8. 异步I/O事件处理
+
+而在网络连接的建立过程中，主要有2个步骤
+1. 收集、上报Candidate：这个步骤又可以进一步细分为获取网卡、创建抽象Socket、创建UDPPort等、创建Candidate
+   ```cpp
+   // 收集Candidate的调用堆栈
+   // 1 -> PeerConnection::SetLocalDescription()
+   // 2 -> JespTransportController::MaybeStartGathering()
+   // 3 -> P2PTransportChannel::MaybeStartGathering()
+   // 4 -> BasicPortAllocatorSession::StartGetheringPorts()
+   // 5 …
+   // 6 -> BasicPortAllocatorSession::OnAllocate()
+   // 7 -> BasicPortAllocatorSession::DoAllocate()
+
+   void DoAllocate(bool disable_equivalent) {
+      // 获取网卡
+      std::vector<> networks = GetNetworks();
+      for (uint32_t i = 0; i < networks.size(); ++i) {
+         // 从网卡创建Socket
+         AllocationSequence* sequence =
+            new AllocationSequence(this , networks[i], /*...*/);
+         // 从Socket创建UDPPort、StunPort对象，并检测是否有可用的外网映射
+         sequence->Init();
+         sequence->Start();
+      }
+   }
+
+   // 上报Candidate时的调用堆栈
+   // 在本地准备完成后
+   // 1 -> UPPPort::OnLocalAddressReady()
+   // 2 // 生成Candidate
+   // 3 -> Port::AddAddress()
+   // 4 -> Port::FinishAddingAddress()
+   // 5 -> BasicPortAllocatorSession::OnCandidateReady()
+   // 6 // 对于被呼叫方，如果此时已经有Remote Candidate,则生成Connection
+   // 7 -> P2PTransportChannel::OnPortReady()
+   // 8 // 生成Connection后，重新回到OnCandidateReady执行
+   // 9 -> BasicPortAllocatorSession::OnCandidateReady()
+   // 10 -> P2PTransportChannel::OnCandidateReady()
+   // 11 -> JespTransportController::OnTransportCandidateGathered_n()
+   // 13 -> PeerConnection::OnTransportCandidateGathered()
+   // Ice是ICE消息
+   // 14 -> PeerConnection::OnIceCandidate()
+   // 15 -> PeerConnectionObserver::OnIceCandidate()
+   // 16 -> ...进一步上报给信令系统
+   ```
+2. 创建连接：通信双方在建立连接的过程中，可能存在多个可用Connection。建立之后会进行排序和STUN协议的Ping测试，选出最优质的连接作为最终的通信信道。
+   ```cpp
+   // 添加Candidate，建立连接
+   // 1 -> PeerConnection::AddIceCandidate()
+   // 2 -> PeerConnection::UseCandidate()
+   // 3 -> JespTransportController::AddRemoteCandidate()
+   // 4 -> JespTransport::AddRemoteCandidate()
+   // 5 -> P2PTransportChannel::AddRemoteCandidate()
+   // 6 -> P2PTransportChannel::FinishAddingRemoteCandidate()
+   // 7 -> P2PTransportChannel::CreateConnections()
+   // 8 -> UDPPort::CreateConnection()
+   ```
+
 
 
 ### 部分接口设计

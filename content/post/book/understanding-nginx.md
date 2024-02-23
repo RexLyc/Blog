@@ -17,7 +17,7 @@ Nginx是一个优秀的服务器，目前被广泛使用，其设计思路，尤
 
 ## 概述
 Nginx相比于其他Web服务器（Apache、Jetty、Tomcat、IIS），整体上有以下特点：
-1. 高性能：一个显著的特点是，和Apache采用大量进程不同，Nginx推荐一个master+多个worker进程（worker数量和CPU数量相同），减少进程切换消耗，减少同步消耗。
+1. 高性能：一个显著的特点是，和Apache采用大量进程不同，Nginx推荐一个master+多个worker进程（worker数量和CPU数量相同），减少进程切换消耗，减少同步消耗。不过实际应用中，还要考虑worker进程是否会被阻塞，来最终决定进程数量。
 2. 高扩展性：模块化
 3. 高可靠性：master进程 + worker子进程，worker出错时可以被快速替换
 4. 低内存消耗：10000个非活跃的keep-alive连接只消耗2.5MB内存
@@ -160,51 +160,189 @@ kill -s SIGQUIT <old nginx master pid> # 优雅的退出旧的
 ```
 
 ## Nginx的配置
-一个典型的Nginx配置，如下所示
+### 基本配置
+官网提供的一个[完整的典型Nginx配置示例](https://www.nginx.com/resources/wiki/start/topics/examples/full/)，如下所示
+
+nginx.conf
 ```conf
-user nobody;
-worker_processes 8;
-error_log /var/log/nginx/error.log error;
-# pid logs/nginx.pid;
+user       www www;  ## Default: nobody
+worker_processes  5;  ## Default: 1
+error_log  logs/error.log;
+pid        logs/nginx.pid;
+worker_rlimit_nofile 8192;
+
 events {
-    use epoll;
-    worker_connections 50000;
+  worker_connections  4096;  ## Default: 1024
 }
+
 http {
-    include mime.types;
-    default_type application/octet-stream;
-    log_format main 
-        '$remote_addr [$time_local] "$request" '
-        '$status $bytes_sent "$http_referer" '
-        '"$http_user_agent" "$http_x_forwarded_for"';
-    access_log logs/access.log main buffer=32k;
-    # ...
-    upstream backend {
-        server 127.0.0.1:8080;
+  include    conf/mime.types;
+  include    /etc/nginx/proxy.conf;
+  include    /etc/nginx/fastcgi.conf;
+  index    index.html index.htm index.php;
+
+  default_type application/octet-stream;
+  log_format   main '$remote_addr - $remote_user [$time_local]  $status '
+    '"$request" $body_bytes_sent "$http_referer" '
+    '"$http_user_agent" "$http_x_forwarded_for"';
+  access_log   logs/access.log  main;
+  sendfile     on;
+  tcp_nopush   on;
+  server_names_hash_bucket_size 128; # this seems to be required for some vhosts
+
+  server { # php/fastcgi
+    listen       80;
+    server_name  domain1.com www.domain1.com;
+    access_log   logs/domain1.access.log  main;
+    root         html;
+
+    location ~ \.php$ {
+      fastcgi_pass   127.0.0.1:1025;
     }
-    gzip on;
-    server {
-        location /webstatic {
-            gzip off;
-        }
+  }
+
+  server { # simple reverse-proxy
+    listen       80;
+    server_name  domain2.com www.domain2.com;
+    access_log   logs/domain2.access.log  main;
+
+    # serve static files
+    location ~ ^/(images|javascript|js|css|flash|media|static)/  {
+      root    /var/www/virtual/big.server.com/htdocs;
+      expires 30d;
     }
-}
 
-server {
+    # pass requests for dynamic content to rails/turbogears/zope, et al
+    location / {
+      proxy_pass      http://127.0.0.1:8080;
+    }
+  }
 
-}
+  upstream big_server_com {
+    server 127.0.0.3:8000 weight=5;
+    server 127.0.0.3:8001 weight=5;
+    server 192.168.0.1:8000;
+    server 192.168.0.1:8001;
+  }
 
-location {
+  server { # simple load balancing
+    listen          80;
+    server_name     big.server.com;
+    access_log      logs/big.server.access.log main;
 
-}
-
-upstream {
-
+    location / {
+      proxy_pass      http://big_server_com;
+    }
+  }
 }
 ```
 
-Nginx的配置相对复杂，整体来说分为：块配置项、配置项、变量
-1. 块配置项：如上文中的server/location/upstream/events，块配置项可以嵌套，内外层同名配置项关系由具体模块决定
+<details>
+<summary>proxy.conf</summary>
+
+
+```conf
+proxy_redirect          off;
+proxy_set_header        Host            $host;
+proxy_set_header        X-Real-IP       $remote_addr;
+proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+client_max_body_size    10m;
+client_body_buffer_size 128k;
+proxy_connect_timeout   90;
+proxy_send_timeout      90;
+proxy_read_timeout      90;
+proxy_buffers           32 4k;
+```
+
+</details>
+
+<details>
+<summary>fastcgi.conf</summary>
+
+```conf
+fastcgi_param  SCRIPT_FILENAME    $document_root$fastcgi_script_name;
+fastcgi_param  QUERY_STRING       $query_string;
+fastcgi_param  REQUEST_METHOD     $request_method;
+fastcgi_param  CONTENT_TYPE       $content_type;
+fastcgi_param  CONTENT_LENGTH     $content_length;
+fastcgi_param  SCRIPT_NAME        $fastcgi_script_name;
+fastcgi_param  REQUEST_URI        $request_uri;
+fastcgi_param  DOCUMENT_URI       $document_uri;
+fastcgi_param  DOCUMENT_ROOT      $document_root;
+fastcgi_param  SERVER_PROTOCOL    $server_protocol;
+fastcgi_param  GATEWAY_INTERFACE  CGI/1.1;
+fastcgi_param  SERVER_SOFTWARE    nginx/$nginx_version;
+fastcgi_param  REMOTE_ADDR        $remote_addr;
+fastcgi_param  REMOTE_PORT        $remote_port;
+fastcgi_param  SERVER_ADDR        $server_addr;
+fastcgi_param  SERVER_PORT        $server_port;
+fastcgi_param  SERVER_NAME        $server_name;
+
+fastcgi_index  index.php;
+
+fastcgi_param  REDIRECT_STATUS    200;
+```
+
+</details>
+
+<details>
+<summary>mime.types</summary>
+
+```conf
+types {
+  text/html                             html htm shtml;
+  text/css                              css;
+  text/xml                              xml rss;
+  image/gif                             gif;
+  image/jpeg                            jpeg jpg;
+  application/x-javascript              js;
+  text/plain                            txt;
+  text/x-component                      htc;
+  text/mathml                           mml;
+  image/png                             png;
+  image/x-icon                          ico;
+  image/x-jng                           jng;
+  image/vnd.wap.wbmp                    wbmp;
+  application/java-archive              jar war ear;
+  application/mac-binhex40              hqx;
+  application/pdf                       pdf;
+  application/x-cocoa                   cco;
+  application/x-java-archive-diff       jardiff;
+  application/x-java-jnlp-file          jnlp;
+  application/x-makeself                run;
+  application/x-perl                    pl pm;
+  application/x-pilot                   prc pdb;
+  application/x-rar-compressed          rar;
+  application/x-redhat-package-manager  rpm;
+  application/x-sea                     sea;
+  application/x-shockwave-flash         swf;
+  application/x-stuffit                 sit;
+  application/x-tcl                     tcl tk;
+  application/x-x509-ca-cert            der pem crt;
+  application/x-xpinstall               xpi;
+  application/zip                       zip;
+  application/octet-stream              deb;
+  application/octet-stream              bin exe dll;
+  application/octet-stream              dmg;
+  application/octet-stream              eot;
+  application/octet-stream              iso img;
+  application/octet-stream              msi msp msm;
+  audio/mpeg                            mp3;
+  audio/x-realaudio                     ra;
+  video/mpeg                            mpeg mpg;
+  video/quicktime                       mov;
+  video/x-flv                           flv;
+  video/x-msvideo                       avi;
+  video/x-ms-wmv                        wmv;
+  video/x-ms-asf                        asx asf;
+  video/x-mng                           mng;
+}
+```
+
+</details>
+
+下面对配置进行讲解。Nginx的配置相对复杂，整体来说分为：块配置项、配置项、变量
+1. 块配置项：如上文中的server/location/upstream/events/if，块配置项可以嵌套，内外层同名配置项关系由具体模块决定
 2. 配置项：每一个配置项是一个配置名，加上若干个配置项值构成。以分号结尾。配置项值之间用空格隔开，如果某一个配置项内有语法符号，用单引号进行引用，例如
     ```conf
     # 配置项包含特殊字符，用单引号引用
@@ -214,3 +352,85 @@ Nginx的配置相对复杂，整体来说分为：块配置项、配置项、变
     gzip_buffers 4 8k;
     ```
 3. 变量：使用形式例如```$xxx```，并不是所有模块都支持变量
+
+
+Nginx在运行时，至少必须加载**几个核心模块**和**一个事件类模块**。这些模块运行时所支持的配置项称为基本配置：即所有其他模块执行时都依赖的配置项。即使是基本配置项，也有很多内容，整体上可以分为4类：
+1. 用于调试和定位问题的配置，例如
+    ```conf
+    # 默认以守护进程方式启动，在调试时可以修改为off，便于gdb跟踪
+    daemon on;
+    # 默认master-worker模式，在调试时可以修改为off，则只创建master，并由master完成worker工作
+    master_process on;
+    # error日志，文件地址，等级
+    error_log logs/error.log error;
+    # 特殊调试点，在部分错误检测点，可以控制保存coredump
+    debug_points [ stop | abort ];
+    # 仅记录指定连接的debug级别日志
+    debug_connection [ IP | CDIR ];
+    # 限制coredump文件大小
+    worker_rlimit_core 8k;
+    # 设置coredump文件位置
+    working_directory /your/path;
+    ```
+2. 正常运行的必备配置，例如
+    ```conf
+    # 定义环境变量
+    env VAR
+    env VAR=VALUE
+    # 嵌入其他配置文件，支持相对路径
+    include mime.types;
+    # pid文件的路径
+    pid logs/nginx.pid;
+    # Nginx worker进程运行的用户及用户组
+    user nobody nobody;
+    # 指定Nginx worker进程可以打开的最大句柄描述符个数
+    worker_rlimit_nofile 1024;
+    # 限制信号队列，限制每个用户向Nginx发送的信号量的数量
+    worker_rlimit_sigpending limit;
+    ```
+3. 优化性能的配置
+    ```conf
+    # Nginx worker进程个数
+    # 如果不会出现阻塞式的调用，那么可以设置为CPU核数
+    # 否则需要配置稍多一些的worker进程
+    worker_processes 4;
+    # 绑定Nginx worker进程到指定的CPU内核，仅有Linux支持
+    # 本例子和上面的4个进程对应，指定了四个进程的绑定方式
+    worker_cpu_affinity 1000 0100 0010 0001;
+    # SSL硬件加速
+    ssl_engine device;
+    # Nginx worker进程优先级设置
+    worker_priority 0;
+    ```
+4. 事件类配置项
+    ```conf
+    # 是否打开accept锁，即负载均衡锁
+    accept_mutext on;
+    # lock文件的路径，lock_file是为了兼容不支持原子锁的平台而设计的
+    lock_file logs/nginx.lock;
+    # 使用accept锁后到真正建立连接之间的延迟时间
+    accept_mutex_delay 500ms;
+    # 批量建立新连接
+    multi_accept off;
+    # 选择事件模型
+    use [ kqueue | rtsig | epoll | /dev/poll | select | poll | eventport ];
+    # 每个worker的最大连接数
+    worker_connections 100;
+    ```
+> 很多配置项即使不出现在conf文件中，也是有默认值的。
+
+### 静态Web服务器配置
+使用Nginx最主要的功能是利用它的静态Web服务器能力，其核心模块是ngx_http_core_module。Nginx为静态服务器提供了非常多的功能，整体上可以分为8类：虚拟主机与请求的分发、文件路径的定义、内存及磁盘资源的分配、网络连接的设置、MIME类型的设置、对客户端请求的限制、文件操作的优化、对客户端请求的特殊处理。下面用表格的形式，列出配置项。
+| 配置项 | 配置项值 | 所属配置块 |
+| --- | --- | --- |
+
+
+
+## 开发一个模块
+
+## 术语
+1. 虚拟主机：由于IP地址的数量有限，因此经常存在多个主机域名对应着同一个IP地址的情况，这时在nginx.conf中就可以按照server_name（对应用户请求中的主机域名）并通过server块来定义虚拟主机，每个server块就是一个虚拟主机，它只处理与之相对应的主机域名请求。
+
+## 参考
+1. [Nginx Docs](https://docs.nginx.com/nginx/)
+2. [Nginx Wiki](https://www.nginx.com/resources/wiki/)

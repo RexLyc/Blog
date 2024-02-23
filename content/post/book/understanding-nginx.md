@@ -420,9 +420,59 @@ Nginx在运行时，至少必须加载**几个核心模块**和**一个事件类
 > 很多配置项即使不出现在conf文件中，也是有默认值的。
 
 ### 静态Web服务器配置
-使用Nginx最主要的功能是利用它的静态Web服务器能力，其核心模块是ngx_http_core_module。Nginx为静态服务器提供了非常多的功能，整体上可以分为8类：虚拟主机与请求的分发、文件路径的定义、内存及磁盘资源的分配、网络连接的设置、MIME类型的设置、对客户端请求的限制、文件操作的优化、对客户端请求的特殊处理。下面用表格的形式，列出配置项。
-| 配置项 | 配置项值 | 所属配置块 |
-| --- | --- | --- |
+使用Nginx最主要的功能是利用它的静态Web服务器能力，其核心模块是ngx_http_core_module，也有其他模块提供支持（如nginx_http_index_module等）。Nginx为静态服务器提供了非常多的功能，整体上可以分为8类：虚拟主机与请求的分发、文件路径的定义、内存及磁盘资源的分配、网络连接的设置、MIME类型的设置、对客户端请求的限制、文件操作的优化、对客户端请求的特殊处理。下面用表格的形式，列出部分配置项，有个印象就可以。
+| 配置项 | 配置项值 | 配置含义说明 | 所属配置块 |
+| --- | --- | --- | --- |
+| listen | addr:port [ backlog \| rcvbuf \| ssl \| filter ... ] | 监听端口，支持多种监听参数 | server |
+| server_name | name [ ... ] | 配置若干主机名称，用于支持虚拟主机 | server |
+| server_names_hash_bucket_size | size | 当有大量虚拟主机时，使用散列函数进行存储 | http、server、location |
+| server_name_in_redirect | on \| off | 重定向主机名称的处理 | http、server、location |
+| location | [ =\|~\|~*\|^~\|@ ] /uri/ \{...\} | 根据用户URI匹配，并进入后面的配置块中 | server |
+| root | path | 设置资源路径 | http、server、location、if |
+| alias | path | 设置资源路径别名，和root略有不同 | location |
+| index | file ... | 设置访问首页所展示的文件、可设置多个 | http、server、location |
+| error_page | code [code ...] [=\|=anwer-code] uri\|@named_location | 当某个请求返回指定的错误码时，重定向到新的URI中，同时支持修改错误码 | http、server、location、if |
+| recursive_error_pages | on\|off | 是否允许递归使用error_page | http、server、location |
+| try_files | path ... uri | 尝试若干个路径下的文件用于返回，否则由uri路径负责进行返回 | server、location |
+| client_body_in_file_only | on\|off\|clear | http包体是否存储到磁盘 | http、server、location |
+| client_body_in_single_buffer | on\|off | http包体尽量写入到内存buffer中 | http、server、location |
+| client_header_buffer_size | size | http头部的内存buffer大小 | http、server |
+| client_body_buffer_size | size | http包体的内存buffer大小 | http、server、location |
+| client_body_temp_path | dir-path [level1 ... ] | HTTP包体的临时存放目录 | http、server、location |
+| connection_pool_size | size | 为已建立的TCP连接预留的内存池大小 | http、server |
+| request_pool_size | size | 开始处理http请求后，为每个请求分配的内存池 | http、server |
+| client_header_timeout | time | 读取HTTP头部的超时时间 | http、server、location |
+| client_body_timeout | time | 读取HTTP包体的超时时间 | http、server、location |
+| send_timeout | time | 向客户端发送响应，但没有反馈的超时时间 | http、server、location |
+| lingering_close | off\|on\|always | 控制关闭连接时，对剩余接收到的用户数据的处理 | http、server、location |
+| keepalive_disable | [msie6\|safari\|none] ... | 对某些浏览器禁用keepalive功能 | http、server、location |
+| keepalive_timeout | time | keepalive超时时间 | http、server、location |
+| keepalive_requests | n | 一个keepalive长连接上允许承载的请求最大数 | http、server、location |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+
+
+mime类型的相关设置比较特别，它的格式都是
+```conf
+type {
+    # 定义映射：mime类型 文件扩展名
+    text/html html;
+    # 多种文件可以映射到同一种mime类型
+    text/html conf;
+    image/jpeg jpg;
+}
+```
+| 配置项 | 配置项值（含义或默认值） | 配置含义说明 | 所属配置块 |
+| --- | --- | --- | --- |
+| default_type | text/plain | 默认MIME类型 | http、server、location |
+| types_hash_bucket_size | size | MIME类型映射的散列表，每个桶的内存大小 | http、server、location |
+| types_hash_max_size | size | 散列表的总桶数，影响冲突率和内存 | http、server、location |
+
+> 虚拟主机、以及location的匹配都有优先顺序，在使用时应当注意。
+
+> 很多配置块、配置项支持正则表达式，如alias、location
 
 
 

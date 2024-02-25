@@ -11,7 +11,7 @@ thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/book/understanding-nginx.png
 draft: true
 ---
-Nginx是一个优秀的服务器，目前被广泛使用，其设计思路，尤其是模块支持能力非常强大，本文记录对该书的学习和实践。
+Nginx是一个优秀的静态Web、反向代理服务器，目前被广泛使用，其设计思路，尤其是模块支持能力非常强大，本文记录对该书的学习和实践。
 <!--more-->
 > 
 
@@ -160,6 +160,8 @@ kill -s SIGQUIT <old nginx master pid> # 优雅的退出旧的
 ```
 
 ## Nginx的配置
+Nginx的配置非常复杂，而且由于使用模块化的设计，不同模块内还有各自所支持的配置。在具体使用时，应当查询对应模块的内容。
+
 ### 基本配置
 官网提供的一个[完整的典型Nginx配置示例](https://www.nginx.com/resources/wiki/start/topics/examples/full/)，如下所示
 
@@ -448,11 +450,18 @@ Nginx在运行时，至少必须加载**几个核心模块**和**一个事件类
 | keepalive_disable | [msie6\|safari\|none] ... | 对某些浏览器禁用keepalive功能 | http、server、location |
 | keepalive_timeout | time | keepalive超时时间 | http、server、location |
 | keepalive_requests | n | 一个keepalive长连接上允许承载的请求最大数 | http、server、location |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-
+| limit_except | method ... {...} | 按HTTP请求的方法名，限制用户请求 | location |
+| client_max_body_size | size | HTTP请求包体的最大值 | http、server、location |
+| limit_rate | speed | 对请求的限速 | http、server、location、if |
+| sendfile | on\|off | 启用sendfile系统调用，减少内核和用户态的内存拷贝 | http、server、location |
+| aio | on\|off | AIO系统调用 | http、server、location |
+| open_file_cache | max=N\|off | 使用文件缓存 | http、server、location |
+| open_file_cache_min_uses | number | 指定时间内不被淘汰，文件缓存所需最小访问次数 | http、server、location |
+| ignore_invalid_headers | on\|off | 忽略不合法的HTTP头部 | http、server |
+| underscores_in_headers | on\|off | HTTP头部名称是否允许带下划线 | http、server |
+| if_modified_since | off\|exact\|before | 对客户端请求中的缓存时间处理方式 | http、server、location |
+| merge_slashes | on\|off | 是否合并URI中相邻的斜线，如//合并为/ | http、server、location |
+| resolver | address ... | 设置DNS服务器地址 | http、server、location |
 
 mime类型的相关设置比较特别，它的格式都是
 ```conf
@@ -472,15 +481,141 @@ type {
 
 > 虚拟主机、以及location的匹配都有优先顺序，在使用时应当注意。
 
-> 很多配置块、配置项支持正则表达式，如alias、location
+> 很多配置块、配置项支持正则表达式，如 alias、location
 
+### 反向代理服务器的配置
+反向代理，是将请求转发给合适的上有服务器，从而为客户端提供服务的一种机制。客户端只知道有反向代理服务器的存在，而不知道上游服务器的存在。
+
+在作为反向代理服务器的时候，Nginx会**先将客户端请求缓存**到本地硬盘。再将请求转发给上游服务器（upstream）。而上游服务器返回的响应，则会**一边转发**给客户端，**一边缓存**到本地。这样做可以减少上游服务器的负载，把压力留到了Nginx服务器上。
+
+![反向代理的转发流程](/images/book/understanding-nginx/basic-proxy.png)
+
+这样做能减少上游服务器的原因主要是因为网络。Nginx和上游服务器之间的连接是内网，通常来说带宽大延迟低。先缓存再发送能减少连接的维持时间，减少并发的连接的数量。
+
+反向代理服务器需要将请求转发给上游服务器，这个过程，一般会采用负载均衡的策略。Nginx也为负载均衡的实现提供了很多配置项。一个基本的配置形如
+```conf
+# 定义三个上游服务器，用于代理转发
+upstream backend {
+  server backend1.example.com;
+  server backend2.example.com;
+  server backend3.example.com;
+}
+server {
+  location / {
+    # 配置代理转发到上游
+    proxy_pass http://backend;
+  }
+}
+```
+
+具体的部分常见配置项，如下表所示。
+| 配置项 | 配置项值（含义或默认值） | 配置含义说明 | 所属配置块 |
+| --- | --- | --- | --- |
+| server | name [parameters] | 指定一个上游服务器的名字，并可以配置一些参数（如权重，超时时间） | upstream |
+| ip_hash |  | 如果希望同一个用户的请求始终落在同一个服务器上，可以使用ip_hash，会利用ip做映射 | upstream |
+| proxy_pass | URL | 将当前请求反向代理到对应的服务上 | location、if |
+| proxy_set_header | Host $host | 反向代理转发过程中，保留请求中的Host头部 | |
+| proxy_method | method | 反向代理转发时，转发后所使用的Http方法 | http、server、location |
+| proxy_hide_header | header | 转发时丢弃的一些头部字段 | http、server、location |
+| proxy_pass_request_body | on\|off | 转发时是否携带Http包体 | http、server、location |
+| proxy_redirect | default\|off\|redirect | 当上游返回重定向或刷新时，是否重设头部的location、refresh等字段 | http、server、location |
+| proxy_next_upstream | off\|error\|timeout\|http_500 ... | 当上游服务器转发出错时，继续处理还是报错，以及报什么错 | http、server、location |
+
+> server配置块和server配置项是不同的内容
+
+### 变量列表
+| 变量名 | 有效范围 | 含义 |
+| --- | --- | --- |
+| $upstream_addr | 访问上游服务器期间 | 上游服务器地址 |
+| $upstream_cache_status | 访问上游服务器期间 | 表示缓存命中情况 |
+| $upstream_status | 访问上游服务器期间 | 上游服务器返回的响应码 |
+| $upstream_response_time | 访问上游服务器期间 | 上游服务器响应时间（毫秒） |
+| $upstream_http_$HEADER | 访问上游服务器期间 | HTTP头部，可选择具体头部字段 |
 
 
 ## 开发一个模块
+### 请求处理流程
+![一个简化的HTTP请求的处理流程](/images/book/understanding-nginx/simplified_http_process_flow.png)
+
+如上图所示是一个简化的典型HTTP请求的处理流程。用语言来描述就是：
+1. Nginx会先接收HTTP请求的所有的头部数据
+2. 将请求的的URI和配置文件中的各种location配置块进行匹配
+3. 根据最终匹配的location配置块中的HTTP模块配置，调用对应的模块。
+> 非典型的HTTP请求的处理流程，则多半和模块所需要介入的阶段有关。比如需要根据IP地址决定某个客户端是否允许访问服务。具体将会在[核心原理](##核心原理)进行讲解。
+
+### 数据结构和API速览
+Nginx推荐使用封装的数据类型，而不是直接使用C的一些数据类型，例如
+```c
+NGX_OK;
+NGX_ERROR;
+
+// 有符号整型
+typedef intptr_t ngx_int_t;
+// 无符号整型
+typedef uintptr_t ngx_uint_t;
+
+// 字符串，data内不一定有\0，以len为准
+typedef struct {
+  size_t len;
+  u_char *data;
+} ngx_str_t;
+
+// 链表元素（本质是数组）
+typedef struct ngx_list_part_s ngx_list_part_t;
+struct ngx_list_part_s {
+  // 链表元素（数组）首地址
+  void *elts;
+  // 链表元素（数组）中存储对象总数
+  ngx_uint_t nelts;
+  // 单链表下一项
+  ngx_list_part_t *next;
+};
+
+// 链表
+typedef struct {
+  // 链表尾
+  ngx_list_part_t *last;
+  // 链表头
+  ngx_list_part_t part;
+  // 当前链表中，每一个存储对象可用的最大字节数
+  size_t size;
+  // 每个ngx_list_part_t允许的最多对象数量
+  ngx_uint_t nalloc;
+  // 综上可知，一个ngx_list_part_t的elts，最大是size * nalloc个字节
+
+  // 链表内存池对象
+  ngx_pool_t *pool;
+} ngx_list_t;
+```
+
+常见的库函数也有一些封装，例如
+
+```c
+// ngx_strncmp 字符串比较函数
+#define ngx_strncmp(s1, s2, n) strncmp((const char *) s1, (const char *) s2, n)
+
+// 创建链表
+ngx_list_t ngx_list_create(ngx_pool_t pool, ngx_uint_t n, size_t size);
+// 链表初始化
+static ngx_inline ngx_int_t ngx_list_init(ngx_list_t list, ngx_pool_t pool, ngx_uint_t n, size_t size);
+// 链表插入（先返回一个分配出来的地址，对地址赋值即可）
+void* ngx_list_push(ngx_list_t list);
+
+```
+
+
+## 核心原理
 
 ## 术语
 1. 虚拟主机：由于IP地址的数量有限，因此经常存在多个主机域名对应着同一个IP地址的情况，这时在nginx.conf中就可以按照server_name（对应用户请求中的主机域名）并通过server块来定义虚拟主机，每个server块就是一个虚拟主机，它只处理与之相对应的主机域名请求。
 
+## 其他图表
+ngx_list_t链表示意图
+
+![ngx_list_t链表示意图](/images/book/understanding-nginx/ngx_list_t.png)
+
+
 ## 参考
 1. [Nginx Docs](https://docs.nginx.com/nginx/)
 2. [Nginx Wiki](https://www.nginx.com/resources/wiki/)
+3. [Nginx 3rd Modules](https://www.nginx.com/resources/wiki/modules/index.html)

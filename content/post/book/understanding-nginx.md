@@ -546,8 +546,15 @@ server {
 ### 数据结构和API速览
 Nginx推荐使用封装的数据类型，而不是直接使用C的一些数据类型，例如
 ```c
-NGX_OK;
-NGX_ERROR;
+// Nginx全局错误码
+// 一般来说，框架在不同的场景下，对不同的错误码都有专门的响应
+#define NGX_OK 0
+#define NGX_ERROR -1
+#define NGX_AGAIN -2
+#define NGX_BUSY -3
+#define NGX_DONE -4
+#define NGX_DECLINED -5
+#define NGX_ABORT -6
 
 // 有符号整型
 typedef intptr_t ngx_int_t;
@@ -920,10 +927,137 @@ static ngx_command_t ngx_http_mytest_commands[] =
   // 最后一个必须是null
   ngx_null_command
 };
+
+// 因为不需要在HTTP框架下进行初始化，ngx_http_module_t很简单
+static ngx_http_module_t ngx_http_mytest_module_ctx = {
+  NULL, /* preconfiguration */
+  NULL, /* postconfiguration */
+  NULL, /* create main configuration */
+  NULL, /* init main configuration */
+  NULL, /* create server configuration */
+  NULL, /* merge server configuration */
+  NULL, /* create location configuration */
+  NULL /* merge location configuration */
+};
+
+// 最后是mytest模块
+ngx_module_t ngx_http_mytest_module = {
+  NGX_MODULE_V1,
+  &ngx_http_mytest_module_ctx, /* module context */
+  ngx_http_mytest_commands, /* module directives */
+  NGX_HTTP_MODULE, /* module type */
+  NULL, /* init master */
+  NULL, /* init module */
+  NULL, /* init process */
+  NULL, /* init thread */
+  NULL, /* exit thread */
+  NULL, /* exit process */
+  NULL, /* exit master */
+  NGX_MODULE_V1_PADDING
+};
+```
+
+注意，在代码中，并没有显式的指定，处理函数在HTTP框架支持的11个阶段中的哪个阶段生效。这是因为在设置```ngx_command_t```配置项时，已经说明了，该项必须是在一个http、server、location块内定义的一个无参数配置项。因此这种配置项所对应的模块，只能在NGX_HTTP_CONTENT_PHASE阶段开始处理请求。
+
+## 核心原理
+### HTTP框架
+HTTP框架中最重要的就是11个处理阶段，而作为第三方模块，一般只介入其中的7个阶段处理。这11个阶段如下所示
+```c
+typedef enum {
+  // 在接收到完整的HTTP头部后处理的HTTP阶段
+  NGX_HTTP_POST_READ_PHASE = 0,
+  /* 在还没有查询到URI匹配的location前，
+  这时rewrite重写URL也作为一个独立的HTTP阶段 */
+  NGX_HTTP_SERVER_REWRITE_PHASE,
+
+  /* 根据URI寻找匹配的location，
+  这个阶段通常由ngx_http_core_module模块实现，
+  不建议其他HTTP模块重新定义这一阶段的行为 */
+  NGX_HTTP_FIND_CONFIG_PHASE,
+
+  /* 在NGX_HTTP_FIND_CONFIG_PHASE阶段之后重写URL,
+  与NGX_HTTP_SERVER_REWRITE_PHASE阶段显然是不同的，
+  因为这两者会导致查找到不同的location块（location是与URI进行匹配的） */
+  NGX_HTTP_REWRITE_PHASE,
+
+  /* 这一阶段是用于在rewrite重写URL后重新跳到
+  NGX_HTTP_FIND_CONFIG_PHASE阶段，找到与新的
+  URI匹配的location。所以，这一阶段是无法由第三方
+  HTTP模块处理的，而仅由ngx_http_core_module模块使用 */
+  NGX_HTTP_POST_REWRITE_PHASE,
+
+  /* 处理NGX_HTTP_ACCESS_PHASE阶段前，
+  HTTP模块可以介入的处理阶段  */
+  NGX_HTTP_PREACCESS_PHASE,
+
+  /* 这个阶段用于让HTTP模块判断是否允许这个请求访问
+  Nginx服务器 */
+  NGX_HTTP_ACCESS_PHASE,
+
+  /*当NGX_HTTP_ACCESS_PHASE阶段中HTTP模块的
+  handler处理方法返回不允许访问的错误码时（实际是
+  NGX_HTTP_FORBIDDEN或者NGX_HTTP_UNAUTHORIZED），
+  这个阶段将负责构造拒绝服务的用户响应。
+  所以，这个阶段实际上用于给NGX_HTTP_ACCESS_PHASE阶段收尾 */
+  NGX_HTTP_POST_ACCESS_PHASE,
+  
+  /* 这个阶段完全是为了try_files配置项而设立的。
+  当HTTP请求访问静态文件资源时，
+  try_files配置项可以使这个请求顺序地访问多个静态文件资源，
+  如果某一次访问失败，则继续访问try_files中指定的下一个静态资源。
+  另外，这个功能完全是在NGX_HTTP_TRY_FILES_PHASE阶段中实现的 */
+  NGX_HTTP_TRY_FILES_PHASE,
+
+  // 用于处理HTTP请求内容的阶段，这是大部分HTTP模块最喜欢介入的阶段
+  NGX_HTTP_CONTENT_PHASE,
+
+  /* 处理完请求后记录日志的阶段。例如，
+  ngx_http_log_module模块就在这个阶段中加入了一个
+  handler处理方法，使得每个HTTP请求处理完毕后会记录access_log日志 */
+  NGX_HTTP_LOG_PHASE
+} ngx_http_phases;
+```
+
+常用的HTTP处理器handler，其函数签名形如
+```c
+typedef ngx_int_t (*ngx_http_handler_pt)(ngx_http_request_t *r);
+```
+
+而HTTP请求的封装结构，主要内容如下
+```c
+typedef struct ngx_http_request_s ngx_http_request_t;
+struct ngx_http_request_s {
+  ngx_uint_t method;
+  ngx_uint_t http_version;
+  ngx_str_t request_line;
+  ngx_str_t uri;
+  ngx_str_t args;
+  ngx_str_t exten;
+  ngx_str_t unparsed_uri;
+  ngx_str_t method_name;
+  ngx_str_t http_protocol;
+  u_char *uri_start;
+  u_char *uri_end;
+  u_char *uri_ext;
+  u_char *args_start;
+  u_char *request_start;
+  u_char *request_end;
+  u_char *method_end;
+  u_char *schema_start;
+  u_char *schema_end;
+  // 未经解析的头部
+  ngx_buf_t *header_in;
+  // 解析后的头部
+  ngx_http_headers_in_t headers_in;
+  // ... 其他内容
+};
 ```
 
 
-## 核心原理
+## 头文件速览
+| 文件名 | 文件内容 |
+| --- | --- |
+| /src/http/ngx_http_request.h | HTTP响应码 |
 
 ## 术语
 1. 虚拟主机：由于IP地址的数量有限，因此经常存在多个主机域名对应着同一个IP地址的情况，这时在nginx.conf中就可以按照server_name（对应用户请求中的主机域名）并通过server块来定义虚拟主机，每个server块就是一个虚拟主机，它只处理与之相对应的主机域名请求。
@@ -938,3 +1072,6 @@ ngx_list_t链表示意图
 1. [Nginx Docs](https://docs.nginx.com/nginx/)
 2. [Nginx Wiki](https://www.nginx.com/resources/wiki/)
 3. [Nginx 3rd Modules](https://www.nginx.com/resources/wiki/modules/index.html)
+4. [Nginx安装介绍-树莓派](https://blog.csdn.net/Hallo_ween/article/details/107836013)
+5. [Nginx源码分析](https://blog.csdn.net/initphp/category_9265172.html)
+6. [Nginx源码分析-实战篇](https://initphp.blog.csdn.net/article/details/72912128)

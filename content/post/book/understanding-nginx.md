@@ -586,6 +586,95 @@ typedef struct {
   // 链表内存池对象
   ngx_pool_t *pool;
 } ngx_list_t;
+
+// 键值
+typedef struct {
+  // 散列值
+  ngx_uint_t hash;
+  // 键
+  ngx_str_t key;
+  // 值
+  ngx_str_t value;
+  // 全小写化的key
+  u_char *lowcase_key;
+} ngx_table_elt_t;
+
+// 缓冲区，是Nginx最重要的数据结构，也是一个较为复杂的结构
+// 缓冲区设计的好坏，将会直接影响到内存的使用，以及响应速度
+typedef struct ngx_buf_s ngx_buf_t;
+typedef void* ngx_buf_tag_t; 
+struct ngx_buf_s {
+  /* pos通常是用来告诉使用者本次应该从
+  pos这个位置开始处理内存中的数据，这样设置是因为同一个
+  ngx_buf_t可能被多次反复处理。当然，
+  pos的含义是由使用它的模块定义的 */
+  u_char *pos;
+  /* last通常表示有效的内容到此为止，注意，
+  pos与last之间的内存是希望nginx处理的内容 */
+  u_char *last;
+  /* 处理文件时用，和pos与last类似，
+  file_pos表示将要处理的文件位置，
+  file_last表示截止的文件位置 */
+  off_t file_pos;
+  off_t file_last;
+  // 如果ngx_buf_t缓冲区用于内存，那么start指向这段内存的起始地址
+  u_char *start;
+  // 与start成员对应，指向缓冲区内存的末尾
+  u_char *end;
+  /* 表示当前缓冲区的类型，例如由哪个模块使用就指向这个模块
+  ngx_module_t变量的地址 */
+  ngx_buf_tag_t tag;
+  // 引用的文件
+  ngx_file_t *file;
+  /* 当前缓冲区的影子缓冲区（共享缓冲区），该成员很少用到，
+  仅仅在使用缓冲区转发上游服务器的响应时才使用了shadow成员，
+  这是因为Nginx希望尽可能节约内存了，分配一块内存并使用
+  ngx_buf_t表示接收到的上游服务器响应后，在向下游客户端转发时，
+  可能会把这块内存存储到文件中，也可能直接向下游发送，
+  此时Nginx绝不会重新复制一份内存用于新的目的，
+  而是再次建立一个ngx_buf_t结构体指向原内存，
+  这样多个ngx_buf_t结构体指向了同一块内存，
+  它们之间的关系就通过shadow成员来引用。
+  这种设计过于复杂，通常不建议使用 */
+  ngx_buf_t *shadow;
+  // 临时内存标志位，为1时表示数据在内存中且这段内存可以修改
+  unsigned temporary:1;
+  // 标志位，为1时表示数据在内存中且这段内存不可以被修改
+  unsigned memory:1;
+  // 标志位，为1时表示这段内存是用mmap系统调用映射过来的，不可以被修改
+  unsigned mmap:1;
+  // 标志位，为1时表示可回收
+  unsigned recycled:1;
+  // 标志位，为1时表示这段缓冲区处理的是文件而不是内存
+  unsigned in_file:1;
+  // 标志位，为1时表示需要执行flush操作
+  unsigned flush:1;
+  /* 标志位，对于操作这块缓冲区时是否使用同步方式，需谨慎考虑，
+  这可能会阻塞Nginx进程，Nginx中所有操作几乎都是异步的，
+  这是它支持高并发的关键。有些框架代码在sync为1时，
+  可能会有阻塞的方式进行I/O操作，它的意义视使用它的Nginx模块而定 */
+  unsigned sync:1;
+  /* 标志位，表示是否是最后一块缓冲区，因为ngx_buf_t可以由
+  ngx_chain_t链表串联起来，因此，当last_buf为1时，
+  表示当前是最后一块待处理的缓冲区 */
+  unsigned last_buf:1;
+  // 标志位，表示是否是ngx_chain_t中的最后一块缓冲区
+  unsigned last_in_chain:1;
+  /* 标志位，表示是否是最后一个影子缓冲区，与
+  shadow域配合使用。通常不建议使用它 */
+  unsigned last_shadow:1;
+  // 标志位，表示当前缓冲区是否属于临时文件
+  unsigned temp_file:1;
+};
+
+// 缓冲区链，常用于发送HTTP包体
+typedef struct ngx_chain_s ngx_chain_t;
+struct ngx_chain_s {
+  // 当前缓冲区
+  ngx_buf_t *buf;
+  // 链中的下一个
+  ngx_chain_t *next;
+};
 ```
 
 常见的库函数也有一些封装，例如
@@ -601,6 +690,236 @@ static ngx_inline ngx_int_t ngx_list_init(ngx_list_t list, ngx_pool_t pool, ngx_
 // 链表插入（先返回一个分配出来的地址，对地址赋值即可）
 void* ngx_list_push(ngx_list_t list);
 
+```
+
+### 加入编译
+Nginx的模块是以源码形式加入项目的，框架提供的加入方式，需要编写一个config文件，核心是修改三种变量，其内容如下
+```conf
+# 定义模块名称。可以将ngx_http_mytest_module替换为你想用的任意名称
+ngx_addon_name=ngx_http_mytest_module
+# 添加到模块数组，编译目标。HTTP_MODULES NGX_ADDON_SRCS必须以追加的形式进行修改
+HTTP_MODULES="$HTTP_MODULES ngx_http_mytest_module"
+NGX_ADDON_SRCS="$NGX_ADDON_SRCS $ngx_addon_dir/ngx_http_mytest_module.c"
+```
+
+在实际开发中，config文件中提供的变量，以及可以修改的内容都更多。而且可供增加的模块种类也更多。事实上，包括$CORE_MODULES、$EVENT_MODULES、$HTTP_MODULES、$HTTP_FILTER_MODULES、$HTTP_HEADERS_FILTER_MODULE等模块变量都可以重定义，它们分别对应着Nginx的核心模块、事件模块、HTTP模块、HTTP过滤模块、HTTP头部过滤模块。
+
+一般将config文件和自定义模块的源文件放在同一目录中，此后，可以调用configure尝试编译，如下
+```bash
+# 需指明添加的模块路径
+./configure --add-module=./path/to/ngx_http_mytest_module
+```
+
+### HTTP模块模板
+和其他框架一样，Nginx为模块开发提供了一个模板，用户只需要对其中的回调部分进行开发。模块定义的入口类型是```ngx_module_t```，他的定义如下
+
+```c
+typedef struct ngx_module_s ngx_module_t;
+struct ngx_module_s {
+  /* 下面的ctx_index、index、spare0、
+  spare1、spare2、spare3、version变量，
+  不需要在定义时赋值，可以用Nginx准备好的宏来定义，
+  #define NGX_MODULE_V1 0, 0, 0, 0, 0, 0, 1
+  对于一类模块（由下面的type成员决定类别）而言，
+  ctx_index表示当前模块在这类模块中的序号。
+  这个成员常常是由管理这类模块的一个Nginx核心模块设置的。
+  对于所有的HTTP模块而言，ctx_index是由核心模块ngx_http_module设置的。
+  ctx_index非常重要，Nginx的模块化设计非常依赖于各个模块的顺序，
+  它们既用于表达优先级，也用于表明每个模块的位置，借以帮助
+  Nginx框架快速获得某个模块的数据 */
+  ngx_uint_t ctx_index;
+  /* index表示当前模块在ngx_modules数组中的序号。
+  注意，ctx_index表示的是当前模块在一类模块中的序号，
+  而index表示当前模块在所有模块中的序号，它同样关键。
+  Nginx启动时会根据ngx_modules数组设置各模块的
+  index值。初始化方式例如：
+    ngx_max_module = 0;
+    for (i = 0; ngx_modules[i]; i++) {
+      ngx_modules[i]->index = ngx_max_module++; 
+    }
+  */
+  ngx_uint_t index;
+  // spare系列的保留变量，暂未使用
+  ngx_uint_t spare0;
+  ngx_uint_t spare1;
+  ngx_uint_t spare2;
+  ngx_uint_t spare3;
+  // 模块的版本，便于将来的扩展。目前只有一种，默认为1
+  ngx_uint_t version;
+  /* ctx用于指向一类模块的上下文结构体，
+  Nginx模块有许多种类，不同类模块之间的功能差别很大。
+  例如，事件类型的模块主要处理I/O事件相关的功能，
+  HTTP类型的模块主要处理HTTP应用层的功能。
+  每个模块都有了自己的特性，而ctx将会指向特定类型模块的公共接口。
+  例如，在HTTP模块中，ctx需要指向ngx_http_module_t结构体 */
+  void *ctx;
+  // commands将处理nginx.conf中的配置项，详见第4章
+  ngx_command_t *commands;
+  /* type表示该模块的类型，它与ctx指针是紧密相关的。
+  在官方Nginx中，它的取值范围是以下5种：
+    NGX_HTTP_MODULE、NGX_CORE_MODULE、
+    NGX_CONF_MODULE、NGX_EVENT_MODULE、
+    NGX_MAIL_MODULE。
+  实际上，还可以自定义新的模块类型 */
+  ngx_uint_t type;
+  
+  /* 在Nginx的启动、停止过程中，
+  以下7个函数指针表示有7个执行点会分别调用这7种方法。
+  对于任一个方法而言，如果不需要Nginx在某个时刻执行它，
+  那么简单地把它设为NULL空指针即可 */
+
+  /* 虽然从字面上理解应当在master进程启动时回调init_master，
+  但到目前为止，框架代码从来不会调用它，因此，可将init_master设为NULL */
+  ngx_int_t (*init_master)(ngx_log_t *log); 
+  
+  /* init_module回调方法在初始化所有模块时被调用。在master/worker模式下，
+  这个阶段将在启动worker子进程前完成 */
+  ngx_int_t (*init_module)(ngx_cycle_t *cycle); 
+  
+  /* init_process回调方法在正常服务前被调用。
+  在master/worker模式下，多个worker子进程已经产生，
+  在每个worker进程的初始化过程会调用所有模块的init_process函数 */
+  ngx_int_t (*init_process)(ngx_cycle_t *cycle); 
+  
+  /* 由于Nginx暂不支持多线程模式，所以init_thread在框架代码中没有被调用过，设为NULL*/
+  ngx_int_t (*init_thread)(ngx_cycle_t *cycle); 
+  
+  // 同上，exit_thread也不支持，设为NULL
+  void (*exit_thread)(ngx_cycle_t *cycle); 
+  
+  /* exit_process回调方法在服务停止前调用。
+  在master/worker模式下，worker进程会在退出前调用它 */
+  void (*exit_process)(ngx_cycle_t *cycle);
+  
+  // exit_master回调方法将在master进程退出前被调用
+  void (*exit_master)(ngx_cycle_t *cycle); 
+  
+  /* 以下8个spare_hook变量也是保留字段，目前没有使用，
+  但可用Nginx提供的NGX_MODULE_V1_PADDING宏来填充。
+  #define NGX_MODULE_V1_PADDING 0, 0, 0, 0, 0, 0, 0, 0*/
+  uintptr_t spare_hook0;
+  uintptr_t spare_hook1;
+  uintptr_t spare_hook2;
+  uintptr_t spare_hook3;
+  uintptr_t spare_hook4;
+  uintptr_t spare_hook5;
+  uintptr_t spare_hook6;
+  uintptr_t spare_hook7;
+};
+```
+
+虽然有了注释，但是这个类型仍然有一些地方值得再展开。
+1. 定义一个HTTP模块时，务必把type字段设为NGX_HTTP_MODULE。
+2. 对于下列回调方法：init_module、init_process、exit_process、exit_master，调用它们的是Nginx的框架代码。而和Http核心模块无关，即使配置中没有配置Http配置块，仍然会被调用。因此，通常开发HTTP模块时都把它们设为NULL空指针。这样，当Nginx不作为Web服务器使用时，不会执行HTTP模块的任何代码。因此可见，```ngx_module_t```内的所有的回调，其实都不是必要的。
+
+因此定义HTTP模块时，最重要的实际是**设置ctx和commands**这两个成员。对于HTTP类型的模块来说，ngx_module_t中的ctx指针必须指向ngx_http_module_t接口（这是HTTP核心模块框架的要求）。下面先来分析ngx_http_module_t结构体的成员。
+```c
+typedef struct {
+  // 解析配置文件前调用
+  ngx_int_t (*preconfiguration)(ngx_conf_t *cf);
+  // 完成配置文件的解析后调用
+  ngx_int_t (*postconfiguration)(ngx_conf_t *cf); 
+
+  /* 当需要创建数据结构用于存储main级别
+  （直属于http{...}块的配置项）的全局配置项时，
+  可以通过create_main_conf回调方法创建存储全局配置项的结构体 */
+  void* (*create_main_conf)(ngx_conf_t *cf); 
+  
+  // 常用于初始化main级别配置项
+  char* (*init_main_conf)(ngx_conf_t cf, void *conf);
+  
+  /* 当需要创建数据结构用于存储srv级别
+  （直属于虚拟主机server{...}块的配置项）的配置项时，
+  可以通过实现create_srv_conf回调方法创建存储srv级别配置项的结构体 */
+  void* (*create_srv_conf)(ngx_conf_t *cf);
+  
+  // merge_srv_conf回调方法主要用于合并main级别和srv级别下的同名配置项
+  char* (*merge_srv_conf)(ngx_conf_t cf, void *prev, void *conf);
+  
+  /* 当需要创建数据结构用于存储loc级别
+  （直属于location{...}块的配置项）的配置项时，
+  可以实现create_loc_conf回调方法 */
+  void* (*create_loc_conf)(ngx_conf_t *cf);
+  
+  // merge_loc_conf回调方法主要用于合并srv级别和loc级别下的同名配置项
+  char* (*merge_loc_conf)(ngx_conf_t cf, void *prev, void *conf); 
+} ngx_http_module_t;
+```
+
+不过，这8个阶段的调用顺序与上述定义的顺序是不同的。在Nginx启动过程中，HTTP框架调用这些回调方法的实际顺序，和具体的nginx.conf配置文件有关。其运行时顺序有可能是这样的：
+1. create_main_conf
+2. create_srv_conf
+3. create_loc_conf
+4. preconfiguration
+5. init_main_conf
+6. merge_srv_conf
+7. merge_loc_conf
+8. postconfiguration
+
+commands数组用于定义模块的配置文件参数，每一个数组元素都是ngx_command_t类型，数组的结尾用ngx_null_command表示。Nginx在解析配置文件中的一个配置项时首先会遍历所有的模块，对于每一个模块而言，即通过遍历commands数组进行，另外，在数组中检查到ngx_null_command时，会停止使用当前模块解析该配置项。每一个ngx_command_t结构体定义了自己感兴趣的一个配置项：
+
+```c
+// 每一个command_s，定义了一个配置项
+typedef struct ngx_command_s ngx_command_t;
+struct ngx_command_s {
+  // 配置项名称，如"gzip"
+  ngx_str_t name;
+  
+  /* 配置项类型，type将指定配置项可以出现的位置。
+  例如，出现在server{}或location{}中，以及它可以携带的参数个数 */
+  ngx_uint_t type;
+
+  // 出现了name中指定的配置项后，将会调用set方法处理配置项的参数
+  char* (*set)(ngx_conf_t cf, ngx_command_t cmd, void *conf);
+  
+  // 在配置文件中的偏移量
+  ngx_uint_t conf;
+
+  /* 通常用于使用预设的解析方法解析配置项，
+  这是配置模块的一个优秀设计。它需要与conf配合使用 */
+  ngx_uint_t offset;
+
+  // 配置项读取后的处理方法，必须是ngx_conf_post_t结构的指针
+  void *post;
+};
+
+// 结尾的ngx_null_command只是一个空的ngx_command_t宏，如下所示：
+#define ngx_null_command { ngx_null_string, 0, NULL, 0, 0, NULL }
+```
+
+
+### 基本Demo
+```c
+// 实现的是ngx_command_s中的set
+static char* ngx_http_mytest(ngx_conf_t *cf, ngx_command_t cmd, void *conf) {
+  ngx_http_core_loc_conf_t *clcf;
+  /* 首先找到mytest配置项所属的配置块，clcf看上去像是location块内的数据结构，
+  其实不然，它可以是main、srv或者loc级别配置项，
+  也就是说，在每个http{}和server{}内也都有一个ngx_http_core_loc_conf_t结构体 */
+  clcf = ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
+
+  /* HTTP框架在处理用户请求进行到NGX_HTTP_CONTENT_PHASE阶段时，
+  如果请求的主机域名、URI与mytest配置项所在的配置块相匹配，
+  就将调用我们实现的ngx_http_mytest_handler方法处理这个请求 */
+  clcf->handler = ngx_http_mytest_handler;
+  return NGX_CONF_OK;
+}
+
+// command数组
+static ngx_command_t ngx_http_mytest_commands[] = 
+{
+  // 结构化绑定
+  {
+    ngx_string("mytest"),
+    NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LMT_CONF|NGX_CONF_NOARGS,
+    ngx_http_mytest,
+    NGX_HTTP_LOC_CONF_OFFSET,
+    0,
+    NULL 
+  },
+  // 最后一个必须是null
+  ngx_null_command
+};
 ```
 
 

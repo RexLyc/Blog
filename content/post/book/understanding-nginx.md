@@ -14,7 +14,7 @@ draft: true
 Nginx是一个优秀的静态Web、反向代理服务器，目前被广泛使用，其设计思路，尤其是模块支持能力非常强大，本文记录对该书的学习和实践。
 <!--more-->
 
-> Nginx作为Web服务器、反向代理服务器，编写模块所能带来的扩展性主要有三种，handler类型（处理请求，给反馈）、过滤器类型（filter）、负载均衡类型（upstream、load-balance）。
+> Nginx作为Web服务器、反向代理服务器，编写模块所能带来的扩展性主要有三种，handler类型（处理请求，给反馈）、过滤器类型（filter）、负载均衡类型（upstream、load-balance）。在编写代码时，一定要注意避免同步阻塞。
 
 ## 概述
 Nginx相比于其他Web服务器（Apache、Jetty、Tomcat、IIS），整体上有以下特点：
@@ -711,6 +711,30 @@ struct ngx_file_s {
   // 与配置文件中的directio配置项相对应，在发送大文件时可以设为1
   unsigned directio:1;
 };
+
+// Nginx内的文件信息是Linux系统文件信息结构体stat的别名
+typedef struct stat ngx_file_info_t;
+
+// 只要使用了文件，就需要对文件句柄进行清理，清理过程所需的结构体如下
+typedef struct {
+  // 文件句柄
+  ngx_fd_t fd;
+  // 文件名称
+  u_char *name;
+  // 日志对象
+  ngx_log_t *log;
+} ngx_pool_cleanup_file_t;
+
+// 清理工作链表，执行清理的方法，以及待清理数据
+typedef struct ngx_pool_cleanup_s ngx_pool_cleanup_t;
+struct ngx_pool_cleanup_s {
+  // 执行实际清理资源工作的回调方法
+  ngx_pool_cleanup_pt handler;
+  // handler回调方法需要的参数
+  void *data;
+  // 下一个ngx_pool_cleanup_t清理对象，如果没有，需置为NULL
+  ngx_pool_cleanup_t *next;
+};
 ```
 
 常见的库函数也有一些封装，例如
@@ -729,6 +753,9 @@ void* ngx_list_push(ngx_list_t list);
 // 打开文件
 #define ngx_open_file(name, mode, create, access) \
   open((const char *) name, mode|create, access)
+
+// 获取文件信息
+#define ngx_file_info(file, sb) stat((const char *) file, sb)
 ```
 
 ### 加入编译
@@ -1061,10 +1088,44 @@ static ngx_int_t ngx_http_hello_handler(ngx_http_request_t *r) {
 }
 ```
 
-
 注意，在本Demo代码中，并没有显式的指定，处理函数在HTTP框架支持的11个阶段中的哪个阶段生效。以这种方式挂载的handler也被称为content handler。这是因为在该模块的command中，定义的set阶段里，有对该location设置了handler，当框架在NGX_HTTP_CONTENT_PHASE阶段，执行到此处时，会明白该模块对当前location进行了处理以后，不再需要遍历所有的content phase handlers，而是直接执行一个handler，并返回。这部分内容将会在后续讲解原理时再详细展开。
 
 ## 核心原理
+### 配置
+在前文的Demo中，所使用的配置项只是一个无参数的```hello```。其作用也非常简单，就是通知Nginx的HTTP框架，在出现该配置项时，启用对应模块。显然HTTP框架需要处理更为复杂的配置项。
+
+配置项是用户和Nginx的接口，对于模块开发者而言，使用```ngx_http_module_t```和```ngx_command_t```对配置项处理，是模块自定义处理业务的入口。总体上来说，对配置项的处理可以分为4个步骤：
+1. 创建数据结构用于存储配置项对应的参数。
+2. 设定配置项在nginx.conf中出现时的限制条件与回调方法。
+3. 实现第2步中的回调方法，或者使用Nginx框架预设的14个回调方法。
+4. 合并不同级别的配置块中出现的同名配置项。
+
+```c
+// 配置项所能支持的所有数据结构
+typedef struct {
+  ngx_str_t my_str;
+  ngx_int_t my_num;
+  ngx_flag_t my_flag;
+  size_t my_size;
+  ngx_array_t* my_str_array;
+  ngx_array_t* my_keyval;
+  off_t my_off;
+  ngx_msec_t my_msec;
+  time_t my_sec;
+  ngx_bufs_t my_bufs;
+  ngx_uint_t my_enum_seq;
+  ngx_uint_t my_bitmask;
+  ngx_uint_t my_access;
+  ngx_path_t* my_path;
+} ngx_http_mytest_conf_t;
+```
+
+为了实现嵌套，或者同级的配置项，Nginx在进行配置解析时，需要从外到内逐层处理。
+
+![Nginx配置文件处理时序图](/images/book/understanding-nginx/config_process_flow.png)
+
+> 图中省略了解析location的过程，实际上和server块的解析非常类似。
+
 ### HTTP框架
 HTTP框架中最重要的就是11个处理阶段，而作为第三方模块，一般只介入其中的7个阶段处理。这11个阶段如下所示
 ```c
@@ -1157,9 +1218,10 @@ struct ngx_http_request_s {
   ngx_http_headers_in_t headers_in;
   // 请求响应的头部
   ngx_http_headers_out_t headers_out; 
-
   // 在请求处理过程中使用的内存池对象
   ngx_pool_t *pool;
+  // 支持range断点续传
+  unsigned allow_ranges:1;
   // ... 其他内容
 };
 
@@ -1323,13 +1385,61 @@ out.next = NULL;
 return ngx_http_output_filter(r, &out);
 ```
 
-另外由于包体中还可以是文件数据，为了提高效果，以及利用系统上可能存在的高效的文件API。
+另外由于包体中还可以是文件数据，为了提高效率，避免同步阻塞，以及利用系统上可能存在的高效的文件API。直接发送磁盘文件是最佳选择。在这个过程中，分别使用到了```ngx_file_t```，```ngx_open_file```，```ngx_pool_cleanup_add```等内容，示例如下。
+```c
+ngx_buf_t *b;
+b = ngx_palloc(r->pool, sizeof(ngx_buf_t));
+// 例如计划读取文件test.txt
+u_char* filename = (u_char*)"/tmp/test.txt";
+// 标记为文件类buf
+b->in_file = 1;
+// 对ngx_file_t进行申请和填写
+b->file = ngx_pcalloc(r->pool, sizeof(ngx_file_t));
+b->file->fd = ngx_open_file(filename, NGX_FILE_RDONLY|NGX_FILE_NONBLOCK, NGX_FILE_OPEN, 0);
+b->file->log = r->connection->log;
+b->file->name.data = filename;
+b->file->name.len = strlen(filename);
+if (b->file->fd <= 0)
+{
+  return NGX_HTTP_NOT_FOUND;
+}
+// 对HTTP响应信息的填写，需要先获取文件信息
+if (ngx_file_info(filename, &b->file->info) == NGX_FILE_ERROR)
+{
+  return NGX_HTTP_INTERNAL_SERVER_ERROR;
+}
+r->headers_out.content_length_n = b->file->info.st_size;
+b->file_pos = 0;
+b->file_last = b->file->info.st_size;
+// 设置文件句柄清理
+ngx_pool_cleanup_t* cln = ngx_pool_cleanup_add(r->pool, sizeof(ngx_pool_cleanup_file_t));
+if (cln == NULL) {
+  return NGX_ERROR;
+}
+// 文件固定用ngx_pool_cleanup_file
+cln->handler = ngx_pool_cleanup_file;
+// 文件的清理类型是ngx_pool_cleanup_file_t
+ngx_pool_cleanup_file_t *clnf = cln->data;
+clnf->fd = b->file->fd;
+clnf->name = b->file->name.data;
+clnf->log = r->pool->log;
+```
 
+RFC2616规范中定义了range协议，它给出了一种规则使得客户端可以在一次请求中只下载完整文件的某一部分，这样就可支持客户端在开启多个线程的同时下载一份文件，其中每个线程仅下载文件的一部分，最后组成一个完整的文件。Nginx也支持range协议，而且是框架级别的支持，只需要在发送时将相关变量置为1，例如
+```c
+// r为ngx_http_request_t*
+r->allow_ranges=1;
+```
 
 ## 头文件速览
+本章为了直观，保留了头文件的路径，实际在代码中引用时并不需要给出前缀，直接使用头文件名即可。
+
 | 文件名 | 文件内容 |
 | --- | --- |
-| /src/http/ngx_http_request.h | HTTP响应码 |
+| /src/http/ngx_http.h | 包含HTTP框架的整体头文件 |
+| /src/core/ngx_config.h | Nginx核心，配置处理 |
+| /src/core/ngx_core.h | Nginx框架核心 |
+
 
 ## 术语
 1. 虚拟主机：由于IP地址的数量有限，因此经常存在多个主机域名对应着同一个IP地址的情况，这时在nginx.conf中就可以按照server_name（对应用户请求中的主机域名）并通过server块来定义虚拟主机，每个server块就是一个虚拟主机，它只处理与之相对应的主机域名请求。

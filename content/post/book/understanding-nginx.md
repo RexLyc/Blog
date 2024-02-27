@@ -13,7 +13,8 @@ draft: true
 ---
 Nginx是一个优秀的静态Web、反向代理服务器，目前被广泛使用，其设计思路，尤其是模块支持能力非常强大，本文记录对该书的学习和实践。
 <!--more-->
-> 
+
+> Nginx作为Web服务器、反向代理服务器，编写模块所能带来的扩展性主要有三种，handler类型（处理请求，给反馈）、过滤器类型（filter）、负载均衡类型（upstream、load-balance）。
 
 ## 概述
 Nginx相比于其他Web服务器（Apache、Jetty、Tomcat、IIS），整体上有以下特点：
@@ -77,6 +78,12 @@ net.ipv4.tcp_syncookies = 1
 
 在解压缩源代码之后，一个基本的编译安装流程是
 ```bash
+# 可能的依赖项(不同包管理器可能不一致)
+sudo apt install libpcre3 libpcre3-dev \
+  libperl-dev zlib1g-dev openssl libssl-dev
+
+# 如果不是源代码安装的openssl，需要使用参数
+# ./configure --with-http_ssl_module
 # 通过./configure --help 查看更多选项
 ./configure
 make
@@ -682,6 +689,28 @@ struct ngx_chain_s {
   // 链中的下一个
   ngx_chain_t *next;
 };
+
+// 上文中的ngx_file_t
+typedef struct ngx_file_s ngx_file_t;
+struct ngx_file_s {
+  // 文件句柄描述符
+  ngx_fd_t fd;
+  // 文件名称
+  ngx_str_t name;
+  // 文件大小等资源信息，实际就是Linux系统定义的stat结构
+  ngx_file_info_t info;
+  /* 该偏移量告诉Nginx现在处理到文件何处了，
+  一般不用设置它，Nginx框架会根据当前发送状态设置它 */
+  off_t offset;
+  // 当前文件系统偏移量，一般不用设置它，同样由Nginx框架设置
+  off_t sys_offset;
+  // 日志对象，相关的日志会输出到log指定的日志文件中
+  ngx_log_t *log;
+  // 目前未使用
+  unsigned valid_info:1;
+  // 与配置文件中的directio配置项相对应，在发送大文件时可以设为1
+  unsigned directio:1;
+};
 ```
 
 常见的库函数也有一些封装，例如
@@ -697,16 +726,19 @@ static ngx_inline ngx_int_t ngx_list_init(ngx_list_t list, ngx_pool_t pool, ngx_
 // 链表插入（先返回一个分配出来的地址，对地址赋值即可）
 void* ngx_list_push(ngx_list_t list);
 
+// 打开文件
+#define ngx_open_file(name, mode, create, access) \
+  open((const char *) name, mode|create, access)
 ```
 
 ### 加入编译
 Nginx的模块是以源码形式加入项目的，框架提供的加入方式，需要编写一个config文件，核心是修改三种变量，其内容如下
 ```conf
-# 定义模块名称。可以将ngx_http_mytest_module替换为你想用的任意名称
-ngx_addon_name=ngx_http_mytest_module
+# 定义模块名称。可以将ngx_http_hello_module替换为你想用的任意名称
+ngx_addon_name=ngx_http_hello_module
 # 添加到模块数组，编译目标。HTTP_MODULES NGX_ADDON_SRCS必须以追加的形式进行修改
-HTTP_MODULES="$HTTP_MODULES ngx_http_mytest_module"
-NGX_ADDON_SRCS="$NGX_ADDON_SRCS $ngx_addon_dir/ngx_http_mytest_module.c"
+HTTP_MODULES="$HTTP_MODULES ngx_http_hello_module"
+NGX_ADDON_SRCS="$NGX_ADDON_SRCS $ngx_addon_dir/ngx_http_hello_module.c"
 ```
 
 在实际开发中，config文件中提供的变量，以及可以修改的内容都更多。而且可供增加的模块种类也更多。事实上，包括$CORE_MODULES、$EVENT_MODULES、$HTTP_MODULES、$HTTP_FILTER_MODULES、$HTTP_HEADERS_FILTER_MODULE等模块变量都可以重定义，它们分别对应着Nginx的核心模块、事件模块、HTTP模块、HTTP过滤模块、HTTP头部过滤模块。
@@ -714,7 +746,7 @@ NGX_ADDON_SRCS="$NGX_ADDON_SRCS $ngx_addon_dir/ngx_http_mytest_module.c"
 一般将config文件和自定义模块的源文件放在同一目录中，此后，可以调用configure尝试编译，如下
 ```bash
 # 需指明添加的模块路径
-./configure --add-module=./path/to/ngx_http_mytest_module
+./configure --add-module=./path/to/ngx_http_hello_module
 ```
 
 ### HTTP模块模板
@@ -833,7 +865,7 @@ typedef struct {
   void* (*create_main_conf)(ngx_conf_t *cf); 
   
   // 常用于初始化main级别配置项
-  char* (*init_main_conf)(ngx_conf_t cf, void *conf);
+  char* (*init_main_conf)(ngx_conf_t *cf, void *conf);
   
   /* 当需要创建数据结构用于存储srv级别
   （直属于虚拟主机server{...}块的配置项）的配置项时，
@@ -841,7 +873,7 @@ typedef struct {
   void* (*create_srv_conf)(ngx_conf_t *cf);
   
   // merge_srv_conf回调方法主要用于合并main级别和srv级别下的同名配置项
-  char* (*merge_srv_conf)(ngx_conf_t cf, void *prev, void *conf);
+  char* (*merge_srv_conf)(ngx_conf_t *cf, void *prev, void *conf);
   
   /* 当需要创建数据结构用于存储loc级别
   （直属于location{...}块的配置项）的配置项时，
@@ -862,6 +894,26 @@ typedef struct {
 6. merge_srv_conf
 7. merge_loc_conf
 8. postconfiguration
+由于一般不需要对配置解析过程进行干涉，因此这8个回调，一般也设置成NULL。但如果想详细控制在HTTP框架的某个阶段，插入一个handler，则一般在postconfiguration中进行处理，形如
+```c
+static ngx_int_t
+ngx_http_hello_post_conf(ngx_conf_t *cf)
+{
+  ngx_http_handler_pt        *h;
+  ngx_http_core_main_conf_t  *cmcf;
+
+  cmcf = ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
+  // 选择在CONTENT_PHASE阶段插入处理器
+  h = ngx_array_push(&cmcf->phases[NGX_HTTP_CONTENT_PHASE].handlers);
+  if (h == NULL) {
+    return NGX_ERROR;
+  }
+
+  *h = ngx_http_hello_handler;
+
+  return NGX_OK;
+}
+```
 
 commands数组用于定义模块的配置文件参数，每一个数组元素都是ngx_command_t类型，数组的结尾用ngx_null_command表示。Nginx在解析配置文件中的一个配置项时首先会遍历所有的模块，对于每一个模块而言，即通过遍历commands数组进行，另外，在数组中检查到ngx_null_command时，会停止使用当前模块解析该配置项。每一个ngx_command_t结构体定义了自己感兴趣的一个配置项：
 
@@ -897,67 +949,120 @@ struct ngx_command_s {
 
 ### 基本Demo
 ```c
-// 实现的是ngx_command_s中的set
-static char* ngx_http_mytest(ngx_conf_t *cf, ngx_command_t cmd, void *conf) {
-  ngx_http_core_loc_conf_t *clcf;
-  /* 首先找到mytest配置项所属的配置块，clcf看上去像是location块内的数据结构，
-  其实不然，它可以是main、srv或者loc级别配置项，
-  也就是说，在每个http{}和server{}内也都有一个ngx_http_core_loc_conf_t结构体 */
-  clcf = ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
+#include <ngx_config.h>
+#include <ngx_core.h>
+#include <ngx_http.h>
+ 
+static ngx_int_t ngx_http_hello_handler(ngx_http_request_t *r);
+ 
+static char* ngx_http_hello(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 
-  /* HTTP框架在处理用户请求进行到NGX_HTTP_CONTENT_PHASE阶段时，
-  如果请求的主机域名、URI与mytest配置项所在的配置块相匹配，
-  就将调用我们实现的ngx_http_mytest_handler方法处理这个请求 */
-  clcf->handler = ngx_http_mytest_handler;
-  return NGX_CONF_OK;
-}
-
-// command数组
-static ngx_command_t ngx_http_mytest_commands[] = 
-{
-  // 结构化绑定
+/**
+ * 处理nginx.conf中的配置命令解析
+ * 例如：
+ * location /hello {
+ *  	hello
+ * }
+ * 当用户请求:http://127.0.0.1/hello的时候，请求会跳转到hello这个配置上
+ * hello的命令行解析回调函数：ngx_http_hello
+ */
+static ngx_command_t ngx_http_hello_commands[] = {
   {
-    ngx_string("mytest"),
-    NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LMT_CONF|NGX_CONF_NOARGS,
-    ngx_http_mytest,
+    ngx_string("hello"),
+    NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF | NGX_HTTP_LMT_CONF | NGX_CONF_NOARGS,
+    ngx_http_hello,
     NGX_HTTP_LOC_CONF_OFFSET,
     0,
-    NULL 
+    NULL
   },
-  // 最后一个必须是null
   ngx_null_command
 };
-
-// 因为不需要在HTTP框架下进行初始化，ngx_http_module_t很简单
-static ngx_http_module_t ngx_http_mytest_module_ctx = {
-  NULL, /* preconfiguration */
-  NULL, /* postconfiguration */
-  NULL, /* create main configuration */
-  NULL, /* init main configuration */
-  NULL, /* create server configuration */
-  NULL, /* merge server configuration */
-  NULL, /* create location configuration */
-  NULL /* merge location configuration */
-};
-
-// 最后是mytest模块
-ngx_module_t ngx_http_mytest_module = {
+ 
+ 
+/**
+ * 模块上下文
+ */
+static ngx_http_module_t ngx_http_hello_module_ctx = { NULL, NULL, NULL, NULL,
+  NULL, NULL, NULL, NULL };
+ 
+/**
+ * 模块的定义
+ */
+ngx_module_t ngx_http_hello_module = {
   NGX_MODULE_V1,
-  &ngx_http_mytest_module_ctx, /* module context */
-  ngx_http_mytest_commands, /* module directives */
-  NGX_HTTP_MODULE, /* module type */
-  NULL, /* init master */
-  NULL, /* init module */
-  NULL, /* init process */
-  NULL, /* init thread */
-  NULL, /* exit thread */
-  NULL, /* exit process */
-  NULL, /* exit master */
+  &ngx_http_hello_module_ctx,
+  ngx_http_hello_commands,
+  NGX_HTTP_MODULE,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
   NGX_MODULE_V1_PADDING
 };
+ 
+/**
+ * 命令解析的回调函数
+ * 该函数中，主要获取loc的配置，并且设置location中的回调函数handler
+ */
+static char *
+ngx_http_hello(ngx_conf_t *cf, ngx_command_t *cmd, void *conf) {
+	ngx_http_core_loc_conf_t *clcf;
+ 
+	clcf = ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
+	/* 设置回调函数。当请求http://127.0.0.1/hello的时候，会调用此回调函数 */
+	clcf->handler = ngx_http_hello_handler;
+ 
+	return NGX_CONF_OK;
+}
+ 
+/**
+ * 模块回调函数，输出hello world
+ */
+static ngx_int_t ngx_http_hello_handler(ngx_http_request_t *r) {
+  // HTTP方法名检查
+	if (!(r->method & (NGX_HTTP_GET | NGX_HTTP_HEAD))) {
+		return NGX_HTTP_NOT_ALLOWED;
+	}
+  // 包体处理，丢弃
+	ngx_int_t rc = ngx_http_discard_request_body(r);
+	if (rc != NGX_OK) {
+		return rc;
+	}
+  
+	ngx_str_t type = ngx_string("text/plain");
+	ngx_str_t response = ngx_string("Hello World");
+	r->headers_out.status = NGX_HTTP_OK;
+	r->headers_out.content_length_n = response.len;
+	r->headers_out.content_type = type;
+ 
+	rc = ngx_http_send_header(r);
+	if (rc == NGX_ERROR || rc > NGX_OK || r->header_only) {
+		return rc;
+	}
+ 
+	ngx_buf_t *b;
+	b = ngx_create_temp_buf(r->pool, response.len);
+	if (b == NULL) {
+		return NGX_HTTP_INTERNAL_SERVER_ERROR;
+	}
+ 
+	ngx_memcpy(b->pos, response.data, response.len);
+	b->last = b->pos + response.len;
+	b->last_buf = 1;
+ 
+	ngx_chain_t out;
+	out.buf = b;
+	out.next = NULL;
+ 
+	return ngx_http_output_filter(r, &out);
+}
 ```
 
-注意，在代码中，并没有显式的指定，处理函数在HTTP框架支持的11个阶段中的哪个阶段生效。这是因为在设置```ngx_command_t```配置项时，已经说明了，该项必须是在一个http、server、location块内定义的一个无参数配置项。因此这种配置项所对应的模块，只能在NGX_HTTP_CONTENT_PHASE阶段开始处理请求。
+
+注意，在本Demo代码中，并没有显式的指定，处理函数在HTTP框架支持的11个阶段中的哪个阶段生效。以这种方式挂载的handler也被称为content handler。这是因为在该模块的command中，定义的set阶段里，有对该location设置了handler，当框架在NGX_HTTP_CONTENT_PHASE阶段，执行到此处时，会明白该模块对当前location进行了处理以后，不再需要遍历所有的content phase handlers，而是直接执行一个handler，并返回。这部分内容将会在后续讲解原理时再详细展开。
 
 ## 核心原理
 ### HTTP框架
@@ -1023,7 +1128,8 @@ typedef enum {
 typedef ngx_int_t (*ngx_http_handler_pt)(ngx_http_request_t *r);
 ```
 
-而HTTP请求的封装结构，主要内容如下
+### HTTP数据结构
+对HTTP请求的封装结构，主要内容如下
 ```c
 typedef struct ngx_http_request_s ngx_http_request_t;
 struct ngx_http_request_s {
@@ -1049,9 +1155,175 @@ struct ngx_http_request_s {
   ngx_buf_t *header_in;
   // 解析后的头部
   ngx_http_headers_in_t headers_in;
+  // 请求响应的头部
+  ngx_http_headers_out_t headers_out; 
+
+  // 在请求处理过程中使用的内存池对象
+  ngx_pool_t *pool;
   // ... 其他内容
 };
+
+// HTTP请求的头部
+typedef struct {
+  /* 所有解析过的HTTP头部都在headers链表中，
+  每一个元素都是ngx_table_elt_t成员，这里是所有的头部字段，
+  其中有一些标准定义的，会在结构体的后续字段中直接给出，
+  对于不常见的/自定义的字段，需要自行遍历 */
+  ngx_list_t headers; 
+
+  /* 以下每个ngx_table_elt_t成员都是RFC2616规范中定义的HTTP头部，
+  它们实际都指向headers链表中的相应成员。
+  注意，当它们为NULL空指针时，表示没有解析到相应的HTTP头部 */
+  ngx_table_elt_t *host; ngx_table_elt_t *connection; ngx_table_elt_t *if_modified_since;
+  ngx_table_elt_t *if_unmodified_since; ngx_table_elt_t *user_agent; ngx_table_elt_t *referer;
+  ngx_table_elt_t *content_length; ngx_table_elt_t *content_type; ngx_table_elt_t *range;
+  ngx_table_elt_t *if_range; ngx_table_elt_t *transfer_encoding; ngx_table_elt_t *expect; 
+#if (NGX_HTTP_GZIP)
+  ngx_table_elt_t *accept_encoding;
+  ngx_table_elt_t *via;
+#endif
+  ngx_table_elt_t *authorization; ngx_table_elt_t *keep_alive; 
+#if (NGX_HTTP_PROXY || NGX_HTTP_REALIP || NGX_HTTP_GEO)
+  ngx_table_elt_t *x_forwarded_for;
+#endif
+#if (NGX_HTTP_REALIP)
+  ngx_table_elt_t *x_real_ip;
+#endif
+#if (NGX_HTTP_HEADERS)
+  ngx_table_elt_t *accept; ngx_table_elt_t *accept_language;
+#endif
+#if (NGX_HTTP_DAV)
+  ngx_table_elt_t *depth; ngx_table_elt_t *destination;
+  ngx_table_elt_t *overwrite; ngx_table_elt_t *date;
+#endif
+  /* user和passwd是只有ngx_http_auth_basic_module才会用到的成员，这里可以忽略 */
+  ngx_str_t user; ngx_str_t passwd; 
+  /* cookies是以ngx_array_t数组存储的 */
+  ngx_array_t cookies;
+  // server名称
+  ngx_str_t server;
+  // 根据ngx_table_elt_t *content_length计算出的HTTP包体大小
+  off_t content_length_n;
+  time_t keep_alive_n; 
+  /* HTTP连接类型，它的取值范围是0、
+  NGX_http_CONNECTION_CLOSE或者
+  NGX_HTTP_CONNECTION_KEEP_ALIVE */
+  unsigned connection_type:2;
+  /* 以下7个标志位是HTTP框架根据浏览器传来的useragent头部，
+  它们可用来判断浏览器的类型，值为1时表示是相应的浏览器发来的请求，
+  值为0时则相反 */
+  unsigned msie:1;
+  unsigned msie6:1;
+  unsigned opera:1;
+  unsigned gecko:1;
+  unsigned chrome:1;
+  unsigned safari:1;
+  unsigned konqueror:1;
+} ngx_http_headers_in_t;
+
+// HTTP请求响应的头部
+typedef struct {
+  // 待发送的HTTP头部链表，与headers_in中的headers成员类似
+  // 和headers_in中的一样，可以用ngx_list_push向其中添加自定义头部
+  ngx_list_t headers;
+
+  /* 响应中的状态值，如200表示成功。
+  这里可以使用各个宏，如NGX_HTTP_OK */
+  ngx_uint_t status;
+  
+  // 响应的状态行，如“HTTP/1.1 201 CREATED”
+  ngx_str_t status_line;
+  
+  /* 以下成员（包括ngx_table_elt_t）都是
+  RFC1616规范中定义的HTTP头部，设置后，
+  ngx_http_header_filter_module过滤模块可以把它们加到待发送的网络包中 */
+  ngx_table_elt_t *server; ngx_table_elt_t *date; ngx_table_elt_t *content_length;
+  ngx_table_elt_t *content_encoding; ngx_table_elt_t *location;
+  ngx_table_elt_t *refresh; ngx_table_elt_t *last_modified;
+  ngx_table_elt_t *content_range; ngx_table_elt_t *accept_ranges;
+  ngx_table_elt_t *www_authenticate; ngx_table_elt_t *expires; ngx_table_elt_t *etag;
+  ngx_str_t *override_charset; 
+  
+  /* ngx_http_set_content_type(r)方法帮助我们设置
+  Content-Type头部，这个方法会根据URI中的文件扩展名并对应着
+  mime.type来设置Content-Type值 */
+  size_t content_type_len;
+  ngx_str_t content_type;
+  ngx_str_t charset;
+  u_char *content_type_lowcase;
+  ngx_uint_t content_type_hash;
+  ngx_array_t cache_control;
+
+  /* content_length_n后，
+  不用再次到ngx_table_elt_t *content_ length中设置响应长度 */
+  off_t content_length_n;
+  time_t date_time;
+  time_t last_modified_time;
+} ngx_http_headers_out_t;
 ```
+
+在获取HTTP包体方面，首先要明确，HTTP的包体大小可以非常大，因此同步的处理是不现实的，Nginx提供的接收HTTP数据包的方式也是异步的，签名如下
+```c
+// 调用该函数，要求nginx开始异步接收包体，接收结束的回调为post_handler
+ngx_int_t ngx_http_read_client_request_body(ngx_http_request_t *r, ngx_http_client_body_handler_pt post_handler);
+// 回调函数的类型定义为
+typedef void (*ngx_http_client_body_handler_pt)(ngx_http_request_t *r);
+// 在该函数内，可以使用request_body来获取到缓存的临时文件，路径/名称等信息
+// r->request_body->temp_file->file.name
+
+```
+
+在实际使用中，根据情况，可能读取包体，或舍弃包体，示例代码如下
+```c
+// 接收包体时的通用写法
+ngx_int_t rc = ngx_http_read_client_request_body(r, ngx_http_mytest_body_handler); 
+if (rc >= NGX_HTTP_SPECIAL_RESPONSE) {
+  return rc;
+}
+return NGX_DONE;
+// 舍弃包体
+ngx_int_t rc = ngx_http_discard_request_body(r);
+if (rc != NGX_OK) {
+  return rc;
+}
+```
+
+### HTTP响应
+和请求一样，反馈给调用者的响应也是分为头部、包体两部分进行处理。使用的分别API如下
+```c
+// 将准备好的request发送出去
+ngx_int_t ngx_http_send_header(ngx_http_request_t *r);
+
+// 发送包体，在这一步，会自动调用ngx_http_finalize_request，结束这次请求
+ngx_int_t ngx_http_output_filter(ngx_http_request_t r, ngx_chain_t in);
+
+// 如果不发送包体，也需要调用，提示请求结束处理
+void ngx_http_finalize_request(ngx_http_request_t *r, ngx_int_t rc)
+```
+
+包体相比于包头的处理要复杂一些，主要的难点在于对内存缓冲区的处理。在Nginx处理过程中，对于包体的内存使用，是要用内存池去申请内存，填充并发送的。而且还要在写入数据之后，对相关的```pos```、```last```指针进行修改，否则发送的长度会出现错误。在这个过程中，主要使用的API如下
+```c
+// 申请一个128字节大小的内存缓冲区
+ngx_buf_t *b = ngx_create_temp_buf(r->pool, 128);
+```
+
+在实际使用中的调用示例如下
+```c
+// 对发送情况进行判断
+ngx_int_t rc = ngx_http_send_header(r); 
+if (rc == NGX_ERROR || rc > NGX_OK || r->header_only) {
+  return rc;
+}
+// 如果有包体需要发送，则执行后续，否则可以直接return NGX_DONE;
+ngx_buf_t *b = ngx_create_temp_buf(r->pool, 128);
+/
+ngx_chain_t out;
+out.buf = b;
+out.next = NULL;
+return ngx_http_output_filter(r, &out);
+```
+
+另外由于包体中还可以是文件数据，为了提高效果，以及利用系统上可能存在的高效的文件API。
 
 
 ## 头文件速览
@@ -1075,3 +1347,6 @@ ngx_list_t链表示意图
 4. [Nginx安装介绍-树莓派](https://blog.csdn.net/Hallo_ween/article/details/107836013)
 5. [Nginx源码分析](https://blog.csdn.net/initphp/category_9265172.html)
 6. [Nginx源码分析-实战篇](https://initphp.blog.csdn.net/article/details/72912128)
+7. [Nginx开发：从入门到精通](https://tengine.taobao.org/book/index.html)
+8. [Web Framework Benchmark Round 22 2023-10-17](https://www.techempower.com/benchmarks/#hw=ph&test=plaintext&section=data-r22)
+    > 这个排名看个乐呵就行，很多框架并不具备生产环境应用价值

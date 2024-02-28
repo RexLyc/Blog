@@ -735,9 +735,21 @@ struct ngx_pool_cleanup_s {
   // 下一个ngx_pool_cleanup_t清理对象，如果没有，需置为NULL
   ngx_pool_cleanup_t *next;
 };
+
+// 用于存储配置项解析出来的路径参数
+typedef struct {
+  ngx_str_t name;
+  size_t len;
+  size_t level[3];
+  ngx_path_manager_pt manager;
+  ngx_path_loader_pt loader;
+  void data;
+  u_char conf_file;
+  ngx_uint_t line;
+} ngx_path_t;
 ```
 
-常见的库函数也有一些封装，例如
+常见的库函数、工具函数也有一些封装，例如
 
 ```c
 // ngx_strncmp 字符串比较函数
@@ -759,6 +771,17 @@ void* ngx_list_push(ngx_list_t list);
 
 // offsetof的可能实现，用于在解析配置时，计算成员的偏移
 #define offsetof(type,member)(size_t)&(((type*)0)->member)
+
+// 字符串转数字
+ngx_int_t ngx_atoi(u_char *line, size_t n);
+
+// 配置项合并宏（所有可以用=号赋值的内容的合并）
+#define ngx_conf_merge_value(conf, prev, default)                            \
+    if (conf == NGX_CONF_UNSET) {                                            \
+        conf = (prev == NGX_CONF_UNSET) ? default : prev;                    \
+    }
+
+
 ```
 
 ### 加入编译
@@ -911,7 +934,7 @@ typedef struct {
   void* (*create_loc_conf)(ngx_conf_t *cf);
   
   // merge_loc_conf回调方法主要用于合并srv级别和loc级别下的同名配置项
-  char* (*merge_loc_conf)(ngx_conf_t cf, void *prev, void *conf); 
+  char* (*merge_loc_conf)(ngx_conf_t *cf, void *prev, void *conf); 
 } ngx_http_module_t;
 ```
 
@@ -924,10 +947,10 @@ typedef struct {
 6. merge_srv_conf
 7. merge_loc_conf
 8. postconfiguration
-由于一般不需要对配置解析过程进行干涉，因此这8个回调，一般也设置成NULL。但如果想详细控制在HTTP框架的某个阶段，插入一个handler，则一般在postconfiguration中进行处理，形如
+由于可以不对配置解析过程进行干涉（即不解析配置项的值），因此这8个回调，也都可以设置成NULL。但如果需要接收配置项的值作为控制模块运行的参数，或者想详细控制在HTTP框架的某个阶段，插入一个handler，则一般需要实现某个回调。比如在postconfiguration中进行添加handler，形如
 ```c
-static ngx_int_t
-ngx_http_hello_post_conf(ngx_conf_t *cf)
+// 这种方式插入的handler们，称为content phase handlers
+static ngx_int_t ngx_http_hello_post_conf(ngx_conf_t *cf)
 {
   ngx_http_handler_pt        *h;
   ngx_http_core_main_conf_t  *cmcf;
@@ -959,7 +982,7 @@ struct ngx_command_s {
   ngx_uint_t type;
 
   // 出现了name中指定的配置项后，将会调用set方法处理配置项的参数
-  char* (*set)(ngx_conf_t cf, ngx_command_t cmd, void *conf);
+  char* (*set)(ngx_conf_t *cf, ngx_command_t cmd, void *conf);
   
   // 在配置文件中的偏移量
   ngx_uint_t conf;
@@ -977,7 +1000,7 @@ struct ngx_command_s {
 ```
 
 
-### 基本Demo
+### 完整Demo
 ```c
 #include <ngx_config.h>
 #include <ngx_core.h>
@@ -1222,6 +1245,59 @@ static ngx_command_t ngx_http_mytest_commands[] = {
   },
   ngx_null_command
 };
+```
+
+如果要完全自行处理配置项及其参数，则需要自行编写set函数，例如
+```c
+// 假定此次要处理的配置项，是由两个参数构成
+typedef struct {
+  ngx_str_t my_config_str;
+  ngx_int_t my_config_num;
+} ngx_http_mytest_conf_t;
+
+static char* ngx_conf_set_myconfig(ngx_conf_t* cf, ngx_command_t cmd, void* conf)
+{
+  /* 注意，参数conf就是HTTP框架传给用户的在
+  ngx_http_mytest_create_loc_conf回调方法中分配的结构体
+  ngx_http_mytest_conf_t */
+  ngx_http_mytest_conf_t mycf = conf;
+  /* cf->args是1个ngx_array_t队列，它的成员都是
+  ngx_str_t结构。我们用value指向ngx_array_t的
+  elts内容，其中value[1]就是第1个参数，同理，
+  value[2]是第2个参数 */
+  ngx_str_t value = cf->args->elts;
+  // ngx_array_t的nelts表示参数的个数
+  if (cf->args->nelts > 1)
+  {
+    // 直接赋值即可，ngx_str_t结构只是指针的传递
+    mycf->my_config_str = value[1];
+  }
+  if (cf->args->nelts > 2)
+  {
+    // 将字符串形式的第2个参数转为整型
+    mycf->my_config_num = ngx_atoi(value[2].data, value[2].len);
+    /* 如果字符串转化整型失败，将报“invalid number”错误，
+    Nginx启动失败 */
+    if (mycf->my_config_num == NGX_ERROR) {
+      return "invalid number";
+    }
+  }
+  // 返回成功
+  return NGX_CONF_OK;
+}
+```
+
+在任意层级的create_xxx_conf中，都会创建对应层级的配置项。但如果需要对配置进行合并，则需要在对应层级之间，实现merge_xxx_conf回调。比如将server和location进行合并。
+```c
+static char* ngx_http_mytest_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
+{
+  ngx_http_mytest_conf_t *prev = (ngx_http_mytest_conf_t *)parent;
+  ngx_http_mytest_conf_t *conf = (ngx_http_mytest_conf_t *)child;
+  // 如果父级优先级更高，用父覆盖子级
+  ngx_conf_merge_str_value(conf->my_str,
+    prev->my_str, "defaultstr");
+  return NGX_CONF_OK;
+}
 ```
 
 ### 进程
@@ -1538,7 +1614,9 @@ r->allow_ranges=1;
 | --- | --- |
 | /src/http/ngx_http.h | 包含HTTP框架的整体头文件 |
 | /src/core/ngx_config.h | Nginx核心，配置处理 |
+| /src/core/ngx_conf_file.h | Nginx配置处理工具 |
 | /src/core/ngx_core.h | Nginx框架核心 |
+| /src/core/ngx_string.h | 字符串工具 |
 
 
 ## 术语

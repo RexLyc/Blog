@@ -756,6 +756,9 @@ void* ngx_list_push(ngx_list_t list);
 
 // 获取文件信息
 #define ngx_file_info(file, sb) stat((const char *) file, sb)
+
+// offsetof的可能实现，用于在解析配置时，计算成员的偏移
+#define offsetof(type,member)(size_t)&(((type*)0)->member)
 ```
 
 ### 加入编译
@@ -1088,7 +1091,7 @@ static ngx_int_t ngx_http_hello_handler(ngx_http_request_t *r) {
 }
 ```
 
-注意，在本Demo代码中，并没有显式的指定，处理函数在HTTP框架支持的11个阶段中的哪个阶段生效。以这种方式挂载的handler也被称为content handler。这是因为在该模块的command中，定义的set阶段里，有对该location设置了handler，当框架在NGX_HTTP_CONTENT_PHASE阶段，执行到此处时，会明白该模块对当前location进行了处理以后，不再需要遍历所有的content phase handlers，而是直接执行一个handler，并返回。这部分内容将会在后续讲解原理时再详细展开。
+本Demo相对简单，是一个只有无参配置项的模块。在本Demo代码中，并没有显式的指定，处理函数在HTTP框架支持的11个阶段中的哪个阶段生效。以这种方式挂载的handler也被称为content handler。这是因为在该模块的command中，定义的set阶段里，有对该location设置了handler，当框架在NGX_HTTP_CONTENT_PHASE阶段，执行到此处时，会明白该模块对当前location进行了处理以后，不再需要遍历所有的content phase handlers，而是直接执行一个handler，并返回。这部分内容将会在后续讲解原理时再详细展开。
 
 ## 核心原理
 ### 配置
@@ -1120,11 +1123,108 @@ typedef struct {
 } ngx_http_mytest_conf_t;
 ```
 
+和前面的简单Demo不同，因为我们要开始真正存储配置项，所以需要创建结构体。HTTP模块一般只需要实现module种的create_loc_conf方法，因为我们只对location在某种URL匹配下的请求处理感兴趣。一个示例的写法如下，
+```c
+static void* ngx_http_mytest_create_loc_conf(ngx_conf_t cf)
+{
+  ngx_http_mytest_conf_t mycf;
+  mycf = (ngx_http_mytest_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_mytest_conf_t));
+  if (mycf == NULL) {
+    return NULL;
+  }
+  // 值必须进行初始化，否则后面使用预制解析方法时，会抛出异常（duplicate）
+  mycf->my_flag = NGX_CONF_UNSET;
+  mycf->my_num = NGX_CONF_UNSET;
+  mycf->my_str_array = NGX_CONF_UNSET_PTR;
+  mycf->my_keyval = NULL;
+  mycf->my_off = NGX_CONF_UNSET;
+  mycf->my_msec = NGX_CONF_UNSET_MSEC;
+  mycf->my_sec = NGX_CONF_UNSET;
+  mycf->my_size = NGX_CONF_UNSET_SIZE;
+  return mycf;
+}
+```
+
 为了实现嵌套，或者同级的配置项，Nginx在进行配置解析时，需要从外到内逐层处理。
 
 ![Nginx配置文件处理时序图](/images/book/understanding-nginx/config_process_flow.png)
 
 > 图中省略了解析location的过程，实际上和server块的解析非常类似。
+
+自定义模块首先应当设置的就是ctx和command，先看一下command。
+
+command内的type取值，标志了模块配置项的生效方式和参数量等内容。部分内容，列举如下。
+| type类型 | type取值 | 意义 |
+| --- | --- | --- |
+| 处理配置项时获取当前{}配置块的方式 | NGX_DIRECT_CONF | 和NGX_MAIN_CONF一同使用，表示该模块需要解析不在任何{}块内的全局配置，应当仅由NGX_CORE_MODULE使用 |
+| 配置项可以在哪些{}块中出现 | NGX_MAIN_CONF | 可以出现在全局，不属于任何{}块 |
+| 配置项可以在哪些{}块中出现 | NGX_EVENT_CONF | 配置项可以出现在events块内 |
+| 配置项可以在哪些{}块中出现 | NGX_MAIL_MAIN_CONF | 配置项可以出现在mail块或者imap块内 |
+| 配置项可以在哪些{}块中出现 | NGX_MALL_SRV_CONF | 配置项可以出现在server{}块内，但该server块必须属于mail{}块或者imap{}块 |
+| 配置项可以在哪些{}块中出现 | NGX_HTTP_MAIN_CONF | 配置项可以出现在http{}块内 |
+| 配置项可以在哪些{}块中出现 | NGX_HTTP_SRV_CONF | 配置项可以出现在server{}块内，然而该server{}块必须属于http{}块 |
+| 配置项可以在哪些{}块中出现 | NGX_HTTP_LOC_CONF | 配置项可以出现在location{}块内，然而该location{}块必须属于http{}块 |
+| 配置项可以在哪些{}块中出现 | NGX_HTTP_UPS_CONF | 配置项可以出现在upstream{}块内，然而该upstream{}块必须属于http{}块 |
+| 配置项可以在哪些{}块中出现 | NGX_HTTP_SIF_CONF | 配置项可以出现在server{}块内的if{}块中。目前有rewrite模块会使用，该if{}块必须属于http{}块 |
+| 配置项可以在哪些{}块中出现 | NGX_HTTP_LIF_CONF | 配置项可以出现在location{}块内的if{}块中。目前仅有rewrite模块会使用，该if{}块必须属于http{}块 |
+| 配置项可以在哪些{}块中出现 | NGX_HTTP_LMT_CONF | 配置项可以出现在limit_except{}块内，然而该limit_except{}块必须属于http{}块 |
+| 限制配置项的参数个数 | NGX_CONF_NOARGS | 配置项不携带任何参数 |
+| 限制配置项的参数个数 | NGX CONF TAKEI | 必须携带1个参数（省略其他类似的） |
+| 限制参数的形式 | NGX_CONF_BLOCK | 配置项定义了一种新的配置块，和http、server、location类似 |
+| 限制参数的形式 | NGX_CONF_FLAG | 配置项携带的参数只能是1个，且是on或off |
+
+每个进程中都有一个唯一的ngx_cycle_t核心结构体，它有一个成员conf_ctx维护着所有模块的配置结构体，其类型是void****。conf_ctx意义为首先指向一个成员皆为指针的数组，其中每个成员指针又指向另外一个成员皆为指针的数组，第2个子数组中的成员指针才会指向各模块生成的配置结构体。
+
+对配置的处理有两种方式，一种是自己手动去写command中的set函数，另一种是利用nginx提供的自动解析函数。其中HTTP提供的一共有14种。如下表所示
+| 方法名 | 行为 |
+| --- | --- |
+| ngx_conf_set_flag_slot | 处理on、off类配置项参数，且用ngx_flat_t存储 |
+| ngx_conf_set_str_slot | 只有一个参数，且用ngx_str_t存储 |
+| ngx_conf_set_str_array_slot | 用ngx_str_t为元素的数组，存储该配置项每一次出现后的1个参数 |
+| ngx_conf_set_keyval_slot | 用键值存储该配置项每一次出现后的2个参数 |
+| ngx_conf_set_num_slot | 存储1个整形参数 |
+| ngx_conf_set_size_slot | 存储1个代表空间值的参数 |
+| ngx_conf_set_off_slot | 存储1个代表偏移量的参数 |
+| ngx_conf_set_msec_slot | 存储1个毫秒级时间参数 |
+| ngx_conf_set_sec_slot | 存储2个秒级时间参数 |
+| ngx_conf_set_bufs_slot | 存储2个参数，分别是缓冲区数量，缓冲区大小 |
+| ngx_conf_set_enum_slot | 存储1个参数，是设定好的枚举字符串 |
+| ngx_conf_set_bitmask_slot | 存储1个参数，将设定好的字符串映射到bitmask |
+| ngx_conf_set_access_slot | 存储1~3个参数，用于设置文件的读写权限 |
+| ngx_conf_set_path_slot | 存储1个参数，用于设置路径 |
+
+如果使用官方提供的配置解析方法，因为这种函数内无法确定配置应当属于MAIN/SERVER/LOCATION的哪一级，所以需要给出conf变量、offset变量，分别用于指示配置项所处的内存偏移位置，以及所解析参数在配置项内的成员的偏移。前者即三种取值之一：```NGX_HTTP_MAIN_CONF_OFFSET```、```NGX_HTTP_SRV_CONF_OFFSET```、```NGX_HTTP_LOC_CONF_OFFSET```。这三个级别也分别对应前面讲述的create_main_conf、create_srv_conf、create_loc_conf方法创建的结构体。默认情况下，父子层级的同名配置项会进行合并，如果不希望直接合并，保留不同级别的配置项，就需要自定义这三个方法。
+
+post在每个配置项解析完成后调用，但其过于灵活，编写起来并不统一。一般模块开发直接使用module种的init_main_conf等方法统一处理解析完的配置项。
+
+上面这段内容可能比较抽象，用一个对```ngx_http_mytest_conf_t```处理的例子说明。
+```c
+// 注意每一项都需要在create_loc_conf的实现中，给出UNSET含义的初值
+static ngx_command_t ngx_http_mytest_commands[] = {
+// …
+  {
+    // 当出现test_flag on/off时，进行解析，解析结果写入my_flag字段
+    ngx_string("test_flag"),
+    NGX_HTTP_LOC_CONF| NGX_CONF_FLAG,
+    ngx_conf_set_flag_slot,
+    NGX_HTTP_LOC_CONF_OFFSET,
+    offsetof(ngx_http_mytest_conf_t, my_flag),
+    NULL
+  },
+  {
+    // 当出现test_str xxxx时解析，写入my_str字段
+    ngx_string("test_str"),
+    NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF| NGX_CONF_TAKE1,
+    ngx_conf_set_str_slot,
+    NGX_HTTP_LOC_CONF_OFFSET,
+    offsetof(ngx_http_mytest_conf_t, my_str),
+    NULL
+  },
+  ngx_null_command
+};
+```
+
+### 进程
 
 ### HTTP框架
 HTTP框架中最重要的就是11个处理阶段，而作为第三方模块，一般只介入其中的7个阶段处理。这11个阶段如下所示

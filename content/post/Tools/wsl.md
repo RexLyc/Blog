@@ -10,8 +10,6 @@ tags:
 - 暂时废弃
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/wsl.png
-draft: true
-
 ---
 WSL在经过一段时间的发展后，已经具备了一定的可用性。相对VMWare来说，有性能和易用性上的优点。
 <!--more-->

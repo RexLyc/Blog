@@ -9,7 +9,6 @@ tags:
 - 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/DevOps.jpg
-draft: true
 ---
 软件测试是DevOps的重要一环，本篇记录一些必备的测试知识。
 <!--more-->

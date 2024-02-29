@@ -9,7 +9,6 @@ tags:
 - 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/logo-elasticsearch-32-color.png
-draft: true
 math: true
 ---
 采用Java语言编写的一个开源搜索引擎，具有良好的性能，灵活的数据存储格式，丰富的搜索功能。

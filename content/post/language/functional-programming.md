@@ -8,8 +8,6 @@ tags:
 - 函数式编程
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/function-lambda.jpg
-draft: true
-
 ---
 虽然听起来唬人，但函数式编程出现也已经有数十年的历史了。本文从应用角度出发，记录一些基础的函数式编程思想的应用方式。
 <!--more-->

@@ -1117,7 +1117,7 @@ static ngx_int_t ngx_http_hello_handler(ngx_http_request_t *r) {
 本Demo相对简单，是一个只有无参配置项的模块。在本Demo代码中，并没有显式的指定，处理函数在HTTP框架支持的11个阶段中的哪个阶段生效。以这种方式挂载的handler也被称为content handler。这是因为在该模块的command中，定义的set阶段里，有对该location设置了handler，当框架在NGX_HTTP_CONTENT_PHASE阶段，执行到此处时，会明白该模块对当前location进行了处理以后，不再需要遍历所有的content phase handlers，而是直接执行一个handler，并返回。这部分内容将会在后续讲解原理时再详细展开。
 
 ## 核心原理
-### 配置
+### 完整配置
 在前文的Demo中，所使用的配置项只是一个无参数的```hello```。其作用也非常简单，就是通知Nginx的HTTP框架，在出现该配置项时，启用对应模块。显然HTTP框架需要处理更为复杂的配置项。
 
 配置项是用户和Nginx的接口，对于模块开发者而言，使用```ngx_http_module_t```和```ngx_command_t```对配置项处理，是模块自定义处理业务的入口。总体上来说，对配置项的处理可以分为4个步骤：
@@ -1169,6 +1169,8 @@ static void* ngx_http_mytest_create_loc_conf(ngx_conf_t cf)
 ```
 
 为了实现嵌套，或者同级的配置项，Nginx在进行配置解析时，需要从外到内逐层处理。
+
+<span id="Nginx配置文件处理时序图"/>
 
 ![Nginx配置文件处理时序图](/images/book/understanding-nginx/config_process_flow.png)
 
@@ -1300,6 +1302,147 @@ static char* ngx_http_mytest_merge_loc_conf(ngx_conf_t *cf, void *parent, void *
 }
 ```
 
+### 配置模型
+前文讲了一个完整的配置项应该如何进行处理。本章节从HTTP框架的视角，描述配置项的解析流程。
+
+HTTP的配置解析流程是从发现HTTP配置块开始的。框架会建立ngx_http_conf_ctx_t结构，定义如下
+```c
+typedef struct {
+  /* 指针数组，数组中的每个元素指向所有HTTP模块
+  create_main_conf方法产生的结构体 */
+  void *main_conf;
+  /* 指针数组，数组中的每个元素指向所有
+  HTTP模块create_srv_conf方法产生的结构体 */
+  void *srv_conf;
+  /* 指针数组，数组中的每个元素指向所有
+  HTTP模块create_loc_conf方法产生的结构体 */
+  void *loc_conf;
+} ngx_http_conf_ctx_t;
+```
+如定义所示，HTTP框架会为所有的HTTP模块建立3个数组，分别存放代表main级、server级、location级的HTTP模块相关配置。如果在module的设置内，用户放弃了create方法的实现，设置为NULL，则对应模块不会产生结构体存储在这里的ctx中。可以回看一下前面的[Nginx配置文件处理时序图](#Nginx配置文件处理时序图)，处理流程如下。
+1. 主循环启动配置文件解析
+2. 发现http配置块，启动http框架（ngx_http_module）：
+  1. 初始化所有http模块，为其填充index，创建ngx_http_conf_ctx_t
+  2. 调用所有模块的create_xxx_conf方法，将指针保存到ngx_http_conf_ctx_t
+  3. 调用每个模块的preconfiguration
+  4. 循环解析http内的所有配置项
+    1. 每次检测到一个配置项后，会遍历所有的http模块，检查它们的ngx_command_t数组中的name项是否与配置项名相同
+    2. 调用相关模块command中的set方法
+    3. 如果检测到server配置项，将会交给ngx_http_core_module处理
+      1. ngx_http_core_module也会建立ngx_http_conf_ctx_t结构，但它只需要调用每个http模块的create_srv_conf、create_loc_conf并保存指针。而它的main_conf指针，**直接指向**创建自己的父http的ngx_http_conf_ctx_t中的main_conf。
+      2. 循环解析server块内的配置项
+      3. 如果有location配置块，同理
+
+> 注意区分NGX_HTTP_MODULE、NGX_HTTP_CORE_MODULE。
+
+![Nginx配置上下文内存模型示意1](/images/book/understanding-nginx/ngx_conf_ctx.png)
+![Nginx配置上下文内存模型示意2](/images/book/understanding-nginx/ngx_conf_ctx_2.png)
+
+显然这种结构带来了大量冗余。在配置解析过程中，http、server、location的数量之和，是create_loc_conf的调用次数，也是它产生的loc_conf的个数，同理http、server的数量之和，是create_srv_conf的次数。这都是**为了解决同名配置项合并**的问题。
+
+这也是Nginx的一个设计心思，在Http块内的main级别，可以配置server、location级别的配置项的值，这些值就需要分别存储在Http块内的main_conf/srv_conf/loc_conf内，这样才能对后续的server、location子节点起作用。
+
+当你理解了上面的内存结构，接下来需要解决的配置项的合并问题，思路也很显然了，就是从根部的ngx_http_conf_ctx_t开始向下合并。对于每一个HTTP模块，如果他
+1. 实现了merge_srv_conf，则将它所属的http块的srv_conf和当前srv级别的srv_conf进行合并
+2. 实现了merge_loc_conf，则需要将所属的http块、所属的server块，的loc_conf，分别合并。而且由于location允许嵌套，实际上也会出现location之间的合并。
+> Nginx给出了一系列预设的合并方法，可以直接使用。
+
+### 请求的上下文
+因为Nginx使用了异步的编程模型，所以需要使用一种方式，为每一个参与请求处理的模块，保留每一个请求所关联的上下文内容。这种上下文在一个模块参与请求处理时创建（在内存池中），当请求响应处理结束后释放。不同模块之间的上下文相互独立。
+
+在设计上，并不是由进程来维护这个上下文，而是由请求自己保管这个上下文。上下文的生命周期和请求的生命周期一致。上下文的设置和使用从两个宏开始
+```c
+// 此处的r就是ngx_http_request_t，module是各模块定义的ngx_module_t类型变量
+// 从这里也可以看出，任何对请求上下文的读写操作，都是从请求处开始的
+#define ngx_http_get_module_ctx(r, module) (r)->ctx[module.ctx_index]
+#define ngx_http_set_ctx(r, c, module) r->ctx[module.ctx_index] = c;
+```
+
+在前面的完整Demo中，我们在handler内直接处理了请求，如果一个请求更为复杂，可能会涉及到多个handler的调用，那就可以使用本章节所说的请求上下文，例如
+```c
+// 模块自定义handler
+static ngx_int_t ngx_http_mytest_handler(ngx_http_request_t *r)
+{
+  // 首先调用ngx_http_get_module_ctx宏来获取上下文结构体
+  ngx_http_mytest_ctx_t* myctx = ngx_http_get_module_ctx(r,ngx_http_mytest_module);
+  // 如果之前没有设置过上下文，那么应当返回NULL
+  if (myctx == NULL)
+  {
+    /* 必须在当前请求的内存池r->pool中分配上下文结构体，这样请求结束时结构体占用的内存才会释放 */
+    myctx = ngx_palloc(r->pool, sizeof(ngx_http_mytest_ctx_t));
+    if (myctx == NULL)
+    {
+      return NGX_ERROR;
+    }
+    // 将刚分配的结构体设置到当前请求的上下文中
+    ngx_http_set_ctx(r,myctx,ngx_http_mytest_module);
+  }
+  // 之后可以任意使用myctx这个上下文结构体
+  // ...
+}
+```
+
+### 访问第三方服务
+访问第三方服务是Nginx能够作为反向代理所需的核心能力。也为模块开发提供了一个强大的对外接口。Nginx提供了两种全异步方式来与第三方服务器通信：upstream与subrequest。其中subrequest实际上也是基于upstream模块实现。区别主要在于对请求的业务需要
+1. upstream的重点在于透传，高效率的作为代理，透传http数据
+2. subrequest的重点正如其名字：子请求。Nginx会根据上游第三方服务的响应情况，组建响应结果，并反馈给原始客户端。
+
+upstream的使用方式并不复杂，它提供了8个回调方法，用户只需要视自己的需要实现其中几个回调方法就可以了。而upstream在```ngx_http_request_s```结构体中存储，用户在处理时可以进行操作。发起upstream的处理流程可以概括为四个步骤
+
+![启动upstream的流程](/images/book/understanding-nginx/upstream_in_handler.png)
+
+> 上游服务器的IP地址可以从配置文件中，也可以从HTTP请求头部中，或者任意自定义
+
+![upstream的处理流程](/images/book/understanding-nginx/upstream_process_flow.png)
+
+如上图所示的是upstream的一般执行流程，这个流程在ngx_http_upstream_init执行之后，由HTTP框架负责进行处理。为了进一步理解upstream，这里贴出ngx_http_upstream_t的部分结构
+```c
+typedef struct ngx_http_upstream_s ngx_http_upstream_t; struct ngx_http_upstream_s {
+  // …
+  /* request_bufs决定发送什么样的请求给上游服务器，在实现
+  create_request方法时需要设置它*/
+  ngx_chain_t *request_bufs;
+  // upstream访问时的所有限制性参数
+  ngx_http_upstream_conf_t *conf;
+  // 通过resolved可以直接指定上游服务器地址
+  ngx_http_upstream_resolved_t *resolved;
+  /* buffer成员存储接收自上游服务器发来的响应内容，由于它会被复用，所以具有下列多种意义：
+    a)在使用process_header方法解析上游响应的包头时，buffer中将会保存完整的响应包头；
+    b)当下面的buffering成员为1，而且此时upstream是向下游转发上游的包体时，buffer没有意义；
+    c)当buffering标志位为0时，buffer缓冲区会被用于反复地接收上游的包体，进而向下游转发；
+    d)当upstream并不用于转发上游包体时，buffer会被用于反复接收上游的包体，HTTP模块实现的
+      input_filter方法需要关注它 */
+  ngx_buf_t buffer;
+  // 构造发往上游服务器的请求内容
+  ngx_int_t (*create_request)(ngx_http_request_t *r);
+  /* 收到上游服务器的响应后就会回调process_header方法。
+  如果process_header返回NGX_AGAIN，那么是在告诉
+  upstream还没有收到完整的响应包头，此时，对于本次
+  upstream请求来说，再次接收到上游服务器发来的TCP流时，
+  还会调用process_header方法处理，直到process_header函数返回非
+  NGX_AGAIN值这一阶段才会停止 */
+  ngx_int_t (*process_header)(ngx_http_request_t *r);
+  // 销毁upstream请求时调用
+  void (*finalize_request)(ngx_http_request_t *r, ngx_int_t rc); 
+  // 5个可选的回调方法
+  ngx_int_t (*input_filter_init)(void *data);
+  ngx_int_t (*input_filter)(void *data, ssize_t bytes);
+  ngx_int_t (*reinit_request)(ngx_http_request_t *r);
+  void (*abort_request)(ngx_http_request_t *r);
+  ngx_int_t (*rewrite_redirect)(ngx_http_request_t *r, ngx_table_elt_t *h, size_t prefix);
+  //SSL协议访问上游服务器
+  unsigned ssl:1;
+  /* 在向客户端转发上游服务器的包体时才有用。当buffering为1时，
+  表示使用多个缓冲区以及磁盘文件来转发上游的响应包体。
+  当Nginx与上游间的网速远大于Nginx与下游客户端间的网速时，
+  让Nginx开辟更多的内存甚至使用磁盘文件来缓存上游的响应包体，
+  这是有意义的，它可以减轻上游服务器的并发压力。
+  当buffering为0时，表示只使用上面的这一个buffer缓冲区来向下游转发响应包体 */
+  unsigned buffering:1;
+  // …
+};
+```
+
 ### 进程
 
 ### HTTP框架
@@ -1398,6 +1541,10 @@ struct ngx_http_request_s {
   ngx_pool_t *pool;
   // 支持range断点续传
   unsigned allow_ranges:1;
+  // 指向所有参与模块所使用的请求上下文的数组
+  void **ctx;
+  // upstream成员
+  ngx_http_upstream_t *upstream;
   // ... 其他内容
 };
 
@@ -1606,6 +1753,36 @@ RFC2616规范中定义了range协议，它给出了一种规则使得客户端�
 // r为ngx_http_request_t*
 r->allow_ranges=1;
 ```
+
+## 内置工具
+### 日志
+ngx_errlog_module模块。是所有模块的通用日志模块。由于编译平台不一定支持可变参数，因此接口有两种。核心代码如下
+```c
+// 提升易用性的宏
+#define ngx_log_error(level, log, args...) \
+  if ((log)->log_level >= level) ngx_log_error_core(level, log, args)
+#define ngx_log_debug(level, log, args...) \
+  if ((log)->log_level & level) \
+    ngx_log_error_core(NGX_LOG_DEBUG, log, args)
+
+// 对于不可变参数平台，Nginx提供的接口形如
+// ngx_log_debug0、ngx_log_debug1 ... 代表无参数、1个参数等
+
+// 日志函数原型：本次日志级别、log参数（配置级别、日志文件等）、错误码、C风格格式字符串(不完全相同，请查文档)
+void ngx_log_error_core(ngx_uint_t level, ngx_log_t log, ngx_err_t err, const char fmt, ...);
+
+// 用例
+ngx_log_error(NGX_LOG_ALERT, r->connection->log,0,
+  "test_flag=%d,test_str=%V,path=%*s,mycf addr=%p",
+  mycf->my_flag,
+  &mycf->my_str,
+  mycf->my_path->name.len,
+  mycf->my_path->name.data,
+  mycf);
+```
+
+### 高级数据结构
+### 进程间通信
 
 ## 头文件速览
 本章为了直观，保留了头文件的路径，实际在代码中引用时并不需要给出前缀，直接使用头文件名即可。

@@ -103,6 +103,12 @@ thumbnailImage: /images/thumbnail/lycStamp.png
         <!-- 插入一个页面目录 -->
         <div>{{ .TableOfContent }}</div>
         ```
+- 在任意位置添加锚点：Hugo会为所有的Markdown的标题生成锚点，但如果想要自定义任意位置的一个锚点，可以使用HTML元素的id，例如
+    ```md
+    <span id="some_unique_name"/>
+
+    [连接到任意位置](#some_unique_name)
+    ```
 - 添加搜索功能：
     - 思路都是生成一个索引文件，然后进行搜索匹配，难点在于如何优雅的把搜索按钮添加到主题中（参考目录、归档页面的结构）
     - 最终选择用hugo本省生成json索引，然后使用fuse.js进行模糊搜索的方案，修改思路和内容如下

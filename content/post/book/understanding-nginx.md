@@ -1249,6 +1249,17 @@ static ngx_command_t ngx_http_mytest_commands[] = {
 };
 ```
 
+实际上offsetof的使用非常灵活，如果我们在```ngx_http_mytest_conf_t```内再使用一层结构体，比如```ngx_http_upstream_conf_t```类型的upstream变量。那么可以用以下的方式，直接将子结构体的配置项数据也填充进去
+```c
+/*
+struct {
+  ngx_http_upstream_conf_t upstream;
+  ...
+} ngx_http_mytest_conf_t;
+*/
+offsetof(ngx_http_mytest_conf_t, upstream.connect_timeout)
+```
+
 如果要完全自行处理配置项及其参数，则需要自行编写set函数，例如
 ```c
 // 假定此次要处理的配置项，是由两个参数构成
@@ -1391,7 +1402,9 @@ upstream的使用方式并不复杂，它提供了8个回调方法，用户只�
 
 ![启动upstream的流程](/images/book/understanding-nginx/upstream_in_handler.png)
 
-> 上游服务器的IP地址可以从配置文件中，也可以从HTTP请求头部中，或者任意自定义
+> 注1：上游服务器的IP地址可以从配置文件中，也可以从HTTP请求头部中，或者任意自定义
+
+> 注2：ngx_http_upstream_init方法启用upstream机制也是一个异步操作，且调用后handler应当返回NGX_DONE（表示后续模块不需要再处理），为了保证nginx不销毁请求，需要将引用计数+1，即```r->main->count++;```。
 
 ![upstream的处理流程](/images/book/understanding-nginx/upstream_process_flow.png)
 
@@ -1402,9 +1415,9 @@ typedef struct ngx_http_upstream_s ngx_http_upstream_t; struct ngx_http_upstream
   /* request_bufs决定发送什么样的请求给上游服务器，在实现
   create_request方法时需要设置它*/
   ngx_chain_t *request_bufs;
-  // upstream访问时的所有限制性参数
+  // upstream访问时的所有限制性参数，包括连接、发送和接收超时时间等
   ngx_http_upstream_conf_t *conf;
-  // 通过resolved可以直接指定上游服务器地址
+  // 通过resolved可以直接指定上游服务器地址，地址个数、地址数组
   ngx_http_upstream_resolved_t *resolved;
   /* buffer成员存储接收自上游服务器发来的响应内容，由于它会被复用，所以具有下列多种意义：
     a)在使用process_header方法解析上游响应的包头时，buffer中将会保存完整的响应包头；
@@ -1424,13 +1437,17 @@ typedef struct ngx_http_upstream_s ngx_http_upstream_t; struct ngx_http_upstream
   ngx_int_t (*process_header)(ngx_http_request_t *r);
   // 销毁upstream请求时调用
   void (*finalize_request)(ngx_http_request_t *r, ngx_int_t rc); 
+  
   // 5个可选的回调方法
+  // 自定义接收包体前的初始化阶段（内存等），不定义的话，upstream将会使用默认实现
   ngx_int_t (*input_filter_init)(void *data);
+  // 自定义接收包体，不定义也有默认实现
   ngx_int_t (*input_filter)(void *data, ssize_t bytes);
+  // upstream时，如果发现已向上游发送请求，但连接断开，会尝试重连，并调用该函数
   ngx_int_t (*reinit_request)(ngx_http_request_t *r);
   void (*abort_request)(ngx_http_request_t *r);
   ngx_int_t (*rewrite_redirect)(ngx_http_request_t *r, ngx_table_elt_t *h, size_t prefix);
-  //SSL协议访问上游服务器
+  // SSL协议访问上游服务器
   unsigned ssl:1;
   /* 在向客户端转发上游服务器的包体时才有用。当buffering为1时，
   表示使用多个缓冲区以及磁盘文件来转发上游的响应包体。
@@ -1442,6 +1459,16 @@ typedef struct ngx_http_upstream_s ngx_http_upstream_t; struct ngx_http_upstream
   // …
 };
 ```
+
+从结构中可知，所提供的8个回调方法种，三个是必须实现的，其余5个则可以根据需要进行实现。另外需要明白的一点是，当我们在自己的模块中主动使用upstream时，upstream配置块和我们没有关系。我们需要自己为upstream的相关配置引入配置项数据。
+
+![nginx处理upstream流程](/images/book/understanding-nginx/nginx-upstream-event.png)
+
+如上图所示的是一次create_request回调的序列图。对应的finalize_request在请求被销毁前一定会被调用（无论upstream请求成功与否）。
+
+![ngxin处理upstream-processheader流程](/images/book/understanding-nginx/upstream-process-header.png)
+
+上图所示的是请求第三方服务中，process_header的流程。果buffer缓冲区全满却还没有解析到完整的响应头部（也就是说，process_header一直在返回NGX_AGAIN）。
 
 ### 进程
 

@@ -38,9 +38,116 @@ math: true
     - 复杂度：预处理$O(nlog n)$，单次查询为$O(log n)$，整体为$O(n log n + m log n)$
 - 欧拉序列转RMQ问题：
     - 描述：将树转换为欧拉序列，并保存对应的深度信息，再对序列求RMQ问题
-        - 欧拉序列：按照dfs顺序，当前节点开始访问和结束访问时都记录到序列中，相当于“根左右根”，序列长度为$2n$
+        - 欧拉序列：按照dfs顺序，当前节点开始访问和回溯时都记录到序列中，“根-左子树-根-右子树-根”，序列长度为$2n-1$。
         - 欧拉序列性质：树上的两点，其最终在欧拉序列中的两个位置（只取节点第一次加入的位置），两个位置之间，深度最小值就是其LCA
     - 复杂度：由所使用的RMQ算法决定
+    - 下面展示一段代码，同时使用了欧拉序列（dfs内）和Tarjan-ST算法，求解一个基于LCA的问题。[边权重均等查询](https://leetcode.cn/problems/minimum-edge-weight-equilibrium-queries-in-a-tree/description/)。
+        ```cpp
+        class Solution {
+            public:
+
+                int calcBit(int n){
+                    // 计算二进制下n所需的位数
+                    for(int i=1;i<=n;++i){
+                        if((1<<i)>n){
+                            return i;
+                        }
+                    }
+                    return -1;
+                }
+
+                // n为节点数
+                // edges为若干三元组，三元组内分别是起点、终点、权重
+                // queires是若干查询二元组，每一个内是起点、终点
+                vector<int> minOperationsQueries(int n, vector<vector<int>>& edges, vector<vector<int>>& queries) {
+                    // 树上路径，统计路径上最多的等权的边。注意该统计满足结合律（当然也满足交换律）
+                    // 静态路径，转欧拉序列用倍增法RMQ实现起来比较方便（好写）
+                    // 预处理路径转为邻接表
+                    unordered_map<int,unordered_map<int,int>> adj;
+                    for(auto&t:edges){
+                        adj[t[0]][t[1]]=t[2];
+                        adj[t[1]][t[0]]=t[2];
+                    }
+                    
+                    vector<int> depthMap(n,-1);
+                    vector<int> euler;
+                    vector<int> first(n,0);
+                    euler.reserve(2*n);
+                    // 计算各种权重边的数目
+                    vector<vector<int>> dist(n,vector<int>(27,0));
+                    // dfs转RMQ
+                    function<void(int,int,int)> dfs = [&](int node,int parent,int depth){
+                        // 记录第一次加入欧拉序列的位置
+                        first[node]=euler.size();
+                        // 更新欧拉序列
+                        euler.push_back(node);
+                        // 更新深度
+                        depthMap[node]=depth;
+                        // 更新边数
+                        if(parent!=-1){
+                            dist[node]=dist[parent];
+                            dist[node][adj[parent][node]]++;
+                        }
+                        // dfs
+                        for(auto&next:adj[node]){
+                            // weight(t.first -> next->first) = next.second;
+                            if(depthMap[next.first]==-1){
+                                dfs(next.first,node,depth+1);
+                                // 更新欧拉序列
+                                euler.push_back(node);
+                            }
+                        }
+                    };
+                    dfs(0,-1,0);
+                    
+                    // RMQ预处理，计算全部区间上的最小depth
+                    int rangeLength=euler.size();
+                    vector<vector<pair<int,int>>> dp(rangeLength,vector<pair<int,int>>(calcBit(rangeLength),make_pair(INT_MAX,0)));
+                    // 倍增法
+                    for(int i=0;i!=rangeLength;++i){
+                        dp[i][0]=make_pair(depthMap[euler[i]],euler[i]);
+                    }
+                    for(int i=1;i!=calcBit(rangeLength);++i){
+                        for(int j=0;j+(1<<i)<=rangeLength;++j){
+                            // 核心转移方程
+                            dp[j][i]=min(dp[j][i-1],dp[j+(1<<(i-1))][i-1]);
+                        }
+                    }
+                    vector<int> result;
+                    
+                    auto query = [&](int L,int R){
+                        if(L>R)
+                            swap(L,R);
+                        int i=0;
+                        // 找到第一个不超过当前距离的2的整数次幂长度
+                        while((1<<(i+1))<=(R-L))
+                            ++i;
+                        // 由两段拼成
+                        return min(dp[L][i],dp[max(L,R-(1<<(i)))][i]).second;
+                    };
+
+                    auto weightChange = [&](int lca,int L,int R){
+                        // 计算L<->R的边总和，并减去最多的相同同权边
+                        vector<int> temp(27,0);
+                        int sum=0;
+                        int maxCountWeight=0;
+                        for(int i=0;i!=27;++i){
+                            temp[i]=dist[L][i]+dist[R][i]-2*dist[lca][i];
+                            sum+=temp[i];
+                            if(temp[i]>temp[maxCountWeight]){
+                                maxCountWeight=i;
+                            }
+                        }
+                        return sum-temp[maxCountWeight];
+                    };
+                    for(auto&t:queries){
+                        int lca = query(first[t[0]],first[t[1]]);
+                        result.push_back(weightChange(lca,t[0],t[1]));
+                    }
+                    return result;
+                }
+            };
+        ```
 - Tarjan算法：
     - 描述：考虑一个节点的左右子树，如果一个查询分别位于两个子树上，则LCA一定就是当前的节点。如果用并查集来合并保存节点之间的祖先关系，那么这种查询就能在$O(1)$时间内完成。
         - 建立初始并查集（孤立点），并为每一个节点记录所有相关查询

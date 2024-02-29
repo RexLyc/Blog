@@ -12,6 +12,10 @@ thumbnailImage: /images/thumbnail/misc.jpg
 ---
 一些尚未形成体系，但是可能很有用的技术杂项整理。
 <!--more-->
+## 资格证书
+1. PAT考试
+2. PMP、ACP证书
+
 ## 开发工具
 ### Python：
 - Mock服务器搭建

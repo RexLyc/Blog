@@ -213,7 +213,7 @@ math: true
             exist[p] = 1;
         }
 
-        // 查找字符串
+        // 从根查找字符串
         bool find(string s) {
             // 从根开始
             int p = 0;
@@ -221,10 +221,20 @@ math: true
                 int c = s[i] - 'a';
                 // 不可能存在该字符串
                 if (!next[p][c]) 
-                    return 0;
+                    return false;
                 // 继续向子树移动
                 p = next[p][c];
             }
+            return exist[p];
+        }
+
+        // 从某个位置开始输入字符，判断是否有结尾
+        bool try_move(int &p, char c) {
+            // 不存在
+            if (!next[p][c])
+                return false
+            p = next[p][c];
+            // 返回是否存在以该字符结束的字符串
             return exist[p];
         }
     };

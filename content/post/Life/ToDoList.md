@@ -26,10 +26,22 @@ thumbnailImage: /images/thumbnail/todo.jpg
     - [ ] 网络化、批量化
     - [ ] 添加重做撤销功能（可持久化数据结构）
 1. [x] Android
-1. [ ] 基于UE5的地铁数字孪生系统
+2. [ ] 一个基于C++20、DPDK的高性能通用服务器（参考Netty）
+    - [ ] 目标一：作为压测服务器
+    - [ ] 目标二：作为通用服务器
+1. [ ] 技能准备
+    - 中间件学习：ElasticSearch、HDFS & HBase、Hadoop & MapReduce & HIVE、Flink、Impala、
+    - 中间件复习：Redis、NginX、MySQL、Kafka
+    - 分布式：一致性哈希、Raft、分布式事务
+    - 容器：Docker、k8s
+    - 工具：perf、gperftool、gprof、gdb、flamegraph
+1. [ ] 博客填充
+    - 所有内容较少的页面，尽量填充（也就是说快点把该学的东西补上来）
+    - 在复习的过程中，补齐应有的图片
+3. [ ] 基于UE5的地铁数字孪生系统
     - 智能维修、[爆炸动画](https://docs.unrealengine.com/5.1/zh-CN/setting-up-xr-explode-animations-in-unreal-engine/)
-1. [ ] 把PC版的页面文章宽度增加一些
-2. [ ] 算法分析，所有的分析方式（尤其是势函数法）
+4. [ ] 把PC版的页面文章宽度增加一些
+5. [ ] 算法分析，所有的分析方式（尤其是势函数法）
 
 ## 更新一
 1. [x] linux-shell - 8h

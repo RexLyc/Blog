@@ -57,7 +57,17 @@ math: true
 ###  模拟
 1. :yellow_circle: 950：[按递增顺序显示卡牌](https://leetcode-cn.com/problems/reveal-cards-in-increasing-order/)。重新排序卡牌，使得满足一定条件。考验模拟的思路。
 
+### 贪心
+1. :yellow_circle: 1686：[石子游戏VI](https://leetcode.cn/problems/stone-game-vi/description/)。看了题解。回合制的对抗类的决策问题，一般就是贪心或者搜索。可以先考虑贪心。本题的关键点在于能想到对于一轮决策的最优选择，取决于$(a_i-b_j)-(a_j-b_i)$的正负，并进一步转化为$(a_i+b_i)-(a_j+b_j)$，从而明白其实只需要对和做一次排序，就可以贪心了。
+
+### 博弈
+> 单独提出一类，经常出现的思路是，最小化一个最大值，或者最大化一个最小值。但思考这种内容，虽然实际不复杂，却往往很绕脑筋。
+1. :yellow_circle: 1140：[石子游戏II](https://leetcode.cn/problems/stone-game-ii/description/)。看了题解。自己想到了需要对未来的决策做最小化，但是始终没绕明白，写复杂了。实际上不需要区分轮次，每一次的DFS输入参数都是统一的，```(begin，M)```就够了，结果代表该时刻的最优决策。考虑到计算实际是从尾部开始严格向前递推。所以可以很容易的转换为动态规划写法。
+2. :red_circle: 1406：[石子游戏III](https://leetcode.cn/problems/stone-game-iii/description/)。做完II应该直接就能做。不过注意记忆化搜索实际上会比直接动态规划慢，函数的**递归调用的时间消耗**非常大。用记忆化搜索是无法完成的。
+3. :yellow_circle: 1690：[石子游戏VII](https://leetcode.cn/problems/stone-game-vii/description/)。还是一样，这次应该能想到还是对最左右两种决策做最大化。值得注意的是本次搜索的值应该直接就是每一轮得分的差值，这是最好算的，而且能直接运用到递归的过程中。直接计算某一个人的得分反而没有办法利用下去。和其他石子游戏一样，熟练之后应该放弃记忆化搜索，DP的写法能达到最大效率。
+
 ###  搜索
+1. :red_circle: 2867：[统计树中的合法路径数目](https://leetcode.cn/problems/count-valid-paths-in-a-tree/description/)。自己最终写的是BFS的方式，而且从非质数开始扩展，统计所有的扩展（去重）。但实际上这又发生了很多重复计算。实际上中间的思路，从质数节点开始计算是正确的。题解中最重要的思想，也是树上问题最重要的思想就是，利用树的特点，**对子树进行统计**，而不是图论式的暴力的dfs、bfs。本题就是从质数节点开始计算，但先去统计质数节点的各个子树内，有多少个路径上完全没有质数的点。将各子树的这个统计值直接相乘，所有乘积的总和就是结果。或者从LCA的角度出发，也很容易看出来，所有的这种路径，一定是拥有一个质数LCA的两个非质数之间的路径。
 1. :red_circle: 2646：[最小化旅行的价格总和](https://leetcode.cn/problems/minimize-the-total-price-of-the-trips/description/)。看了题解。可以说是树上DP经典题目了，下次别忘了就行。另外也算是在考察LCA（最近公共祖先）。
 1. :yellow_circle: 2477：[到达首都的最小油耗](https://leetcode.cn/problems/minimum-fuel-cost-to-report-to-the-capital/description/)。自己写了个类似拓扑排序。实际上夸张了，这题直接从根开始深搜就行。每个节点统计子树的全部乘客，再向上返回。
 1. :rec_circle: 2258: [逃离火灾](https://leetcode.cn/problems/escape-the-spreading-fire/description/)。唯一需要特殊考虑的情况，是只有安全屋格子允许人和火同时抵达。优化思路，从起始位置和着火点分别BFS$\to$从安全屋反向BFS并记录路径$\to$不需要记录路径，只需要标记路径是从左侧还是右侧。题解里还有对等待时间二分查找+BFS，虽然效率低，但是二分的思路很有代表性。
@@ -96,39 +106,46 @@ math: true
 ###  二分
 > 二分查找，最好的表示方式就是，left边界，remain查找区间长度。注意left+remain就是第一个超出区间的值，但是也有可能是查找结果，参考vector容器的end()。参考C++标准库[lower_bound的可能实现](https://en.cppreference.com/w/cpp/algorithm/lower_bound)。
 
-1. :yellow_circle: 1901：[寻找峰值II](https://leetcode.cn/problems/find-a-peak-element-ii/description/)。自己写的二分仍不能达到题目的时间复杂度要求。官方题解的办法需要一点巧妙的证明的思路：某一行的最大值一定可以是峰值（之一），求某一行的最大值是$O(n)$的，在此基础上去二分，这个元素的上下如果某一个比这个元素还大，那就抛弃另一侧，因为这个更大的元素所在的一侧，一定有某一行的最大值是峰值（并不是说另一侧没有，只是说这一侧一定有）。其实仍然是迭代爬坡法，只不过是针对每一行的最大值进行爬坡。
-1. :yellow_circle: 162：[寻找峰值](https://leetcode.cn/problems/find-peak-element/description/)。虽然也知道是二分，但还是看了题解。题解将这种通用思路总结为**迭代爬坡**法：选中点，根据中点左右的大小，选一个爬坡方向，留那一半的区间。**思考过程**，先从$O(n)$的方式开始思考，单纯线性爬坡肯定是可以的，那么其实将其改造为二分也就不难想象和证明了。有点像下面题目：[山脉数组中查找目标值](https://leetcode-cn.com/problems/find-in-mountain-array/)的前半部分。
-1. :yellow_circle: 33：[搜索旋转排序数组](https://leetcode-cn.com/problems/search-in-rotated-sorted-array)。自己写了很久总有问题。[精选题解](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/solution/ji-jian-solution-by-lukelee/)。很考虑分类讨论能力和对二分查找的理解。**值得二刷**。
-1. :yellow_circle: 540：[有序数组中的单一元素](https://leetcode-cn.com/problems/single-element-in-a-sorted-array)。利用有序性。
-1. :red_circle: 4：[寻找两个正序数组的中位数](https://leetcode-cn.com/problems/median-of-two-sorted-arrays/)。经典的二分查找题目。普通的二分$O(log(m+n))$，以及利用中位数性质的二分$O(log(min(m,n))$（典型的**数量关系**，一个数组划分后，另一个数组理论上的划分位置是固定的）。还要注意特殊情况处理。**值得二刷**。
-1. :red_circle: 719：[找出第k小的距离对](https://leetcode-cn.com/problems/find-k-th-smallest-pair-distance)。看的[题解](https://leetcode-cn.com/problems/find-k-th-smallest-pair-distance/solution/hei-ming-dan-zhong-de-sui-ji-shu-by-leetcode/)：二分查找 + **非常妙**的双指针。一般来说，计算全部的距离（本题的求解目标值）的复杂度，是要高于搜索合适的距离值（尤其是使用二分搜索）。可思考求第K大这个经典问题。
-1. :yellow_circle: 57：[插入区间](https://leetcode-cn.com/problems/insert-interval/)。C++下本题最快捷的办法就是自己写一个lower_bound、upper_bound所需要的Compare函数。
-1. :red_circle: 1095：[山脉数组中查找目标值](https://leetcode-cn.com/problems/find-in-mountain-array/)。还是区间二分，需要先从数组中查找到最大值。很有新意的一道题目，考验对于各种情况的分析。[题解](https://leetcode-cn.com/problems/find-in-mountain-array/solution/shan-mai-shu-zu-zhong-cha-zhao-mu-biao-zhi-by-leet/)非常简洁，**值得二刷**。
-1. :red_circle: 363：[矩形区域不超过K的最大数值和](https://leetcode-cn.com/problems/max-sum-of-rectangle-no-larger-than-k/)。本题是前缀和+二分。注意当题目中出现**不超过XXX**的字样的时候，说明出现了不等式，而这一般意味着可以对中间结果进行排序（或使用动态有序的数据结构），并用二分进行查找。
-1. :red_circle: 410：[分割数组的最大值](https://leetcode-cn.com/problems/split-array-largest-sum/)。DP和记忆化搜索复杂度太高怎么办？一定要学[题解](https://leetcode-cn.com/problems/split-array-largest-sum/solution/fen-ge-shu-zu-de-zui-da-zhi-by-leetcode-solution/)，非常经典的二分思路，对待求结果进行**二分测试**。先设定一个最大值，超过该值就进行划分，如果划分数组的数量符合要求。再进一步用二分确定最大值的范围。
+1. :red_circle: 100154：[执行操作后的最大分割数量](https://leetcode.cn/problems/maximize-the-number-of-partitions-after-operations/description/)。利用前缀和统计字母的频率，可以用位运算和内置函数popcount加速。修改的时候分成不受影响的前缀，受影响的中间段，不受影响的后缀段。这种二分法最好想到，但自己只二分了一次（前缀），实际上对后缀段还需要再二分一次来达到最高速度，整体是$O(nlogn)$，参考[题解](https://leetcode.cn/problems/maximize-the-number-of-partitions-after-operations/solutions/2594398/mei-ju-by-tsreaper-2ubm/)。也有[DP的解法](https://leetcode.cn/problems/maximize-the-number-of-partitions-after-operations/solutions/2594625/dong-tai-gui-hua-c-by-ddmike-14ki/)，性能确实很高$O(n)$，也确实不好想。
+2. :yellow_circle: 1901：[寻找峰值II](https://leetcode.cn/problems/find-a-peak-element-ii/description/)。自己写的二分仍不能达到题目的时间复杂度要求。官方题解的办法需要一点巧妙的证明的思路：某一行的最大值一定可以是峰值（之一），求某一行的最大值是$O(n)$的，在此基础上去二分，这个元素的上下如果某一个比这个元素还大，那就抛弃另一侧，因为这个更大的元素所在的一侧，一定有某一行的最大值是峰值（并不是说另一侧没有，只是说这一侧一定有）。其实仍然是迭代爬坡法，只不过是针对每一行的最大值进行爬坡。
+3. :yellow_circle: 162：[寻找峰值](https://leetcode.cn/problems/find-peak-element/description/)。虽然也知道是二分，但还是看了题解。题解将这种通用思路总结为**迭代爬坡**法：选中点，根据中点左右的大小，选一个爬坡方向，留那一半的区间。**思考过程**，先从$O(n)$的方式开始思考，单纯线性爬坡肯定是可以的，那么其实将其改造为二分也就不难想象和证明了。有点像下面题目：[山脉数组中查找目标值](https://leetcode-cn.com/problems/find-in-mountain-array/)的前半部分。
+4. :yellow_circle: 33：[搜索旋转排序数组](https://leetcode-cn.com/problems/search-in-rotated-sorted-array)。自己写了很久总有问题。[精选题解](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/solution/ji-jian-solution-by-lukelee/)。很考虑分类讨论能力和对二分查找的理解。**值得二刷**。
+5. :yellow_circle: 540：[有序数组中的单一元素](https://leetcode-cn.com/problems/single-element-in-a-sorted-array)。利用有序性。
+6. :red_circle: 4：[寻找两个正序数组的中位数](https://leetcode-cn.com/problems/median-of-two-sorted-arrays/)。经典的二分查找题目。普通的二分$O(log(m+n))$，以及利用中位数性质的二分$O(log(min(m,n))$（典型的**数量关系**，一个数组划分后，另一个数组理论上的划分位置是固定的）。还要注意特殊情况处理。**值得二刷**。
+7. :red_circle: 719：[找出第k小的距离对](https://leetcode-cn.com/problems/find-k-th-smallest-pair-distance)。看的[题解](https://leetcode-cn.com/problems/find-k-th-smallest-pair-distance/solution/hei-ming-dan-zhong-de-sui-ji-shu-by-leetcode/)：二分查找 + **非常妙**的双指针。一般来说，计算全部的距离（本题的求解目标值）的复杂度，是要高于搜索合适的距离值（尤其是使用二分搜索）。可思考求第K大这个经典问题。
+8. :yellow_circle: 57：[插入区间](https://leetcode-cn.com/problems/insert-interval/)。C++下本题最快捷的办法就是自己写一个lower_bound、upper_bound所需要的Compare函数。
+9. :red_circle: 1095：[山脉数组中查找目标值](https://leetcode-cn.com/problems/find-in-mountain-array/)。还是区间二分，需要先从数组中查找到最大值。很有新意的一道题目，考验对于各种情况的分析。[题解](https://leetcode-cn.com/problems/find-in-mountain-array/solution/shan-mai-shu-zu-zhong-cha-zhao-mu-biao-zhi-by-leet/)非常简洁，**值得二刷**。
+10. :red_circle: 363：[矩形区域不超过K的最大数值和](https://leetcode-cn.com/problems/max-sum-of-rectangle-no-larger-than-k/)。本题是前缀和+二分。注意当题目中出现**不超过XXX**的字样的时候，说明出现了不等式，而这一般意味着可以对中间结果进行排序（或使用动态有序的数据结构），并用二分进行查找。
+11. :red_circle: 410：[分割数组的最大值](https://leetcode-cn.com/problems/split-array-largest-sum/)。DP和记忆化搜索复杂度太高怎么办？一定要学[题解](https://leetcode-cn.com/problems/split-array-largest-sum/solution/fen-ge-shu-zu-de-zui-da-zhi-by-leetcode-solution/)，非常经典的二分思路，对待求结果进行**二分测试**。先设定一个最大值，超过该值就进行划分，如果划分数组的数量符合要求。再进一步用二分确定最大值的范围。
     - 仔细思考。如果搜索，则相当于是求出了过多的信息（很多种划分方式的最大值都被算出来了）。
-    - 只要是结果有大小顺序，都可以用二分测试来计算。
-1. :yellow_circle: 2560: [打家劫舍 IV](https://leetcode.cn/problems/house-robber-iv/description/)。经典最小化最大值问题。这类问题就是针对这个值进行二分。而不是真的去模拟求出所有的最大值。另外该题需要想明白两点：先选一定不比后选更差（贪心策略的正确性，类似于优先选择最早完成的任务），另一点是二分的最终结果一定会存在于数组中（不用担心二分的结果不在原数组）。
+    - 只要是结果有大小顺序，都可以用二分测试来计算。只不过二分的指标可能是非常和原始思路有很大区别。
+12. :yellow_circle: 2560: [打家劫舍 IV](https://leetcode.cn/problems/house-robber-iv/description/)。经典最小化最大值问题。这类问题就是针对这个值进行二分。而不是真的去模拟求出所有的最大值。另外该题需要想明白两点：先选一定不比后选更差（贪心策略的正确性，类似于优先选择最早完成的任务），另一点是二分的最终结果一定会存在于数组中（不用担心二分的结果不在原数组）。
 
 ###  字符串
-1. :red_circle: 100158：[转换字符串的最小成本 II](https://leetcode.cn/problems/minimum-cost-to-convert-string-ii/description/)。周赛题目，和题解思路基本一致，但是本题卡常数，必须用Trie树优化，将字符串离散化，提升字符串匹配速度。写烦了，**抄了题解**。
-1. :red_circle: 828：[统计字符串中唯一字符](https://leetcode.cn/problems/count-unique-characters-of-all-substrings-of-a-given-string/description)。和题解的思路是一致的。把计算子串中的唯一字符，转向计算一个字符能在多少个子串中唯一。但是计算这种子串卡了很久。注意理解：计算在$(begin,end)$开区间内，包含middle位置的字符的子串的数量（其中$begin<middle<end$），就是$(middle-begin)*(end-middle)$。
-1. :red_circle: 1044：[最长重复子串](https://leetcode.cn/problems/longest-duplicate-substring/description/)。最长重复子串，等价于求所有后缀的最长公共前缀。后缀数组的样板题目。
-2. :green_circle: 28：[实现strstr](https://leetcode-cn.com/problems/implement-strstr/)。平均意义上又好写又快的[Sunday算法](https://blog.csdn.net/q547550831/article/details/51860017)。其实就是两条策略：失配后对比主串中此次参加匹配的子串后的下一个字符，如果在模式串中没有，则大跳，否则对齐到模式串从右数第一次出现的位置。
-3. :green_circle: 1071：[字符串的最大公因子](https://leetcode-cn.com/problems/greatest-common-divisor-of-strings/)。有个**题解非常精妙**，比较str1+str2==str2+str1，如果相等，返回gcd(str1.size(),str2.size())，否则返回0。
-4. :yellow_circle: 8：[字符串转整数atoi](https://leetcode-cn.com/problems/string-to-integer-atoi)。凡是计算，都要考虑中间步骤、最终结果，**是否会溢出**。尤其是结果不会溢出，但是粗暴的中间计算会，一定要注意。
-5. :构建回文串检测: 1177：[构建回文串检测](https://leetcode-cn.com/problems/can-make-palindrome-from-substring/)。计算各个奇偶性并进行判断即可。
-6. :yellow_circle: 820：[单词的压缩编码](https://leetcode-cn.com/problems/short-encoding-of-words/)。使用Trie树(前缀树、字典树)[题解](https://leetcode-cn.com/problems/short-encoding-of-words/solution/dan-ci-de-ya-suo-bian-ma-by-leetcode-solution/)。
-7. :yellow_circle: 151：[反转字符串里的单词](https://leetcode-cn.com/problems/reverse-words-in-a-string/)。小技巧，先翻转小单词，再翻转整体，等价于把单词位置进行对调。
-8. :yellow_circle: 647：[回文子串](https://leetcode-cn.com/problems/palindromic-substrings/)。先使用[Manacher算法](https://www.jianshu.com/p/116aa58b7d81)求出全部回文子串，结果显然。**值得二刷**。
-9. :red_circle: 1044：[最长重复子串](https://leetcode-cn.com/problems/longest-duplicate-substring/)。二分法+Rabin-Karp算法（实现不好就超时）。后缀数组+最长公共子串。***没做完***
-10. :red_circle: 65：[有效数字](https://leetcode-cn.com/problems/valid-number/)。直接上状态机，参考[题解](https://leetcode-cn.com/problems/valid-number/solution/biao-qu-dong-fa-by-user8973/)中提到的编译原理DFA。
-11. :red_circle: 466：[统计重复个数](https://leetcode-cn.com/problems/count-the-repetitions/)。题材非常新颖的一道。统计字符串之间的循环节。注意：参考小数的循环，字符串的循环节不一定从第一节字符串开始（前面可能有一个前缀）。[题解传送门](https://leetcode-cn.com/problems/count-the-repetitions/solution/tong-ji-zhong-fu-ge-shu-by-leetcode-solution/)。**值得二刷**。
-12. :red_circle: 1153：[字符串转化](https://leetcode-cn.com/problems/string-transforms-into-another-string/)。[非会员传送门](https://blog.csdn.net/qq_17550379/article/details/99404963)。很新颖的一道题目。判断类题目不需要给出解，**只需要判断**。本题只需要判断是否可能完成转换：不能具有全部26个字母，不能有相同字母需要修改为不同字母。
-13. :red_circle: 212：[单词搜索II](https://leetcode-cn.com/problems/word-search-ii/)。经典前缀树（字典树、Trie树）题目。可以看一下题解的[优化实现](https://leetcode-cn.com/problems/word-search-ii/solution/dan-ci-sou-suo-ii-by-leetcode-solution-7494/)。
-14. :red_circle: 6093：[设计一个文本编辑器](https://leetcode.cn/problems/design-a-text-editor/)。（看了题解）脑筋急转弯级别的困难题。很容易陷入到写一个链表结构的数据结构中（很难写）。但实际上，可以看作是类似两个栈，分别是前缀和后缀。左右移动就是两个栈来回压入，插入删除则是对前缀的压入和弹出。
+1. :red_circle: 100207：[找出数组中的美丽下标 II](https://leetcode.cn/problems/find-beautiful-indices-in-the-given-array-ii/description/)。先找出所有匹配位置，这一步用KMP就是最方便的。然后对匹配位置之间进行二分。
+2. :yellow_circle: 2707：[字符串中的额外字符](https://leetcode.cn/problems/extra-characters-in-a-string/description/)。动态规划的部分很好想，字符串还是Trie树经典优化。Trie特别适合需要按前缀/后缀顺序测试字符串是否存在的情况。一旦发现某个前缀/后缀已经不可能存在，就可以结束当前位置的所有测试。
+3. :red_circle: 100158：[转换字符串的最小成本 II](https://leetcode.cn/problems/minimum-cost-to-convert-string-ii/description/)。周赛题目，和题解思路基本一致，但是本题卡常数，必须用Trie树优化，将字符串离散化，提升字符串匹配速度。写烦了，**抄了题解**。
+4. :red_circle: 828：[统计字符串中唯一字符](https://leetcode.cn/problems/count-unique-characters-of-all-substrings-of-a-given-string/description)。和题解的思路是一致的。把计算子串中的唯一字符，转向计算一个字符能在多少个子串中唯一。但是计算这种子串卡了很久。注意理解：计算在$(begin,end)$开区间内，包含middle位置的字符的子串的数量（其中$begin<middle<end$），就是$(middle-begin)*(end-middle)$。
+5. :red_circle: 1044：[最长重复子串](https://leetcode.cn/problems/longest-duplicate-substring/description/)。最长重复子串，等价于求所有后缀的最长公共前缀。后缀数组的样板题目。
+6. :green_circle: 28：[实现strstr](https://leetcode-cn.com/problems/implement-strstr/)。平均意义上又好写又快的[Sunday算法](https://blog.csdn.net/q547550831/article/details/51860017)。其实就是两条策略：失配后对比主串中此次参加匹配的子串后的下一个字符，如果在模式串中没有，则大跳，否则对齐到模式串从右数第一次出现的位置。
+7. :green_circle: 1071：[字符串的最大公因子](https://leetcode-cn.com/problems/greatest-common-divisor-of-strings/)。有个**题解非常精妙**，比较str1+str2==str2+str1，如果相等，返回gcd(str1.size(),str2.size())，否则返回0。
+8. :yellow_circle: 8：[字符串转整数atoi](https://leetcode-cn.com/problems/string-to-integer-atoi)。凡是计算，都要考虑中间步骤、最终结果，**是否会溢出**。尤其是结果不会溢出，但是粗暴的中间计算会，一定要注意。
+9. :构建回文串检测: 1177：[构建回文串检测](https://leetcode-cn.com/problems/can-make-palindrome-from-substring/)。计算各个奇偶性并进行判断即可。
+10. :yellow_circle: 820：[单词的压缩编码](https://leetcode-cn.com/problems/short-encoding-of-words/)。使用Trie树(前缀树、字典树)[题解](https://leetcode-cn.com/problems/short-encoding-of-words/solution/dan-ci-de-ya-suo-bian-ma-by-leetcode-solution/)。
+11. :yellow_circle: 151：[反转字符串里的单词](https://leetcode-cn.com/problems/reverse-words-in-a-string/)。小技巧，先翻转小单词，再翻转整体，等价于把单词位置进行对调。
+12. :yellow_circle: 647：[回文子串](https://leetcode-cn.com/problems/palindromic-substrings/)。先使用[Manacher算法](https://www.jianshu.com/p/116aa58b7d81)求出全部回文子串，结果显然。**值得二刷**。
+13. :red_circle: 1044：[最长重复子串](https://leetcode-cn.com/problems/longest-duplicate-substring/)。二分法+Rabin-Karp算法（实现不好就超时）。后缀数组+最长公共子串。***没做完***
+14. :red_circle: 65：[有效数字](https://leetcode-cn.com/problems/valid-number/)。直接上状态机，参考[题解](https://leetcode-cn.com/problems/valid-number/solution/biao-qu-dong-fa-by-user8973/)中提到的编译原理DFA。
+15. :red_circle: 466：[统计重复个数](https://leetcode-cn.com/problems/count-the-repetitions/)。题材非常新颖的一道。统计字符串之间的循环节。注意：参考小数的循环，字符串的循环节不一定从第一节字符串开始（前面可能有一个前缀）。[题解传送门](https://leetcode-cn.com/problems/count-the-repetitions/solution/tong-ji-zhong-fu-ge-shu-by-leetcode-solution/)。**值得二刷**。
+16. :red_circle: 1153：[字符串转化](https://leetcode-cn.com/problems/string-transforms-into-another-string/)。[非会员传送门](https://blog.csdn.net/qq_17550379/article/details/99404963)。很新颖的一道题目。判断类题目不需要给出解，**只需要判断**。本题只需要判断是否可能完成转换：不能具有全部26个字母，不能有相同字母需要修改为不同字母。
+17. :red_circle: 212：[单词搜索II](https://leetcode-cn.com/problems/word-search-ii/)。经典前缀树（字典树、Trie树）题目。可以看一下题解的[优化实现](https://leetcode-cn.com/problems/word-search-ii/solution/dan-ci-sou-suo-ii-by-leetcode-solution-7494/)。
+18. :red_circle: 6093：[设计一个文本编辑器](https://leetcode.cn/problems/design-a-text-editor/)。（看了题解）脑筋急转弯级别的困难题。很容易陷入到写一个链表结构的数据结构中（很难写）。但实际上，可以看作是类似两个栈，分别是前缀和后缀。左右移动就是两个栈来回压入，插入删除则是对前缀的压入和弹出。
 
 ###  动态规划
+1. :red_circle: 2581：[统计可能的树根数目](https://leetcode.cn/problems/count-number-of-possible-root-nodes/description/)。自己写的是普通的记忆化搜索。题解的意思是树上DP，不过也是DFS实现的。所谓的动态规划，是指每一步，进行**换根操作**。这在树类题目中是一个很常见的操作，因为一般来说，一次换根，只有两个节点之间的父子关系发生了变化，很容易计算状态转移。不过时间复杂度是一样的。
+1. :red_circle: 1125：[最小的必要团队](https://leetcode.cn/problems/smallest-sufficient-team/description/)。想到了状态压缩，但是没想到DP。看了一下题解思路很简单。对状态压缩进行DP，最暴力的方式就是枚举当前所有状态，再加上一个新状态，构成状态转移即可。
+1. :yellow_circle: 1567：[乘积为正数的最长子数组长度](https://leetcode.cn/problems/maximum-length-of-subarray-with-positive-product/description/)。自己写了一个用前缀乘积的。题解也是类似的分类讨论（dp[i]以i为结尾的正数、负数的最长长度）的动态规划思想。没什么特别的，注意细节就行。
+1. :red_circle: 2809：[使数组和小于等于x的最小时间](https://leetcode.cn/problems/minimum-time-to-make-array-sum-at-most-x/description/)。抄了题解。问题还是在于状态设计。困难的动态规划一般都是需要进行一系列附加的思考。反而最后的状态转移方程并不一定复杂。本题中有若干个要点需要理解，剩余总和的组成（初始总和+添加总和*i-被减少的总和）。因此最小化剩余总和，就转化为了最大化被减少的总和。当需要选择一系列数据进行最大化，我们就有一个典型的模型：01背包。而本题更复杂的思考就在于，选择的顺序一定是按照nums2从小到大。因此按照从小到大去状态转移，就解决了动态规划问题的无后效性。
 1. :red_circle: 1349：[参加考试的最大学生数](https://leetcode.cn/problems/maximum-students-taking-exam/description/)。抄了题解。没想到正确的状态设计的思路。每一行的可坐人数和当前行的坐法，以及上一行的坐法有关。而每一行的坐法可以用```bitmask```来表示，之后再对两行的```bitmask```进行暴力匹配。从而算出每一个状态下的最多人数。只要能想到**正确的状态设计**就成功了。可以从题目的数据范围去思考。另外题解中还提到了转换为[二分图模型](https://leetcode.cn/problems/maximum-students-taking-exam/solutions/101748/can-jia-kao-shi-de-zui-da-xue-sheng-shu-by-leetcod/comments/2201755)，以及[插头DP（轮廓线DP）](https://oi-wiki.org/dp/plug/)。
 1. :red_circle: 1671：[得到山形数组的最少删除次数](https://leetcode.cn/problems/minimum-number-of-removals-to-make-mountain-array/description/)。自己写的是$O(n^2)$的动态规划，对每个位置，求两次递减子序列。但实际上本题可参考[最长递增子序列](https://leetcode-cn.com/problems/longest-increasing-subsequence/)。求LIS类问题，是有$O(nlogn)$方法的。
 1. :yellow_circle: 2008：[出租车的最大盈利](https://leetcode.cn/problems/maximum-earnings-from-taxi/description/)。自己写的是对订单DP+二分。题解中有另一种对位置DP+哈希表，实际上只需要回溯考虑同一终点的所有行程。没有绝对的好坏，不过本题的数据规模确实是哈希表更好。
@@ -198,6 +215,7 @@ math: true
 1. :yellow_circle: 355：[设计推特](https://leetcode-cn.com/problems/design-twitter/)。思考的时候可以参考下基础算法题。本体实际上是合并k个有序链表。
 
 ###  位运算
+1. :yellow_circle: 2397：[被列覆盖的最多行数](https://leetcode.cn/problems/maximum-rows-covered-by-columns/description/)。二进制枚举，但是固定1的数量。可以进行[Gosper's-Hack优化](https://zhuanlan.zhihu.com/p/360512296)。
 1. :green_circle: 231：[2的幂](https://leetcode-cn.com/problems/power-of-two/solution/)。直接用n&n-1。
 1. :yellow_circle: 201：[数字范围按位与](https://leetcode-cn.com/problems/bitwise-and-of-numbers-range/)。纯暴力遍历不可取。题解即求两个数字的[二进制下的公共前缀](https://leetcode-cn.com/problems/bitwise-and-of-numbers-range/)，里面提到了用于去除二进制串最右侧1的，Brian Kernighan算法。
 1. :yellow_circle: 320：[列举单词的全部缩写](https://leetcode-cn.com/problems/generalized-abbreviation/)。[非会员链接](https://blog.csdn.net/qq_21201267/article/details/107859696)。可以用**二进制运算**，每个bit位代表是否用数字进行缩写，并最终输出。实现上比回溯的效率高很多。当然本质上还是$O(2^n)$。
@@ -207,6 +225,7 @@ math: true
 1. :green_circle: 1114：[按序打印](https://leetcode-cn.com/problems/print-in-order/solution/)。条件变量、锁。
 
 ###  图论
+1. :red_circle: 2846：[边权重均等查询](https://leetcode.cn/problems/minimum-edge-weight-equilibrium-queries-in-a-tree/description/)。想到了是LCA问题，但是没想到路径之后如何优化对路径的求解。这个题的思路非常值得思考，其实是图论、或者是树上问题的一个**通用思路**，就是如果一个问题的求解，**满足结合律**。比如两点之间的某种数值，满足结合律、交换律。那么就可以通过求解到同一个点的数值，再求差值来做到。例如求$f(a,b)$可能很难（或者时间复杂度很高），但是可以求$f(x,a)$和$f(x,b)$，再进行$f(x,a)+f(x,b)-2\timesf(0,x)$。另外本题也考察了LCA，必须使用优于朴素算法的解法。
 1. :yellow_circle: 1631：[最小体力消耗路径](https://leetcode.cn/problems/path-with-minimum-effort/description/)。思考了很久，最终意识到仍然是一个特殊的单源最短路题目。每次取出可扩展路径中最短的一个，扩展该点，并将该点所有边加入最小堆中。重复此过程直到终点被加入。注意C++的优先队列，在使用```std::less```的情况下是大顶堆，如果需要自定义数据结构的小顶堆，可以自定义一个形如```std::greater```语义的二元比较函数```comp```，并```priority_queue<your_struct, vector<your_struct>, decltype(comp)> small_queue;```
 1. :yellow_circle: 721：[账户合并](https://leetcode-cn.com/problems/accounts-merge/)。基础并查集题目。
 1. :yellow_circle: 1162：[地图分析](https://leetcode-cn.com/problems/as-far-from-land-as-possible/)。很有代表性的一道题目，巧妙地把问题转换为多源点BFS。[题解](https://leetcode-cn.com/problems/as-far-from-land-as-possible/solution/di-tu-fen-xi-by-leetcode-solution/)中甚至还有更精妙的DP解法。**值得二刷**。
@@ -225,7 +244,10 @@ math: true
 2. :red_circle: 2603: [收集树中金币](https://leetcode.cn/problems/collect-coins-in-a-tree/description/)。看了题解，核心是对图做变换：剪枝、去叶子节点。**思考最终路径的规则**：任何一条路径最多只需要走两次，路径终点到（最远的）有金币的节点距离为2。因此变换有两条：递归删除所有无金币的叶子节点，对最终树进行2次删除叶子节点的操作。最终剩下的边，每个都会遍历。
 
 ###  数据结构
-1. :yellow_ciecle: 2735：[收集巧克力](https://leetcode.cn/problems/collecting-chocolates/description/)。名为中等，实为困难。自己写的是$O(n^2)$的动态规划，实际上本题有$O(n)$的单调栈+二次差分解法，思路比较复杂，参考[题解](https://leetcode.cn/problems/collecting-chocolates/solutions/2580148/shou-ji-qiao-ke-li-by-leetcode-solution-bjyp/)。
+1. :yellow_circle: 103：[二叉树的锯齿形层序遍历](https://leetcode.cn/problems/binary-tree-zigzag-level-order-traversal/description/)。可以正常遍历记录层次遍历结果，再对中间结果进行后处理（隔行反转）。但题解中的方法更简便，对于这种需要调整遍历方向的，使用**双向队列**的方式更简便。
+1. :red_circle: 239：[滑动窗口的最大值](https://leetcode.cn/problems/sliding-window-maximum/description/)。$O(nlogn)$的大顶堆并不难想。但是题解提到了**单调栈思想的双端队列**。很有意思。在一个滑动窗口中，统计最大值，考虑一个更大的数加入之后所有更小数均可以从队尾弹出，另外超过窗口范围的大数从队首弹出，因此只需要用一个双端队列即可，能达到$O(n)$复杂度。
+1. :red_circle: 100213：[按距离统计房屋对数目II](https://leetcode.cn/problems/count-the-number-of-houses-at-a-certain-distance-ii/description/)。周赛，自己想写一个完全基于数学的分类讨论，但是漏洞百出。[题解](https://leetcode.cn/problems/count-the-number-of-houses-at-a-certain-distance-ii/solutions/2613373/yong-che-xiao-de-fang-shi-si-kao-pythonj-o253/)提供的思路是分类讨论，用差分数组统计。总之，差分数组是$O(n)$复杂度的好帮手，可以把若干次区间修改的时间复杂度大大简化。
+1. :yellow_circle: 2735：[收集巧克力](https://leetcode.cn/problems/collecting-chocolates/description/)。名为中等，实为困难。自己写的是$O(n^2)$的动态规划，实际上本题有$O(n)$的单调栈+二次差分解法，思路比较复杂，参考[题解](https://leetcode.cn/problems/collecting-chocolates/solutions/2580148/shou-ji-qiao-ke-li-by-leetcode-solution-bjyp/)。
 1. :yellow_circle: 2866：[美丽塔II](https://leetcode.cn/problems/beautiful-towers-ii/description/)。思考过程是从暴力解法入手。很容易发现计算结果就是等价于构造一个递增/递减子数组，就很容易想到单调栈。主要的坑还是```int```和```long long int```的转型问题。
 1. :red_circle: 2276：[统计区间中的整数数目](https://leetcode.cn/problems/count-integers-in-intervals/description/)。动态开点线段树标准题。记住一个思路，动态开点的根区间是整个区间范围，而不是一点一点扩大的（会出现树不平衡问题）。一个评论中提到的[池化技术](https://leetcode.cn/problems/count-integers-in-intervals/solutions/1495396/by-endlesscheng-clk2/comments/2195672)非常有趣，值得一看。
 1. :red_circle: 2132：[用邮票贴满网格图](https://leetcode.cn/problems/stamping-the-grid/description/)。看的题解，非常典型的二维前缀和、二维差分数组的题目。凡是计算一个矩形区域，甚至更高维的一个区域，都可以用n维的前缀和。但这道题目更厉害的是对差分数组的理解。最终求是否存在一个点没有被覆盖过。这个时候实际上需要计算出所有点的覆盖次数（一个前缀和），为了求这个，可以先求出其差分数组，即某个顶点开始覆盖一个矩形（四个角分别+1、-1），在对其求和。
@@ -252,6 +274,7 @@ math: true
 2. :red_circle: 2736：[最大和查询](https://leetcode.cn/problems/maximum-sum-queries/description/)。看了[题解](https://leetcode.cn/problems/maximum-sum-queries/solutions/2530255/jian-dan-bao-li-xian-duan-shu-by-ketus82-tes0/)。还是线段树。**同一下标的多维度的值也可以用线段树进行区间维护**。线段树**并不要求区间之间一定满足什么关系**，看题目内容，可能要遍历很多的区间，必要的时候可以通过剪枝。其实仔细思考能发现本题的几个要点：和的极大值可以通过区间维护，两个加数的极小值/极大值也可以通过区间维护。如此就能通过排除
 
 ###  其他
+1. :red_circle: LCP24：[数字游戏](https://leetcode.cn/problems/5TxKeK/description/)。抄了题解，自己在想差分数组，完全想歪了。本题最厉害的是对数组的预处理。把求满足```num[j]==num[j]+1```的数组，转换为求令所有```num[j]-j```相等的数组，从而变成了求中位数，并进一步用对顶堆来解决。有两个题目和这个相关，分别是[462：最小操作使数组相等II](https://leetcode.cn/problems/minimum-moves-to-equal-array-elements-ii/description/)、[295：数据流的中位数](https://leetcode.cn/problems/find-median-from-data-stream/description/)。
 1. :green_circle: 665：[非递减数列](https://leetcode-cn.com/problems/non-decreasing-array/)。不简单的简单题，**值得二刷**。考虑情况要完整。
 1. :yellow_circle: 78：[求全部子集](https://leetcode-cn.com/problems/subsets)。使用vector一定减少内存重分配。
 1. :yellow_circle: 169：[找众数](https://leetcode-cn.com/problems/majority-element)。Boyer-Moore投票算法。维护当前众数和计数器。相等+1，否则-1。变为0则更换数字。

@@ -33,8 +33,19 @@ math: true
 1. 定义：如果一个问题的求解过程中，可以反复求解完全相同（参数上下文）的子问题，而不是总在搜索全新的子问题，那么就说明该问题具有重叠子问题。
     - 是重叠子问题，是动态规划可行的**必要条件**。
     - 和分治法的对比：分治法总是在每一步产生全新的子问题。
+### 无后效性
+1. 定义：在后续的状态转移的时候，只关心前面阶段的状态值，不需要关心这个状态是如何推导出来的。且某一次状态转移一旦确定，就不受之后阶段的决策影响。
+2. 一点理解：很多时候，无法直接使用动态规划的原因，并不是不具备重叠子问题。而是因为原始问题不具备无后效性导致的。即当前的决策不能保证不被推翻，它可能会和后续的某一次状态转移冲突，而被推翻。另一方面，后续的决策还可能需要保留当前决策的决策流程（维护额外的状态转移信息，显然会提高时空复杂度）。这里用题目[使数组和小于等于 x 的最少时间](https://leetcode.cn/problems/minimum-time-to-make-array-sum-at-most-x/description/)举例。
+    1. 一个容易思考到的方法是：
+        - 对于$dp[i][j]$，设其表示第i秒，清空位置j时，可以获得的最小总和。此时只需要对i、j遍历，就能得知满足要求的结果的出现时间。表面看是$O(n^2)$
+        - 但是在状态转移时，i+1秒的第j位置，需要知道i-1秒各种情况的各个位置的具体情况，否则无法算出正确的总和（可能会把一个位置超额清空），因此需要再维护所有决策的详细信息，复杂度就来到了$O(n^3)$，不能接受
+    2. 上一个方法的问题有两点：状态的选择不够好、对清空位置的顺序没有控制
+        - 状态值的选择：直接计算最小总和需要考虑的因素很多，如果反过来思考，只计算最大减少总和，就只需要考虑在什么时候清空一个位置。
+        - 状态转移顺序控制问题：这是最根本的问题。首先用时间划分重叠子问题不够好，应该先对位置进行遍历。并且将位置提前排序。
+    3. 抽象来说，本质上还是需要对问题进行更多分析和思考。找到在某种状态维度划分下真正的最优子结构。（前k个，前k秒，前kX）
+
 ### 备忘录写法
-1. 动态规划的一种变形，既具有大体上等价于动态规划的效率，又采用了自顶向下的写法（更类似于搜索）。
+1. 记忆化搜索。动态规划的一种变形，既具有大体上等价于动态规划的效率，又采用了自顶向下的写法（更类似于搜索）。
 1. 写法：就是针对当前输入参数做问题记录，对于完全相同的输入参数，直接返回上一次的计算结果。
 ### 树上DP
 1. 动态规划的一种变形，为了适应题目中子问题之间的树结构。一般会综合其他树算法（如LCA）、动态规划（如背包DP）算法进行考察。
@@ -54,6 +65,60 @@ math: true
     1. 在$N \times N$的棋盘里面放K个国王，使他们互不攻击，共有多少种摆放方案。对每一行，用二进制串来表示某个位置是否有国王。并不是所有二进制串都是有效的状态，需要先过滤，然后再对相邻行进行比对。
     2. 枚举一个集合的全部子集。
     > 压缩的结果大多可以表示为$dp[s]$，其中$s$代表了一种可能的状态。
+
+1. 数位DP：一类非常明显的题目。当题目考察内容是形如计算一个数字的各个数位满足一些条件时的统计信息。这种时候就是数位DP。典型题目：[统计整数数目](https://leetcode.cn/problems/count-of-integers/description/)、[统计特殊整数](https://leetcode.cn/problems/count-special-integers/description/)。教程可以参考[OI-Wiki数位DP](https://oi-wiki.org/dp/number/)。这里给出统计特殊整数的典型解答。记忆化搜索是最常见，最好写的形式。
+    ```cpp
+    class Solution {
+    public:
+        // #define N 11
+        // #define M (1<<11)
+        // int dp[N][M];
+        unordered_map<int,int> dp;
+        vector<int> nums;
+
+        inline int combine(int index,int mask,bool limit,bool start) {
+            int result=0;
+            result=(index<<11) | mask | (limit<<16) | (start<<17);
+            return result;
+        }
+
+        // 记忆化搜索
+        int dfs(int index,int mask,bool limit,bool start){
+            if(index==nums.size())
+                return 1;
+            // 合并index、mask、limit、start
+            if(dp.find(combine(index,mask,limit,start))!=dp.end())
+                return dp[combine(index,mask,limit,start)];
+            int up=limit?nums[index]:9;
+            int res=0;
+            // cout<<index<<" "<<mask<<" "<<limit<<" "<<up<<endl;
+            for(int i=0;i<=up;++i){
+                if(mask&(1<<i))
+                    continue;
+                // 注意前导0是可以重复的，此时不应当计入mask
+                if(i==0&&!start){
+                    res +=dfs(index+1,mask,limit && i==up,false);
+                } else {
+                    // i!=0 || start
+                    res +=dfs(index+1,mask|(1<<i),limit && i==up,true);
+                }
+            }
+            dp[combine(index,mask,limit,start)]=res;
+            return res;
+        }
+
+        int countSpecialNumbers(int n) {
+            while(n){
+                nums.push_back(n%10);
+                n/=10;
+            }
+            reverse(nums.begin(),nums.end());
+
+            // digit index, digit mask, limit
+            return dfs(0,0,true,false)-1;
+        }
+    };
+    ```
 
 2. 插头DP：也称为连通性状态压缩DP，轮廓线DP。状态压缩的一些特例，不仅需要压缩状态，而且需要维护状态之间的连通信息。基本术语：轮廓线（已决策状态和未决策状态的分界线）、
     1. 骨牌覆盖，在一个$n \times m$的棋盘中，放置$1\ times 2$或$2 \times 1$的多米诺骨牌（即横放、竖放），问方案总数。参考[HDU 1400 插头DP，状压DP](https://blog.csdn.net/qq_43822233/article/details/108114908)。

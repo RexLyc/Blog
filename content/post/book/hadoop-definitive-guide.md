@@ -9,7 +9,6 @@ tags:
 - 中间件
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/hadoop-logo.jpg
-draft: true
 ---
 在大数据处理领域，Hadoop生态凭借多年的运营，基本上已经成为相关实现的事实标准。本文记录为读书笔记。
 <!--more-->

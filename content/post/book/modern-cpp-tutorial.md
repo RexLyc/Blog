@@ -10,7 +10,6 @@ tags:
 - 编程语言
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/cpp.png
-# draft: true
 mermaid: true
 ---
 从C++11开始，C++开始加速向一门更现代的语言进化。很多需求都有了更优秀的写法来替代原来的技巧。

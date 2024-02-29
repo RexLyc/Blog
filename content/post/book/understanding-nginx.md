@@ -9,7 +9,6 @@ tags:
 - Web
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/book/understanding-nginx.png
-draft: true
 ---
 Nginx是一个优秀的静态Web、反向代理服务器，目前被广泛使用，其设计思路，尤其是模块支持能力非常强大，本文记录对该书的学习和实践。
 <!--more-->

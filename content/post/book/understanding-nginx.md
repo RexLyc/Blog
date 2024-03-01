@@ -746,6 +746,14 @@ typedef struct {
   u_char conf_file;
   ngx_uint_t line;
 } ngx_path_t;
+
+// ngx提供的解析http解析结果存储结构
+typedef struct {
+  ngx_uint_t code;
+  ngx_uint_t count;
+  u_char *start;
+  u_char *end;
+} ngx_http_status_t;
 ```
 
 常见的库函数、工具函数也有一些封装，例如
@@ -1346,7 +1354,12 @@ typedef struct {
 > 注意区分NGX_HTTP_MODULE、NGX_HTTP_CORE_MODULE。
 
 ![Nginx配置上下文内存模型示意1](/images/book/understanding-nginx/ngx_conf_ctx.png)
+
+配置上下文内存模型示意图1
+
 ![Nginx配置上下文内存模型示意2](/images/book/understanding-nginx/ngx_conf_ctx_2.png)
+
+配置上下文内存模型示意图2
 
 显然这种结构带来了大量冗余。在配置解析过程中，http、server、location的数量之和，是create_loc_conf的调用次数，也是它产生的loc_conf的个数，同理http、server的数量之和，是create_srv_conf的次数。这都是**为了解决同名配置项合并**的问题。
 
@@ -1461,13 +1474,22 @@ typedef struct ngx_http_upstream_s ngx_http_upstream_t; struct ngx_http_upstream
 
 从结构中可知，所提供的8个回调方法种，三个是必须实现的，其余5个则可以根据需要进行实现。另外需要明白的一点是，当我们在自己的模块中主动使用upstream时，upstream配置块和我们没有关系。我们需要自己为upstream的相关配置引入配置项数据。
 
+另外在nginx做反向代理时，upstream内部直接提供了所谓的pass header、hide header的字段，用于透传、隐藏某型http头部字段。这样做的目的有很多，比如
+1. 安全性提高：通过隐藏或修改服务器的一些敏感信息（如Server头部、X-Powered-By头部等），可以减少潜在攻击者获取的信息量，降低被攻击的风险。例如，如果攻击者不知道后端使用的是哪个版本的Apache或PHP，那么他们利用这些软件已知漏洞的难度会增加。
+1. 统一响应头: 在使用Nginx作为反向代理服务多个应用时，不同的应用可能会生成不同的响应头。通过Nginx统一修改或移除某些响应头，可以对外提供更一致的响应头信息，提高整体的专业度和美观度。
+1. 性能优化：虽然不是主要原因，但通过移除一些不必要的头信息，可以减少HTTP响应的大小，从而微小提升网络传输效率。
+
+遵守策略或法规：在某些情况下，为了符合公司策略或者遵守某些法律法规的要求，可能需要隐藏或修改响应头中的信息。
+
 ![nginx处理upstream流程](/images/book/understanding-nginx/nginx-upstream-event.png)
 
 如上图所示的是一次create_request回调的序列图。对应的finalize_request在请求被销毁前一定会被调用（无论upstream请求成功与否）。
 
 ![ngxin处理upstream-processheader流程](/images/book/understanding-nginx/upstream-process-header.png)
 
-上图所示的是请求第三方服务中，process_header的流程。果buffer缓冲区全满却还没有解析到完整的响应头部（也就是说，process_header一直在返回NGX_AGAIN）。
+上图所示的是请求第三方服务中，process_header的流程。如果buffer缓冲区全满却还没有解析到完整的响应头部（也就是说，process_header一直在返回NGX_AGAIN）。
+
+本文最后给出了一个[upstream示例](#upstream)
 
 ### 进程
 
@@ -1829,6 +1851,323 @@ ngx_log_error(NGX_LOG_ALERT, r->connection->log,0,
 ngx_list_t链表示意图
 
 ![ngx_list_t链表示意图](/images/book/understanding-nginx/ngx_list_t.png)
+
+## 其他Demo
+### upstream
+本Demo完全来自书中，稍微修改了上游服务器网址。目标是通过在自定义模块中使用upstream模块，完成支持客户端传入URL，Nginx用其URL中的查询参数，向外部搜索引擎网站，查询数据，并透传返回查询结果。
+
+配置参数，配置项处理
+```c
+// 在自定义模块配置中，加入所需要的upstream参数
+typedef struct {
+  ngx_http_upstream_conf_t upstream;
+} ngx_http_mytest_conf_t;
+
+// 模块create_loc_conf的实现
+static void* ngx_http_mytest_create_loc_conf(ngx_conf_t *cf) {
+  ngx_http_mytest_conf_t *mycf;
+  mycf = (ngx_http_mytest_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_mytest_conf_t));
+  if (mycf == NULL) {
+    return NULL;
+  }
+  /* 以下简单的硬编码ngx_http_upstream_conf_t结构中的各成员，
+  如超时时间，都设为1分钟，这也是HTTP反向代理模块的默认值 */
+  mycf->upstream.connect_timeout = 60000;
+  mycf->upstream.send_timeout = 60000;
+  mycf->upstream.read_timeout = 60000;
+  mycf->upstream.store_access = 0600;
+  /* buffering已经决定了将以固定大小的内存作为缓冲区来转发上游的响应包体，
+  这块固定缓冲区的大小就是buffer_size。
+  如果buffering为1，就会使用更多的内存缓存来不及发往下游的响应。
+  例如，最多使用bufs.num个缓冲区且每个缓冲区大小为bufs.size。
+  另外，还会使用临时文件，临时文件的最大长度为max_temp_file_size */
+  mycf->upstream.buffering = 0;
+  mycf->upstream.bufs.num = 8;
+  mycf->upstream.bufs.size = ngx_pagesize;
+  mycf->upstream.buffer_size = ngx_pagesize;
+  mycf->upstream.busy_buffers_size = 2 * ngx_pagesize;
+  mycf->upstream.temp_file_write_size = 2 * ngx_pagesize;
+  mycf->upstream.max_temp_file_size = 1024 * 1024 * 1024;
+  /* upstream hide_headers成员必须要初始化（upstream在解析完上游服务器返回的包头时，
+  会调用ngx_http_upstream_process_headers方法按照hide_headers成员将本应转发给下游的一些HTTP头部隐藏），
+  这里将它赋为NGX_CONF_UNSET_PTR ，这是为了在merge合并配置项方法中使用
+  upstream模块提供的ngx_http_upstream_hide_headers_hash方法初始化hide_headers成员 */
+  mycf->upstream.hide_headers = NGX_CONF_UNSET_PTR;
+  mycf->upstream.pass_headers = NGX_CONF_UNSET_PTR;
+  return mycf;
+}
+
+// merge_loc_conf
+static char *ngx_http_mytest_merge_loc_conf(ngx_conf_t cf, void *parent, void *child) {
+  ngx_http_mytest_conf_t *prev = (ngx_http_mytest_conf_t *)parent;
+  ngx_http_mytest_conf_t *conf = (ngx_http_mytest_conf_t *)child;
+  ngx_hash_init_t hash;
+  hash.max_size = 100;
+  hash.bucket_size = 1024;
+  hash.name = "proxy_headers_hash";
+  // ngx_http_upstream_hide_headers_hash具备合并功能，ngx_http_proxy_hide_headers是存储默认会隐藏的包头的数组
+  if (ngx_http_upstream_hide_headers_hash(cf, &conf->upstream, &prev->upstream
+    , ngx_http_proxy_hide_headers, &hash) != NGX_OK)
+  {
+    return NGX_CONF_ERROR;
+  }
+  return NGX_CONF_OK;
+}
+
+// 将status加入到ctx中
+typedef struct {
+  // ...
+  ngx_http_status_t status;
+} ngx_http_mytest_ctx_t;
+
+// 必须实现的回调之一：构造请求
+static ngx_int_t mytest_upstream_create_request(ngx_http_request_t *r) {
+  /* 发往baidu上游服务器的请求很简单，就是模仿正常的搜索请求，
+  以/searchq=…的URL来发起搜索请求 */
+  static ngx_str_t backendQueryLine =
+   ngx_string("GET searchq=%V HTTP1.1\r\nHost: www.google.com\r\nConnection: close\r\n\r\n"); 
+  ngx_int_t queryLineLen = backendQueryLine.len + r->args.len - 2;
+  /* epoll多次调度send才能发送完成，这时必须保证这段内存不会被释放；
+  另一个好处是，在请求结束时，这段内存会被自动释放，降低内存泄漏的可能 */
+  ngx_buf_t* b = ngx_create_temp_buf(r->pool, queryLineLen);
+  if (b == NULL)
+    return NGX_ERROR;
+  // last要指向请求的末尾
+  b->last = b->pos + queryLineLen;
+  // 作用相当于snprintf
+  ngx_snprintf(b->pos, queryLineLen ,
+    (char*)backendQueryLine.data,&r->args);
+  /* r->upstream->request_bufs是一个ngx_chain_t结构，它包含着要发送给上游服务器的请求 */
+  r->upstream->request_bufs = ngx_alloc_chain_link(r->pool);
+  if (r->upstream->request_bufs == NULL)
+    return NGX_ERROR;
+  // request_bufs在这里只包含1个ngx_buf_t缓冲区
+  r->upstream->request_bufs->buf = b;
+  r->upstream->request_bufs->next = NULL;
+  r->upstream->request_sent = 0;
+  r->upstream->header_sent = 0;
+  // header_hash不可以为0
+  r->header_hash = 1;
+  return NGX_OK;
+}
+
+// 对返回数据的状态行进行解析
+static ngx_int_t mytest_process_status_line(ngx_http_request_t *r) {
+  size_t len;
+  ngx_int_t rc;
+  ngx_http_upstream_t *u;
+  // 上下文中才会保存多次解析HTTP响应行的状态，下面首先取出请求的上下文
+  ngx_http_mytest_ctx_t* ctx = ngx_http_get_module_ctx(r,ngx_http_mytest_module);
+  if (ctx == NULL) {
+    return NGX_ERROR;
+  }
+  u = r->upstream;
+  /* HTTP框架提供的ngx_http_parse_status_line方法可以解析HTTP响应行，
+  它的输入就是收到的字符流和上下文中的ngx_http_status_t结构 */
+  rc = ngx_http_parse_status_line(r, &u->buffer, &ctx->status);
+  // 返回NGX_AGAIN时，表示还没有解析出完整的HTTP响应行，需要接收更多的字符流再进行解析
+  if (rc == NGX_AGAIN) {
+    return rc;
+  }
+  // 返回 NGX_ERROR时，表示没有接收到合法的HTTP响应行
+  if (rc == NGX_ERROR) {
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "upstream sent no valid HTTP/1.0 header"); r->http_version = NGX_HTTP_VERSION_9;
+    u->state->status = NGX_HTTP_OK;
+    return NGX_OK;
+  }
+  /* 以下表示在解析到完整的HTTP响应行时，会做一些简单的赋值操作，
+  将解析出的信息设置到r->upstream->headers_in结构体中。
+  当upstream解析完所有的包头时，会把headers_in中的成员设置到将要向下游发送的
+  r->headers_out结构体中，也就是说，现在用户向headers_in中设置的信息，
+  最终都会发往下游客户端。为什么不直接设置r->headers_out而要多此一举呢？
+  因为upstream希望能够按照ngx_http_upstream_conf_t配置结构体中的
+  hide_headers等成员对发往下游的响应头部做统一处理 */
+  if (u->state) {
+    u->state->status = ctx->status.code;
+  }
+  u->headers_in.status_n = ctx->status.code;
+  len = ctx->status.end - ctx->status.start;
+  u->headers_in.status_line.len = len;
+  u->headers_in.status_line.data = ngx_pnalloc(r->pool, len);
+  if (u->headers_in.status_line.data == NULL) {
+    return NGX_ERROR;
+  }
+  ngx_memcpy(u->headers_in.status_line.data, ctx->status.start, len);
+  /* 下一步将开始解析HTTP头部。设置process_header回调方法为
+  mytest_upstream_process_header，之后再收到的新字符流将由
+  mytest_upstream_process_header解析 */
+  u->process_header = mytest_upstream_process_header;
+  /* 如果本次收到的字符流除了HTTP响应行外，还有多余的字符，
+  那么将由mytest_upstream_process_header方法解析 */
+  return mytest_upstream_process_header(r);
+}
+
+// 处理响应包头，process_header
+static ngx_int_t mytest_upstream_process_header(ngx_http_request_t *r) {
+  ngx_int_t rc;
+  ngx_table_elt_t *h;
+  ngx_http_upstream_header_t *hh;
+  ngx_http_upstream_main_conf_t *umcf;
+  /* 这里将upstream模块配置项ngx_http_upstream_main_conf_t取出来，
+  目的只有一个，就是对将要转发给下游客户端的HTTP响应头部进行统一处理。
+  该结构体中存储了需要进行统一处理的HTTP头部名称和回调方法 */
+  umcf = ngx_http_get_module_main_conf(r, ngx_http_upstream_module);
+  // 循环地解析所有的HTTP头部
+  for ( ;; ) {
+    /* HTTP框架提供了基础性的ngx_http_parse_header_line方法，它用于解析HTTP头部 */
+    rc = ngx_http_parse_header_line(r, &r->upstream->buffer, 1);
+    // 返回NGX_OK时，表示解析出一行HTTP头部
+    if (rc == NGX_OK) {
+      // 向headers_in.headers这个ngx_list_t链表中添加HTTP头部
+      h = ngx_list_push(&r->upstream->headers_in.headers); if (h == NULL) {
+        return NGX_ERROR;
+      }
+      // 下面开始构造刚刚添加到headers链表中的HTTP头部
+      h->hash = r->header_hash;
+      h->key.len = r->header_name_end - r->header_name_start;
+      h->value.len = r->header_end - r->header_start;
+      //HTTP头部的内存空间
+      h->key.data = ngx_pnalloc(r->pool, h->key.len + 1 + h->value.len + 1 + h->key.len);
+      if (h->key.data == NULL) {
+        return NGX_ERROR;
+      }
+      h->value.data = h->key.data + h->key.len + 1;
+      h->lowcase_key = h->key.data + h->key.len + 1 + h->value.len + 1;
+      ngx_memcpy(h->key.data, r->header_name_start, h->key.len);
+      h->key.data[h->key.len] = '\0';
+      ngx_memcpy(h->value.data, r->header_start, h->value.len);
+      h->value.data[h->value.len] = '\0';
+      if (h->key.len == r->lowcase_index) {
+        ngx_memcpy(h->lowcase_key, r->lowcase_header, h->key.len);
+      } else {
+        ngx_strlow(h->lowcase_key, h->key.data, h->key.len);
+      }
+      // upstream模块会对一些HTTP头部做特殊处理
+      hh = ngx_hash_find(&umcf->headers_in_hash, h->hash, h->lowcase_key, h->key.len);
+      if (hh && hh->handler(r, h, hh->offset) != NGX_OK) {
+        return NGX_ERROR;
+      }
+      continue;
+    }
+    /* 返回NGX_HTTP_PARSE_HEADER_DONE时，表示响应中所有的
+    HTTP头部都解析完毕，接下来再接收到的都将是HTTP包体 */
+    if (rc == NGX_HTTP_PARSE_HEADER_DONE) {
+    /* 如果之前解析HTTP头部时没有发现server和date头部，
+    那么下面会根据HTTP协议规范添加这两个头部 */
+    if (r->upstream->headers_in.server == NULL) {
+      h = ngx_list_push(&r->upstream->headers_in.headers);
+      if (h == NULL) {
+        return NGX_ERROR;
+      }
+      h->hash = ngx_hash(ngx_hash(ngx_hash(ngx_hash(
+        ngx_hash('s', 'e'), 'r'), 'v'), 'e'), 'r');
+      ngx_str_set(&h->key, "Server");
+      ngx_str_null(&h->value);
+      h->lowcase_key = (u_char *) "server";
+      }
+      if (r->upstream->headers_in.date == NULL) {
+        h = ngx_list_push(&r->upstream->headers_in.headers);
+        if (h == NULL) {
+          return NGX_ERROR;
+        }
+        h->hash = ngx_hash(ngx_hash(ngx_hash('d', 'a'), 't'), 'e');
+        ngx_str_set(&h->key, "Date");
+        ngx_str_null(&h->value);
+        h->lowcase_key = (u_char *) "date"; 
+      }
+      return NGX_OK;
+    }
+    /*如果返回
+    NGX_AGAIN，则表示状态机还没有解析到完整的
+    HTTP头部，此时要求
+    upstream模块继续接收新的字符流，然后交由
+    process_header回调方法解析
+    */
+    if (rc == NGX_AGAIN) {
+      return NGX_AGAIN;
+    }
+    // 其他返回值都是非法的
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "upstream sent invalid header"); 
+    return NGX_HTTP_UPSTREAM_INVALID_HEADER;
+  }
+}
+
+// 虽然finalize_request必须实现，但在本例中没有什么可做的
+static void mytest_upstream_finalize_request(ngx_http_request_t *r, ngx_int_t rc) {
+  ngx_log_error(NGX_LOG_DEBUG, r->connection->log,0, "mytest_upstream_finalize_request");
+}
+
+static ngx_int_t ngx_http_mytest_handler(ngx_http_request_t *r) {
+  // 首先建立HTTP上下文结构体
+  ngx_http_mytest_ctx_t
+  ngx_http_mytest_ctx_t* myctx = ngx_http_get_module_ctx(r,ngx_http_mytest_module);
+  if (myctx == NULL)
+  {
+    myctx = ngx_palloc(r->pool, sizeof(ngx_http_mytest_ctx_t));
+    if (myctx == NULL)
+    {
+      return NGX_ERROR;
+    }
+    // 将新建的上下文与请求关联起来
+    ngx_http_set_ctx(r,myctx,ngx_http_mytest_module);
+  }
+  /* 对每1个要使用upstream的请求，必须调用且只能调用1次ngx_http_upstream_create方法，
+  它会初始化r->upstream成员 */
+  if (ngx_http_upstream_create(r) != NGX_OK) {
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,"ngx_http_upstream_create() failed");
+    return NGX_ERROR;
+  }
+  // 得到配置结构体
+  ngx_http_mytest_conf_t
+  ngx_http_mytest_conf_t *mycf = 
+    (ngx_http_mytest_conf_t *) ngx_http_get_module_loc_conf(r, ngx_http_mytest_module);
+  ngx_http_upstream_t *u = r->upstream;
+  // r->upstream->conf成员
+  u->conf = &mycf->upstream;
+  // 决定转发包体时使用的缓冲区
+  u->buffering = mycf->upstream.buffering;
+  // 以下代码开始初始化resolved结构体，用来保存上游服务器的地址
+  u->resolved = 
+    (ngx_http_upstream_resolved_t*) ngx_pcalloc(r->pool, sizeof(ngx_http_upstream_resolved_t));
+  if (u->resolved == NULL) {
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0、
+      , "ngx_pcalloc resolved error. %s.", strerror(errno));
+    return NGX_ERROR;
+  }
+  // 这里的上游服务器就是 www.google.com
+  static struct sockaddr_in backendSockAddr; struct hostent pHost = gethostbyname((char) "www.baidu.com");
+  if (pHost == NULL)
+  {
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "gethostbyname fail. %s", strerror(errno));
+    return NGX_ERROR;
+  }
+  // 访问上游服务器的80端口
+  backendSockAddr.sin_family = AF_INET;
+  backendSockAddr.sin_port = htons((in_port_t) 80);
+  char* pDmsIP = inet_ntoa(*(struct in_addr*) (pHost->h_addr_list[0]));
+  backendSockAddr.sin_addr.s_addr = inet_addr(pDmsIP);
+  myctx->backendServer.data = (u_char*)pDmsIP;
+  myctx->backendServer.len = strlen(pDmsIP);
+  // resolved成员中
+  u->resolved->sockaddr = (struct sockaddr *)&backendSockAddr;
+  u->resolved->socklen = sizeof(struct sockaddr_in);
+  u->resolved->naddrs = 1;
+  // 设置3个必须实现的回调方法，也就是5.3.3节~5.3.5节中实现的3个方法
+  u->create_request = mytest_upstream_create_request;
+  u->process_header = mytest_process_status_line;
+  u->finalize_request = mytest_upstream_finalize_request;
+  // count成员加1，参见5.1.5节
+  r->main->count++;
+  // 启动upstream
+  ngx_http_upstream_init(r);
+  // 必须返回NGX_DONE
+  return NGX_DONE;
+}
+
+```
+
+### subrequest
+### filter
 
 
 ## 参考

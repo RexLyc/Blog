@@ -15,6 +15,8 @@ Nginx是一个优秀的静态Web、反向代理服务器，目前被广泛使用
 
 > Nginx作为Web服务器、反向代理服务器，编写模块所能带来的扩展性主要有三种，handler类型（处理请求，给反馈）、过滤器类型（filter）、负载均衡类型（upstream、load-balance）。在编写代码时，一定要注意避免同步阻塞。
 
+> 书中的Nginx版本较低，在实际实践时，使用的是1.24.0版本。
+
 ## 概述
 Nginx相比于其他Web服务器（Apache、Jetty、Tomcat、IIS），整体上有以下特点：
 1. 高性能：一个显著的特点是，和Apache采用大量进程不同，Nginx推荐一个master+多个worker进程（worker数量和CPU数量相同），减少进程切换消耗，减少同步消耗。不过实际应用中，还要考虑worker进程是否会被阻塞，来最终决定进程数量。
@@ -83,6 +85,7 @@ sudo apt install libpcre3 libpcre3-dev \
 
 # 如果不是源代码安装的openssl，需要使用参数
 # ./configure --with-http_ssl_module
+# ./configure --with-debug
 # 通过./configure --help 查看更多选项
 ./configure
 make
@@ -1491,6 +1494,9 @@ typedef struct ngx_http_upstream_s ngx_http_upstream_t; struct ngx_http_upstream
 
 本文最后给出了一个[upstream示例](#upstream)
 
+
+#### 如果第三方服务是https
+
 ### 进程
 
 ### HTTP框架
@@ -1854,19 +1860,87 @@ ngx_list_t链表示意图
 
 ## 其他Demo
 ### upstream
-本Demo完全来自书中，稍微修改了上游服务器网址。目标是通过在自定义模块中使用upstream模块，完成支持客户端传入URL，Nginx用其URL中的查询参数，向外部搜索引擎网站，查询数据，并透传返回查询结果。
+本Demo基本来自书中，稍微修改了上游服务器网址（使用百度），以及模块名称。目标是通过在自定义模块中使用upstream模块，完成支持客户端传入URL，Nginx用其URL中的查询参数，向外部搜索引擎网站，查询数据，并透传返回查询结果。
+
+但是由于百度现在对请求有安全验证，因此发送后会被跳转到验证页面。如果想验证，也可以自己搭一个普通的HTTP回显服务器。
 
 配置参数，配置项处理
 ```c
+#include <ngx_config.h>
+#include <ngx_core.h>
+#include <ngx_http.h>
+#include <ngx_log.h>
+ 
+static ngx_int_t ngx_http_myupstream_handler(ngx_http_request_t *r);
+ 
+static char* ngx_http_myupstream(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
+
+static ngx_int_t myupstream_upstream_process_header(ngx_http_request_t *r);
+
+static void* ngx_http_myupstream_create_loc_conf(ngx_conf_t *cf);
+static char* ngx_http_myupstream_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child) ;
+ 
+ 
+static ngx_command_t ngx_http_myupstream_commands[] = {
+	{
+			ngx_string("myupstream"),
+			NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF | NGX_HTTP_LMT_CONF | NGX_CONF_NOARGS,
+			ngx_http_myupstream,
+			NGX_HTTP_LOC_CONF_OFFSET,
+			0,
+			NULL
+	},
+	ngx_null_command
+};
+ 
+ 
+/**
+ * 模块上下文
+ */
+static ngx_http_module_t ngx_http_myupstream_module_ctx = { NULL, NULL, NULL, NULL,
+		NULL, NULL, ngx_http_myupstream_create_loc_conf, ngx_http_myupstream_merge_loc_conf };
+ 
+/**
+ * 模块的定义
+ */
+ngx_module_t ngx_http_myupstream_module = {
+		NGX_MODULE_V1,
+		&ngx_http_myupstream_module_ctx,
+		ngx_http_myupstream_commands,
+		NGX_HTTP_MODULE,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NGX_MODULE_V1_PADDING
+};
+ 
+/**
+ * 命令解析的回调函数
+ * 该函数中，主要获取loc的配置，并且设置location中的回调函数handler
+ */
+static char* ngx_http_myupstream(ngx_conf_t *cf, ngx_command_t *cmd, void *conf) {
+	ngx_http_core_loc_conf_t *clcf;
+ 
+	clcf = ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
+	/* 设置回调函数。当请求/myupstream的时候，会调用此回调函数 */
+	clcf->handler = ngx_http_myupstream_handler;
+ 
+	return NGX_CONF_OK;
+}
+
 // 在自定义模块配置中，加入所需要的upstream参数
 typedef struct {
   ngx_http_upstream_conf_t upstream;
-} ngx_http_mytest_conf_t;
+} ngx_http_myupstream_conf_t;
 
 // 模块create_loc_conf的实现
-static void* ngx_http_mytest_create_loc_conf(ngx_conf_t *cf) {
-  ngx_http_mytest_conf_t *mycf;
-  mycf = (ngx_http_mytest_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_mytest_conf_t));
+static void* ngx_http_myupstream_create_loc_conf(ngx_conf_t *cf) {
+  ngx_http_myupstream_conf_t *mycf;
+  mycf = (ngx_http_myupstream_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_myupstream_conf_t));
   if (mycf == NULL) {
     return NULL;
   }
@@ -1897,10 +1971,22 @@ static void* ngx_http_mytest_create_loc_conf(ngx_conf_t *cf) {
   return mycf;
 }
 
+static ngx_str_t  ngx_http_proxy_hide_headers[] = {
+  ngx_string("Date"),
+  ngx_string("Server"),
+  ngx_string("X-Pad"),
+  ngx_string("X-Accel-Expires"),
+  ngx_string("X-Accel-Redirect"),
+  ngx_string("X-Accel-Limit-Rate"),
+  ngx_string("X-Accel-Buffering"),
+  ngx_string("X-Accel-Charset"),
+  ngx_null_string
+};
+
 // merge_loc_conf
-static char *ngx_http_mytest_merge_loc_conf(ngx_conf_t cf, void *parent, void *child) {
-  ngx_http_mytest_conf_t *prev = (ngx_http_mytest_conf_t *)parent;
-  ngx_http_mytest_conf_t *conf = (ngx_http_mytest_conf_t *)child;
+static char *ngx_http_myupstream_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child) {
+  ngx_http_myupstream_conf_t *prev = (ngx_http_myupstream_conf_t *)parent;
+  ngx_http_myupstream_conf_t *conf = (ngx_http_myupstream_conf_t *)child;
   ngx_hash_init_t hash;
   hash.max_size = 100;
   hash.bucket_size = 1024;
@@ -1918,14 +2004,16 @@ static char *ngx_http_mytest_merge_loc_conf(ngx_conf_t cf, void *parent, void *c
 typedef struct {
   // ...
   ngx_http_status_t status;
-} ngx_http_mytest_ctx_t;
+  ngx_str_t backendServer;
+} ngx_http_myupstream_ctx_t;
 
 // 必须实现的回调之一：构造请求
-static ngx_int_t mytest_upstream_create_request(ngx_http_request_t *r) {
+static ngx_int_t myupstream_upstream_create_request(ngx_http_request_t *r) {
   /* 发往baidu上游服务器的请求很简单，就是模仿正常的搜索请求，
   以/searchq=…的URL来发起搜索请求 */
   static ngx_str_t backendQueryLine =
-   ngx_string("GET searchq=%V HTTP1.1\r\nHost: www.google.com\r\nConnection: close\r\n\r\n"); 
+  // 注意这里的内容非常重要，如果有错误，会导致接到400系错误码
+  ngx_string("GET /s?wd=%V HTTP/1.1\r\nHost: www.baidu.com\r\nConnection: close\r\n\r\n"); 
   ngx_int_t queryLineLen = backendQueryLine.len + r->args.len - 2;
   /* epoll多次调度send才能发送完成，这时必须保证这段内存不会被释放；
   另一个好处是，在请求结束时，这段内存会被自动释放，降低内存泄漏的可能 */
@@ -1952,12 +2040,12 @@ static ngx_int_t mytest_upstream_create_request(ngx_http_request_t *r) {
 }
 
 // 对返回数据的状态行进行解析
-static ngx_int_t mytest_process_status_line(ngx_http_request_t *r) {
+static ngx_int_t myupstream_process_status_line(ngx_http_request_t *r) {
   size_t len;
   ngx_int_t rc;
   ngx_http_upstream_t *u;
   // 上下文中才会保存多次解析HTTP响应行的状态，下面首先取出请求的上下文
-  ngx_http_mytest_ctx_t* ctx = ngx_http_get_module_ctx(r,ngx_http_mytest_module);
+  ngx_http_myupstream_ctx_t* ctx = ngx_http_get_module_ctx(r,ngx_http_myupstream_module);
   if (ctx == NULL) {
     return NGX_ERROR;
   }
@@ -1971,7 +2059,8 @@ static ngx_int_t mytest_process_status_line(ngx_http_request_t *r) {
   }
   // 返回 NGX_ERROR时，表示没有接收到合法的HTTP响应行
   if (rc == NGX_ERROR) {
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "upstream sent no valid HTTP/1.0 header"); r->http_version = NGX_HTTP_VERSION_9;
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "upstream sent no valid HTTP/1.0 header");
+    r->http_version = NGX_HTTP_VERSION_9;
     u->state->status = NGX_HTTP_OK;
     return NGX_OK;
   }
@@ -1994,16 +2083,16 @@ static ngx_int_t mytest_process_status_line(ngx_http_request_t *r) {
   }
   ngx_memcpy(u->headers_in.status_line.data, ctx->status.start, len);
   /* 下一步将开始解析HTTP头部。设置process_header回调方法为
-  mytest_upstream_process_header，之后再收到的新字符流将由
-  mytest_upstream_process_header解析 */
-  u->process_header = mytest_upstream_process_header;
+  myupstream_upstream_process_header，之后再收到的新字符流将由
+  myupstream_upstream_process_header解析 */
+  u->process_header = myupstream_upstream_process_header;
   /* 如果本次收到的字符流除了HTTP响应行外，还有多余的字符，
-  那么将由mytest_upstream_process_header方法解析 */
-  return mytest_upstream_process_header(r);
+  那么将由myupstream_upstream_process_header方法解析 */
+  return myupstream_upstream_process_header(r);
 }
 
 // 处理响应包头，process_header
-static ngx_int_t mytest_upstream_process_header(ngx_http_request_t *r) {
+static ngx_int_t myupstream_upstream_process_header(ngx_http_request_t *r) {
   ngx_int_t rc;
   ngx_table_elt_t *h;
   ngx_http_upstream_header_t *hh;
@@ -2093,23 +2182,22 @@ static ngx_int_t mytest_upstream_process_header(ngx_http_request_t *r) {
 }
 
 // 虽然finalize_request必须实现，但在本例中没有什么可做的
-static void mytest_upstream_finalize_request(ngx_http_request_t *r, ngx_int_t rc) {
-  ngx_log_error(NGX_LOG_DEBUG, r->connection->log,0, "mytest_upstream_finalize_request");
+static void myupstream_upstream_finalize_request(ngx_http_request_t *r, ngx_int_t rc) {
+  ngx_log_error(NGX_LOG_DEBUG, r->connection->log,0, "myupstream_upstream_finalize_request");
 }
 
-static ngx_int_t ngx_http_mytest_handler(ngx_http_request_t *r) {
-  // 首先建立HTTP上下文结构体
-  ngx_http_mytest_ctx_t
-  ngx_http_mytest_ctx_t* myctx = ngx_http_get_module_ctx(r,ngx_http_mytest_module);
+static ngx_int_t ngx_http_myupstream_handler(ngx_http_request_t *r) {
+  // 首先建立HTTP上下文结构体ngx_http_myupstream_ctx_t
+  ngx_http_myupstream_ctx_t* myctx = ngx_http_get_module_ctx(r,ngx_http_myupstream_module);
   if (myctx == NULL)
   {
-    myctx = ngx_palloc(r->pool, sizeof(ngx_http_mytest_ctx_t));
+    myctx = ngx_palloc(r->pool, sizeof(ngx_http_myupstream_ctx_t));
     if (myctx == NULL)
     {
       return NGX_ERROR;
     }
     // 将新建的上下文与请求关联起来
-    ngx_http_set_ctx(r,myctx,ngx_http_mytest_module);
+    ngx_http_set_ctx(r,myctx,ngx_http_myupstream_module);
   }
   /* 对每1个要使用upstream的请求，必须调用且只能调用1次ngx_http_upstream_create方法，
   它会初始化r->upstream成员 */
@@ -2117,10 +2205,9 @@ static ngx_int_t ngx_http_mytest_handler(ngx_http_request_t *r) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,"ngx_http_upstream_create() failed");
     return NGX_ERROR;
   }
-  // 得到配置结构体
-  ngx_http_mytest_conf_t
-  ngx_http_mytest_conf_t *mycf = 
-    (ngx_http_mytest_conf_t *) ngx_http_get_module_loc_conf(r, ngx_http_mytest_module);
+  // 得到配置结构体ngx_http_myupstream_conf_t
+  ngx_http_myupstream_conf_t *mycf = 
+    (ngx_http_myupstream_conf_t *) ngx_http_get_module_loc_conf(r, ngx_http_myupstream_module);
   ngx_http_upstream_t *u = r->upstream;
   // r->upstream->conf成员
   u->conf = &mycf->upstream;
@@ -2130,12 +2217,13 @@ static ngx_int_t ngx_http_mytest_handler(ngx_http_request_t *r) {
   u->resolved = 
     (ngx_http_upstream_resolved_t*) ngx_pcalloc(r->pool, sizeof(ngx_http_upstream_resolved_t));
   if (u->resolved == NULL) {
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0、
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0
       , "ngx_pcalloc resolved error. %s.", strerror(errno));
     return NGX_ERROR;
   }
-  // 这里的上游服务器就是 www.google.com
-  static struct sockaddr_in backendSockAddr; struct hostent pHost = gethostbyname((char) "www.baidu.com");
+  // 这里的上游服务器就是 www.baidu.com
+  static struct sockaddr_in backendSockAddr; 
+  struct hostent* pHost = gethostbyname((char*)"www.baidu.com");
   if (pHost == NULL)
   {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "gethostbyname fail. %s", strerror(errno));
@@ -2152,10 +2240,14 @@ static ngx_int_t ngx_http_mytest_handler(ngx_http_request_t *r) {
   u->resolved->sockaddr = (struct sockaddr *)&backendSockAddr;
   u->resolved->socklen = sizeof(struct sockaddr_in);
   u->resolved->naddrs = 1;
+  // 少数和书上不同的位置，这里如果不设置port、host，会直接报错
+  u->resolved->port = htons((in_port_t) 80);
+  ngx_str_set(&u->resolved->host,"www.baidu.com");
+  
   // 设置3个必须实现的回调方法，也就是5.3.3节~5.3.5节中实现的3个方法
-  u->create_request = mytest_upstream_create_request;
-  u->process_header = mytest_process_status_line;
-  u->finalize_request = mytest_upstream_finalize_request;
+  u->create_request = myupstream_upstream_create_request;
+  u->process_header = myupstream_process_status_line;
+  u->finalize_request = myupstream_upstream_finalize_request;
   // count成员加1，参见5.1.5节
   r->main->count++;
   // 启动upstream
@@ -2163,6 +2255,7 @@ static ngx_int_t ngx_http_mytest_handler(ngx_http_request_t *r) {
   // 必须返回NGX_DONE
   return NGX_DONE;
 }
+
 
 ```
 

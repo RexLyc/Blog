@@ -1413,6 +1413,7 @@ static ngx_int_t ngx_http_mytest_handler(ngx_http_request_t *r)
 1. upstream的重点在于透传，高效率的作为代理，透传http数据
 2. subrequest的重点正如其名字：子请求。Nginx会根据上游第三方服务的响应情况，组建响应结果，并反馈给原始客户端。
 
+#### upstream
 upstream的使用方式并不复杂，它提供了8个回调方法，用户只需要视自己的需要实现其中几个回调方法就可以了。而upstream在```ngx_http_request_s```结构体中存储，用户在处理时可以进行操作。发起upstream的处理流程可以概括为四个步骤
 
 ![启动upstream的流程](/images/book/understanding-nginx/upstream_in_handler.png)
@@ -1492,10 +1493,129 @@ typedef struct ngx_http_upstream_s ngx_http_upstream_t; struct ngx_http_upstream
 
 上图所示的是请求第三方服务中，process_header的流程。如果buffer缓冲区全满却还没有解析到完整的响应头部（也就是说，process_header一直在返回NGX_AGAIN）。
 
-本文最后给出了一个[upstream示例](#upstream)
+由于upstream的例子较长，所以本文在最后给出了一个[upstream示例](#upstream)
 
+#### subrequest
+相比于使用upstream实现访问第三方模块，subrequest提供了更好的封装，使用也更简单。主要有4步
+1. 在nginx.conf文件中配置好子请求的处理方式。
+1. 在父请求的处理中启动subrequest子请求。
+1. 实现子请求执行结束时的回调方法。
+1. 实现父请求被激活时的回调方法。
 
-#### 如果第三方服务是https
+子请求subrequest的生命周期，是从父请求中创建子请求开始的。在父请求的处理方法返回NGX_DONE后，框架开始执行子请求。启动执行时的时序图如下图所示。
+![子请求的创建](/images/book/understanding-nginx/subrequest-create-seq.png)
+
+子请求的发送顺序有两种方式，一种是不控制的异步发送，一种是postpone模块提供按照链表中顺序的发送方式。后者还可以通过ngx_http_postpone_filter进一步在每个子请求响应中控制、调整转发下一个子请求的方式。
+
+```c
+// 子请求的回调
+static ngx_int_t mytest_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_t rc) {
+  // 当前请求r是子请求，它的parent成员指向父请求
+  ngx_http_request_t *pr = r->parent;
+  /*注意，由于上下文是保存在父请求中的（参见5.6.5节），所以要由pr取上下文。其实有更简单的方法，即参数
+  data就是上下文，初始化subrequest时就对其进行设置。这里仅为了说明如何获取到父请求的上下文 */
+  ngx_http_mytest_ctx_t* myctx = ngx_http_get_module_ctx(pr,ngx_http_mytest_module);
+  pr->headers_out.status = r->headers_out.status;
+  /* NGX_HTTP_OK（也就是200），则意味着访问新浪服务器成功，接着将开始解析HTTP包体 */
+  if (r->headers_out.status == NGX_HTTP_OK) {
+    int flag = 0;
+    /* 在不转发响应时，buffer中会保存上游服务器的响应。特别是在使用反向代理模块访问上游服务器时，如果它使用
+    upstream机制时没有重定义input_filter方法，upstream机制默认的input_filter方法会试图把所有的上游响应全部保存到buffer缓冲区中 */
+    ngx_buf_t* pRecvBuf = &r->upstream->buffer;
+    /* 以下开始解析上游服务器的响应，并将解析出的值赋到上下文结构体myctx->stock数组中 */
+    for (;pRecvBuf->pos != pRecvBuf->last; pRecvBuf->pos++) {
+      if (*pRecvBuf->pos == ',' || *pRecvBuf->pos == '\"') {
+        if (flag > 0)
+        {
+          myctx->stock[flag-1].len = pRecvBuf->pos-myctx->stock[flag-1].data;
+        }
+        flag++;
+        myctx->stock[flag-1].data = pRecvBuf->pos+1;
+      }
+      if (flag > 6)
+        break;
+    }
+  }
+  // 设置接下来父请求的回调方法，这一步很重要
+  pr->write_event_handler = mytest_post_handler;
+  return NGX_OK;
+}
+
+// 父请求的回调
+static void mytest_post_handler(ngx_http_request_t *r) {
+  // 如果没有返回200，则直接把错误码发回用户
+  if (r->headers_out.status != NGX_HTTP_OK) {
+    ngx_http_finalize_request(r, r->headers_out.status); return;
+  }
+  // 当前请求是父请求，直接取其上下文
+  ngx_http_mytest_ctx_t* myctx = ngx_http_get_module_ctx(r,ngx_http_mytest_module);
+  /* 定义发给用户的HTTP包体内容，格式为：stock[…],Today current price: …, volumn: … */
+  ngx_str_t output_format = ngx_string("stock[%V],Today current price: %V, volumn: %V");
+  // 计算待发送包体的长度
+  int bodylen = output_format.len + myctx->stock[0].len +myctx->stock[1].len+myctx->stock[4].len-6;
+  r->headers_out.content_length_n = bodylen;
+  //
+  ngx_buf_t* b = ngx_create_temp_buf(r->pool, bodylen);
+  ngx_snprintf(b->pos, bodylen, (char*)output_format.data, &myctx->stock[0],&myctx->stock[1],&myctx->stock[4]);
+  b->last = b->pos + bodylen;
+  b->last_buf = 1;
+  ngx_chain_t out;
+  out.buf = b;
+  out.next = NULL;
+  // 设置Content-Type，注意，在汉字编码方面，新浪服务器使用了GBK
+  static ngx_str_t type = ngx_string("text/plain; charset=GBK");
+  r->headers_out.content_type = type;
+  r->headers_out.status = NGX_HTTP_OK;
+  r->connection->buffered |= NGX_HTTP_WRITE_BUFFERED;
+  ngx_int_t ret = ngx_http_send_header(r);
+  ret = ngx_http_output_filter(r, &out);
+  /* ngx_http_finalize_request结束请求，因为这时HTTP框架不会再帮忙调用它 */
+  ngx_http_finalize_request(r, ret);
+}
+
+static ngx_int_t ngx_http_mytest_handler(ngx_http_request_t *r) {
+  // 创建HTTP上下文
+  ngx_http_mytest_ctx_t* myctx = ngx_http_get_module_ctx(r,ngx_http_mytest_module);
+  if (myctx == NULL)
+  {
+    myctx = ngx_palloc(r->pool, sizeof(ngx_http_mytest_ctx_t));
+    if (myctx == NULL)
+    {
+      return NGX_ERROR;
+    }
+    // 将上下文设置到原始请求r中
+    ngx_http_set_ctx(r,myctx,ngx_http_mytest_module);
+  }
+  // ngx_http_post_subrequest_t结构体会决定子请求的回调方法，参见5.4.1节
+  ngx_http_post_subrequest_t *psr = ngx_palloc(r->pool, sizeof(ngx_http_post_subrequest_t));
+  if (psr == NULL) {
+    return NGX_HTTP_INTERNAL_SERVER_ERROR;
+  }
+  // 设置子请求回调方法为mytest_subrequest_post_handler
+  psr->handler = mytest_subrequest_post_handler;
+
+  /* 将data设为myctx上下文，这样回调mytest_subrequest_post_handler时传入的data参数就是myctx*/
+  psr->data = myctx;
+  /* 子请求的URI前缀是/list，这是因为访问新浪服务器的请求必须是类似/list=s_sh000001的URI，
+  这与在nginx.conf中配置的子请求location的URI是一致的 */
+  ngx_str_t sub_prefix = ngx_string("/list=");
+  ngx_str_t sub_location;
+  sub_location.len = sub_prefix.len + r->args.len;
+  sub_location.data = ngx_palloc(r->pool, sub_location.len);
+  ngx_snprintf(sub_location.data, sub_location.len, "%V%V",&sub_prefix,&r->args);
+  // sr
+  ngx_http_request_t *sr;
+  /* 调用ngx_http_subrequest创建子请求，它只会返回NGX_OK或者NGX_ERROR。返回NGX_OK时，sr已经是合法的子请求。
+  注意，这里的NGX_HTTP_SUBREQUEST_IN_MEMORY参数将告诉upstream模块把上游服务器的响应全部保存在子请求的
+  sr->upstream->buffer内存缓冲区中 */
+  ngx_int_t rc = ngx_http_subrequest(r, &sub_location, NULL, &sr, psr, NGX_HTTP_SUBREQUEST_IN_MEMORY);
+  if (rc != NGX_OK) {
+    return NGX_ERROR;
+  }
+  // 必须返回NGX_DONE，原因同upstream
+  return NGX_DONE;
+}
+```
 
 ### 进程
 
@@ -1599,6 +1719,9 @@ struct ngx_http_request_s {
   void **ctx;
   // upstream成员
   ngx_http_upstream_t *upstream;
+  // 子请求postpone
+  ngx_http_postpone_request_t *postponed;
+
   // ... 其他内容
 };
 
@@ -1807,6 +1930,9 @@ RFC2616规范中定义了range协议，它给出了一种规则使得客户端�
 // r为ngx_http_request_t*
 r->allow_ranges=1;
 ```
+
+## 扩展
+### 对HTTPS的处理
 
 ## 内置工具
 ### 日志

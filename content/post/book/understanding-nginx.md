@@ -523,7 +523,7 @@ server {
 | server | name [parameters] | 指定一个上游服务器的名字，并可以配置一些参数（如权重，超时时间） | upstream |
 | ip_hash |  | 如果希望同一个用户的请求始终落在同一个服务器上，可以使用ip_hash，会利用ip做映射 | upstream |
 | proxy_pass | URL | 将当前请求反向代理到对应的服务上 | location、if |
-| proxy_set_header | Host $host | 反向代理转发过程中，保留请求中的Host头部 | |
+| proxy_set_header | Host $host | 反向代理转发过程中，保留请求中的Host头部 | http、server、location |
 | proxy_method | method | 反向代理转发时，转发后所使用的Http方法 | http、server、location |
 | proxy_hide_header | header | 转发时丢弃的一些头部字段 | http、server、location |
 | proxy_pass_request_body | on\|off | 转发时是否携带Http包体 | http、server、location |
@@ -1508,13 +1508,90 @@ typedef struct ngx_http_upstream_s ngx_http_upstream_t; struct ngx_http_upstream
 子请求的发送顺序有两种方式，一种是不控制的异步发送，一种是postpone模块提供按照链表中顺序的发送方式。后者还可以通过ngx_http_postpone_filter进一步在每个子请求响应中控制、调整转发下一个子请求的方式。
 
 ```c
+// 本例子针对新浪财经股票板块，注意2024年3月6日，此时需要为请求添加Referer才能不被服务器拒绝，配置如下
+/*
+location /list {
+  # 子请求依然可以从配置中寻找对应的location，这是一个递归的过程
+  proxy_pass http://hq.sinajs.cn;
+  # 为了防止被新浪拒绝
+  proxy_set_header Referer http://finance.sina.com.cn;
+  # 不进行压缩
+  proxy_set_header Accept-Encoding "";
+}
+
+location /query {
+  # 用于启动自定义模块
+  mysubrequest;
+}
+
+*/
+
+#include <ngx_config.h>
+#include <ngx_core.h>
+#include <ngx_http.h>
+static ngx_int_t ngx_http_mysubrequest_handler(ngx_http_request_t *r);
+ 
+static char* ngx_http_mysubrequest(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
+
+static void mysubrequest_post_handler(ngx_http_request_t *r);
+ 
+static ngx_command_t ngx_http_mysubrequest_commands[] = {
+		{
+				ngx_string("mysubrequest"),
+				NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF | NGX_HTTP_LMT_CONF | NGX_CONF_NOARGS,
+				ngx_http_mysubrequest,
+				NGX_HTTP_LOC_CONF_OFFSET,
+				0,
+				NULL
+		},
+		ngx_null_command
+};
+ 
+ 
+/**
+ * 模块上下文
+ */
+static ngx_http_module_t ngx_http_mysubrequest_module_ctx = { NULL, NULL, NULL, NULL,
+		NULL, NULL, NULL, NULL };
+ 
+/**
+ * 模块的定义
+ */
+ngx_module_t ngx_http_mysubrequest_module = {
+    NGX_MODULE_V1,
+    &ngx_http_mysubrequest_module_ctx,
+    ngx_http_mysubrequest_commands,
+    NGX_HTTP_MODULE,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NGX_MODULE_V1_PADDING
+};
+
+static char* ngx_http_mysubrequest(ngx_conf_t *cf, ngx_command_t *cmd, void *conf) {
+	ngx_http_core_loc_conf_t *clcf;
+ 
+	clcf = ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
+	clcf->handler = ngx_http_mysubrequest_handler;
+ 
+	return NGX_CONF_OK;
+}
+
+typedef struct {
+    ngx_str_t stock[6];
+} ngx_http_mysubrequest_ctx_t;
+
 // 子请求的回调
-static ngx_int_t mytest_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_t rc) {
+static ngx_int_t mysubrequest_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_t rc) {
   // 当前请求r是子请求，它的parent成员指向父请求
   ngx_http_request_t *pr = r->parent;
-  /*注意，由于上下文是保存在父请求中的（参见5.6.5节），所以要由pr取上下文。其实有更简单的方法，即参数
+  /* 注意，由于上下文是保存在父请求中的，所以要由pr取上下文。其实有更简单的方法，即参数
   data就是上下文，初始化subrequest时就对其进行设置。这里仅为了说明如何获取到父请求的上下文 */
-  ngx_http_mytest_ctx_t* myctx = ngx_http_get_module_ctx(pr,ngx_http_mytest_module);
+  ngx_http_mysubrequest_ctx_t* myctx = ngx_http_get_module_ctx(pr,ngx_http_mysubrequest_module);
   pr->headers_out.status = r->headers_out.status;
   /* NGX_HTTP_OK（也就是200），则意味着访问新浪服务器成功，接着将开始解析HTTP包体 */
   if (r->headers_out.status == NGX_HTTP_OK) {
@@ -1523,6 +1600,7 @@ static ngx_int_t mytest_subrequest_post_handler(ngx_http_request_t *r, void *dat
     upstream机制时没有重定义input_filter方法，upstream机制默认的input_filter方法会试图把所有的上游响应全部保存到buffer缓冲区中 */
     ngx_buf_t* pRecvBuf = &r->upstream->buffer;
     /* 以下开始解析上游服务器的响应，并将解析出的值赋到上下文结构体myctx->stock数组中 */
+    // 这里的解析是因为我们的访问是使用了对新浪财经板块的引用，已知他的返回结构，做了对应的解析
     for (;pRecvBuf->pos != pRecvBuf->last; pRecvBuf->pos++) {
       if (*pRecvBuf->pos == ',' || *pRecvBuf->pos == '\"') {
         if (flag > 0)
@@ -1537,18 +1615,18 @@ static ngx_int_t mytest_subrequest_post_handler(ngx_http_request_t *r, void *dat
     }
   }
   // 设置接下来父请求的回调方法，这一步很重要
-  pr->write_event_handler = mytest_post_handler;
+  pr->write_event_handler = mysubrequest_post_handler;
   return NGX_OK;
 }
 
 // 父请求的回调
-static void mytest_post_handler(ngx_http_request_t *r) {
+static void mysubrequest_post_handler(ngx_http_request_t *r) {
   // 如果没有返回200，则直接把错误码发回用户
   if (r->headers_out.status != NGX_HTTP_OK) {
     ngx_http_finalize_request(r, r->headers_out.status); return;
   }
   // 当前请求是父请求，直接取其上下文
-  ngx_http_mytest_ctx_t* myctx = ngx_http_get_module_ctx(r,ngx_http_mytest_module);
+  ngx_http_mysubrequest_ctx_t* myctx = ngx_http_get_module_ctx(r,ngx_http_mysubrequest_module);
   /* 定义发给用户的HTTP包体内容，格式为：stock[…],Today current price: …, volumn: … */
   ngx_str_t output_format = ngx_string("stock[%V],Today current price: %V, volumn: %V");
   // 计算待发送包体的长度
@@ -1573,28 +1651,28 @@ static void mytest_post_handler(ngx_http_request_t *r) {
   ngx_http_finalize_request(r, ret);
 }
 
-static ngx_int_t ngx_http_mytest_handler(ngx_http_request_t *r) {
+static ngx_int_t ngx_http_mysubrequest_handler(ngx_http_request_t *r) {
   // 创建HTTP上下文
-  ngx_http_mytest_ctx_t* myctx = ngx_http_get_module_ctx(r,ngx_http_mytest_module);
+  ngx_http_mysubrequest_ctx_t* myctx = ngx_http_get_module_ctx(r,ngx_http_mysubrequest_module);
   if (myctx == NULL)
   {
-    myctx = ngx_palloc(r->pool, sizeof(ngx_http_mytest_ctx_t));
+    myctx = ngx_palloc(r->pool, sizeof(ngx_http_mysubrequest_ctx_t));
     if (myctx == NULL)
     {
       return NGX_ERROR;
     }
     // 将上下文设置到原始请求r中
-    ngx_http_set_ctx(r,myctx,ngx_http_mytest_module);
+    ngx_http_set_ctx(r,myctx,ngx_http_mysubrequest_module);
   }
-  // ngx_http_post_subrequest_t结构体会决定子请求的回调方法，参见5.4.1节
+  // ngx_http_post_subrequest_t结构体会决定子请求的回调方法，参见
   ngx_http_post_subrequest_t *psr = ngx_palloc(r->pool, sizeof(ngx_http_post_subrequest_t));
   if (psr == NULL) {
     return NGX_HTTP_INTERNAL_SERVER_ERROR;
   }
-  // 设置子请求回调方法为mytest_subrequest_post_handler
-  psr->handler = mytest_subrequest_post_handler;
+  // 设置子请求回调方法为mysubrequest_subrequest_post_handler
+  psr->handler = mysubrequest_subrequest_post_handler;
 
-  /* 将data设为myctx上下文，这样回调mytest_subrequest_post_handler时传入的data参数就是myctx*/
+  /* 将data设为myctx上下文，这样回调mysubrequest_subrequest_post_handler时传入的data参数就是myctx*/
   psr->data = myctx;
   /* 子请求的URI前缀是/list，这是因为访问新浪服务器的请求必须是类似/list=s_sh000001的URI，
   这与在nginx.conf中配置的子请求location的URI是一致的 */
@@ -1603,6 +1681,8 @@ static ngx_int_t ngx_http_mytest_handler(ngx_http_request_t *r) {
   sub_location.len = sub_prefix.len + r->args.len;
   sub_location.data = ngx_palloc(r->pool, sub_location.len);
   ngx_snprintf(sub_location.data, sub_location.len, "%V%V",&sub_prefix,&r->args);
+  // 作为subrequest，将多个子请求合并为最终响应结果返回给父请求的发起方
+  ngx_log_error(NGX_LOG_DEBUG, r->connection->log, 0, "subrequest url request content====> %V", &sub_location);
   // sr
   ngx_http_request_t *sr;
   /* 调用ngx_http_subrequest创建子请求，它只会返回NGX_OK或者NGX_ERROR。返回NGX_OK时，sr已经是合法的子请求。
@@ -1616,6 +1696,8 @@ static ngx_int_t ngx_http_mytest_handler(ngx_http_request_t *r) {
   return NGX_DONE;
 }
 ```
+
+### HTTP过滤器
 
 ### 进程
 

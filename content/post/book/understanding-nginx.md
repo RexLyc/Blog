@@ -1698,6 +1698,43 @@ static ngx_int_t ngx_http_mysubrequest_handler(ngx_http_request_t *r) {
 ```
 
 ### HTTP过滤器
+前面的所有NGinx模块都有一个类似的特点，他们会对所有的用户请求，或者对某些匹配了location的请求产生作用。但是有一个明显限制，如果希望多个模块都对一个请求产生作用，则往往需要用subrequest来完成，将一个请求拆解成多个子请求交给对应的不同模块，再进行处理，这很麻烦。
+
+为了解决这个问题，Nginx支持HTTP过滤器，可以同时由多个过滤器对同一个HTTP请求产生作用。HTTP过滤模块主要是来处理一些附加的功能，如gzip过滤模块可以把发送给用户的静态文件进行gzip压缩处理后再发出去，image_filter这个第三方过滤模块可以将图片类的静态文件制作成缩略图。而且，这些过滤模块的效果是可以根据需要叠加的，比如先由not_modify过滤模块处理请求中的浏览器缓存信息，再交给range过滤模块处理HTTP range协议（支持断点续传），然后交由gzip过滤模块进行压缩，可以看到，一个请求经由各HTTP过滤模块流水线般地依次进行处理了。
+
+值得注意的是，HTTP过滤模块只处理从服务端发往客户端的数据（入口是ngx_http_send_header、ngx_http_output_filter）。而不处理客户端发往服务端的。
+
+过滤模块实现起来相对简单，只需要根据需要实现如下两个方法
+```c
+// 对头部过滤
+typedef ngx_int_t (*ngx_http_output_header_filter_pt)(ngx_http_request_t r);
+// 对包体过滤
+typedef ngx_int_t (ngx_http_output_body_filter_pt)(ngx_http_request_t r, ngx_chain_t chain);
+```
+
+HTTP框架对过滤模块的使用也很简单，就是在提交向客户端响应数据时，遍历如下两个链表，并依次执行
+```c
+// 头部过滤器链表
+extern ngx_http_output_header_filter_pt ngx_http_top_header_filter;
+// 包体过滤器链表
+extern ngx_http_output_body_filter_pt ngx_http_top_body_filter;
+```
+
+每一个过滤器模块在初始化的时候，都是将自己插入到链表的首部（而且NGinx的链表加入就是从首部开始的），因此实际上执行的顺序是初始化的顺序的逆序。而过滤模块的初始化顺序则和普通模块一样，受ngx_modules数组控制。由于官方有一些过滤模块，因此自定义的过滤模块会在数组中处在一个特定的位置。其顺序分别是
+1. ngx_http_not_modified_filter_module：只处理头部，根据缓存判断用户响应是否未修改，决定是否发送304响应
+2. ngx_http_range_body_filter_module：
+3. ngx_http_copy_filter_module
+4. ngx_http_headers_filter_module
+5. 第三方HTTP过滤模块
+6. ngx_http_userid_filter_module
+7. ngx_http_charset_filter_module
+8. ngx_http_ssi_filter_module
+9. ngx_http_postpone_filter_module
+10. ngx_http_gzip_filter_module
+11. ngx_http_range_header_filter_module
+12. ngx_http_chunked_filter_module
+13. ngx_http_header_filter_module
+14. ngx_http_write_filter_module
 
 ### 进程
 

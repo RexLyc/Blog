@@ -1714,27 +1714,223 @@ typedef ngx_int_t (ngx_http_output_body_filter_pt)(ngx_http_request_t r, ngx_cha
 
 HTTP框架对过滤模块的使用也很简单，就是在提交向客户端响应数据时，遍历如下两个链表，并依次执行
 ```c
-// 头部过滤器链表
+// 过滤器链表头部
 extern ngx_http_output_header_filter_pt ngx_http_top_header_filter;
-// 包体过滤器链表
+// 过滤器链表包体
 extern ngx_http_output_body_filter_pt ngx_http_top_body_filter;
+
+// 在自定义编码实际编写时，ngx_http_next_header_filter和ngx_http_next_body_filter都必须是static静态变量
 ```
 
-每一个过滤器模块在初始化的时候，都是将自己插入到链表的首部（而且NGinx的链表加入就是从首部开始的），因此实际上执行的顺序是初始化的顺序的逆序。而过滤模块的初始化顺序则和普通模块一样，受ngx_modules数组控制。由于官方有一些过滤模块，因此自定义的过滤模块会在数组中处在一个特定的位置。其顺序分别是
+但当我们再往下ngx_http_output_header_filter_pt的结构式，可能会令人很疑惑，这并不是常规的链表。实际上在编译Nginx源代码时，已经定义了一个由所有HTTP过滤模块组成的单链表，这个单链表与一般的链表是不一样的，它有另类的风格：链表的每一个元素都是一个独立的C源代码文件，而这个C源代码文件会通过两个static静态指针（分别用于处理HTTP头部和HTTP包体）再指向下一个文件中的过滤方法。因此自定义过滤器，在添加到链表这一步的**写法必须是固定**的。在每一次HTTP过滤模块的初始化过程中，用户将原始头部保存到next，并将当前模块的过滤器方法保存到头部。整体上的效果形如
+
+```c
+static ngx_int_t ngx_http_myfilter_init(ngx_conf_t *cf) {
+    // 插入到头部处理方法链表的首部
+    ngx_http_next_header_filter = ngx_http_top_header_filter;
+    ngx_http_top_header_filter = ngx_http_myfilter_header_filter;
+    //
+    ngx_http_next_body_filter = ngx_http_top_body_filter;
+    ngx_http_top_body_filter = ngx_http_myfilter_body_filter;
+    return NGX_OK;
+}
+
+/*
+其他各种模块
+static ngx_int_t ngx_xxx_filter_init(ngx_conf_t *cf) {  ... }
+*/
+
+// 查看代码可知write_filter是最初的链表头，write_filter也是最早进行初始化的
+static ngx_int_t ngx_http_write_filter_init(ngx_conf_t *cf)
+{
+    ngx_http_top_body_filter = ngx_http_write_filter;
+    return NGX_OK;
+}
+
+// 实际使用中
+static ngx_int_t ngx_http_myfilter_header_filter(ngx_http_request_t *r) {
+  // ...
+  // 调用下一个
+  return ngx_http_next_header_filter(r);
+}
+```
+
+每一个过滤器模块在初始化的时候，都是将自己插入到链表的首部（而且NGinx的链表加入就是从首部开始的），因此实际上执行的顺序是初始化的顺序的逆序。而过滤模块的初始化顺序则和普通模块一样，受ngx_modules数组控制。由于官方有一些过滤模块，因此自定义的过滤模块会在数组中处在一个特定的位置。其执行顺序是
 1. ngx_http_not_modified_filter_module：只处理头部，根据缓存判断用户响应是否未修改，决定是否发送304响应
-2. ngx_http_range_body_filter_module：
-3. ngx_http_copy_filter_module
-4. ngx_http_headers_filter_module
+2. ngx_http_range_body_filter_module：处理请求中的range信息，返回包体中的指定部分给用户
+3. ngx_http_copy_filter_module：仅对包体做处理，处理ngx_chain_t结构体
+4. ngx_http_headers_filter_module：仅对包头做处理，在nginx.conf中修改相关配置，最终回在本过滤器中用于增删改http头部字段
 5. 第三方HTTP过滤模块
-6. ngx_http_userid_filter_module
-7. ngx_http_charset_filter_module
-8. ngx_http_ssi_filter_module
-9. ngx_http_postpone_filter_module
-10. ngx_http_gzip_filter_module
-11. ngx_http_range_header_filter_module
-12. ngx_http_chunked_filter_module
-13. ngx_http_header_filter_module
-14. ngx_http_write_filter_module
+6. ngx_http_userid_filter_module：仅对头部，基于cookie做认证管理
+7. ngx_http_charset_filter_module：按nginx.conf的配置，改动编码返回给用户
+8. ngx_http_ssi_filter_module：支持SSI，将文件内容包含在网页中返回
+9. ngx_http_postpone_filter_module：仅对HTTP包体处理，将子请求有序返回响应
+10. ngx_http_gzip_filter_module：对包体压缩
+11. ngx_http_range_header_filter_module：支持range协议
+12. ngx_http_chunked_filter_module：支持chunk编码，注意chunk和range的方式不同，chunk更接近于流式，是不知道Content-Length的长度的
+13. ngx_http_header_filter_module：仅对头部，用r->headers_out填写头部
+14. ngx_http_write_filter_module：仅对包体，负责发送响应
+
+链表结构虽然带来了简单的连续调用方案，但是有一个问题就是无法对请求进行直接的过滤。因此需要在处理过程中，根据请求的上下文，由用户来计算当前请求**是否满足使用该http过滤器**。这一步不像之前的http模块，能在初始化时将回调嵌入http框架中。
+
+和其他HTTP模块一样，HTTP过滤器的主要区别是在config、源文件中修改响应的模块类型，比如config中modules变量要更改为HTTP_FILTER_MODULES。下面提供一个完整的demo。
+```c
+#include <ngx_config.h>
+#include <ngx_core.h>
+#include <ngx_http.h>
+#include <ngx_log.h>
+
+typedef struct {
+    ngx_flag_t enable;
+} ngx_http_myfilter_conf_t;
+
+static void* ngx_http_myfilter_create_conf(ngx_conf_t *cf) {
+    ngx_http_myfilter_conf_t *mycf;
+    // 创建存储配置项的结构体
+    mycf = (ngx_http_myfilter_conf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_http_myfilter_conf_t));
+    if (mycf == NULL) {
+        return NULL;
+    }
+    // ngx_flat_t类型的变量。如果使用预设函数ngx_conf_set_flag_slot解析配置项参数，那么必须初始化为NGX_CONF_UNSET
+    mycf->enable= NGX_CONF_UNSET;
+    return mycf;
+}
+
+static char* ngx_http_myfilter_merge_conf(ngx_conf_t *cf, void *parent, void *child) {
+    ngx_http_myfilter_conf_t *prev = (ngx_http_myfilter_conf_t *)parent;
+    ngx_http_myfilter_conf_t *conf = (ngx_http_myfilter_conf_t *)child; 
+    //ngx_flat_t类型的配置项enable
+    ngx_conf_merge_value(conf->enable, prev->enable, 0);
+    return NGX_CONF_OK;
+}
+
+typedef struct {
+    ngx_int_t add_prefix;
+} ngx_http_myfilter_ctx_t;
+
+static ngx_command_t ngx_http_myfilter_commands[] = {
+    {
+        ngx_string("add_prefix"),
+        NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LMT_CONF|NGX_CONF_FLAG,
+        ngx_conf_set_flag_slot,
+        NGX_HTTP_LOC_CONF_OFFSET,
+        offsetof(ngx_http_myfilter_conf_t, enable),
+        NULL
+    },
+    ngx_null_command
+};
+
+// 前置声明
+static ngx_int_t ngx_http_myfilter_init(ngx_conf_t *cf);
+
+static ngx_http_module_t ngx_http_myfilter_module_ctx = {
+    NULL, /* preconfiguration方法 */
+    ngx_http_myfilter_init, /* postconfiguration方法 */
+    NULL, /* create_main_conf方法 */
+    NULL, /* init_main_conf方法 */
+    NULL, /* create_srv_conf方法 */
+    NULL, /* merge_srv_conf方法 */
+    ngx_http_myfilter_create_conf,/* create_loc_conf方法 */
+    ngx_http_myfilter_merge_conf /* merge_loc_conf方法 */
+};
+
+ngx_module_t ngx_http_myfilter_module = {
+    NGX_MODULE_V1,
+    &ngx_http_myfilter_module_ctx, /* module context */
+    ngx_http_myfilter_commands, /* module directives */
+    NGX_HTTP_MODULE, /* module type */
+    NULL, /* init master */
+    NULL, /* init module */
+    NULL, /* init process */
+    NULL, /* init thread */
+    NULL, /* exit thread */
+    NULL, /* exit process */
+    NULL, /* exit master */
+    NGX_MODULE_V1_PADDING
+};
+
+static ngx_http_output_header_filter_pt ngx_http_next_header_filter;
+static ngx_http_output_body_filter_pt ngx_http_next_body_filter;
+
+// 前置声明
+static ngx_int_t ngx_http_myfilter_header_filter(ngx_http_request_t *r);
+static ngx_int_t ngx_http_myfilter_body_filter(ngx_http_request_t *r, ngx_chain_t *in);
+
+static ngx_int_t ngx_http_myfilter_init(ngx_conf_t *cf) {
+    // 插入到头部处理方法链表的首部
+    ngx_http_next_header_filter = ngx_http_top_header_filter;
+    ngx_http_top_header_filter = ngx_http_myfilter_header_filter;
+    //
+    ngx_http_next_body_filter = ngx_http_top_body_filter;
+    ngx_http_top_body_filter = ngx_http_myfilter_body_filter;
+    return NGX_OK;
+}
+
+static ngx_str_t filter_prefix = ngx_string("[my filter prefix]");
+
+static ngx_int_t ngx_http_myfilter_header_filter(ngx_http_request_t *r) {
+    ngx_http_myfilter_ctx_t *ctx;
+    ngx_http_myfilter_conf_t *conf;
+    /* 如果不是返回成功，那么这时是不需要理会是否加前缀的，直接交由下一个过滤模块处理响应码非200的情况 */
+    if (r->headers_out.status != NGX_HTTP_OK) {
+        return ngx_http_next_header_filter(r);
+    }
+    // 获取HTTP上下文
+    ctx = ngx_http_get_module_ctx(r, ngx_http_myfilter_module);
+    if (ctx) {
+        /* 该请求的上下文已经存在，这说明ngx_http_myfilter_header_filter已经被调用过1次，直接交由下一个过滤模块处理 */
+        return ngx_http_next_header_filter(r);
+    }
+    // 获取存储配置项的ngx_http_myfilter_conf_t结构体
+    conf = ngx_http_get_module_loc_conf(r, ngx_http_myfilter_module);
+    /* 如果enable成员为0，也就是配置文件中没有配置add_prefix配置项，或者add_prefix配置项的参数值是off，那么这时直接交由下一个过滤模块处理 */
+    if (conf->enable == 0) {
+        return ngx_http_next_header_filter(r);
+    }
+    // 构造HTTP上下文结构体ngx_http_myfilter_ctx_t
+    ctx = ngx_pcalloc(r->pool, sizeof(ngx_http_myfilter_ctx_t));
+    if (ctx == NULL) {
+        return NGX_ERROR;
+    }
+    // add_prefix为0表示不加前缀
+    ctx->add_prefix = 0;
+    // 将构造的上下文设置到当前请求中
+    ngx_http_set_ctx(r, ctx, ngx_http_myfilter_module);
+    // myfilter过滤模块只处理Content-Type是“text/plain”类型的HTTP响应
+    if (r->headers_out.content_type.len >= sizeof("text/plain") - 1
+        && ngx_strncasecmp(r->headers_out.content_type.data, (u_char *) "text/plain",sizeof("text/plain") - 1) == 0) {
+        // 设置为1表示需要在HTTP包体前加入前缀
+        ctx->add_prefix = 1;
+        /* 当处理模块已经在Content-Length中写入了HTTP包体的长度时，由于我们加入了前缀字符串
+        ，所以需要把这个字符串的长度也加入到Content-Length中*/
+        if (r->headers_out.content_length_n > 0)
+            r->headers_out.content_length_n += filter_prefix.len;
+    }
+    // 交由下一个过滤模块继续处理
+    return ngx_http_next_header_filter(r);
+}
+
+static ngx_int_t ngx_http_myfilter_body_filter(ngx_http_request_t *r, ngx_chain_t *in) {
+    ngx_http_myfilter_ctx_t *ctx;
+    ctx = ngx_http_get_module_ctx(r, ngx_http_myfilter_module);
+    /* 如果获取不到上下文，或者上下文结构体中的add_prefix为0或者2时，都不会添加前缀，这时直接交给下一个HTTP过滤模块处理 */
+    if (ctx == NULL || ctx->add_prefix != 1) {
+        return ngx_http_next_body_filter(r, in);
+    }
+    /* 将add_prefix设置为2，这样即使ngx_http_myfilter_body_filter再次回调时，也不会重复添加前缀 */
+    ctx->add_prefix = 2;
+    // 从请求的内存池中分配内存，用于存储字符串前缀
+    ngx_buf_t* b = ngx_create_temp_buf(r->pool, filter_prefix.len);
+    // 将ngx_buf_t中的指针正确地指向filter_prefix字符串
+    b->start = b->pos = filter_prefix.data; b->last = b->pos + filter_prefix.len;
+    /* 从请求的内存池中生成ngx_chain_t链表，将刚分配的ngx_buf_t设置到buf成员中，并将它添加到原先待发送的HTTP包体前面 */
+    ngx_chain_t *cl = ngx_alloc_chain_link(r->pool);
+    cl->buf = b;
+    cl->next = in;
+    // 调用下一个模块的HTTP包体处理方法，注意，这时传入的是新生成的cl链表
+    return ngx_http_next_body_filter(r, cl);
+}
+```
 
 ### 进程
 
@@ -2081,6 +2277,144 @@ ngx_log_error(NGX_LOG_ALERT, r->connection->log,0,
 ```
 
 ### 高级数据结构
+Nginx为了保证跨平台性，对于一些必要的高级数据结构进行了实现。在这里直接以样例代码的方式，给出这些数据结构的用法。有时间也可以学习一下相关实现。
+
+(有序)双向链表，但排序是插入排序，另外链表只负责连接，不负责数据部分元素分配（看代码就明白了）
+```c
+// ngx_queue.h，API是若干宏
+struct ngx_queue_s {
+    ngx_queue_t  *prev;
+    ngx_queue_t  *next;
+};
+
+// 使用方式：在自定义结构体内，嵌入链表元素
+typedef struct {
+  u_char* str;
+  int num;
+  ngx_queue_t qEle;
+} TestNode;
+
+// 初始化
+ngx_queue_t queueContainer;
+ngx_queue_init(&queueContainer);
+
+// 从ngx_queue_t* a，获取TestNode
+TestNode *aNode = ngx_queue_data(a, TestNode, qEle);
+
+// 加入链表
+ngx_queue_insert_tail(&queueContainer, &(aNode->qEle));
+
+// 遍历
+ngx_queue_t* q;
+for (q = ngx_queue_head(&queueContainer);q != ngx_queue_sentinel(&queueContainer);q = ngx_queue_next(q))
+{
+  TestNode* eleNode = ngx_queue_data(q, TestNode, qEle);
+  // ...
+}
+
+// 排序
+ngx_queue_sort(&queueContainer, compTestNode);
+
+// 其中compTestNode是比较函数，形如
+ngx_int_t compTestNode(const ngx_queue_t* a, const ngx_queue_t* b) {
+  return ngx_queue_data(a, TestNode, qEle)->num > ngx_queue_data(b, TestNode, qEle)->num;
+}
+```
+
+动态数组，类似于C++的vector，能自动扩容（2倍）
+```c
+typedef struct ngx_array_s ngx_array_t;
+struct ngx_array_s {
+  // elts指向数组的首地址
+  void *elts;
+  // nelts是数组中已经使用的元素个数
+  ngx_uint_t nelts;
+  // 每个数组元素占用的内存大小
+  size_t size;
+  // 当前数组中能够容纳元素个数的总大小
+  ngx_uint_t nalloc;
+  // 内存池对象
+  ngx_pool_t *pool;
+};
+
+
+typedef struct TestNode {
+  u_char* str;
+  int num;
+}
+// 一组使用样例，cf为ngx_conf_t*，这里主要是为了使用以下内存池对象
+// 创建动态数组
+ngx_array_t* dynamicArray = ngx_array_create(cf->pool, 1, sizeof(TestNode));
+// 创建元素
+TestNode* a = ngx_array_push(dynamicArray);
+a->num = 1;
+
+TestNode* b = ngx_array_push_n(dynamicArray, 3);
+b->num = 3;
+(b+1)->num = 4;
+(b+2)->num = 5;
+
+TestNode* nodeArray = dynamicArray->elts;
+ngx_uint_t arraySeq = 0;
+for (; arraySeq < dynamicArray->nelts; arraySeq++)
+{
+  a = nodeArray + arraySeq;
+  // 处理
+}
+ngx_array_destroy(dynamicArray);
+```
+
+单向链表ngx_list_t，已在前文描述。
+
+红黑树
+```c
+typedef ngx_uint_t ngx_rbtree_key_t;
+typedef struct ngx_rbtree_node_s ngx_rbtree_node_t;
+// 红黑树节点
+struct ngx_rbtree_node_s {
+  // 无符号整型的关键字
+  ngx_rbtree_key_t key;
+  // 左子节点
+  ngx_rbtree_node_t *left;
+  // 右子节点
+  ngx_rbtree_node_t *right;
+  // 父节点
+  ngx_rbtree_node_t *parent;
+  // 节点的颜色，0表示黑色，1表示红色
+  u_char color;
+  // 仅1个字节的节点数据。由于表示的空间太小，所以一般很少使用
+  u_char data;
+};
+
+// 需要使用红黑树时，将元素嵌入自定义数据结构体
+typedef struct {
+/* 一般都将ngx_rbtree_node_t节点结构体放在自定义数据类型的第1位，以方便类型的强制转换 */
+  ngx_rbtree_node_t node;
+  ngx_uint_t num;
+} TestRBTreeNode;
+
+// 真正的树结构
+typedef struct ngx_rbtree_s ngx_rbtree_t;
+/*为解决不同节点含有相同关键字的元素冲突问题，红黑树设置了
+ngx_rbtree_insert_pt指针，这样可灵活地添加冲突元素*/
+typedef void (*ngx_rbtree_insert_pt) (ngx_rbtree_node_t root,ngx_rbtree_node_t node, ngx_rbtree_node_t *sentinel);
+struct ngx_rbtree_s {
+  // 指向树的根节点。注意，根节点也是数据元素
+  ngx_rbtree_node_t *root;
+  // 指向NIL哨兵节点
+  ngx_rbtree_node_t *sentinel;
+  // 表示红黑树添加元素的函数指针，它决定在添加新节点时的行为究竟是替换还是新增
+  ngx_rbtree_insert_pt insert;
+};
+
+// 操作示例
+
+```
+
+基数树
+
+支持通配符的散列表
+
 ### 进程间通信
 
 ## 头文件速览

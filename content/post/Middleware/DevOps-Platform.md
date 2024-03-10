@@ -90,3 +90,4 @@ service port：集群内部应用访问方式。node port：集群外部服务�
 2. [Linux系统核心调度器——主调度器schedule函数详解](https://blog.csdn.net/weixin_42092278/article/details/88778435?depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.channel_param)
 3. [gitbook《Docker 从入门到实践》](https://yeasy.gitbook.io/docker_practice/)
 4. [Linux基金 指导手册Linux Foundation Referenced Specifications](https://refspecs.linuxfoundation.org/)
+5. [Kubernetes 基础教程](https://lib.jimmysong.io/kubernetes-handbook/)

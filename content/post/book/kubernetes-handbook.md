@@ -87,3 +87,4 @@ Kubernetes灵活的一点就是支持非常多的插件。
 ## 参考
 1. [Kubernetes 基础教程](https://lib.jimmysong.io/kubernetes-handbook/)
 2. [Kubernetes 官方中文文档](https://kubernetes.io/zh-cn/docs/home/)
+3. [Kubernetes(k8s)是什么？架构是怎么样的？6分钟快速入门](https://www.bilibili.com/video/BV1Du4m137pK/)

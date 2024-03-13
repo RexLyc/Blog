@@ -202,6 +202,9 @@ thumbnailImage: /images/thumbnail/interview.jpg
 1. 为什么从之前的公司离职
     - 技术追求、职业规划、生活工作
 
+## 推荐阅读
+1. [Github32k⭐ C/C++ 技术面试基础知识总结](https://github.com/huihut/interview)
+
 ## 参考
 1. [知乎：后端都要学习什么？](https://www.zhihu.com/question/24952874/answer/518162706)
 1. [MyBatis官网](https://mybatis.org/mybatis-3/zh/index.html)

@@ -40,7 +40,7 @@ draft: true
 ## 学习准备
 搭建K8s运行环境，[参考官方文档](https://kubernetes.io/zh-cn/docs/tasks/tools/install-kubectl-linux/)。本文由于是学习，所以并没有真正的集群用于搭建。在本地电脑上运行的（CentOS7）。
 
-如果是在本地电脑上运行，需要安装Minikube，[安装说明](https://minikube.sigs.k8s.io/docs/start/)
+如果是在本地电脑上运行，需要安装Minikube，Minikube是一个在本机上用单节点（只有控制平面节点）模拟集群的环境，[安装说明](https://minikube.sigs.k8s.io/docs/start/)
 直接进行minikube的搭建比较困难，如果可以的话，建议先用docker，将所需镜像拉下来
 ```bash
 # 直接start大概率起不来，因为镜像下不到
@@ -70,7 +70,7 @@ docker tag k8s.mirror.nju.edu.cn/kube-proxy:v1.28.3 registry.k8s.io/kube-proxy:v
 docker tag k8s.mirror.nju.edu.cn/etcd:3.5.9-0 registry.k8s.io/etcd:3.5.9-0
 docker tag k8s.mirror.nju.edu.cn/coredns/coredns:v1.10.1 registry.k8s.io/coredns/coredns:v1.10.1
 
-# 之后再
+# 之后再启动
 minicube start --driver=docker
 ```
 
@@ -78,11 +78,118 @@ minicube start --driver=docker
 
 > 在配置了代理的情况下，前述的脚本已经能工作。
 
+注意Minicube虽然使用了docker，但是由于其本身在运行时，有自己的镜像仓库，因此在minikube内，使用k8s部署容器时，需要先将镜像引入到minikube中。例如
+```bash
+docker pull nginx
+minikube image load nginx
+```
+此后可以直接在k8s的yaml配置中，使用nginx，并使用```imagePullPolicy: Never```来指示使用本地镜像。
+
 在基础搭建之外，可以考虑一些必要的插件。
 1. 添加Minikube中的Web页面Dashboard：[部署和访问 Kubernetes 仪表板（Dashboard）](https://kubernetes.io/zh-cn/docs/tasks/access-application-cluster/web-ui-dashboard/)。注意按照配置走，然后URL可能要修改一下
     ```
     http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/
     ```
+
+## 基本使用
+创建pod的示例，来自于网络
+```yaml
+# shiro是apache的一个登录验证的库
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shiro550
+spec:
+  selector:
+    matchLabels:
+      app: shiro550
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: shiro550
+    spec:
+      containers:
+        - name: shiro550
+          imagePullPolicy: IfNotPresent
+          image: vulhub/shiro:1.2.4
+          ports:
+            - containerPort: 8080
+              name: web     
+```
+
+以下示例[来自网络](https://blog.csdn.net/qq_34168515/article/details/119893456)
+```yaml
+# 先提交一份configMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: web-nginx-config
+data:
+  nginx.conf: |
+    user  nginx;
+    worker_processes  1;
+
+    error_log  /var/log/nginx/error.log warn;
+    pid        /var/run/nginx.pid;
+
+
+    events {
+        worker_connections  1024;
+    }
+
+
+    http {
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                          '$status $body_bytes_sent "$http_referer" '
+                          '"$http_user_agent" "$http_x_forwarded_for"';
+
+        access_log  /var/log/nginx/access.log  main;
+
+        sendfile        on;
+        #tcp_nopush     on;
+
+        keepalive_timeout  65;
+
+        #gzip  on;
+
+        include /etc/nginx/conf.d/*.conf;
+    }
+
+
+# 再提交一个使用configMap的Nginx
+```
+
+使用Service创建内部网络接口
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-nginx
+# 作用于带有run: my-nginx标签的pod
+  labels:
+    run: my-nginx
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+# 作用于带有run: my-nginx标签的pod
+  selector:
+    run: my-nginx
+```
+
+下面列举一下kubectl的指令
+```bash
+kubectl get pods
+kubectl get nodes
+kubectl addon list
+kubectl proxy
+kubectl port-forward
+```
+
 
 ## 核心组件
 ![Kuberentes 架构（图片来自于网络）](/images/book/k8s/kubernetes-high-level-component-archtecture.jpg)
@@ -128,6 +235,14 @@ Pod 中封装着应⽤的容器（有的情况下是好⼏个容器），存储�
 Controller 可以创建和管理多个 Pod，提供副本管理、滚动升级和集群级别的⾃愈能⼒。例如，如果⼀个 Node 故障，Controller 就能⾃动将该节点上的 Pod 调度到其他健康的 Node 上。
 
 
+### 服务、负载均衡和联网
+当拥有了组装pod的能力之后，还需要将pod之间连接起来，以提供完整的服务。在这一步，主要有两种方式。
+1. Service：
+2. Ingress：
+
+对于Service。Kubernetes 支持两种查找服务的主要模式：环境变量和 DNS。前者开箱即用，而后者则需要 CoreDNS 集群插件。
+
+具体操作指南：[使用Service连接到应用](https://kubernetes.io/zh-cn/docs/tutorials/services/connect-applications-service/)
 
 ## 插件
 Kubernetes灵活的一点就是支持非常多的插件。
@@ -138,3 +253,6 @@ Kubernetes灵活的一点就是支持非常多的插件。
 3. [Kubernetes(k8s)是什么？架构是怎么样的？6分钟快速入门](https://www.bilibili.com/video/BV1Du4m137pK/)
 4. [K8S CSI容器存储接口(一)：介绍以及原理](https://cloud.tencent.com/developer/news/731936)
 5. [Kubernetes指南](https://kubernetes.feisky.xyz/extension/volume/csi)
+6. [K8S面试题（史上最全 + 持续更新）](https://www.cnblogs.com/crazymakercircle/p/17052058.html)
+7. [K8S 中 Ingress 和 Service 的区别？](https://www.cnblogs.com/Skybiubiu/p/17325021.html)
+8. [k8s 快速部署 nginx 并通过 configMap配置 nginx.conf](https://blog.csdn.net/qq_34168515/article/details/119893456)

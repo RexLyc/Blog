@@ -1058,7 +1058,7 @@ thumbnailImage: /images/thumbnail/design-pattern.svg
         }
     }
     ```
-### 其他：
+### 其他
 - 空对象（Null Object）：取代空对象实例检测，反应一种不做任何动作的子类情况。
 ## 术语
 1. 耦合性：指模块之间的信息、参数的依赖程度。
@@ -1089,3 +1089,4 @@ thumbnailImage: /images/thumbnail/design-pattern.svg
 - [设计模式-菜鸟教程](https://www.runoob.com/design-pattern/design-pattern-tutorial.html)
 - [桥接模式、外观模式、适配器模式的区别](https://www.cnblogs.com/peida/archive/2008/08/01/1257574.html)
 - [设计模式-菜鸟教程](https://www.runoob.com/design-pattern/design-pattern-intro.html)
+- [漫画讲解抽象工厂方法](https://developer.aliyun.com/article/904309)

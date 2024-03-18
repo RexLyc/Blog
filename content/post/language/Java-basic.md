@@ -18,6 +18,11 @@ thumbnailImage: /images/thumbnail/java.jpg
     - oop指针：指向类型信息：开启指针压缩是4个字节，否则是8个
     - 实际数据成员：
     - 对齐区域：默认对齐到8个字节的倍数
+
+## Collection和线程安全性
+- 安全的：Vector、HashTable、Properties、ConcurrentXXX
+- 不安全：ArrayList、LinkedList、HashSet、TreeSet、HashMap、TreeMap
+
 ## 语言特性
 1. 序列化：
     - 一般写法：继承Serializable接口，提供一个serialVersionUID
@@ -191,6 +196,168 @@ GenericsFunc.test(2);           // 自动推导
 1. PropertyChangeSupport：观察者模式，用于监视一个Java Bean的属性修改，可以包装并发送属性修改事件
     > 无法监听被观察类型的实例，在构造函数中发生的修改
 
+## 内部类
+内部类一共有4种，本节内容参考自[菜鸟教程](https://www.runoob.com/w3cnote/java-inner-class-intro.html)
+1. 成员内部类。和普通类不同的主要是其对外的可见性，普通类有public和本包可见两种可见性，而成员内部类和成员一样，可以拥有public/protected/private三种。内部类必须依赖于外部类才能存活，同时，外部类的一切成员都对内部类可见。
+```java
+class Circle {
+    private Draw draw = null;
+    double radius = 0;
+     
+    public Circle(double radius) {
+        this.radius = radius;
+    }
+     
+    class Draw {     //内部类
+        public void drawSahpe() {
+            System.out.println("drawshape");
+        }
+    }
+}
+```
+2. 局部内部类，和成员内部类的区别是，这种类类型是在函数内定义的，所以称之为局部，也不能有public/protected/private和static修饰。
+3. 匿名内部类，在实现回调时非常实用，使用IDEA等都会自动补全这种情况。匿名内部类不能有构造器（从语法上来看是匿名，当然也就没法有构造函数了），写法形如
+```java
+Button button = new Button();
+button.setOnClickListener(new OnClickListener(){
+    @Override
+    public void onClick(View v) {
+        // ...
+    }
+});
+```
+4. 静态内部类，也是成员内部类，但是是static的，和成员内部类必须依赖于外部类才能存在的情况不同，静态内部类可以单独存在，但是访问外部类受限制了，只能放为其静态成员。
+
+## 标准
+目前比较流行的版本主要有3个：JDK8、JDK11、JDK17。这中间如果有一些特性也比较优秀，会单独标记。以后的新项目都应该考虑使用JDK17以上了。
+### Java8
+2014年发布。生态最庞大的。很多语法可能已经很熟悉了，在这里快速列一下
+```java
+// ================== 更新1 ==================
+// 默认方法，可以在接口中添加默认实现
+interface MyInterface {
+    default void DoSth() {
+        // ...
+    }
+}
+
+// ================== 更新2 ==================
+// lambda表达式，支持参数类型推断
+// ([parameters]) -> expression
+// ([parameters]) => {statements;}
+
+// ================== 更新3 ==================
+// stream，串行流，一个非常重要的内容，和lambda表达式结合起来，像函数式中的map/reduce/filter一样
+// 分为三种操作，intermediate、short-curcuit、terminate。中间、短路、终结。
+List<String> list = new ArrayList<>();
+// 注意本例演示，DoubleStream和Stream<Double>是完全不一样的，后者是装箱类型，可用操作更多
+List<Double> result = list.stream()
+    .filter(s -> s.matches("正则表达式"))
+    .mapToDouble(Double::parseDouble)
+    .limit(3)              // short-curcuit
+    .map(d -> d+=0.1)      // 所有的map、filter都是中间操作
+    .boxed()               // 特殊情况需要装箱
+    .sorted(Comparator.comparingDouble(Double::doubleValue).reversed())
+    .limit(2)              // 可以排序、limit
+    .collect(Collectors.toList);        // collect就是一个reduce类型的收集工作
+result.forEach(System.out::println);
+
+// toMap示例，toMap相对复杂
+Map<Double,Integer> reMap =  
+    result.stream().collect(Collectors.toMap(Double::doubleValue, Double::intValue));
+reMap.forEach((aDouble, integer) -> System.out.println(aDouble+ " -> " + integer));
+
+// parallelStream则是并行流，适合对顺序没有要求的处理场景
+
+// ================== 更新4 ==================
+// 新的日期类LocalDate、LocalTime、LocalDateTime
+// 新的时间戳和时间间隔Instant、Period、Duration
+
+// ================== 更新5 ==================
+// 方法引用
+class YourClass {
+    // ...
+}
+class YourFactory {
+    private Supplier<Object> sup;
+    public YourFactory(final Supplier<Object> supplier) {
+        sup=supplier;
+    }
+
+    public Object produce() {
+        return sup.get();
+    }
+}
+// 可以用以下方式引用构造器、方法
+YourFactory fac = new Factory(YourClass::new);  // 构造器引用的类型是Supplier<YourClass>
+YourClass yc = (YourClass) fac.produce();
+
+// ================== 更新6 ==================
+// 函数式接口
+@FunctionalInterface
+interface YourFuncInterface {
+    // ...
+}
+
+// ================== 更新7 ==================
+// Optional类
+// Optional.ofNullable - 允许传递为 null 参数
+Optional<Integer> a = Optional.ofNullable(value1);
+// orElse提供如果null，则使用后面的值的方法
+Integer value = a.orElse(new Integer(0));
+
+// Optional.of - 如果传递的参数是 null，抛出异常 NullPointerException
+Optional<Integer> b = Optional.of(value2);
+System.out.println(java8Tester.sum(a,b));
+
+// ================== 更新8 ==================
+// 自带Base64
+static class Base64.Decoder;
+static class Base64.Encoder;
+```
+
+### Java9/10
+9的更新内容有
+- 支持模块化，支持多版本Jar
+- 接口可以有私有方法
+- 实验性的内置HTTP/2客户端，```HttpClient/HttpRequest/HttpResponse```
+- JShell，无需创建项目，而允许执行Java片段
+- 更好的日志
+- 进程API更新，```ProcessHandler```，能获得更多进程信息
+- Collection的API改进
+- Stream的API改进
+- @Deprecated改进，Java文档（javadoc）改进
+- GC改进
+
+10的更新内容
+- var关键字，局部变量类型推断（类似C++的auto）
+- GC改进，GC的接口被统一，方便对GC进行替换
+- 实验性的JIT
+
+### Java11
+2018年发布，生态稍微差。主要原因是收费。一些比较重要的特性如下。
+- 正式引入```java.net.http```，内置HTTP支持
+- 字符串API改进，提供更多的实用函数，如```repeat/isBlank/strip/lines/String[]::new```
+- TLS支持
+- GC改进
+- 飞行记录器（运行时信息收集）
+
+### Java12~16
+Java版本发布速度非常快，这里统一记录一些比较重要的，不做区分了
+- 更多字符串改进
+- switch表达式改进，可以用作语句表达式，出现在等号右侧，分情况赋值更方便
+- 多行文本块，跨行文本更方便，也不需要再转义，用连续3个引号```"""```开启。
+- SocketAPI重构，```NioSocketImpl```
+- NullPointerExceptions改善
+- instanceOf改进，```if(xx instanceOf String s)```
+- record关键字，对只需要getter/setter类型，可以直接使用
+
+### Java17
+2021年发布，据Oracle的说法至少在发布的三年内免费。所以生态好了一些。它主要变更是
+- 密封类，```sealed```，可以更细粒度的控制是否允许对类型/接口进行继承和重写
+- 一些工具的改进（但有很多都是提案）：```RandomGenerator```，
 
 ## 参考
-[Java全栈知识体系：泛型机制详解](https://pdai.tech/md/java/basic/java-basic-x-generic.html)
+- [Java全栈知识体系：泛型机制详解](https://pdai.tech/md/java/basic/java-basic-x-generic.html)
+- [Java中JDK8、JDK11、JDK17，该怎么选择？](https://cloud.tencent.com/developer/article/1977236)
+- [Java8到Java17都更新了哪些内容？！收藏了](https://zhuanlan.zhihu.com/p/480293185)

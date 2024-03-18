@@ -24,12 +24,23 @@ thumbnailImage: /images/thumbnail/mysql-logo.png
     1. 连接池：降低连接延迟、连接复用。每个连接是一个线程。 连接池的作用是未超过连接上限时直接捞一个连接并复用，不用每一次都建立连接断开连接、超过上限会创建新的并自动进行断开
 
 ## log
+推荐阅读博客[MySQL 日志：undo log、redo log、binlog 有什么用？](https://xiaolincoding.com/mysql/log/how_update.html)
+
+出现三种log是一个历史原因。实际上binlog在很早就有了，MyISAM时期就有，但是binlog无法用于保证持久性。因此在InooDB中额外使用了redo log。
+
 ### Binlog
+binlog更像是归档日志，用于数据备份和主从同步。
 1. 参考：
     1. [研发应该懂的binlog知识（上）](https://www.cnblogs.com/rjzheng/p/9721765.html)
 ### Undo Log
+undo log的核心目标是支持回滚，支持MVVC。因此也常被称为回滚日志。
 
 ### Redo Log
+重放日志，用于保证数据的持久性。
+
+由于对数据库的修改是先对内存进行的，虽然会对MySQL的内存页数据结构进行标记，标记为脏页，但是回写并不一定立刻执行，如果掉电，则会发生数据丢失。
+
+因此对于数据的任何修改的提交，必须保证redo log写磁盘完成。redo log由于是磁盘追加写，因此性能较好，至少比写回脏页的随机写要好一些。
 
 ## 事务
 1. 事务特性：ACID

@@ -92,6 +92,62 @@ thumbnailImage: /images/thumbnail/linux.jpg
     > 缓存锁和RFO指令也是导致伪共享的核心原因，当临界资源位于同一个缓存行内时，多核的竞争使用会造成反复锁定其他CPU，造成业务逻辑性能甚至差于单核串行处理
     > 由于现代编译器和CPU都会对执行顺序进行优化，因此内存一致性模型对并发控制中的锁机制的影响也非常大。不通的CPU硬件架构对内存一致性模型实现方式不同。
 
+## 信号
+linux开发中，在进程中对信号的处理是非常重要的。信号是一种软中断，信号的设计继承自Unix，因此有不可靠信号（SIGRTMIN前，信号可能丢失），可靠信号（后面定义的信号，支持信号队列，排队发送），在系统中可以通过```man 7 signal```，查看系统中和信号相关的内容。
+
+信号相关的操作
+1. 发送：```raise(int sig)```，```kill(pid_t pid, int sig)```
+2. 接收：```sighandler_t signal(int signum, sighandler_t handler)```，更推荐```int sigaction(int signum, const struct sigaction *act, struct sigaction *oldact)```
+3. 处理：用户定义的任何满足```typedef void(*sighandler_t)(int)```函数签名的函数
+4. 忽略：忽略将会调用默认处理。
+5. 特例：SIGKILL（杀死）、SIGSTOP（暂停）不能忽略，不能捕获。
+
+常见的信号
+1. SIGHUP ：终端结束信号
+1. SIGINT ：键盘中断信号（Ctrl - C）
+1. SIGQUIT：键盘退出信号（Ctrl - \）
+1. SIGPIPE：浮点异常信号
+1. SIGKILL：用来结束进程的信号
+1. SIGALRM：定时器信号
+1. SIGTERM：kill 命令发出的信号
+1. SIGCHLD：标识子进程结束的信号
+1. SIGSTOP：停止执行信号（Ctrl - Z）
+2. SIGSEGV：无效的内存访问
+
+信号处理函数应当满足```可重入要求```
+1. 不能使用外部的任何全局变量，以及其他可能会使用到这些变量的函数
+2. 不调用malloc和free
+3. 不调用标准I/O函数（可以，但不推荐）
+
+也因此，我们可以实现对于一些崩溃情况的恢复，避免单一线程挂掉，进程直接挂掉
+```c
+// 自定义信号处理函数示例
+#include <stdio.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <setjmp.h>
+static jmp_buf buf;
+// 自定义信号处理函数，处理自定义逻辑后再调用 exit 退出
+void sigHandler(int sig) {
+    // 不建议，这里仅作测试
+    printf("Signal %d catched!\n", sig);
+    // exit(sig);
+    longjmp(buf,1);
+}
+int main(void) {
+    signal(SIGSEGV, sigHandler);
+    int *p = (int *)0xC0000fff;
+    if(!setjmp(buf)){
+        *p = 10; // 针对不属于进程的内核空间写入数据，崩溃
+    }
+    else
+    {
+        printf("exit safely\n");
+    }
+    return 0;
+}
+```
+
 ## 部分源代码
 ```cpp
 // 部分字段
@@ -116,3 +172,4 @@ struct task_struct {
 1. [操作系统中常用的进程调度算法](https://blog.csdn.net/fuzhongmin05/article/details/55802925)
 1. [linux调度子系统8 - schedule函数](https://zhuanlan.zhihu.com/p/363791563)
 1. [Linux组调度原理](https://zhuanlan.zhihu.com/p/400102565)
+2. [登龙（DLonng）Linux 高级编程 - 信号 Signal](https://dlonng.com/posts/signal)

@@ -228,3 +228,7 @@ thumbnailImage: /images/thumbnail/interview.jpg
 1. [static_cast, dynamic_cast和reinterpret_cast的区别](https://blog.51cto.com/mingtangduyao/1832128)
 1. [红黑树与AVL树，各自的优缺点总结](https://www.jianshu.com/p/37436ed14cc6)
 1. [关于AVL树和红黑树的一点看法](https://zhuanlan.zhihu.com/p/93369069)
+2. [去BAT，你应该要看一看的面试经验总结](https://developer.aliyun.com/article/681127)
+3. [C++LinuxWebServer 2w7k的面经长文(上)](https://blog.csdn.net/qq_37457202/article/details/129790945)
+4. [C++LinuxWebServer 2w7k的面经长文(上)](https://ydlin.blog.csdn.net/article/details/129791171)
+5. [知乎-卢新来：高并发的一些总结](https://zhuanlan.zhihu.com/p/91168955)

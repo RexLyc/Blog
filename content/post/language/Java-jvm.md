@@ -18,6 +18,8 @@ draft: true
 ### 垃圾回收
 JVM历史上有多个垃圾回收算法。其中广泛使用的是，Parallel GC和CMS，G1，ZGC。从Java标准来看，Java8中主要使用的是PGC和CMS，Java21之后应当使用ZGC（在hotspotVM中）。
 
+有一些术语值得学习：[记忆集和卡表](https://developer.aliyun.com/article/1097566)
+
 这些方法的主要算法，都是基于标记-清理-复制算法。具体可以分为三个阶段：
 - 标记阶段，即从GC Roots集合开始，标记活跃对象
 - 转移阶段，即把活跃对象复制到新的内存地址上
@@ -54,3 +56,4 @@ ZGC也提供了多种触发GC的机制：分配时、分配速率、固定间隔
 
 ## 参考
 1. [新一代垃圾回收器ZGC的探索与实践](https://tech.meituan.com/2020/08/06/new-zgc-practice-in-meituan.html)
+2. [深入解析ZGC垃圾回收器](https://www.cnblogs.com/booksea/p/17665685.html)

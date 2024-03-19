@@ -228,6 +228,28 @@ button.setOnClickListener(new OnClickListener(){
 ```
 4. 静态内部类，也是成员内部类，但是是static的，和成员内部类必须依赖于外部类才能存在的情况不同，静态内部类可以单独存在，但是访问外部类受限制了，只能放为其静态成员。
 
+## 并发
+### 锁
+参考[不可不说的Java锁事](https://tech.meituan.com/2018/11/15/java-lock.html)。先从Java提供的锁机制来看：主要有三种synchronized、Lock、AtomicXXX。
+
+syncronized是Java最历史悠久的同步机制，在Java1.5之前，没有做优化，其性能较低（重量锁），在1.6之后，它上锁时有一个尝试的顺序：无锁、偏向锁（已被废弃）、轻量级锁、重量级锁。当一个线程企图访问临界区时，会从这个顺序逐渐升级。其中轻量级锁是指一个自旋锁，线程会尝试等待一小段时间，如果无法获得锁，就转换为重量级锁，并阻塞，等待其他线程释放锁。
+
+Lock是Java提供的一个类型，位于java.util.concurrent下，它解决了synchronized的一些缺陷：可以得知是否上锁成功，在线程选择睡眠时可以释放锁（syn只能在异常和结束时释放），sync也不可中断（只能死等其他线程释放锁），sync也是非公平的。在Lock下，Java提供ReentrantLock，也是可重入锁。另外还有ReentrantReadWriteLock，它提供了读写分离的两种锁，是共享锁（前面的都是独占锁），提高了多读的效率。
+
+> 注意synchronized也是可重入（可递归锁）的，对于同一个对象，如果当前已经获得了锁，尝试再上锁是可以成功的。可以避免一些死锁的情况。
+
+> 非公平锁的吞吐率其实要高于公平锁。公平锁需要维护队列，在发现已有等待的线程时会去排队，保证按顺序唤醒，而非公平锁有机会减少唤起线程的开销，它在申请时不去排队而会在流程中多次尝试获取锁。
+
+AtomicXXXX则是Java基于CAS指令提供的原子类。提供了无锁机制（在一定程度上可以代替有锁，但不绝对）。原子类有自己的问题，比如ABA问题、只支持单一内置变量、内存序等。
+
+Semaphore，AQS提供的另一种同步类型。Semaphore是共享锁。
+
+Java中的大部分同步类（Lock、Semaphore、ReentrantLock等）都是基于AbstractQueuedSynchronizer（简称为AQS）实现的。AQS支持共享和独占，也支持公平和非公平。参考[AQS原理及应用](https://tech.meituan.com/2019/12/05/aqs-theory-and-apply.html)、[AQS原理](https://javaguide.cn/java/concurrent/aqs.html)。它的核心是Node数据结构（存储线程、请求锁方式等信息），和一个等待队列（虚拟）。队列中的阻塞等待和唤醒过程中的锁分配，是通过 CLH（Craig，Landin，and Hagersten） 队列和锁实现的。
+
+所谓的虚拟队列，是因为该队列并无实体，每一个Node两两用prev/next相连就构成了，Node保存线程的引用，以及节点在队列中的状态（等待锁、占用锁），在外部用一个volatile标记的int值state来保管同步状态（用CAS写）。各个Node都可以尝试去修改state。
+
+> 注意volatile能保证可见性和禁止指令重排，但是不能保证原子性。线程在使用volatile变量时，**只是每次都会读取**到线程本地再使用，但是如果修改，则显然写回时不能保证。
+
 ## 标准
 目前比较流行的版本主要有3个：JDK8、JDK11、JDK17。这中间如果有一些特性也比较优秀，会单独标记。以后的新项目都应该考虑使用JDK17以上了。
 ### Java8
@@ -349,13 +371,28 @@ Java版本发布速度非常快，这里统一记录一些比较重要的，不�
 - 多行文本块，跨行文本更方便，也不需要再转义，用连续3个引号```"""```开启。
 - SocketAPI重构，```NioSocketImpl```
 - NullPointerExceptions改善
-- instanceOf改进，```if(xx instanceOf String s)```
+- instanceof模式匹配改进，支持变量定义```if(xx instanceOf String s)```
 - record关键字，对只需要getter/setter类型，可以直接使用
 
 ### Java17
 2021年发布，据Oracle的说法至少在发布的三年内免费。所以生态好了一些。它主要变更是
 - 密封类，```sealed```，可以更细粒度的控制是否允许对类型/接口进行继承和重写
 - 一些工具的改进（但有很多都是提案）：```RandomGenerator```，
+
+### Java18-20
+大部分都是预览和孵化功能，有些会在Java21中正式发出
+- 设定UTF-8为默认字符集
+- 内置简单Web服务器
+- 反射改进
+
+### Java21
+2023年9月发布，一次非常重大的改进。最主要内容是
+- 虚拟线程
+- ZGC
+- instanceof模式匹配对record的支持
+- 增强swtich，支持类型模式匹配，例如```case Integer i -> { ;}```
+此外还有一些预览功能：外部方法和内存API、instanceof对未命名变量```_```的支持、字符串模板、main方法入口查询改进
+
 
 ## 参考
 - [Java全栈知识体系：泛型机制详解](https://pdai.tech/md/java/basic/java-basic-x-generic.html)

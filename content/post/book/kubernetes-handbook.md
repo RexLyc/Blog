@@ -87,7 +87,11 @@ minikube image load nginx
 
 在基础搭建之外，可以考虑一些必要的插件。
 1. 添加Minikube中的Web页面Dashboard：[部署和访问 Kubernetes 仪表板（Dashboard）](https://kubernetes.io/zh-cn/docs/tasks/access-application-cluster/web-ui-dashboard/)。注意按照配置走，然后URL可能要修改一下
-    ```
+    ``` bash
+    # 需要修改一下proxy的参数，否则会对访问来源有限制，这一步将8001端口暴漏出去
+    kubectl proxy --address='0.0.0.0' --accept-hosts='^*$'
+
+    # 访问地址
     http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/
     ```
 

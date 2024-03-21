@@ -58,6 +58,28 @@ thumbnailImage: /images/thumbnail/design-pattern.svg
 1. 分布式定时器
     - Quartz
 
+## 高可用模型
+本章节记录一下在各种中间件、分布式系统中，一些常用的高可用设计思路，或者是部署方式。
+
+### MySQL
+参考[MySQL 中常见的几种高可用架构部署方案](https://www.cnblogs.com/ricklz/p/17335755.html)
+
+1. 基础方案：MySQL Replication，主从同步，一主多从。主库产生binlog，同步给从库，从库解析并生成relay log（中继日志）。最大的问题是主从同步延迟（受限于网络、从库性能、复杂事务），不仅会带来数据不一致性，而且更大的问题是在主库宕机后，从库可能丢失数据，有一些解决方案：
+    1. 提高网络性能、从库性能
+    2. 强行读主库
+    3. semi-sync，半同步复制（以及增强半同步复制）。相比于异步复制、全同步复制，半同步复制是一个性能和一致性的权衡结果。
+主从同步默认是异步的，这也正是主从同步延迟产生的原因之一。而使用半同步复制，可以让主库在至少收到一个数据库回复同步ACK之后，再向客户端反馈数据提交成功（提交事务结束）。这样能保证主库宕机，从库也至少有一台机器拥有更新的数据。
+
+1. 好一点的：MySQL Group Replication。组复制。主要来解决数据一致性问题。在组复制模式下，一个MySQL集群可以使用多主模式（所有都可读可写），也可以使用单主模式（仍只用一个为主）。并且每一次写事务，先在主库本地进行，之后将操作广播（广播内容是write set写集，而且广播是原子的，全体接受或不接受）到全体组员，需要有半数以上的组员同意接收（组员批准，未发生行冲突），才能提交本次事务（其他成员接收该远程事务即可）。如果出现事务冲突，则广播中靠前的事务提交，后面的回滚。
+
+1. InnoDB Cluster 是官方提供的高可用方案,是 MySQL 的一种高可用性(HA)解决方案。包含MySQL Shell、MySQL Router、MySQL Server三种组件，分别对应接口服务，请求路由，数据存储三种功能。
+
+1. InnoDB ClusterSet。在前者基础上，通过将主 InnoDB Cluster 与其在备用位置（例如不同数据中心）的一个或多个副本链接起来，为 InnoDB Cluster 部署提供容灾能力。缺点比较多：集群之间只支持异步复制、只有一个集群是可写的。ClusterSet优先考虑可用性而不是一致性，以最大限度地提高系统的容灾能力。如果用户无法容忍故障转移期间事务或数据丢失，则不能使用InnoDB ClusterSet作为系统的解决方案
+
+1. InnoDB ReplicaSet 是 MySQL 团队在 2020 年推出的一款产品，用来帮助用户快速部署和管理主从复制，在数据库层仍然使用的是主从复制技术。并不是ClusterSet的升级，使用ReplicaSet，主要是为了更好的写性能。
+
+1. Master High Availability Manager and Tools for MySQL，简称 MHA。一套优秀的作为 MySQL 高可用性环境下故障切换和主从提升的高可用软件。分为MHA Manager（管理节点）和MHA Node（数据节点）。MHA Manager 可以单独部署在一台独立的机器上管理多个 master-slave 集群，也可以部署在一台 slave节点上。MHA Node 运行在每台 MySQL 服务器上，MHA Manager 会定时探测集群中的 master 节点，当 master 出现故障时，它可以自动将最新数据的 slave 提升为新的 master，然后将所有其他的 slave 重新指向新的 master。并在这个过程中向其他节点查询必要的数据，以尽最大努力补充数据，保证数据一致性。
+
 ## 网络相关
 ### Netty设计分析
 Netty是Java网络编程中无法绕开的一个核心库，这里对其核心设计的关键词做一个总结。
@@ -128,10 +150,11 @@ public class NettyServer {
 ```
 
 ## 参考
-[分布式基础之CAP和BASE理论](https://www.jianshu.com/p/46b90dfc7c90) </br>
-[七种分布式事务的解决方案，一次讲给你听！](https://cloud.tencent.com/developer/article/1806989) </br>
-[几种分布式锁的实现方式](https://juejin.cn/post/6844903863363829767) </br>
-[三分钟了解 Serverless 是什么](https://zhuanlan.zhihu.com/p/340882159) </br>
-[多图详解 Netty](https://anye3210.github.io/2021/08/22/%E5%A4%9A%E5%9B%BE%E8%AF%A6%E8%A7%A3-Netty/) </br>
-[《Scalable IO in Java》](https://gee.cs.oswego.edu/dl/cpjslides/nio.pdf)、[《Scalable IO in Java》译文](https://www.cnblogs.com/dafanjoy/p/11217708.html) </br>
-[Netty | 工作流程图分析 & 核心组件说明 & 代码案例实践](https://juejin.cn/post/7017602386747195429)
+- [分布式基础之CAP和BASE理论](https://www.jianshu.com/p/46b90dfc7c90) </br>
+- [七种分布式事务的解决方案，一次讲给你听！](https://cloud.tencent.com/developer/article/1806989) </br>
+- [几种分布式锁的实现方式](https://juejin.cn/post/6844903863363829767) </br>
+- [三分钟了解 Serverless 是什么](https://zhuanlan.zhihu.com/p/340882159) </br>
+- [多图详解 Netty](https://anye3210.github.io/2021/08/22/%E5%A4%9A%E5%9B%BE%E8%AF%A6%E8%A7%A3-Netty/) </br>
+- [《Scalable IO in Java》](https://gee.cs.oswego.edu/dl/cpjslides/nio.pdf)、[《Scalable IO in Java》译文](https://www.cnblogs.com/dafanjoy/p/11217708.html) </br>
+- [Netty | 工作流程图分析 & 核心组件说明 & 代码案例实践](https://juejin.cn/post/7017602386747195429)
+- [MySQL组复制MGR（一）-- 技术概述](https://www.cnblogs.com/lijiaman/p/13374694.html)

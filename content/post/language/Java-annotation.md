@@ -17,9 +17,9 @@ thumbnailImage: /images/thumbnail/java.jpg
 1. 可以用于控制编译期代码的生成。
 > 总之，一旦你的代码中出现了重复性的工作，你就可以考虑使用注解来简化、自动化该过程。
 ## 核心原理
-1. 运行期注解：利用Java的反射机制，在运行期对注解进行解析。
-1. 编译期注解：逐轮次处理注解，生成新的源文件
-1. 字节码工程
+1. 运行期注解：利用Java的反射机制，在运行期对注解进行解析。注解相关代码会保留到运行期。
+1. 编译期注解：逐轮次处理注解，生成新的源文件。注解相关代码在编译之后就消失，不会存在于字节码中。
+1. 字节码工程：位于前两者中间，相关注解处理代码，在jvm加载字节码时被处理并丢弃。
 ## 内置注解
 1. 标准注解：
     1. @Override：表示当前方法将覆盖父类中的方法。
@@ -188,12 +188,19 @@ public class SQLAnnotationProcessor {
                 }
                 String createCommand = createCommandBuilder.substring(0
                     , createCommandBuilder.length() - 1) + ");";
+                // 生成了SQL语句
                 System.out.println("SQL: " + createCommand);
                 // do create stuff
                 // ...
             }
         }
     }
+}
+
+// 具体使用时
+public static void main(String[] args){
+    // 需要通过代码调用注解处理器
+    SQLAnnotationProcessor.createTable(new String[]{TestDB.class.getName()});
 }
 ```
 > 逐个处理类型，逐个处理类型中的域，对于每个域，逐个处理其注解

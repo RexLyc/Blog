@@ -82,7 +82,7 @@ thumbnailImage: /images/thumbnail/interview.jpg
   - 个人理解是编译期解析等号右侧、函数返回值的类型，并去除其中的const、&、volatile
 20. unique_ptr为什么必shared_ptr快？
   - unique_ptr没有引用计数，在构造、析构、实用时都没有这方面的访存需求；shared_ptr存在一个原子引用计数需要维护
-### Java
+### Java-Spring
 1. 压测如何分析性能？
     - 使用系统分析器，例如linux的perf，可以分析系统性能
     - JVM分析器，例如hprof，jprofiler，也可以用jdk自带的工具，如jstack、jmap、jstat、jcmd，以及JMX、JFR等工具。
@@ -92,6 +92,20 @@ thumbnailImage: /images/thumbnail/interview.jpg
     - CMS会产生内存碎片，而G1不会
     - CMS只针对老年代、G1对新生代和老年代都有效
     - CMS对CPU敏感
+1. 过滤器、拦截器、AOP的区别和使用场景
+  - Tomcat容器提供的处理顺序是：filter、servlet、interceptor、controller
+  - 过滤器的实现基于回调函数，过滤器是JavaEE标准、也是Servlet容器规范的一部分，由servlet进行回调。
+  - 拦截器可以拦截IOC容器中的各个bean，拦截器是Spring提供并管理的，是通过反射实现的。拦截器依赖于SpringMVC的，需要有mvc的依赖。
+  - 过滤器和拦截器的区别简单来说：生效时间不同、过滤器可以修改request、过滤器只能在servlet中实现、拦截器可以在任何spring支持的环境中。
+  - 三者在拦截能力上的区别
+    - 过滤器并没有定义业务用于执行逻辑前、后等，仅仅是请求到达就执行。
+    - 拦截器有三个方法，相对于过滤器更加细致，有被拦截逻辑执行前、后等。
+    - AOP针对具体的代码，能够实现更加复杂的业务逻辑。
+  - 更多细节参考[博客园](https://www.cnblogs.com/itlihao/p/14329905.html)
+2. @Autowired的替换品
+  - 使用@Resource替换，或者使用@RequiredArgsConstructor构造器方式注入。不推荐Autowired的主要原因是属性注入会有一些问题。首先是在构造器中注入未完成，无法使用；其次是添加注解太简单会导致某个类异常庞大，说明设计上有所欠缺；属性注解会造成类不能通过反射创建，必须强依赖容器，在spring容器之外无法使用。
+  - 推荐用法就是强制依赖就用构造器方式，可选、可变的依赖就用setter注入
+  - 参考[@Autowired依赖注入为啥不推荐了](https://cloud.tencent.com/developer/article/2097943)
 ### 网络：
 1. IP协议的主要功能？
     - 定义了在TCP/IP 互联网上数据传送的基本单元。为克服数据链路层最大帧长的限制，提供数据分段和重组的功能。
@@ -152,6 +166,14 @@ thumbnailImage: /images/thumbnail/interview.jpg
    - 在上游生产者，控制发送缓冲区为1，强制按顺序发送。在下游消费者，使用单一消费者，按顺序处理。或者通过控制ID（hash），让同一系列消息进入同一个队列和消费者。
    - 另外也可以通过服务内进行重排序。
    - 也要注意幂等，以免重复消费。
+3. kafka和rocketmq的选型原因？
+   - kafka是生产者、消费者、Kafka集群（Broker），基于Topic和Partition。每个Topic可以有多个Partition，一个Partition就是一个文件夹。Partition会在多个Broker节点上复制（形成replica），保证数据一致性和高可用。
+   - RocketMQ架构稍微复杂，有NameServer集群（管理Broker）、Broker、生产者/消费者。Nameserver负责服务注册和发现。RocketMQ也是基于Topic和Partition的数据模型（叫做MessageQueue），但它采用了一种主从复制的机制，确保了数据的高可用性和容错性。
+   - Kafka吞吐量更高、RocketMQ延迟稍低。RocketMQ通过采用Zero Copy技术和缓存池技术来降低延迟，而Kafka则通过批量发送和异步处理的方式来提高吞吐量，但相应的会增加一定的延迟。而且RocketMQ是有推送模式的（虽然是包装了pull的本地线程），也会稍微降低延迟。
+   - Kafka使用分布式协调机制，确保消息在生产者/消费者之间的顺序，RocketMQ则需要Producer进行消息排序，一定程度上影响性能。
+   - Kafka消息事务不如RocketMQ。Kafka的消息事务需要自行实现。而RocketMQ应用本地事务和发送消息操作可以被定义到全局事务中
+   - Kafka的topic/partition模型，会导致其不适合于过多topic的场合。顺序读写会变成随机读写。RocketMQ更适合此类场景。RocketMQ采用的是混合型的存储结构，即为Broker单个实例下所有的队列共用一个日志数据文件（即为CommitLog）来存储。而Kafka采用的是独立型的存储结构，每个队列一个文件。单一的混合日志文件并不能降低延迟。RocketMQ的具体做法是，使用Broker端的后台服务线程ReputMessageService不停地分发请求并异步构建ConsumeQueue（逻辑消费队列）和IndexFile（索引文件）数据。对于这两个文件再进一步使用PageCache和MMap文件映射，提高响应速度。
+   - 参考[kafka和rocketmq区别对比](https://www.cnblogs.com/liran123/p/17362481.html)、[RocketMQ核心原理](https://segmentfault.com/a/1190000040922513)
 ### 操作系统：
 1. 什么是进程优先级反转？
    - 高、中、低优先级在高等待低时，出现的中先运行的情况，解决方法：优先级继承，高等待低时，将低优先级提高优先级，先执行，之后再恢复；优先级天花板：当进程申请某项共享资源时，都直接默认将所有可以访问到该资源的任务优先级提到最高，简单粗暴，等执行结束再恢复。

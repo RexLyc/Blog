@@ -106,6 +106,10 @@ thumbnailImage: /images/thumbnail/interview.jpg
   - 使用@Resource替换，或者使用@RequiredArgsConstructor构造器方式注入。不推荐Autowired的主要原因是属性注入会有一些问题。首先是在构造器中注入未完成，无法使用；其次是添加注解太简单会导致某个类异常庞大，说明设计上有所欠缺；属性注解会造成类不能通过反射创建，必须强依赖容器，在spring容器之外无法使用。
   - 推荐用法就是强制依赖就用构造器方式，可选、可变的依赖就用setter注入
   - 参考[@Autowired依赖注入为啥不推荐了](https://cloud.tencent.com/developer/article/2097943)
+1. JVM大对象分配位置，如果survivor区不够了怎么办，什么是分配担保
+  - 受GC算法影响，在Parallel New和Serial中有参数-XX:PretenureSizeThreshold，超过的大对象将直接分配在老年代
+  - survivor区不够了由老年代进行分配担保，即将超出的存活对象，移动到老年代
+  - 分配担保是MinorGC和FullGC进行取舍时的一个概念，如果GC前发现新生代的已用内存总数大于老年代剩余连续空闲内存，那么这一次GC是有风险的，如果存在需要分配担保的情况，将数据移动到老年代，老年代也可能发生空间不足。因此在这种情况下，可能会使用FullGC来确保空间足够。
 ### 网络：
 1. IP协议的主要功能？
     - 定义了在TCP/IP 互联网上数据传送的基本单元。为克服数据链路层最大帧长的限制，提供数据分段和重组的功能。

@@ -143,6 +143,11 @@ thumbnailImage: /images/thumbnail/interview.jpg
   - XA：XA 协议是由 X/Open 组织提出的基于2PC、3PC模式的分布式事务处理规范。规范了术语，AP应用程序、TM事务管理器、RM资源管理器、CRM通信资源管理器如中间件。
   - TCC：Try-Confirm-Cancel，TCC是基于BASE理论。XA的两阶段提交是基于资源层面的，而 TCC 也是一种两阶段提交，但它是基于应用层面的。业务服务需要提供try、confirm、cancel，业务侵入性强。而且confirm、cancel必须做幂等接口，以防止重复操作问题。由于是业务实现，每个Try都是业务独立完成本地事务，因此不会对资源一直加锁。
   - 参考[分布式事务笔记(XA,TCC,Saga)](https://www.vimiix.com/posts/2021-12-21-learn-distributed-transaction/)
+2. 秒杀系统中的超卖问题如何解决
+  - 基本的思路就是通过层层限流（要尽量保证公平，根据用户信息做风控），保证最后只有少量请求能真正拿到令牌，进入到尝试读写库的环境
+  - 将库存数据前移，分散到多个redis中，下单时预减库存，并配合延迟消息队列，判断是否支付以决定是否需要恢复库存。使用redis提供的锁（set指令），对redis内的库存数据进行扣减，扣减成功的才能提交订单到MySQL和消息队列中。并由下游的支付等模块继续处理。
+  - 参考[电商系统如何防止超卖？ - 苏三说技术的回答 - 知乎](https://www.zhihu.com/question/402246926/answer/2453352059)、[【双十一】我教女票做秒杀](https://mp.weixin.qq.com/s/6i00Qpv9lD6PcyAZQCJbyw)
+
 ### 数据库
 1. 聚簇索引优势在哪儿？辅助索引为什么使用主键作为值域？
    - 由于行数据和叶子节点存储在一起，这样主键和行数据是一起被载入内存的，找到叶子节点就可以立刻将行数据返回了，如果按照主键Id来组织数据，获得数据更快。
@@ -170,12 +175,15 @@ thumbnailImage: /images/thumbnail/interview.jpg
    - 集群模式：官方实现的高可用方案，Redis Cluster + Master + Slave。是一种去中心化模式。支持动态扩容，Cluster具备哨兵和主从切换（故障转移）能力。但相对运维复杂，只能用0号数据库。另外Redis Cluster最强大的地方是，扩充了写入的能力。哨兵模式中仍然是只有一个主库可以写入。而Redis Cluster通过引入代理，将key分到不同的槽，并映射到具体的Redis服务器上。由此提高了整体的写入能力。
 8. Redis的主从同步延迟如何解决
    - 使用info指令监控主从同步情况，或者使用另外的客户端监控。在必要的时候发出警报，增加网络带宽，增加主从同步线程，换更强的电脑。
-9. Redis支持事务码？
+9. Redis支持事务吗？
    - 支持，但是不是传统意义上的事务。它的事务支持隔离性（事务执行期间不会被其他指令打断）。但并不保证持久性（显然）、一致性（因为没有回滚机制，执行前后的数据状态可能被打破）以及原子性。
    - Redis的事务由multi指令开启，插入多个指令，并由exec执行。本质上是将多个指令传递给Redis中的事务指令队列，并由exec通知服务器执行。
    - 提交指令如果有静态问题，则exec会直接失败，拒绝执行。提交的指令如果在运行期报错（内存、错误的指令和key等），则该条失败，但仍会继续执行。也正因如此，并不保证原子性，一批事务指令，可能部分成功。
    - 使用WATCH能一定程度上加强事务的安全性。在执行exec之前，如果watch的key发生变化，则该事务不再执行。
-   - 参考[不支持原子性的 Redis 事务也叫事务吗？](https://cloud.tencent.com/developer/article/1692842)
+   - 如果对修改有一些特殊的需要，还可以使用Redis + Lua的方式来实现原子指令，当然这个事务的原子性也是值得思考的（看你自己的Lua脚本了）。
+   - 参考[不支持原子性的 Redis 事务也叫事务吗？](https://cloud.tencent.com/developer/article/1692842)、[Redis中的原子操作(2)-redis中使用Lua脚本保证命令原子性 ](https://www.cnblogs.com/ricklz/p/16349508.html)
+10. 说一下MySQL的高可用架构
+  - 参考[MySQL高可用]({{<relref "/content/post/ProgramDesign/design-distribution.md#MySQL">}})
 ### 其他中间件：
 1. kafka为什么读写性能可以很高？
    - pagecache的原理。按照4k一个page的方式组织buffer cache，每一个buffer cache是实际指向磁盘的一个block了，cache提高性能的方式靠预读，第一次读miss会同步读取后面的几个block，第二次读取如果没miss，那么继续异步读取后面的block（扩大一倍），第二次读取如果miss，重复同步读取（说明现在是一个随机存取的情况）

@@ -47,9 +47,14 @@ draft: true
    1. parameter server：[参数服务器](https://cloud.tencent.com/developer/article/1694537)
 5. 如何满足实时性要求，比如10w qps
 
+## 术语
+1. 协同过滤：基于用户特征的（推送有相同爱好的用户的物品）、基于物品特征的（推送和当前物品相关的物品）
+2. 冷启动：新用户、新物品
+3. 
+
 ## 核心
 ### Parameter Server
-参考：[深入浅出之「Parameter Server」架构](https://cloud.tencent.com/developer/article/1694537)
+参考：[深入浅出之「Parameter Server」架构](https://cloud.tencent.com/developer/article/1694537)、[Bilibili 分布式机器学习系统: Parameter Server 设计](https://www.bilibili.com/video/BV1vY4y1r71u)
 
 ## 优化点
 ### 索引
@@ -61,7 +66,12 @@ draft: true
 ## 其他
 ### 分层A/B实验
 
-
+## 应用场景
+1. 什么时候需要推荐系统？
+   1. 用户缺乏明确目的
+   2. 长尾信息缺少流量
+   > 相反，很强的工具属性的软件，就不一定需要做推荐系统
+2. 
 
 ## 参考
 1. [知乎-卢新来：​倒排索引](https://zhuanlan.zhihu.com/p/338487179)
@@ -69,3 +79,4 @@ draft: true
 3. [B站强推！王树森老师亲授推荐系统！](https://www.bilibili.com/video/BV1jh411A7WZ)
 4. [百亿数据，毫秒级返回，如何设计？--浅谈实时索引构建之道](https://www.cnblogs.com/xiekun/p/14613073.html)
 5. [美团广告实时索引的设计与实现](https://tech.meituan.com/2018/05/11/adp-rtidx-ls.html)
+6. [智能后端和架构-推荐系统](https://www.yijiyong.com/ac/rsintro/01-intro.html)

@@ -106,6 +106,7 @@ thumbnailImage: /images/thumbnail/interview.jpg
   - 使用@Resource替换，或者使用@RequiredArgsConstructor构造器方式注入。不推荐Autowired的主要原因是属性注入会有一些问题。首先是在构造器中注入未完成，无法使用；其次是添加注解太简单会导致某个类异常庞大，说明设计上有所欠缺；属性注解会造成类不能通过反射创建，必须强依赖容器，在spring容器之外无法使用。
   - 推荐用法就是强制依赖就用构造器方式，可选、可变的依赖就用setter注入
   - 参考[@Autowired依赖注入为啥不推荐了](https://cloud.tencent.com/developer/article/2097943)
+3. 
 ### 网络：
 1. IP协议的主要功能？
     - 定义了在TCP/IP 互联网上数据传送的基本单元。为克服数据链路层最大帧长的限制，提供数据分段和重组的功能。
@@ -133,7 +134,12 @@ thumbnailImage: /images/thumbnail/interview.jpg
   - 参考[技术文章摘抄-服务治理](https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/Netty%20%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86%E5%89%96%E6%9E%90%E4%B8%8E%20RPC%20%E5%AE%9E%E8%B7%B5-%E5%AE%8C/26%20%20%E6%9C%8D%E5%8A%A1%E6%B2%BB%E7%90%86%EF%BC%9A%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%E4%B8%8E%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E6%9C%BA%E5%88%B6%E7%9A%84%E5%AE%9E%E7%8E%B0.md)
   - 在微服务架构中的负载均衡是指服务消费者在发起 RPC 调用之前，需要感知有多少服务端节点可用，然后从中选取一个进行调用。有多种负载均衡策略，Round-Robin 轮询、Weighted Round-Robin 权重轮询、Least Connections 最少连接数、Consistent Hash 一致性 Hash 等。这里以[一致性Hash](https://www.xiaolincoding.com/os/8_network_system/hash.html)为例。服务器可以选择 IP + Port 进行 Hash。所谓的一致哈希，就是使用了更大的模（比如2^32），这样所有的节点（消费者和生产者）都位于一个环上。每个消费者寻找在环上的下一个服务器即可。同时为了更好的均衡各个服务器之间的连接数量，还会在哈希环上添加若干虚拟服务节点（比如一个物理节点扩充3个虚拟节点），来避免不均衡。
   > 不使用普通哈希是因为，普通的哈希，如果模数就是节点数的话，一旦服务器节点数量变化，连接全部会断，最糟糕的情况下会发生数据迁移。降低了性能
-
+1. 分布式事务有哪些实现方式？
+  - 2PC：两阶段事务，事务准备和事务提交，事务协调者询问所有资源提供者，能否进行某个事务，得到肯定后开始向所有资源提供者发起提交。问题是在准备期长时间锁定资源、协调者单点故障可能导致事务永久上锁、第二阶段可能出现某次rollback/commit失败导致数据不一致。
+  - 3PC：三阶段事务。协调者和参与者引入超时机制。并将准备阶段进一步细分为，canCommit（是否具备执行事务）和preCommit阶段。但是仍然有第三阶段rollback部分节点未收到的数据不一致问题。
+  - XA：XA 协议是由 X/Open 组织提出的基于2PC、3PC模式的分布式事务处理规范。规范了术语，AP应用程序、TM事务管理器、RM资源管理器、CRM通信资源管理器如中间件。
+  - TCC：Try-Confirm-Cancel，TCC是基于BASE理论。XA的两阶段提交是基于资源层面的，而 TCC 也是一种两阶段提交，但它是基于应用层面的。业务服务需要提供try、confirm、cancel，业务侵入性强。而且confirm、cancel必须做幂等接口，以防止重复操作问题。由于是业务实现，每个Try都是业务独立完成本地事务，因此不会对资源一直加锁。
+  - 参考[分布式事务笔记(XA,TCC,Saga)](https://www.vimiix.com/posts/2021-12-21-learn-distributed-transaction/)
 ### 数据库
 1. 聚簇索引优势在哪儿？辅助索引为什么使用主键作为值域？
    - 由于行数据和叶子节点存储在一起，这样主键和行数据是一起被载入内存的，找到叶子节点就可以立刻将行数据返回了，如果按照主键Id来组织数据，获得数据更快。
@@ -158,7 +164,15 @@ thumbnailImage: /images/thumbnail/interview.jpg
 7. redis有那些部署模式，有什么区别？
    - 主从模式（需要主从同步），一般读写分离
    - 哨兵模式，在主从模式中，主节点的健康情况，需要引入额外的设计来确保，哨兵模式下增加了一个哨兵集群，用于检测主节点健康，并负责主节点选举。哨兵节点也会主动发送info魔灵来获取最新的Redis集群拓扑结构。
-   - 集群模式：官方实现的高可用方案，Redis Cluster + Master + Slave。是一种去中心化模式。支持动态扩容，Cluster具备哨兵和主从切换（故障转移）能力。但相对运维复杂，只能用0号数据库。
+   - 集群模式：官方实现的高可用方案，Redis Cluster + Master + Slave。是一种去中心化模式。支持动态扩容，Cluster具备哨兵和主从切换（故障转移）能力。但相对运维复杂，只能用0号数据库。另外Redis Cluster最强大的地方是，扩充了写入的能力。哨兵模式中仍然是只有一个主库可以写入。而Redis Cluster通过引入代理，将key分到不同的槽，并映射到具体的Redis服务器上。由此提高了整体的写入能力。
+8. Redis的主从同步延迟如何解决
+   - 使用info指令监控主从同步情况，或者使用另外的客户端监控。在必要的时候发出警报，增加网络带宽，增加主从同步线程，换更强的电脑。
+9. Redis支持事务码？
+   - 支持，但是不是传统意义上的事务。它的事务支持隔离性（事务执行期间不会被其他指令打断）。但并不保证持久性（显然）、一致性（因为没有回滚机制，执行前后的数据状态可能被打破）以及原子性。
+   - Redis的事务由multi指令开启，插入多个指令，并由exec执行。本质上是将多个指令传递给Redis中的事务指令队列，并由exec通知服务器执行。
+   - 提交指令如果有静态问题，则exec会直接失败，拒绝执行。提交的指令如果在运行期报错（内存、错误的指令和key等），则该条失败，但仍会继续执行。也正因如此，并不保证原子性，一批事务指令，可能部分成功。
+   - 使用WATCH能一定程度上加强事务的安全性。在执行exec之前，如果watch的key发生变化，则该事务不再执行。
+   - 参考[不支持原子性的 Redis 事务也叫事务吗？](https://cloud.tencent.com/developer/article/1692842)
 ### 其他中间件：
 1. kafka为什么读写性能可以很高？
    - pagecache的原理。按照4k一个page的方式组织buffer cache，每一个buffer cache是实际指向磁盘的一个block了，cache提高性能的方式靠预读，第一次读miss会同步读取后面的几个block，第二次读取如果没miss，那么继续异步读取后面的block（扩大一倍），第二次读取如果miss，重复同步读取（说明现在是一个随机存取的情况）
@@ -172,8 +186,16 @@ thumbnailImage: /images/thumbnail/interview.jpg
    - Kafka吞吐量更高、RocketMQ延迟稍低。RocketMQ通过采用Zero Copy技术和缓存池技术来降低延迟，而Kafka则通过批量发送和异步处理的方式来提高吞吐量，但相应的会增加一定的延迟。而且RocketMQ是有推送模式的（虽然是包装了pull的本地线程），也会稍微降低延迟。
    - Kafka使用分布式协调机制，确保消息在生产者/消费者之间的顺序，RocketMQ则需要Producer进行消息排序，一定程度上影响性能。
    - Kafka消息事务不如RocketMQ。Kafka的消息事务需要自行实现。而RocketMQ应用本地事务和发送消息操作可以被定义到全局事务中
-   - Kafka的topic/partition模型，会导致其不适合于过多topic的场合。顺序读写会变成随机读写。RocketMQ更适合此类场景。RocketMQ采用的是混合型的存储结构，即为Broker单个实例下所有的队列共用一个日志数据文件（即为CommitLog）来存储。而Kafka采用的是独立型的存储结构，每个队列一个文件。单一的混合日志文件并不能降低延迟。RocketMQ的具体做法是，使用Broker端的后台服务线程ReputMessageService不停地分发请求并异步构建ConsumeQueue（逻辑消费队列）和IndexFile（索引文件）数据。对于这两个文件再进一步使用PageCache和MMap文件映射，提高响应速度。
-   - 参考[kafka和rocketmq区别对比](https://www.cnblogs.com/liran123/p/17362481.html)、[RocketMQ核心原理](https://segmentfault.com/a/1190000040922513)
+   - Kafka的topic/partition模型，会导致其不适合于过多topic的场合。顺序读写会变成随机读写。RocketMQ更适合此类场景。RocketMQ采用的是混合型的存储结构，即为Broker单个实例下所有的队列共用一个日志数据文件（即为CommitLog）来存储。而Kafka采用的是独立型的存储结构，每个队列一个文件。单一的混合日志文件并不能降低延迟。RocketMQ的具体做法是，使用Broker端的后台服务线程ReputMessageService不停地分发请求并异步构建ConsumeQueue（逻辑消费队列）和IndexFile（索引文件）数据（虽然是随机，但是随机批量读取是好于Kafka的随机写入的）。ConsumeQueue是消息的逻辑队列，相当于字典的目录，用来指定消息在物理文件commitLog上的位置。其中包含了这个MessageQueue在CommitLog中的起始物理位置偏移量offset，消息实体内容的大小和Message Tag的哈希值。对于这两个文件再进一步使用PageCache和MMap文件映射，提高响应速度。
+   - 参考[kafka和rocketmq区别对比](https://www.cnblogs.com/liran123/p/17362481.html)、[RocketMQ核心原理](https://segmentfault.com/a/1190000040922513)、[RocketMQ的消息存储基本介绍](https://www.cnblogs.com/duanxz/p/5020398.html)
+4. RocketMQ的消费顺序一致性如何保证：
+  - 生产侧：在提交时有一个MessageQueueSelector，输入是可用MessageQueue，投递消息和附加参数，可以根据需要实现相应的逻辑，返回想要投递的MessageQueue。对于需要保持顺序性的业务消息，可以通过Hash等方式，将他们分配到同一个MessageQueue。
+  - 消费侧：广播模式（一个消息投递到多个消费者）、集群模式（一个消息最多投递到一个消费者）。集群模式中通过AllocateMessageQueueStrategy接口，对于给定的消费者分组、消息队列列表、消费者列表，决定消费者和消费队列的对应关系。
+  - 参考[《深入理解RocketMQ》- MQ消息的投递机制](https://cloud.tencent.com/developer/article/1443812)
+  > 在不需要考虑顺序性的情况下，可以做很多优化，比如选择就近的机房，选择延迟最低的消费者、MessageQueue。
+1. 什么是RocketMQ支持的事务消息？
+  - 在一些应用场景下，生产者向消息队列上传消息也需要引入一个事务，此时可以提交一个半提交消息，并继续完成一些本地事务，如果本地事务成功，则正式提交消息，允许下游消费
+  - 参考[RocketMQ官方文档：事务消息](https://rocketmq.apache.org/zh/docs/featureBehavior/04transactionmessage)
 ### 操作系统：
 1. 什么是进程优先级反转？
    - 高、中、低优先级在高等待低时，出现的中先运行的情况，解决方法：优先级继承，高等待低时，将低优先级提高优先级，先执行，之后再恢复；优先级天花板：当进程申请某项共享资源时，都直接默认将所有可以访问到该资源的任务优先级提到最高，简单粗暴，等执行结束再恢复。
@@ -192,7 +214,7 @@ thumbnailImage: /images/thumbnail/interview.jpg
    - select和poll比较接近，只是使用的描述符表结构不太一样，支持的数量有差别，fd_set / pollfd，而且每一次调用select需要把fd_set拷贝到内核空间。
    - epoll更高端，开辟一段事件空间。使用epoll_ctl注册对应的文件事件的回调，将可以交给用户处理的放入ready队列。epoll_wait内取出一个可用的，并使用内存映射mmap拷贝到用户空间。
 7. CAS的原理？是悲观锁还是乐观锁？
-   - 通过CPU的CAS指令、内存总线锁、缓存锁共同保证
+   - 通过CPU的CAS指令、内存总线锁、缓存锁MESI协议共同保证
    - 是乐观锁
 8. 内核对象资源是什么？
    - 操作系统内核需要维护的一些对象，比如进程、线程、信号量、文件描述符，这些内容可能在不同的内核模块、用户进程中都有引用，内核使用引用计数来维护，当计数归0才会将其删除。
@@ -249,6 +271,9 @@ thumbnailImage: /images/thumbnail/interview.jpg
     - 常见的并行计算模型有：BSP、PRAM、LogP、C3、BDM
 5. 什么是熔断、限流、降级？
     - 参考[10张图带你彻底搞懂限流、熔断、服务降级](https://cloud.tencent.com/developer/article/1815254)。简单来说，限流是为了避免流量超过服务能力带来崩溃，主动进行的对流量速率加以控制的方法。熔断则是发现错误状态下，避免服务异常，比如发现某个下游服务异常，超过一定数值，就应该断开对该服务的访问。降级则是更高层的系统设计角度，在服务发生任何异常的时候，配置的一些处理策略，比如被限流时、被熔断时，以及当系统检测到服务压力，主动关闭一些非核心功能的情况。可以说限流和熔断都是降级的一种手段。
+6. 谈谈悲观锁和乐观锁
+  - 在不同的领域中，悲观锁和乐观锁有不同的含义。在操作系统层面，CAS代表乐观锁，可以短暂等待获得，悲观锁则是常规的重量级锁
+  - 在分布式系统中，乐观锁则是指每次都尝试修改，在提交时可以通过对比快照数据，来确定是否能够提交。而悲观锁则是每次都一定要锁定再修改。
     
 ## 非专业内容考察
 1. 兴趣爱好

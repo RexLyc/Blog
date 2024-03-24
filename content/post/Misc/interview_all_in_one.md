@@ -110,7 +110,7 @@ thumbnailImage: /images/thumbnail/interview.jpg
   - 受GC算法影响，在Parallel New和Serial中有参数-XX:PretenureSizeThreshold，超过的大对象将直接分配在老年代
   - survivor区不够了由老年代进行分配担保，即将超出的存活对象，移动到老年代
   - 分配担保是MinorGC和FullGC进行取舍时的一个概念，如果GC前发现新生代的已用内存总数大于老年代剩余连续空闲内存，那么这一次GC是有风险的，如果存在需要分配担保的情况，将数据移动到老年代，老年代也可能发生空间不足。因此在这种情况下，可能会使用FullGC来确保空间足够。
-### 网络：
+### 网络
 1. IP协议的主要功能？
     - 定义了在TCP/IP 互联网上数据传送的基本单元。为克服数据链路层最大帧长的限制，提供数据分段和重组的功能。
     - 提供用于寻址的标志，寻找网络中每个主机，完成路由选择功能。
@@ -224,13 +224,19 @@ thumbnailImage: /images/thumbnail/interview.jpg
 6. select、poll、epoll的区别？
    - select和poll比较接近，只是使用的描述符表结构不太一样，支持的数量有差别，fd_set / pollfd，而且每一次调用select需要把fd_set拷贝到内核空间。
    - epoll更高端，开辟一段事件空间。使用epoll_ctl注册对应的文件事件的回调，将可以交给用户处理的放入ready队列。epoll_wait内取出一个可用的，并使用内存映射mmap拷贝到用户空间。
-7. CAS的原理？是悲观锁还是乐观锁？
-   - 通过CPU的CAS指令、内存总线锁、缓存锁MESI协议共同保证
-   - 是乐观锁
-8. 内核对象资源是什么？
+7. CAS的原理？是悲观锁还是乐观锁？二者优缺点
+   - 通过CPU的CAS指令、内存总线锁、缓存锁MESI协议共同保证。是乐观锁
+   - 无法解决ABA问题，自旋时有CPU开销，只能保障单个变量
+1. 内核对象资源是什么？
    - 操作系统内核需要维护的一些对象，比如进程、线程、信号量、文件描述符，这些内容可能在不同的内核模块、用户进程中都有引用，内核使用引用计数来维护，当计数归0才会将其删除。
-9. 什么时候会发生栈溢出？
+2. 什么时候会发生栈溢出？
    - 局部数组过大、递归层数过多、指针/数组越界。
+3. 硬链接和软连接的区别
+  - 硬链接是创建新的目录项指向同一个文件的inode
+  - 软链接是创建新的inode，指向一个保存目标文件路径的文件
+1. 页表存储在用户空间还是内核空间，在使用时是否需要陷入内核态
+  - 存储在内核空间，但是普通的访问由MMU硬件完成，不需要陷入内核态，只有缺页中断时需要陷入
+  - 参考[知乎：页表到底是保存在内核空间中还是用户空间中？](https://www.zhihu.com/question/493153133)
 ### 数据结构：
 1. 散列冲突如何解决？
    - 链表法、开放寻址法（在碰撞位置向后按一定规则寻找一个空闲单元，主要的问题是删除的时候需要特殊处理，不能直接删）、再散列（碰撞时换用另一个散列函数，直到不再冲突）
@@ -298,6 +304,7 @@ thumbnailImage: /images/thumbnail/interview.jpg
 
 ## 推荐阅读
 1. [Github32k⭐ C/C++ 技术面试基础知识总结](https://github.com/huihut/interview)
+1. [小林Coding-图解计算机基础](https://xiaolincoding.com/)
 
 ## 参考
 1. [知乎：后端都要学习什么？](https://www.zhihu.com/question/24952874/answer/518162706)
@@ -326,3 +333,4 @@ thumbnailImage: /images/thumbnail/interview.jpg
 3. [C++LinuxWebServer 2w7k的面经长文(上)](https://blog.csdn.net/qq_37457202/article/details/129790945)
 4. [C++LinuxWebServer 2w7k的面经长文(上)](https://ydlin.blog.csdn.net/article/details/129791171)
 5. [知乎-卢新来：高并发的一些总结](https://zhuanlan.zhihu.com/p/91168955)
+6. [Leetcode——C++突击面试](https://blog.csdn.net/luanfenlian0992/article/details/118771472)

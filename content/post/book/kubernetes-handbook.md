@@ -251,6 +251,10 @@ Controller 可以创建和管理多个 Pod，提供副本管理、滚动升级�
 ## 插件
 Kubernetes灵活的一点就是支持非常多的插件。
 
+
+## 附属内容
+Istio
+
 ## 参考
 1. [Kubernetes 基础教程](https://lib.jimmysong.io/kubernetes-handbook/)
 2. [Kubernetes 官方中文文档](https://kubernetes.io/zh-cn/docs/home/)

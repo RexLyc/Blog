@@ -7,8 +7,8 @@ categories:
 tags:
 - C++
 - 读书笔记
-# thumbnailImagePosition: left
-# thumbnailImage: //example.com/image.jpg
+thumbnailImagePosition: left
+thumbnailImage: /images/thumbnail/book/CppTemplate2nd.jpg
 draft: true
 
 ---

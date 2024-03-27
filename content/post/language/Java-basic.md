@@ -11,6 +11,15 @@ thumbnailImage: /images/thumbnail/java.jpg
 ---
 本文总结一些常见的较为特别的Java基础要点
 <!--more-->
+## Jar包结构
+参考[一文读懂jar包的小秘密](http://www.flydean.com/java-jar-in-detail/)
+一般来说有三个大类
+1. META-INF目录：从名字看也知道，是记录了各类元信息的目录
+2. class：存放字节码的目录
+3. BOOT-INFO目录：Spring Boot应用程序从Boot-INF文件夹加载。
+3. 资源文件目录
+
+
 ## 类型大小
 1. 基本类型不再复述，记得char是两个字节
 1. 类类型的大小分为四个部分：
@@ -34,14 +43,89 @@ thumbnailImage: /images/thumbnail/java.jpg
     ```
 ## 反射
 1. ```Method```：保存，并可以调用从Class中获取到的函数
-```java
-List<String> myList = new ArrayList<>();
-Method method 
-    = myList.getClass().getDeclaredMethod("add", Object.class);
-method.invoke(myList, "ok");
-// 通过Method绕过类型擦除限制
-method.invoke(myList, 233);
-```
+    ```java
+    List<String> myList = new ArrayList<>();
+    Method method 
+        = myList.getClass().getDeclaredMethod("add", Object.class);
+    method.invoke(myList, "ok");
+    // 通过Method绕过类型擦除限制
+    method.invoke(myList, 233);
+    ```
+
+1. 基于反射、接口的动态代理：动态代理是Java中非常重要的特性之一。动态代理能支持对所有实现了同一个接口的类型，完成加载，代理对象的创建。参考[为什么JDK动态代理只能代理接口，不能直接代理类？CGlib为什么可以代理类？](https://blog.csdn.net/lx1315998513/article/details/120641124)。下面摘抄这种情况的一个用例。
+    ```java
+    // 接口
+    public interface UserService {
+        String query();
+    }
+
+    // 实现类
+    public class UserServiceImpl implements UserService{
+        
+        @Override
+        public String query() {
+            System.out.println("query");
+            return null;
+        }
+    }
+
+    // 动态代理
+    public class UserServiceInvocationHandler implements InvocationHandler {
+        private Object target;
+
+        public UserServiceInvocationHandler(Object target) {
+            this.target = target;
+        }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            System.out.println("invocation handler");
+            // 通过反射调用目标对象的方法
+            return method.invoke(target, args);
+        }
+    }
+
+    public class MainApplication {
+
+        public static void main(String[] args) {
+            // 指明一个类加载器，要操作class文件，怎么少得了类加载器呢
+            ClassLoader classLoader = MainApplication.class.getClassLoader();
+            // 为代理对象指定要是实现哪些接口，这里我们要为UserServiceImpl这个目标对象创建动态代理，所以需要为代理对象指定实现UserService接口
+            Class[] classes = new Class[]{UserService.class};
+            // 初始化一个InvocationHandler，并初始化InvocationHandler中的目标对象
+            InvocationHandler invocationHandler = new UserServiceInvocationHandler(new UserServiceImpl());
+            // 创建动态代理
+            UserService userService = (UserService) Proxy.newProxyInstance(classLoader, classes, invocationHandler);
+            // 执行代理对象的方法，通过观察控制台的结果，判断我们是否对目标对象(UserServiceImpl)的方法进行了增强
+            userService.query();
+        }
+    }
+    ```
+    上文中的```userService```就是代理对象，该对象的动态类型实际上并不是UserService，而是实现了UserService接口，同时也继承了Proxy类型的一个类型的对象。```class Proxy0 extends Proxy implements UserService```。这一步是运行时生成的，所以称为动态代理。正是因为Java只允许单继承，所以这里的被代理类型，必须是一个实现了某个接口的类型。
+
+## 类加载
+和其他语言不通，Java从基础上就提供了对类型的运行期加载机制。这个机制就像C/C++语言中，动态链接一样的重要且常见。参考[JVM 基础 - Java 类加载机制](https://pdai.tech/md/java/jvm/java-jvm-classload.html)、[JDK8以后废弃扩展类加载器的原因](https://blog.csdn.net/qq_38003038/article/details/122733985)、[搞定JVM面试之JVM 类加载器](https://snailclimb.gitee.io/2019/08/25/java/jvm/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/)
+
+1. 类的加载: 查找并加载类的二进制数据。
+2. 验证: 确保被加载的类的正确性。文件格式、魔数、版本、字节码语义分析、字节码验证、引用验证。验证可以关闭。
+3. 准备: 为类的静态变量分配内存，并将其初始化为默认值
+4. 解析: 把类中的符号引用转换为直接引用。类似于重定位。
+5. 初始化：为类的静态变量赋予正确的初始值，执行初始化块。这一过程会推迟到类被真正主动使用。
+
+目前加载器有四个层级：
+1. 系统级Bootstrap，负责调用rt.jar，由于是C++编写，因此无法在Java内打印得到该加载器
+2. 扩展（<=1.8）/ 平台级Platform（>1.8）：负责加载各种jar包，扩展java能力
+3. 应用程序App：负责加载```$CLASSPATH```下的所有jar
+4. 用户自定义
+
+加载的入口有三种：启动时JVM加载、```Class.forName()```、```ClassLoader.loadClass()```。
+
+加载机制有四种：
+1. 全盘负责，当一个类加载器负责加载某个Class时，该Class所依赖的和引用的其他Class也将由该类加载器负责载入，除非显示使用另外一个类加载器来载入
+2. 父类委托，先让父类加载器试图加载该类，只有在父类加载器无法加载该类时才尝试从自己的类路径中加载该类
+3. 缓存机制，缓存机制将会保证所有加载过的Class都会被缓存，当程序中需要使用某个Class时，类加载器先从缓存区寻找该Class，只有缓存区不存在，系统才会读取该类对应的二进制数据，并将其转换成Class对象，存入缓存区。这就是为什么修改了Class后，必须重启JVM，程序的修改才会生效
+4. 双亲委派机制, 如果一个类加载器收到了类加载的请求，它首先不会自己去尝试加载这个类，而是把请求委托给父加载器去完成，依次向上，因此，所有的类加载请求最终都应该被传递到顶层的启动类加载器中，只有当父加载器在它的搜索范围中没有找到所需的类时，即无法完成该加载，子加载器才会尝试自己去加载该类。
+    > 类似C/C++的动态库搜索。使用双亲委派机制，会优先查找更高级别的jar包，最后才是当前应用的```$CLASSPATH```。避免出现重复字节码。也保证了 Java 的核心 API 不被篡改。
 
 ## 泛型
 1. Java的泛型和C++的是两种实现方式

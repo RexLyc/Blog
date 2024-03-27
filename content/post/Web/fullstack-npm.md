@@ -91,12 +91,66 @@ Node.JS是基于Chrome V8开发的JS服务器端运行环境，NPM则是Node.JS�
         set ELECTRON_MIRROR="https://npm.taobao.org/mirrors/electron/"
         ```
     1. files设置的打包时所需打包的文件，但是注意路径需要有一些变化。最好是通过from、to的方式指定清楚。
-    1. ASAR文件存在一些限制，这其中最明显的是ASAR是只读的，因此不能将需要运行时修改的文件打包，此时应当使用"asarUnpack"选项，指定不想被打包的文件
+    1. ASAR文件存在一些限制，这其中最明显的是ASAR是只读的，因此不能将需要运行时修改的文件打包，此时应当使用"asarUnpack"选项，指定不想被打包的文件，这种方法主要用于增量更新。
+        > 但此时也存在一些安全性问题，对于js，在必要时可以使用混淆工具进行处理
     1. linux下图标最好使用icns文件指定
     1. linux下以deb包安装会出现权限问题，默认都是root文件，无法进行修改（比如动态调整配置文件）。个人认为最好的办法是将配置文件复制到用户目录下进行使用。
 - 项目文件参考
 ```json
 // package.json
+{
+  "name": "MyApp",
+  "version": "1.0.3",
+  "description": "some description",
+  "homepage": "https://your.home.page",
+  "author": "RexLyc <balabala@mail.com>",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.lyclife.myapp",
+    "productName": "MyApp",
+    "asar": true,
+    "asarUnpack": [
+      "./main.js" // 这里说明main.js在运行时会变更，因此需要从asar中脱离出来
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "ia32"
+          ]
+        }
+      ],
+      "icon": "favicon.png"
+    },
+    "nsis": {
+      "oneClick": true
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "icon.icns"
+    }
+  },
+  "devDependencies": {
+    "electron": "^20.3.8",
+    "electron-builder": "^23.6.0"
+  },
+  "dependencies": {
+    "check-network-status": "^1.2.3"
+  }
+}
+
 ```
 - 参考：
     - [ElectronJS中获取GPU信息](https://www.imangodoc.com/199335.html)
@@ -109,6 +163,7 @@ Node.JS是基于Chrome V8开发的JS服务器端运行环境，NPM则是Node.JS�
     - [Python + Flask + Electron 混合开发入门 (项目演示)](https://blog.csdn.net/Likianta/article/details/89199793)
     - [Electron无法从淘宝镜像下载安装，报错HTTPError Response code 404 (Not Found)的问题](https://juejin.cn/post/7033932629128773669)
     - [高阶篇 01：实现 npm script 跨平台兼容](https://www.kancloud.cn/sllyli/npm-script/1243457)
+    - [Electron跨平台开发指南-更新管理](https://tsejx.github.io/cross-platform-guidebook/electron/application-development/auto-update/)
 ## Node.JS实用总结
 1. 版本变更
 1. 

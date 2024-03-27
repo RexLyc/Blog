@@ -112,6 +112,10 @@ thumbnailImage: /images/thumbnail/interview.jpg
   - 分配担保是MinorGC和FullGC进行取舍时的一个概念，如果GC前发现新生代的已用内存总数大于老年代剩余连续空闲内存，那么这一次GC是有风险的，如果存在需要分配担保的情况，将数据移动到老年代，老年代也可能发生空间不足。因此在这种情况下，可能会使用FullGC来确保空间足够。
 1. Springboot和Spring，和Java传统web开发有什么区别？
   - 参考[Spring Boot 简介？与传统的 Spring 框架有何不同？](https://zhuanlan.zhihu.com/p/631533884)、[javaweb、spring、springmvc和springboot有什么区别？](https://cloud.tencent.com/developer/news/991283)
+1. Spring Boot中的Starter到底是什么。
+  - starter是基于 Spring 已有功能来实现的。首先它提供了一个自动化配置类，一般命名为 XXXAutoConfiguration。
+  - 在这个配置类中通过条件注解来决定一个配置是否生效（条件注解就是Spring 中原本就有的），然后它还会提供一系列的默认配置，也允许开发者根据实际情况自定义相关配置，然后通过类型安全的属性注入将这些配置属性注入进来，新注入的属性会代替掉默认属性。正因为如此，很多第三方框架，我们只需要引入依赖就可以直接使用了。
+  - 
 ### 网络
 1. IP协议的主要功能？
     - 定义了在TCP/IP 互联网上数据传送的基本单元。为克服数据链路层最大帧长的限制，提供数据分段和重组的功能。

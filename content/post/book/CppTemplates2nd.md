@@ -33,9 +33,24 @@ std::common_type_t<class,class>;
 
 // 退化类型
 std::decay_t<class>;
+
+// 成员指针，语法是固定的
+struct C { int m; };
+// 指向作为类 C 的成员的非静态数据成员 m 的指针，能准确地以表达式 &C::m 初始化。
+int C::* p = &C::m;          // 指向类 C 的数据成员 m，必须这样写，而不是&(C::m)
+// 此时可以使用成员指针访问运算符operator.* operator->*的右运算数
+C c = { 7 };
+c.*p = 5;
+C *cp = &c;
+c->*p = 6;
+// 当然，推荐用auto获取
+auto mp = &C::m;
+
 ```
 
 另外注意书中经常使用的写法是```T const&```，而不是```const T&```，前者实际上更符合从右向左念的方式。
+
+本节参考[指针和成员指针](https://zh.cppreference.com/w/cpp/language/pointer)
 
 ## 术语速览
 1. 实例化：用具体类型取代模板类型参数的过程叫做“实例化”。它会产生模板的一个实例。即使是类模板也是这样，类模板的模板成员函数也只有在需要该函数的的时候才会实例化。类模板的static成员也是只在每种类模板实例化后的类，分别实例化一次。
@@ -78,6 +93,10 @@ std::decay_t<class>;
     using MyTypeIterator = typename MyContainerType<T>::iterator;
     ```
 16. 聚合类：特殊的class/struct，没有用户定义的显式的，或者继承而来的构造函数，没有 private 或者 protected 的非静态成员，没有虚函数，没有 virtual，private 或者 protected的基类。表现上就是最传统的C风格struct。聚合类也支持模板化，而且可以用推断指引（也只能用，毕竟没有构造器）的方式，支持模板类型推导。
+17. 剩余参数：变长参数模板中的```Types ... args```。
+18. 函数参数包：形参列表
+19. 模板参数包：模板参数列表
+20. 变参推断指引：在变长参数模板中，对模板参数的推断。
 
 
 ## 模板常用工具
@@ -88,7 +107,66 @@ std::decay_t<class>;
    1. ```template<decltype(auto) N>```，此时非类型模板参数N的类型，会被推导为引用类型。
 
 ### 变长参数模板
+1. 定义在前，使用在后：例如```T ...t```是类型T的变长个参数t，```<typename ..T>```是变长个类型T，使用时（只作为实参传递，无op情况下），```t...```/```T...```。
+    > T和t，在作为变长参数使用时语法是一样的
+3. ```sizeof...()```：注意这是一个固定的写法可以对参数包的类型和参数使用。
+    ```cpp
+    sizeof...(Types)
+    sizeof...(args)
+    ```
+4. 折叠表达式，是变长参数模板中最强大的工具之一，详见[C++可用性优化]({{<relref "/content/post/book/modern-cpp-tutorial.md#可用性优化">}})，下面是一些折叠表达式在模板中的应用
+    ```cpp
+    template<typename T1, typename... TN>
+    constexpr bool isHomogeneous (T1, TN...)
+    {
+        return (std::is_same<T1,TN>::value && ...); // since C++17
+    }
+    ```
+    > 使用折叠表达式的过程中，使用圆括号是一个不错的习惯，可以避免一些语法问题
+5. 变参下标：变长参数可以作为数组下标
+    ```cpp
+    template<typename C, typename... Idx>
+    void printElems (C const& coll, Idx... idx)
+    {
+        print (coll[idx]...);
+    }
 
+    template<std::size_t... Idx, typename C>
+    void printIdx (C const& coll)
+    {
+        print(coll[Idx]...);
+    }
+    ```
+6. 变参类模板，是Tuple、Variant的实现基础
+    ```cpp
+    template<typename... Elements>class Tuple;
+    template<typename... Types>class Variant;
+    ```
+7. 变参基类：继承时可以使用变参定义基类，这在需要继承若干种类型的场景中很有用（下面的例子用来合并一些operator()）
+    ```cpp
+    template<typename... Bases>
+    struct Overloader : Bases...
+    {
+        using Bases::operator()...; // OK since C++17
+    };
+
+    class Customer {};
+    // 假设已经定义仿函数
+    struct CustomerEq {
+        bool operator() (Customer const& c1, Customer const& c2) const {
+            return c1.getName() == c2.getName();
+        }
+    };
+    struct CustomerHash {
+        std::size_t operator() (Customer const& c) const {
+            return std::hash<std::string>()(c.getName());
+        }
+    };
+
+    using CustomerOP = Overloader<CustomerHash,CustomerEq>;
+    // 以前需要填两种类型，现在一个就够（虽然实际上也有两个）
+    std::unordered_set<Customer,CustomerOP,CustomerOP> mySet;
+    ```
 
 ## 非类型模板参数
 C++对非类型模板参数的支持也是日趋完善，这类参数形如。
@@ -96,7 +174,7 @@ C++对非类型模板参数的支持也是日趋完善，这类参数形如。
 template<int Val, typename T>
 T addValue (T x)
 {
-return x + Val;
+    return x + Val;
 }
 
 // 可以替代lambda进行使用
@@ -121,6 +199,7 @@ foo<123>();
 规则
 1. 普通函数允许自动类型转化，函数模板不允许或者有限制（退化）
 2. 决议时只能看到前方已定义的函数和模板
+3. 两个函数模板的区别只在于尾部的参数包时，优先选择没有尾部参数包的，以结束递归。
 
 ### 特殊点
 1. 类型推断并不适用于默认调用参数，需要提供默认模板参数

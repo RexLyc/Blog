@@ -168,6 +168,10 @@ auto mp = &C::m;
     std::unordered_set<Customer,CustomerOP,CustomerOP> mySet;
     ```
 
+## 模板常用技巧
+1. typename：说是技巧，实际上是必须的。对于模板中的类型成员的使用，必须
+
+
 ## 非类型模板参数
 C++对非类型模板参数的支持也是日趋完善，这类参数形如。
 ```cpp

@@ -3,6 +3,7 @@
         "*.cpp": "cpp",
         "vector": "cpp",
         "stack": "cpp",
-        "numeric": "cpp"
+        "numeric": "cpp",
+        "xstring": "cpp"
     }
 }

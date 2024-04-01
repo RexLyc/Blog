@@ -325,6 +325,55 @@ public:
 
 > ToDo：仍然存有疑问，友元函数模板，如何进行函数模板特化？
 
+## 难点
+### 移动语义
+模板的设计中，对移动语义的考虑是非常重要的。其中有两点
+1. 完美转发
+    1. 可变对象被转发之后依然可变。
+    2. Const 对象被转发之后依然是 const 的。
+    2. 可移动对象被转发之后依然是可移动的。
+1. enable_if禁用模板
+
+先来说完美转发，在引入模板之前，如果想要同时支持完美转发的三种情况，必须分别编程。
+```cpp
+class X {};
+// 第一点：底层的支持肯定是单独编程的，由开发者决定三种情况的处理方式
+void g (X&) {
+    std::cout << "g() for variable\n";
+}
+void g (X const&) {
+    std::cout << "g() for constant\n";
+}
+// 这里的X只是一个右值引用
+void g (X&&) {
+    std::cout << "g() for movable object\n";
+}
+
+// 第二点，也是完美转发需要处理的问题，是对这三个操作的包装
+void f (X& val) {
+    g(val);
+}
+void f (X const& val) {
+    g(val);
+}
+void f (X&& val) {
+    g(std::move(val)); // 注意想触发右值引用的重载，必须用move，否则val本身只是一个左值（其内容是一个右值引用）
+}
+
+```
+这显然不够优雅。
+
+模板编程对这种方式的有固定解决办法，也就是被称为完美转发的```forward```，以及模板参数组成的万能引用```T&&```
+```cpp
+template<typename T>
+void f (T&& val) { // 万能引用
+    g(std::forward<T>(val)); // perfect forward val to g()
+}
+```
+
+
+### 元编程
+
 
 ## 设计思路
 1. 传值还是传引用？

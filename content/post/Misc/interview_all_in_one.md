@@ -115,7 +115,12 @@ thumbnailImage: /images/thumbnail/interview.jpg
 1. Spring Boot中的Starter到底是什么。
   - starter是基于 Spring 已有功能来实现的。首先它提供了一个自动化配置类，一般命名为 XXXAutoConfiguration。
   - 在这个配置类中通过条件注解来决定一个配置是否生效（条件注解就是Spring 中原本就有的），然后它还会提供一系列的默认配置，也允许开发者根据实际情况自定义相关配置，然后通过类型安全的属性注入将这些配置属性注入进来，新注入的属性会代替掉默认属性。正因为如此，很多第三方框架，我们只需要引入依赖就可以直接使用了。
-  - 
+1. 什么是 JavaConfig？
+  - Spring JavaConfig 是 Spring 社区的产品，它提供了配置 Spring IoC 容器的纯 Java 方法。因此有助于避免使用 XML 配置。JavaConfig在SpringBoot中被广泛使用。
+1. tomcat、servlet、spring之间的关系？
+  - tomcat是http服务器，提供最基础的监听端口，建立连接，获取请求的功能。具体的业务，需要由满足接口定义的servlet实现。servlet设计上是单实例多线程的。通过web.xml的定义和tomcat进行配合。
+  - springboot内直接集成了tomcat、以及DispatcherServlet。
+  - 参考[Servlet／Tomcat/ Spring 之间的关系](https://www.cnblogs.com/shawshawwan/p/9002126.html)
 ### 网络
 1. IP协议的主要功能？
     - 定义了在TCP/IP 互联网上数据传送的基本单元。为克服数据链路层最大帧长的限制，提供数据分段和重组的功能。

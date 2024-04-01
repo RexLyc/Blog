@@ -97,6 +97,54 @@ auto mp = &C::m;
 18. 函数参数包：形参列表
 19. 模板参数包：模板参数列表
 20. 变参推断指引：在变长参数模板中，对模板参数的推断。
+21. 类型成员：在类中由```typedef```、```using```定义的类型成员。只能用类名域操作符进行使用，```YourClass::TypeMember```。它们不是类实例的成员。
+22. 非依赖基类：非依赖指的是对模板参数非依赖，即不需要知道模板参数就能确定的一种完整的类型定义。注意这里不是说基类的模板，而是说派生类的类模板，它继承的基类，不需要等待派生类的模板参数。例如下面的```D2```。这种基类在大多数情况下的使用和非类模板的基类一样。除了一件事情，就是对于无作用域限定的名称的查找，会优先查找基类中的定义，而不是模板参数。这也说明了，基类的实例化早于派生类的实例化，因此在对派生类内的符号进行确定时，才会优先使用基类。这个类型查找的优先顺序无法被改变，也无法强制指定，因此当对非限定基类进行继承时，一定要小心来自基类的名称。
+    ```cpp
+    template<typename X>
+    class Base {
+    public:
+        int basefield;
+        using T = int;
+    };
+
+    class D1: public Base<Base<void>> { // not a template 
+    public:
+        void f() { basefield = 3; } // 正常访问
+    };
+
+    template<typename T>
+    class D2 : public Base<double> { // nondependent base，非依赖型基类，这个基类不需要等待T，就已经是完整类型了
+    public:
+        void f() { basefield = 7; } // 正常访问，实际上即使这里有同名的非类型模板参数，也不会被访问到，优先用非依赖基类中查找到的名称
+        T strange; // T会从基类中优先查找，而不是使用这里的模板参数，因此T实际上是Base<double>::T，即int
+    };
+    ```
+23. 依赖基类：作为对比，如果基类的类型也需要派生类模板的模板参数才能决定。就称之为依赖基类。此时如果对无作用域限定名称的查找延后到二者的模板实例化的阶段，可能会造成一些无法解决的错误（延迟处理会造成很大问题，尤其是如果在延迟处理的过程中，比如多次使用相同模板参数的类的调用中间，又发生了基类模板的特化定义，那么最后的类对象，到底应该使用哪一个呢）。因此C++标准规定了，在有依赖基类的情况下，对无作用域限定的名称的查找，会立刻进行（实例化的第一阶段），但不会去依赖型基类中进行。如果需要，则必须使用```this```，```XXX<>::```此类方式进行限定。这种方式将会强制延迟名称查找到实例化阶段。此时基类已经完成实例化。但对于此类情况，**多继承**将会变得更加棘手，对于有作用域限定的名称，会优先从非依赖基类中查找名称，如果没有找到再从依赖型基类中查找。
+    ```cpp
+    template<typename T>
+    class DD : public Base<T> { // dependent base
+    public:
+        // 此时会立刻查找名称basefield，实际上，如果在当前作用域（全局、当前命名空间等）内找不到的话，会立刻报错。
+        void f() { basefield = 0; } // #1 problem...
+    };
+    
+    template<>
+    class Base<bool> { // explicit specialization
+    public:
+        enum { basefield = 42 }; // #2 tricky!
+    };
+    
+    void g (DD<bool>& d) {
+        d.f();  // #3 oops?
+    }
+
+    template<typename T>
+    class DD3 : public Base<T> {
+    public:
+        using Base<T>::basefield;
+        void f() { basefield = 0; } // 这种情况下是可以的，因为已经在当前作用域给出了basefield。此时对无限定名称的查找会成功（虽然还未实例化）
+    };
+    ```
 
 
 ## 模板常用工具
@@ -169,7 +217,63 @@ auto mp = &C::m;
     ```
 
 ## 模板常用技巧
-1. typename：说是技巧，实际上是必须的。对于模板中的类型成员的使用，必须
+1. typename：说是技巧，实际上是必须的。对于模板中的类型成员的使用，必须用typename说明，否则可能会被编译器错误的解析（编译器会优先假设是一个非类型成员）。随着编译器越来越完善，必须添加的场景可能减少，但是加上总没有坏处。
+    ```cpp
+    template<typename T>
+    struct Type {
+        using SubType = T*;
+    };
+
+    // 偏特化可能出现的奇怪类型
+    template<>
+    struct Type<int> {
+        const static int SubType{};
+    };
+
+    template<typename T>
+    class MyClass {
+    public:
+        void foo() {
+            // 如果不添加typename，SubType会被认为应当是一个静态成员，并和ptr做乘法
+            // 实际上，如果SubType真的是这样的成员，这样的运算也确实是合法的
+            typename T::SubType* ptr;
+        }
+    };
+    ```
+2. 零初始化：由于模板参数可能是内置类型，这些类型在类中无法被默认初始化（因为没有默认构造函数），因此对于类成员，最好的办法是在构造函数中进行初始化。
+    ```cpp
+    template<typename T>
+    class MyClass {
+    public:
+        T x;
+        MyClass(): x{} {}
+        // 默认参数也可以这样用
+        void foo(T x = T{}) {}
+    }
+    ```
+4. 使用```this```和```XXX<T>::```明确指向模板类的成员。具体原因在13.4章节中可读。在本文的术语速览中已经给出给出，简单说这是一个非依赖基类和依赖基类的问题。加上作用域限定符，可以避免查找错误（当然你应当了解你要找的名称到底是全局中的还是基类中的）。
+5. 裸数组或字符串常量的模板
+    ```cpp
+    // 理解模板参数的类型推断
+    template<typename T>
+    void arrayTemplate2(T& a) {
+        cout << typeid(T).name() << endl;
+        cout << is_same_v< T&, char const (&)[7]> << endl;
+        cout << is_same_v< T, char const [7]> << endl;
+    }
+
+    // 提供更好的可读性
+    template<typename T,int N>
+    void arrayTemplate(T const (&a)[N]) {
+        cout << "my array" << endl;
+        cout << typeid(T).name() << endl;
+        cout << typeid(a).name() << endl;
+    }
+
+    arrayTemplate2("123456");
+    arrayTemplate("123456");
+    ```
+7. 
 
 
 ## 非类型模板参数
@@ -402,3 +506,11 @@ T const& max(T const& a, T const& b, T const& c)
 	return max(max(a, b), c);
 }
 ```
+
+## 未翻译章节
+### 12
+### 13
+### 14
+### 15
+### 16
+### 17

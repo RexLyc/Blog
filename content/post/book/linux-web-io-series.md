@@ -7,10 +7,10 @@ categories:
 tags:
 - web
 - io
+- 施工中
 - 工程
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/book/linux-web-io-series.png
-draft: true
 ---
 本读书笔记记录和Linux环境下，Web开发，I/O模型相关的所有书籍。
 <!--more-->

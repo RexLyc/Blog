@@ -7,6 +7,7 @@ categories:
 tags:
 - Hadoop
 - 中间件
+- 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/hadoop-logo.jpg
 ---

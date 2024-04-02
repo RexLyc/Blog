@@ -6,10 +6,10 @@ categories:
 - C++
 tags:
 - C++
+- 施工中
 - 读书笔记
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/book/CppTemplate2nd.jpg
-draft: true
 
 ---
 本文记录对C++模板一书第二版的书本摘抄，学习笔记。
@@ -65,12 +65,13 @@ auto mp = &C::m;
    > 注一：建议显式使用const和volatile限制符，模板参数推断中不一会携带这种限制，可能退化。
 
    > 注二：企图用同一种模板参数，接收字符串字面值和string是不可能的。因为无论是引用还是按值传递，这种类型转换都不允许。此时实例化失败。
-        ```cpp
-        // ok
-        std::max("233", "666");
-        // 不ok，用const char*和string类型都无法满足另一个的转型限制
-	    std::max("233", std::string("666"));
-        ```
+   
+    ```cpp
+    // ok
+    std::max("233", "666");
+    // 不ok，用const char*和string类型都无法满足另一个的转型限制
+    std::max("233", std::string("666"));
+    ```
     
     > 注三：如果此时显式指定模板参数，则不受推导限制（废话）
 8. 类模板的模板类型推导：和函数模板类似，但此时更多的问题在于构造函数。在C++17之后，开始支持自动推导。此时有两种方式。
@@ -187,15 +188,26 @@ auto mp = &C::m;
     
     ```
 27. 特殊成员函数模板：构造函数等特殊成员函数也可以是模板，上面已经写过了重载运算符的情况，写法都是一样的，不再赘述。
+28. 转发引用、万能引用：forwarding reference，universal reference，说的都是一个东西```template<typename T> void f(T&&)```，中的```T&&```。但是只有在发生对且仅对```T```进行类型推导的时候，才是万能引用。见下例。
+    ```cpp
+    template<typename T>
+    void f(T&) {}
+
+    template<typename T>
+    void f(T&&) {}
+
+    // 此时不是万能引用，只是右值专用
+
+    // 同样的，下面的也都不是
+    template<typename T>
+    void func1(std::vector<T> &&v1)  {} //不是万能引用 尖括号阻隔了T与&&
+
+    template<typename T>
+    void func(const T &&param)  {}      //不是万能引用
+    ```
 
 
 ## 模板常用工具
-### auto
-
-### decltype：
-1. 一些特例：
-   1. ```template<decltype(auto) N>```，此时非类型模板参数N的类型，会被推导为引用类型。
-
 ### 变长参数模板
 1. 定义在前，使用在后：例如```T ...t```是类型T的变长个参数t，```<typename ..T>```是变长个类型T，使用时（只作为实参传递，无op情况下），```t...```/```T...```。
     > T和t，在作为变长参数使用时语法是一样的
@@ -257,6 +269,33 @@ auto mp = &C::m;
     // 以前需要填两种类型，现在一个就够（虽然实际上也有两个）
     std::unordered_set<Customer,CustomerOP,CustomerOP> mySet;
     ```
+### 其他工具
+1. ```std::ref```、```std::cref```：通过一个包装的方式，显式的传递一个引用。即使函数模板的形参不是引用类型，也可以通过这层包装和类型转换来获得支持。考虑到引用平时无法放进vector等容器。这两个工具模板的主要作用还是让用户可以像第一类对象一样使用引用。
+    ```cpp
+    auto sa = string{ "12345" };
+	auto sb = string{ "23456" };
+
+	auto refVector = vector<reference_wrapper<const string>>{ cref(sa),cref(sb) };
+    // auto refVector = vector<reference_wrapper<string>>{ ref(sa),ref(sb) };
+	for (auto& t : refVector) {
+		cout << static_cast<string>(t) << endl;
+	}
+    ```
+2. ```auto```
+3. ```delctype```：有一些特例
+   1. ```template<decltype(auto) N>```，此时非类型模板参数N的类型，会被推导为引用类型。
+4. ```typeid()```：需要注意```name()```中并不会打印引用情况。
+5. ```make_pair```：很好用的创建```pair<>```对象的工具，同时也是一个很好的介绍参数传递机制相关陷阱的例子。随着C++发展，这个看似简单的函数的定义和实现变得越来越复杂。在C++11中，其大体实现已经如下
+    ```cpp
+    template<typename T1, typename T2>
+    constexpr pair<typename decay<T1>::type, typename decay<T2>::type>
+        make_pair (T1&& a, T2&& b)
+    {
+        return pair<typename decay<T1>::type, typename decay<T2>::type>
+            (forward<T1>(a), forward<T2>(b));
+    }
+    ```
+6. 
 
 ## 模板常用技巧
 1. typename：说是技巧，实际上是必须的。对于模板中的类型成员的使用，必须用typename说明，否则可能会被编译器错误的解析（编译器会优先假设是一个非类型成员）。随着编译器越来越完善，必须添加的场景可能减少，但是加上总没有坏处。
@@ -598,6 +637,8 @@ void f (T&& val) { // 万能引用
 }
 ```
 
+注意，作为万能引用，val的类型永远是左值引用或者右值引用（同时保留const、volatile等），而不是一个普通的左值。这一点用```typeid.name()```不能观测到，需要借助```decltype```和```is_same_v```。
+
 但是当我们遇到一些重载决议的情况时，有会有一些新的问题。比如在对特殊函数进行模板化时。
 ```cpp
 class Person
@@ -659,11 +700,58 @@ Person(STR&& n) : name(std::forward<STR>(n)) {}
 
 ## 设计思路
 1. 传值还是传引用？
-    - 通常而言，建议将按引用传递用于非简单类型（POD、string_view）以外的类型，这样可以免除不必要的拷贝成本。
-    - POD和string_view等，推荐按值传递。因为此时按引用传递会遇到更大的问题。比如字符串字面值，如果按引用的话，是```const char[x]```类型，这会导致每种长度的字符数组类型都作为一个单独的模板参数。
-1. 对```const char*```始终保持注意。
+    - 适用引用的情况：
+      - 通常而言，建议将按引用传递用于非简单类型（POD、string_view）以外的类型，这样可以免除不必要的拷贝成本。
+      - 不允许被拷贝
+      - 参数的所有属性需要被转发（const、volatile等）
+    - POD和string_view等，推荐按值传递。因为此时按引用传递会遇到更大的问题。比如字符串字面值，如果按引用的话，是```const char[x]```类型，这会导致每种长度的字符数组类型都作为一个单独的模板参数。而且如果此时模板内用```==```来判断是否相等，也会显然得到一个错误的结果。
+    - 更通用的做法，就是都统一使用值传递，对于必要的类型，在传递前使用```ref/cref```进行包装。
+    > 实际上，传递引用，并不能在所有情况下都获得更高的性能，这一点在POD类型中更明显。传递引用会导致调用处的寄存器失效（因为调用函数内部可能会发生修改），对内存的重新读取可能比传值本身更慢。即使使用了const引用，也不能确保不发生修改（const_caast）。
+
+    > 如果你更了解程序的情况，可以不遵循这些建议。但是请不要仅凭直觉对性能做评估。在这方面即使是程序专家也会犯错。真正可靠的是：**测试结果**。也就是说先实现一个正确的版本，之后再考虑性能问题。
+1. 传引用还是const引用？
+    - 这一点需要注意，当我们使用引用时，实际上它是可以绑定const类型的变量的（即使它是个右值）。此时模板参数的类型是完整的。不允许类型退化（decay）。因为此时它的最终完整类型是一个常量左值引用（const&）。例如
+        ```cpp
+        template<typename T>
+        void outR(T& args) {
+            cout <<"in outR: "<< args << " " << typeid(args).name() << endl;
+        }
+
+        const string constStr = "hi";
+
+        outR("hi");         // ok，可以绑定char const [3]
+        outR(string("hi")); // error，这里是一个右值
+        outR(constStr);     // ok
+        outR(std::move(constStr));  // ok，但会得到一个警告，不要对常量使用move
+        ```
+    - 然而此时，函数内任何对引用的修改，都将得到一个编译错误。这一点很隐晦，可能要编译很久之后（有用到的地方）才会发现
+    - 理想的办法就是用```enable_if_t<!is_const_v<T>>```禁止一个非const引用的形参中，捕获const类型的变量
+2. 对```const char*```始终保持注意。
     - 例如：不能通过将字符串字面量传递给一个期望接受 std::string 的构造函数来拷贝初始化（使用=初始化）一个对象。
-1. 面向模板编程，在对类模板的对象进行编程时，要时刻注意，使用最广泛，或者最准确的接口。因为用户最终使用的类型，很可能缺少某些必要的运算符重载，或者不符合某些迭代器要求。例如以下的两种方式。
+1. 返回值还是返回引用
+    - 这一点不只是针对模板的开发，对于普通函数也是一样的逻辑。使用引用的场景，主要是三点：返回容器中元素、允许修改、为链式调用提供支持。
+    - 传值的情况也很明显，对于所有引用的情况，都可能出现运行时的内存问题。
+    - 但是，对于模板，这个问题稍微特别的点，在于此时的```T```可能包含了引用类型。万能引用，以及用户强制指定模板实参，都可以出现这种情况。主要有两种办法，```remove_reference```，```auto```。前者是主动去除，后者由编译器进行自动的类型推断，并会自动进行退化decay。
+        ```cpp
+        template<typename T>
+        remove_reference_t<T> retV(T p) {return T{p}};
+
+        template<typename T>
+        auto retV(T p) {return T{p}};
+        ```
+2. 考虑对字符串常量和裸数组的单独处理。这两种情况的特殊性在前面已经叙述了很多次了，这里提供一个最复杂的处理方式。
+    ```cpp
+    template<typename T, std::size_t L1, std::size_t L2>
+    void foo(T (&arg1)[L1], T (&arg2)[L2])
+    {
+        T* pa = arg1; // decay arg1
+        T* pb = arg2; // decay arg2
+        if (compareArrays(pa, L1, pb, L2)) {
+            // ..
+        }
+    }
+    ```
+3. 面向模板编程，在对类模板的对象进行编程时，要时刻注意，使用最广泛，或者最准确的接口。因为用户最终使用的类型，很可能缺少某些必要的运算符重载，或者不符合某些迭代器要求。例如以下的两种方式。
     ```cpp
     template<typename T>
     void MyPrint(T data){
@@ -677,7 +765,16 @@ Person(STR&& n) : name(std::forward<STR>(n)) {}
         }
     }
     ```
-2. 
+4. 不要过分泛型化，限制```T```出现的位置，避免出错
+    ```cpp
+    template<typename T>
+    void myFunc(std::vector<T> const& v) {}
+
+    // 在满足业务要求的情况下，上面的函数实际上好于
+    template<typename T>
+    void myFunc(T const& v) {}
+    ```
+
 
 ## 一些危险的错误例子
 
@@ -703,6 +800,13 @@ T const& max(T const& a, T const& b, T const& c)
 ### 15
 ### 16
 ### 17
+### 26
+### 27
+### 28
+### 附录
 
 ## 存疑
 1. 章节6.4中的禁用某些成员函数。在Visual Studio2020（C++20标准）不能很好复现。
+
+## 参考
+1. [博客园：C++ 模板元编程 笔记](https://www.cnblogs.com/SovietPower/p/17929538.html)

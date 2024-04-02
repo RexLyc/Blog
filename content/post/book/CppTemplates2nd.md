@@ -86,7 +86,7 @@ auto mp = &C::m;
     template<typename T>
     using DequeStack = Stack<T, std::deque<T>>;
     ```
-15. 类成员别名模板：对类模板的成员，取别名。这种技术也是上面```is_same_t```等类型萃取模板的实现方式。
+15. 类成员别名模板：对类模板的成员，取别名。这种技术也是上面```common_type_t```等类型萃取模板的实现原理。
     ```cpp
     // 这里是少数必须使用typename而不能用class的场景，用于说明等号右侧是一个类型，而不是成员变量/函数
     template<typename T>
@@ -145,6 +145,48 @@ auto mp = &C::m;
         void f() { basefield = 0; } // 这种情况下是可以的，因为已经在当前作用域给出了basefield。此时对无限定名称的查找会成功（虽然还未实例化）
     };
     ```
+24. 泛型lambda：形如```[](auto x) {}```，实际上这时编译器会为其生成一个类，并创建一个```operator()```的成员模板。
+25. 变量模板：从C++14开始，允许变量被类型参数化。变量模板其实本质上也是模板编程的一种语法糖，用于更好的使用代表类模板成员的变量模板。是各种```is_same_v```类型萃取模板的原理。例子和意义如下
+    ```cpp
+    template<typename T>
+    constexpr T pi{3.1415926535897932385};
+
+    auto piF = pi<float>;
+
+    // 更有价值的用法是，提供对类模板成员的访问
+    template<typename T>
+    class numeric_limits {
+    public:
+        static constexpr bool is_signed = false;
+    }; 
+
+    template<typename T>
+    constexpr bool isSigned = std::numeric_limits<T>::is_signed;
+    
+    // 因此可以使用
+    isSigned<char>
+    // 而不是更长更原始的
+    std::numeric_limits<char>::is_signed
+    ```
+26. 模板参数模板：在有些情况下，我们会要求模板参数的实际类型，也必须是一个模板。实际上STL的大部分容器都有这种要求。这里是少数需要用到class，而不是typename的场景（但在C++17之后，也不再需要了）。但这里有一些细节，模板参数的模板中的模板参数（下面Elem）并没有用到，而且实际上也不能在模板参数表以外使用，因此不需要写（写了可以作为提示）。
+    ```cpp
+    // 这里的内层template，说明模板参数是模板。
+
+    // template<typename T, template<typename Elem> class Cont = std::deque> // C++17之前
+    // 实际上，如果是C++17之前，要求模板实参和形参数量匹配，必须写成
+    // template<typename Elem, typename Alloc = std::allocator<Elem>> class Cont = std::deque
+    template<typename T, template<typename Elem> typename Cont = std::deque> // C++17之后
+    class Stack {
+    private:
+        // 注意是用T，而不是Elem，Elem只能在模板参数列表里使用，它在类模板内部是不存在的
+        Cont<T> elems;
+    public:
+        // 此时的友元声明也要多一点
+        template<typename, template<typename>typename> friend class Stack;
+    };
+    
+    ```
+27. 特殊成员函数模板：构造函数等特殊成员函数也可以是模板，上面已经写过了重载运算符的情况，写法都是一样的，不再赘述。
 
 
 ## 模板常用工具
@@ -273,8 +315,87 @@ auto mp = &C::m;
     arrayTemplate2("123456");
     arrayTemplate("123456");
     ```
-7. 
+7. 成员模板：不管类本身是不是模板，成员模板都是很有用的一类工具。最典型的应用是提供类型转换能力。成员模板可能需要再**搭配友元类模板**声明。以允许访问其他模板参数实例化下的类型成员的访问能力。
+    ```cpp
+    template<typename T,typename container = deque<T>>
+    class Stack {
+    private:
+        // 真正的存储方案
+        container elems;
+    public:
+        template<typename U,typename cont2>
+        Stack& operator=(Stack<U,cont2> const&);
+        // 友元类声明，不需要给出任何模板参数，如果不做此声明，无法访问到其他模板实例的elements
+        // 这里不需要声明具体参数，是因为这个参数没有被用到，所以也就没有必要给出
+        template<typename,typename> friend class Stack;
+    };
 
+    // 此时如果在类外定义，语法相对繁琐一些，需要写两个template
+    template<typename T, typename container>
+    template<typename U, typename cont2>
+    Stack<T,container>& Stack<T,container>::operator=(Stack<U,cont2> const& op2)
+    {
+        /* 做转型和赋值尝试 */
+        elems.clear(); // remove existing elements
+        // 注意
+        elems.insert(elems.begin(), // insert at the beginning
+            op2.elems.begin(), // all elements from op2
+            op2.elems.end());
+    }
+
+    ```
+8. 成员模板特化：不需要额外声明，直接定义即可。但是这里有一些问题。这里沿用上面的例子
+    ```cpp
+    // 这样的特化是可以的
+    template<>
+    template<typename U,typename Container2>
+    Stack<int>& Stack<int>::operator=(Stack<U,Container2> const& op2)
+    {
+        elems.clear(); // remove existing elements
+        elems.insert(elems.begin(), // insert at the beginning
+            op2.elems.begin(), // all elements from op2
+            op2.elems.end());
+        cout << "? specialization" << endl;
+        return *this;
+    }
+
+    // 全特化是可以的
+    template<>
+    template<>
+    Stack<int>& Stack<int>::operator=(Stack<float> const& op2)
+    {
+        elems.clear(); // remove existing elements
+        elems.insert(elems.begin(), // insert at the beginning
+            op2.elems.begin(), // all elements from op2
+            op2.elems.end());
+        cout << "? specialization" << endl;
+        return *this;
+    }
+
+    
+    template<typename T, typename container>
+    template<> // 特化不能跟在一个模板定义后面，这种特化是不允许的
+    Stack<T, container>& Stack<T, container>::operator=(Stack<float> const& op2)
+    {
+        elems.clear(); // remove existing elements
+        elems.insert(elems.begin(), // insert at the beginning
+            op2.elems.begin(), // all elements from op2
+            op2.elems.end());
+        return *this;
+    }
+    ```
+9. ```.template```、```::template```、```->template```的使用。在调用成员模板的时候需要显式地指定其模板参数的类型，但此时如果被编译器误认为是要执行一次比较运算就比较尴尬（和模板成员类型一样，那个需要用```typename```说明）。因此可能需要强制指定。这种情况只有在点号前面的对象依赖于模板参数的时候，且本身就在一个模板中使用时才需要注意。
+才会发生。在我们的例子中
+    ```cpp
+    template<unsigned long N>
+    void printBitset (std::bitset<N> const& bs) {
+    // 并不一定真的需要，看编译器以及该模板实例化时的查找情况
+        std::cout << bs.template to_string<char,
+        std::char_traits<char>,
+        std::allocator<char>>();
+    }
+    ```
+10. 
 
 ## 非类型模板参数
 C++对非类型模板参数的支持也是日趋完善，这类参数形如。
@@ -435,14 +556,12 @@ public:
 
 ## 难点
 ### 移动语义
-模板的设计中，对移动语义的考虑是非常重要的。其中有两点
-1. 完美转发
-    1. 可变对象被转发之后依然可变。
-    2. Const 对象被转发之后依然是 const 的。
-    2. 可移动对象被转发之后依然是可移动的。
-1. enable_if禁用模板
+模板的设计中，对移动语义的考虑是非常重要的。在模板编程中，最重要的相关点在于利用```std::forward```，完成完美转发
+1. 可变对象被转发之后依然可变。
+2. Const 对象被转发之后依然是 const 的。
+2. 可移动对象被转发之后依然是可移动的。
 
-先来说完美转发，在引入模板之前，如果想要同时支持完美转发的三种情况，必须分别编程。
+在引入模板之前，如果想要同时支持完美转发的三种情况，必须分别编程。
 ```cpp
 class X {};
 // 第一点：底层的支持肯定是单独编程的，由开发者决定三种情况的处理方式
@@ -479,6 +598,61 @@ void f (T&& val) { // 万能引用
 }
 ```
 
+但是当我们遇到一些重载决议的情况时，有会有一些新的问题。比如在对特殊函数进行模板化时。
+```cpp
+class Person
+{
+private:
+    std::string name;
+public:
+    // generic constructor for passed initial name:
+    template<typename STR>
+    explicit Person(STR&& n) : name(std::forward<STR>(n)) {
+        std::cout << "TMPL-CONSTR for ’" << name << "’\n";
+
+    }
+    // copy and move constructor:
+    Person (Person const& p) : name(p.name) {
+        std::cout << "COPY-CONSTR Person ’" << name << "’\n";
+    }
+    Person (Person&& p) : name(std::move(p.name)) {
+        std::cout << "MOVE-CONSTR Person ’" << name << "’\n";
+    }
+};
+
+//
+Person p1("1234"); // ok, construct
+Person p2(p1); // error!
+Person p3(std::move(p1)); // ok, move construct
+```
+上面的想法是很美好的，我们有一个万能引用的构造，一个复制构造，一个移动构造。但是当我们遇到一个左值```Person```时，按理来说应该调用复制构造。但实际上万能引用的匹配优先级更高。因为根据 C++重载解析规则，对于一个非 const 左值的 Person p，万能引用比拷贝构造更匹配。因为它可以不用做const转型。在这里万能引用可以直接将其处理为```Person&```。我们可以单独提供一个构造函数的重载，但是这显然不犹豫。
+
+此时就需要使用```enable_if```，来避免某些情况，进入到万能引用的匹配范围。
+
+### enable_if
+enable_if的核心原理是利用了模板匹配的SFINAE机制。如果一个实例化过程中，进行的类型替换是错误的，那这种实例化将会被忽略。enable_if的返回有两种情况
+1. 模板参数列表内表达式的值为true，则返回一个类型（void或者第二个参数）
+2. 模板参数列表内表达式的值为false，则替换失败
+
+enable_if可以用在函数返回值，模板参数列表（**推荐**）。
+
+对于上面的例子来说。
+```cpp
+// C++17 提供的is_convertible，这里省略了第二个模板参数的名字，因为它不必要
+// 此时只有可以转换为string的类型，才能通过enable_if的替换检查
+template<typename STR, typename =
+    std::enable_if_t<std::is_convertible_v<STR, std::string>>>
+Person(STR&& n) : name(std::forward<STR>(n)) {}
+```
+
+> enable_if_t也是enable_if的一个包装，从C++11、14，最后到17才简化为如今的形式。
+
+更进一步的，就是C++20开始正式支持的concept特性。此时的写法将会变为
+```cpp
+template<typename STR>
+requires std::is_convertible_v<STR,std::string>
+Person(STR&& n) : name(std::forward<STR>(n)) {}
+```
 
 ### 元编程
 
@@ -489,6 +663,21 @@ void f (T&& val) { // 万能引用
     - POD和string_view等，推荐按值传递。因为此时按引用传递会遇到更大的问题。比如字符串字面值，如果按引用的话，是```const char[x]```类型，这会导致每种长度的字符数组类型都作为一个单独的模板参数。
 1. 对```const char*```始终保持注意。
     - 例如：不能通过将字符串字面量传递给一个期望接受 std::string 的构造函数来拷贝初始化（使用=初始化）一个对象。
+1. 面向模板编程，在对类模板的对象进行编程时，要时刻注意，使用最广泛，或者最准确的接口。因为用户最终使用的类型，很可能缺少某些必要的运算符重载，或者不符合某些迭代器要求。例如以下的两种方式。
+    ```cpp
+    template<typename T>
+    void MyPrint(T data){
+        // 只需要T类型支持begin/end
+        for(auto&t:data){
+            cout << t << " ";
+        }
+        // 需要T类型支持size，随机访问
+        for(size_t i=0;i!=data.size();++i){
+            cout << data[i] << " ";
+        }
+    }
+    ```
+2. 
 
 ## 一些危险的错误例子
 
@@ -514,3 +703,6 @@ T const& max(T const& a, T const& b, T const& c)
 ### 15
 ### 16
 ### 17
+
+## 存疑
+1. 章节6.4中的禁用某些成员函数。在Visual Studio2020（C++20标准）不能很好复现。

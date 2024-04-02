@@ -432,8 +432,76 @@ C++引入的几个基本类型
     std::cout << "Done!\nResults are: "
                 << f1.get() << ' ' << f2.get() << ' ' << f3.get() << '\n';
     ```
-- ```condition_variable```：条件变量。消费端在```wait```时自动释放锁，唤醒后自动获取锁。生产端用```notify_one / notify_all```控制唤醒。
+- ```condition_variable```：条件变量。条件变量需要和锁一同使用。消费端在```wait```时自动释放锁，唤醒后自动获取锁。生产端用```notify_one / notify_all```控制唤醒。下面是一个交替打印的例子。取自[力扣交替打印题解](https://leetcode.cn/problems/print-foobar-alternately/solutions/1020308/c-duo-fang-fa-by-zhouzihong-zdvj/)
+    ```cpp
+    class FooBar {
+    private:
+        int n;
+        mutex mtx;
+        condition_variable cv;
+        bool foo_done=false;
 
+    public:
+        FooBar(int n) {
+            this->n = n;
+        }
+        void foo(function<void()> printFoo) {
+            for (int i = 0; i < n; i++) {
+                unique_lock<mutex>locker(mtx);
+                cv.wait(locker,[&](){return foo_done==false;});
+                printFoo();
+                foo_done=true;
+                cv.notify_one();
+            }
+        }
+        void bar(function<void()> printBar) {
+            for (int i = 0; i < n; i++) {
+                unique_lock<mutex>locker(mtx);
+                cv.wait(locker,[&](){return foo_done;});
+                printBar();
+                foo_done=false;
+                cv.notify_one();
+            }
+        }
+    };
+    ```
+
+- 原子变量，先来看一段也是交替打印的例子
+    ```cpp
+    class FooBar {
+    private:
+        int n;
+        atomic<bool> flag=true;
+        // volatile bool flag=true;
+
+    public:
+        FooBar(int n) {
+            this->n = n;
+        }
+
+
+        void foo(function<void()> printFoo) {
+            
+            for (int i = 0; i < n; i++) {
+                while(!flag.exchange(false))
+                    std::this_thread::yield();
+                // printFoo() outputs "foo". Do not change or remove this line.
+                printFoo();
+            }
+        }
+
+        void bar(function<void()> printBar) {
+            
+            for (int i = 0; i < n; i++) {
+                while(flag.exchange(true))
+                    std::this_thread::yield();
+                // printBar() outputs "bar". Do not change or remove this line.
+                printBar();
+            }
+        }
+    };
+    ```
+原子变量提供的api也比较丰富，```exchange```、```load```、```store```、```compare_exchange_weak/strong```、```fetch_add```、```wait```、```notify_one/all```。
 
 在C++11之后，为了进一步提高性能，也开始出现了对无锁编程的支持，具体是用原子变量和内存顺序模型两个内容来完成的。具体原理还会牵扯到缓存一致性等问题，可以详细参考阅读[原子操作与内存模型/序/屏障](https://zhuanlan.zhihu.com/p/611868395)、[程序员的自我修养（⑫）](https://liam.page/2021/12/11/memory-order-cpp-02/)、[C++ 多线程：内存模型(std::memory_order)](https://juejin.cn/post/7085110319051178014)、[内存模型和atomic——理解并发的复杂性 ](https://www.cnblogs.com/mmxingye/p/16244392.html)。下文暂时不再考虑缓存的问题（毕竟对软件透明），只对C++编程中需要了解的内存顺序模型做一个总结。
 

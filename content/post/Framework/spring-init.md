@@ -73,3 +73,5 @@ Java长期稳占编程语言Top3，好用的框架功不可没。Spring框架是
 - 《精通Spring 4.X:企业应用开发实战》
 - 《从零开始造Spring》
 - Spring源代码（打断点跟进阅读）
+- [Spring面试题，35道Spring八股文](https://javabetter.cn/sidebar/sanfene/spring.html#_3-spring-%E6%9C%89%E5%93%AA%E4%BA%9B%E5%B8%B8%E7%94%A8%E6%B3%A8%E8%A7%A3%E5%91%A2)
+- [SpringBoot启动流程及其原理](https://www.cnblogs.com/theRhyme/p/11057233.html)

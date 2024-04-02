@@ -226,7 +226,7 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
     - 单词：默认情况下，是由字母、数字、下划线和其他部分非空字符（如~）组成的连续字符串，其他任何字符都视作分割
 - 参考：[菜鸟教程](https://www.runoob.com/linux/linux-vim.html)、[将vim配置成强大的IDE编辑工具](https://blog.csdn.net/qq_26708669/article/details/121057164)
 ### awk
-- 三剑客之一：主要使用方式是预处理+逐行处理+最终处理，常用于格式化输出、统计等工作
+- 三剑客之一：主要使用方式是预处理+逐行处理+最终处理，常用于格式化输出、统计等工作。因为可以编程，我觉得是唯一真神。参考[使用案例](##实用Shell案例)
 - 基本结构
     ```bash
     awk [各命令行参数] 'BEGIN{} {/pattern1/ action1;action2;} \
@@ -236,6 +236,8 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
     - BEGIN块最先执行、END块最后执行，其他各块之间按顺序依次执行
     - action内容和脚本语言类似，有一套自己的语法
     - 注意使用**单引号**'，在单引号对儿内部，仍然可以使用双引号对儿""代表内部是字符串
+    - awk强大的原因之一是，它的分支和循环语句可以基本以C语言语法看待，非常便于编写逻辑，唯一的难点是时刻记得```i```和```$i```的区别，前面是变量，后面是用变量值去取列
+    - 输出时使用```print```换行输出，使用```printf```不换行输出
 - pattern语法（正则表达式[Wiki](https://en.wikipedia.org/wiki/Regular_expression)）
     | 符号 | 描述 |
     | --- | --- |
@@ -250,8 +252,10 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
     | \| | 或，用于组合多种匹配情况 |
     | \\ | 转义 |
     | x{m[,[,n]]} | 匹配$m$、$[m,+\infty]$、$[m,n]$次（需awk版本支持） |
-    | [:lower:] | 任意小写字母，参考[POSIX字符组](https://blog.csdn.net/shangboerds/article/details/7555332) |
+    | [[:lower:]] | 任意小写字母，参考[POSIX字符组](https://blog.csdn.net/shangboerds/article/details/7555332) |
     > 注意只要正则表达式能成立（能匹配到该行的部分或全部字符），则会执行后续动作，即使匹配空。这点在使用*且不指定边界时应当尤其注意。
+
+    > 注意，```\d```等转义字符并不是awk、sed支持的正则表达式语法，最稳妥的方式就是用[]去写
 - action语法
     - 运算符：
     | 符号 | 描述 |
@@ -301,11 +305,19 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
 ### sed
 - 三剑客之二：处理、编辑文本文件，和awk相比，更擅长修改文件。默认输出结果到控制台。
     - sed是面向行的处理，读入每一行，保存到缓存区（模式空间），匹配并做相应动作，不会修改源文件。
-    - 所使用的正则表达式和awk的正则语法一致，也用斜杠对儿/pattern/作为表达式范围标志。
+    - 所使用的正则表达式和awk的正则语法在大体上一致，也用斜杠对儿/pattern/作为表达式范围标志。但是有很多细节问题
+      - 对```|```、```{}```、```+```、```()```等符号，使用其正则含义时需要转义。（在其他正则匹配中一般是不转义是代表正则含义）
 - 基本语法
     ```bash
     # 使用脚本，或脚本文件，处理输入文件
     sed [-e <script>] [-f <scriptFiles>] [inputFiles]
+    # 使用-n，不打印模式空间的内容，只会按照命令内容执行，输出很干净
+    sed -n xxx xxx
+
+    # 注意因为{}在sed中有含义，所以在正则表达式内使用时，需要转义
+    # 这一点和awk不同，awk的正则表达式是在action前单独出现的，不需要对{}转义
+    # 例如打印能匹配连续两个数字的行
+    sed -n '/[0-9]\{2\}/p'
     ```
 - 动作
     | 命令 | 功能 |
@@ -345,7 +357,7 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
         # a->A, b->B, c->C
         sed 'y/abc/ABC/' test.txt
         ```
-    1. 指定行的操作：运算符, ~ +
+    2. 指定行的操作：运算符, ~ +
         ```bash
         # 在第3行后添加新行2333
         sed '3a2333' test.txt
@@ -360,7 +372,7 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
         # 打印匹配#的行及其后1行
         sed '/#/,+1p' test.txt
         ```
-    1. 复合动作：花括号{}
+    3. 复合动作：花括号{}
         ```bash
         # 删掉1到3行中匹配123的行
         sed '1,3{/123/d}' test.txt
@@ -369,17 +381,17 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
         # 匹配hello，并删除其下一行的内容
         sed '/hello/{n;d}' test.txt
         ```
-    1. 取反：运算符!
+    4. 取反：运算符!
         ```bash
         # 删掉除了1,2行的所有行
         sed '1,2!d' test.txt
         ```
-    1. 结合
+    5. 结合
         ```bash
         # 匹配没有#号的行并替换@为#
         sed '/#/!s/@/#/g' test.txt
         ```
-    1. 多重编辑：注意前后顺序有影响
+    6. 多重编辑：注意前后顺序有影响
         ```bash
         # 先删掉1至3行，再进行替换
         sed -e '1,3d' -e 's/Rex/Lyc/g' test.txt
@@ -471,7 +483,7 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
         # 模仿库函数用法即可
         printf format-string params ...
         ```
-1. 二进制查看hexdump
+2. 二进制查看hexdump
     | 参数 | 含义 |
     | --- | --- |
     | -n length | 显示前length个字节 |
@@ -481,7 +493,7 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
     | -x | 双字节十六进制 |
     | -s pos | 偏移pos个字节开始输出 |
     | -e '"format" a/b "format1 "format2"' | 以指定输出格式打印[具体参考](https://blog.csdn.net/zsj1126/article/details/105770068/) |
-1. 压缩tar：
+3. 压缩tar：
     | 参数 | 含义 |
     | --- | --- |
     | -c | 创建新的tar包 |
@@ -500,7 +512,7 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
         # 解压到/tmp
         tar -zxvf package.tar.gz -C /tmp/
         ```
-1. 用户管理useradd、groupadd、userdel、groupdel、usermod、groupmod、groups、id
+4. 用户管理useradd、groupadd、userdel、groupdel、usermod、groupmod、groups、id
     - 这些命令主要对/etc/passwd、/etc/shadow、/etc/group三个文件进行维护，[字段含义参考](http://www.javashuo.com/article/p-mwuizuri-pq.html)
     ```bash
     # 创建用户liyicheng，并设定：登陆位置/tmp，主属组lyc
@@ -523,7 +535,7 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
     # groupmod 改组名和gid都容易会引起混乱，慎用
     groupmod -g 2333 -n newli li
     ```
-1. 权限管理chmod、chown
+5. 权限管理chmod、chown
     ```bash
     # 递归修改当前路径以下的文件、符号链接的用户为liyicheng，属组为li
     # 注：-L 不修改所有的符号链接（软链接），-H不修改目录的符号链接
@@ -534,9 +546,9 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
     # 注：chmod永远不会修改符号链接的权限
     chmod [-cfvR] [ugoa...][[+-=][rwxXst]...][,...] file
     ```
-1. 统计
+6. 统计
     - wc：从文件&标准输入，默认分别统计并打印行数(-l)、单词数(-w)，byte数(-c)
-1. 系统状态
+7. 系统状态
     - top、htop：查看系统综合信息和各进程
     - free：查看内存信息
     - df：查看磁盘使用情况
@@ -551,7 +563,7 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
         | -s | 只列出整体结果 |
         | -X file | 去除指定文件不计入统计 |
         | --exclude=pattern | 去除匹配不计入统计（使用通配符?和*，非正则表达式） |
-1. 进程管理ps、kill
+8. 进程管理ps、kill
     - ps常用参数
     | 参数 | 含义 |
     | --- | --- |
@@ -566,8 +578,15 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
     | -C cmdlist | 查询运行指定程序的进程，cmdlist形如"zsh ps" |
     | --sort=spec | 以spec指定的列排序，正负号代表升降序（如uid,-ppid,+pid） |
     | -u userlist | 查看指定用户的进程 |
-1. 文件查看cat、more、less、tail、head、sort
+9. 文件查看cat、more、less、tail、head、sort
     - sort是按行排序
+        ```bash
+        # 常用参数，-r降序，-n数字对比，-k选择排序的参考列，-t选择行内的分隔符
+        sort -r -n -k 2 -t ":"
+
+        # 支持多列组合，先按第一列降序，再按第二列
+        sort -k1nr -k2n 
+        ```
     - cat、more、less、tail、head都是查看用的，这里略去基本用法，展示一些额外实用的用法
     ```bash
     # 合并文件
@@ -580,14 +599,14 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
     # 头部10个字节
     head -c 10 test.log
     ```
-1. 链接ln
+10. 链接ln
     ```bash
     # 和cp、mv等类似，都是源文件在前
     ln [options] source linkfile
     # 创建软链接（默认硬链接）
     ln -s boot.log boot-link.log
     ```
-1. 网络工具集合
+11. 网络工具集合
     - 嗅探nmap
         ```bash
         # 嗅探指定端口
@@ -611,7 +630,7 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
         | -l limit 小写的L | 指定带宽限制Kb/s |
     - 网络状态netstat
         > netstat无法看见全部端口，或者一些进程的pid的原因：进程不属于当前用户（可以通过sudo查看）
-1. 终端复用tmux
+12. 终端复用tmux
     1. 基本用法
         ```bash
         # 创建名为test的tmux会话
@@ -637,7 +656,7 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
         # 加载tmux配置
         tmux source-file xxx.tmux.conf
         ```
-    1. 命令模式：（在tmux内，并使用ctrl+b和冒号:）
+    2. 命令模式：（在tmux内，并使用ctrl+b和冒号:）
         ```bash
         # 修改tmux默认shell
         set-option -g default-shell /bin/zsh
@@ -645,7 +664,8 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
         # 设置允许使用鼠标交互
         set -g mouse on
         ```
-    1. tmux内：ctrl+b是所有快捷键的前置键，下面略去
+    3. 鼠标模式：（在tmux内，使用ctrl+b，之后使用PageUp/PageDown，就可以在控制台历史中翻找）
+    4. tmux内：ctrl+b是所有快捷键的前置键，下面略去
         | 会话内快捷键 | 含义 |
         | --- | --- |
         | s | 列出所有会话（可以借机跳转） |
@@ -661,18 +681,20 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
         | p n | 跳到上个、下个窗口 |
         | 数字 | 跳到指定编号的窗口 |
         | , | 窗口重命名 |
-    1. 不同版本的tmux在配置上会有一些区分，注意使用
-    1. 可以使用两个扩展：Tmux Resurrect（会话手动保存和恢复）、Tmux Continuum（会话定时保存和自动恢复）
+    5. 不同版本的tmux在配置上会有一些区分，注意使用
+    6. 可以使用两个扩展：Tmux Resurrect（会话手动保存和恢复）、Tmux Continuum（会话定时保存和自动恢复）
 ## Shell编程
+> Shell编程的掌握一定要做大量的联系，参考[牛客SHELL篇](https://www.nowcoder.com/exam/oj?page=1&pageSize=50&search=&tab=SHELL%E7%AF%87&topicId=195)
+
 1. 基本概念
     1. 什么是shell：shell是用户使用操作系统的主要方式。同时包含交互式命令行和脚本两种使用方式。目前linux环境下常用的有：sh(Bourne shell)、bash(bourne again shell)、csh、ksh、zsh。bash是最常见的shell环境，大多数情况下sh和bash等价。
     > 脚本文件内部首行，可以使用#!/bin/xxsh来指定执行使用的shell
-    1. 什么时候用shell：想编写运行在类linux系统上的辅助程序，而且最好别太复杂。实际上如果对perl、python非常熟悉，可以使用这些相对高级的语言代替。
-    1. 生命周期：用户登陆后会运行在自己的用户shell中，每一次运行一个shell脚本程序，系统将创建一个子shell来执行。子shell单向继承父shell的环境变量（普通变量不继承）。环境变量由export进行导出。
-    > 只有以source执行的脚本，才会在当前shell内进行。
-    1. IO
+    2. 什么时候用shell：想编写运行在类linux系统上的辅助程序，而且最好别太复杂。实际上如果对perl、python非常熟悉，可以使用这些相对高级的语言代替。
+    3. 生命周期：用户登陆后会运行在自己的用户shell中，每一次运行一个shell脚本程序，系统将创建一个子shell来执行。子shell单向继承父shell的环境变量（普通变量不继承）。环境变量由export进行导出。
+    > 只有以source、或者是```.```执行的脚本，才会在当前shell内进行。例如```source my.sh```，或者```. my.sh```。
+    4. IO
         1. 标准输入输出：键盘和显示器（当前终端）
-        1. 重定向：
+        2. 重定向：
             ```bash
             # > 重定向输出（覆盖）
             echo "233" > log
@@ -686,12 +708,12 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
             # 合并1、2输出到日志，&1意为取标准输出
             command > log 2>&1 # 2>&1 不能有空格
             ```
-        1. 管道：通过符号 | 将前一个命令结果传送给下一个命令
-    1. 前后台
-    1. 常用环境变量：PATH、CLASSPATH、JAVA_HOME等等
+        3. 管道：通过符号 | 将前一个命令结果传送给下一个命令
+    5. 前后台
+    6. 常用环境变量：PATH、CLASSPATH、JAVA_HOME等等
         - /etc/profile：对所有用户永久生效
         - ~/.bashrc：对单一用户永久生效
-1. 核心语法
+2. 核心语法
     1. 变量定义：英文、数字、下划线
         ```bash
         # 基本写法,等号左右不允许有空格
@@ -710,7 +732,7 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
         # 标记为只读变量（不可删除）
         readonly name
         ```
-    1. 数据类型
+    2. 数据类型
         - 字符串：
             ```bash
             # 双引号：内部可用\\转义，可以使用$引用变量
@@ -744,7 +766,19 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
             # 获取某个元素的长度
             echo ${#my_array[2]}
             ```
-    1. 参数：
+        - 字典
+            ```bash
+            # 使用前需要声明
+            declare -A my_dict
+            my_dict=([key1]=23 [1.1]='236')
+            
+            # 打印全部key
+            echo ${!my_dict[@]}
+            
+            # 打印全部value
+            echo ${my_dict[@]}
+            ```
+    3. 参数：
         - 内置参数：
         | 参数写法 | 含义 |
         | --- | --- |
@@ -756,7 +790,7 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
         | $- | 显示shell的当前选项（每个字符都是shell选项） |
         | $? | 前一个任务的返回值 |
         | !$ | 将前一个命令的**参数**传递给当前命令做**参数**（实用） |
-    1. 运算符：
+    4. 运算符：
         - 算术运算：原生bash并不支持（注意只是算术运算不支持），需要通过expr、let或其他指令实现。此时表达式和运算符之间**必须有空格**。
             ```bash
             # + - * / %
@@ -797,7 +831,7 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
             | -s file | 是否不为空 |
             | -e file | 是否存在 |
             > 实际上文件测试语义都包含了**是否存在**，但为了便于记忆和理解，还是建议写上-e
-    1. 流程控制
+    5. 流程控制
         ```bash
         # if
         if condition1
@@ -810,21 +844,37 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
         then
             command3
         fi
+
         # for和零散变量
         for var in item1 item2 item3
         do
             commands
         done
+
+        # for和数字列表(速度很快)
+        for var in {1..500..2}
+        do
+            commands
+        done
+
         # for和数组
         for var in $my_array
         do
             commands
         done
+
+        # for和命令,例如ls
+        for var in $(ls)
+        do
+            commands
+        done
+
         # while
         while condition
         do
             command
         done
+        
         # 都可以写到一行
         if xxx; then xxx; fi ; for xxx; do xxxx; done
         # case，匹配成功后则结束，不进行后续的模式匹配
@@ -845,7 +895,7 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
         continue n # 跳出n层循环
         continue # 跳出当前循环
         ```
-    1. 函数
+    6. 函数
         ```bash
         # 定义
         funcName ()
@@ -860,7 +910,7 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
         # 调用
         funcName 1 2 3 4 5
         ```
-    1. 调用外部脚本
+    7. 调用外部脚本
         ```bash
         # other.sh内
         echo "this is other"
@@ -870,7 +920,7 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
         # source other.sh 也行
         source other.sh
         ```
-1. 经典例子
+3. 经典例子
     1. 输入输出
         ```bash
         echo '输入你的名字 <ctrl+c退出>'
@@ -879,18 +929,18 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
             echo 'welcome ' $name ' to the system'
         done
         ```
-    1. 希望在前台执行，但是希望命令闭嘴
+    2. 希望在前台执行，但是希望命令闭嘴
         ```bash
         # /dev/null 黑洞
         ping www.baidu.com > /dev/null
         ```
-1. Shell环境
+4. Shell环境
     - 交互式shell和非交互式shell：字面就能理解，等待键盘输入的是交互式，在后台默默运行的是非交互式
     - 登录式shell和非登录式shell：需要用户输入用户名密码才能开始使用的是登录式shell，而类似任务自动化执行的都是非登录式shell（非登录不代表没有用户）
         - 登录式shell一般会读取的配置和顺序：/etc/profile(内部按顺序加载/etc/bash.bashrc，/etc/profile.d/*.sh)，~/.bashrc（内部会加载/etc/bashrc等）。如果使用了zsh，则相应换为~/.zshrc
         - 非登录式shell一般会读取的配置和顺序：~/.bashrc，/etc/profile。
     > 常见的登录式shell：ssh、从tty登录；非登录式shell：从图形界面的终端打开的命令行，自动执行的shell。
-1. 几种自启动脚本写法
+5. 几种自启动脚本写法
     - upstart风格（略）
     - init风格（pid=1是init）
         - init.d：经典的init风格的启动方式，较老的系统
@@ -903,13 +953,160 @@ Bash快捷键的主要目标是快速输入指令，调整指令。这里记录�
         - 为了兼容，仍然会以某种形式保留init风格的一些服务
     - crontab：定时任务，其中也有启动时运行的方法，弊端是无法确定系统的启动情况（比如网络是否已经连接）。编写后需要启动定时服务。
     > 建议同时学习关于linux启动部分，init和systemd。
-1. 实用建议
+6. 实用建议
     1. 引用变量尽量用双引号包括
-    1. 不同shell并不完全相同（zsh和bash的起始数组下标就不同，且zsh默认不支持通配符），编写时请注意尽量指定所用的shell
+    2. 不同shell并不完全相同（zsh和bash的起始数组下标就不同，且zsh默认不支持通配符），编写时请注意尽量指定所用的shell
         > 修改zshrc，添加```setopt nonomatch```以支持命令行通配符
-1. 快捷用法
+7. 快捷用法
     - 历史记录
-1. 参考：[Shell编程快速入门](https://www.runoob.com/w3cnote/shell-quick-start.html)、[shell部分经验](https://www.jb51.net/article/174033.htm)、[linux命令大全](https://www.runoob.com/linux/linux-command-manual.html)、[Linux系统下如何设置开机自动运行脚本？](https://baijiahao.baidu.com/s?id=1722174560616569543&wfr=spider&for=pc)
+8. 参考：[Shell编程快速入门](https://www.runoob.com/w3cnote/shell-quick-start.html)、[shell部分经验](https://www.jb51.net/article/174033.htm)、[linux命令大全](https://www.runoob.com/linux/linux-command-manual.html)、[Linux系统下如何设置开机自动运行脚本？](https://baijiahao.baidu.com/s?id=1722174560616569543&wfr=spider&for=pc)
+
+## 实用Shell案例
+1. 统计一个文件中的词汇和频率，按次数降序打印
+```bash
+# 生成 words.txt
+echo the the day is sunny > words.txt
+echo day is is >> words.txt
+
+# 用split函数，用空格分割每一行，存储到arr，并用sum做统计
+# sort排序
+awk '{split($0,arr," "); for(i in arr)  sum[arr[i]]+=1} END{for(i in sum) print i " " sum[i]}'  words.txt  | sort -r -n -k 2
+```
+
+1. 匹配满足电话号要求的行，[力扣链接](https://leetcode.cn/problems/valid-phone-numbers/description/)
+```bash
+# 注意sed的转义、不转义情况
+sed -n '/^[0-9]\{3\}-[0-9]\{3\}-[0-9]\{4\}$\|^([0-9]\{3\}) [0-9]\{3\}-[0-9]\{4\}$/p' file.txt
+```
+
+1. [awk命令用数组储存带输出结果](https://leetcode.cn/problems/transpose-file/description/)，参考[题解](https://leetcode.cn/problems/transpose-file/solutions/12358/awkming-ling-yong-shu-zu-chu-cun-dai-shu-chu-jie-g/)
+```bash
+awk '{
+    # NF等变量可以直接使用
+    for (i=1;i<=NF;i++){
+        if (NR==1){
+            # $i的方式，获取第i列内容
+            res[i]=$i
+        }
+        else{
+            # 字符串连接
+            res[i]=res[i]" "$i
+        }
+    }
+}END{
+    # 打印各列
+    for(j=1;j<=NF;j++){
+        print res[j]
+    }
+}' file.txt
+```
+
+1. 其他
+```bash
+# 打印空行行号，用=即可
+sed -n '/^$/=' nowcoder.txt
+
+# 打印非空行行号和内容
+sed -n '/^.\+$/{=;p}' nowcoder.txt
+
+# 打印所有短于8个字母的单词，使用了内置函数length
+awk '{ for(i=1;i<=NF;i++){ if(length($i)<8) {print $i}} }'
+
+# 计算内存占用总和（第四列的和，第一行表头不计算）
+awk 'BEGIN{i=0; result=0} {i++; if(i>1) {result+=$4 }} END{print result;}'
+
+# 查看第二列是否有重复，并按数量、单词字典序先后排序
+awk '{ sum[$2]+=1;} END{for(i in sum) { if(sum[i]!=1) {print sum[i]" "i;}} } ' nowcoder.txt | sort  -k1 -k2
+
+# 判断每一行中所有的指定范围内的字符
+awk '
+BEGIN{
+    j=0;
+    total=0;
+}
+{
+    j++;
+    for(i=1;i<=length($0);i++){
+        temp=substr($0,i,1)
+        if(temp>=1&&temp<=5){
+            line[j]+=1;
+            total+=1;
+        }
+    }
+}
+END{
+    for(i=1;i<=NR;++i){
+        if(line[i])
+            print "line"i" number: "line[i]
+        else
+            print "line"i" number: 0"
+    }
+    print "sum is "total;
+}' nowcoder.txt
+# 更优雅的写法是用FS，设置将所有字符切割开
+awk  'BEGIN{FS=""} {for(i=1;i<=NF;i++) { } ' nowcoder.txt
+
+# 去掉所有包含this的句子
+# awk的话，利用不匹配的正则，即!~
+awk '$0 !~ "this"'
+# 如果有更多要求，依然可以在""内添加正则
+awk '$0 !~ "this|that"'
+# sed则是利用不操作，!
+sed -n "/this/!p"
+
+# 求平均值，保留小数位数，由于shell不具备浮点运算能力（expr也不具备），awk几乎是唯一选择
+awk '
+BEGIN
+{
+    N=0;i=0;
+} 
+{
+    if(N==0){
+        N=$0;
+    }
+    else{
+        i+=$0;
+    }
+
+}
+END{
+    printf("%.3f", i/N);
+}'
+
+# 对一系列输入域名进行统计
+# http://www.nowcoder.com/1/2/3
+# 注意分割内容即使为空，也要占据$2
+awk '
+BEGIN{
+    FS="/";
+}
+{
+    sum[$3]+=1;
+}
+END {
+    for(i in sum){
+        print sum[i]" "i;
+    }
+}
+' | sort -k1nr
+
+# 打印有且仅有一个数字的行
+awk '$0 ~ "^[^0-9]*[0-9]{1}[^0-9]*$"'
+
+# 统计日志中某一天的ip访问记录
+awk '
+{
+    if($4 ~ "23/Apr/2020")
+        sum[$1]+=1;
+}
+END {
+    for(i in sum){
+        print sum[i] " " i
+    }
+}
+' | sort -k1nr
+```
+
 ## 其他指令收集
 - 查看系统发行版：
 ```bash

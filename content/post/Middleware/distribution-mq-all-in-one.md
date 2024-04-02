@@ -31,9 +31,9 @@ thumbnailImage: /images/thumbnail/dist-mq.jpg
         | MQ | 消息不丢 | 投递保证 | 顺序保证 | 可回溯 | requeue/defer | 推拉 | 吞吐量 | 生态 |
         | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
         | NSQ | NSQD故障会丢 | 至少一次 | 无序 | 否 | 是 | 推送 | 一般 | 无 |
-        | Kafka | 持久化 | 3种都有 | 有序 | 是 | 否 | 拉取 | 高 | Hadoop |
-        | RocketMQ | | | | | | | |
-        | RabbitMQ | | | | | | | |
+        | Kafka | 持久化 | 3种都有 | 支持有序 | 是 | 否 | 拉取 | 极高 | Hadoop |
+        | RocketMQ | 持久化 | 至少一次 | 支持有序 | 是 | 可重试 | 包装拉取的推送模式 | 高 | Java |
+        | RabbitMQ | 持久化 | 三种都有 | 无序 | 否 | 否 | 推送 | 较高 | Erlang |
     - 其中：nsq投递保证实际弱于at least once（因为不持久化）。无序的原因包括requeue、defer、写磁盘三种。nsq的主要数据都是存储于内存的。吞吐量其实也不低，但是和kafka比起来低很多。
 - 思考：
     - 如何做到写DB和发消息的事务性
@@ -54,7 +54,7 @@ thumbnailImage: /images/thumbnail/dist-mq.jpg
     - high level（Subscribe）：每个consumer属于特定的consumer group、offset由zk或kafka管理、实现rebalance、默认一个group顺序消费Topic的全部消息
     - Consumer Group Rebalance方案：
         - 自治式：Consumer启动时注册id到consumer group下，zk路径为/consumer/consumer_group_name/ids/consumer_id。在consumer-/group_name & /broker/ids & /broker/topics等目录下启用watch。【问题：羊群效应，broker/consumer变动会导致所有consumer进行rebalance。脑裂，consumer从zk上查看当前group情况并根据相同策略决定rebalance，但zk的特性决定了视图可能不一致。结果不可控，consumer不知道其他同组成员是否rebalance成功】
-        - 集中化的rebalance：基于coordinator的rebalance。从zk监听topic、paritition变化。接收consumer的注册，为每一个group选leader，leader通过syncGroup讲rebalance方案发给coordinator，其他consumer也用syncGroup从coordinator处获得方案。
+        - 集中化的rebalance：基于coordinator的rebalance。从zk监听topic、paritition变化。接收consumer的注册，为每一个group选leader，由leader来制定rebalance方案，leader通过发送SyncGroup请求将rebalance方案发给coordinator，其他consumer也用syncGroup从coordinator处获得方案。
 - 高可用机制：【CAP：Partition Tolerance，分布式系统在遇到网络分区故障时，仍能保证对外输出满足一致性和可用性的服务（比如无脑裂等问题）】
     - 数据复制：producer只将数据发送给对应partition的leader（topic中的leader是partition级别的，每个partition有一个）。其他follower去leader处拉取数据。复制模式既不是同步也不是异步，采用了ISR机制，只要ISR中的都接收到，就算是接收消息成功，可以被消费。【常用一致性算法：WNR、Quorum、Paxos及其变种】
         - ISR会自动清除同步过慢的follower，极端情况下，所有的follower都被剔除，leader提交所有的消息。当follower跟上ISR后，也会自动加回来。
@@ -69,3 +69,6 @@ thumbnailImage: /images/thumbnail/dist-mq.jpg
 
 ## 参考
 1. [分布式事务之深入理解什么是2PC、3PC及TCC协议？](https://www.cnblogs.com/wudimanong/p/10340948.html)
+2. [ZooKeeper集群脑裂问题处理，值得收藏！](https://cloud.tencent.com/developer/article/1758883)
+2. [分布式一致性Raft算法](https://zinglix.xyz/2020/06/25/raft/)
+3. [关于etcd的一些谣言](https://ms2008.github.io/2019/12/04/etcd-rumor/)

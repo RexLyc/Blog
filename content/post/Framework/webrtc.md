@@ -7,10 +7,11 @@ categories:
 tags:
 - 合集
 - Web
+- 施工中
 - WebRTC
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/webrtc.png
-draft: true
+
 ---
 从webrtc入手，了解一点多媒体相关的信息技术。
 <!--more-->

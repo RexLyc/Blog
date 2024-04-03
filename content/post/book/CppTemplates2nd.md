@@ -696,6 +696,38 @@ Person(STR&& n) : name(std::forward<STR>(n)) {}
 ```
 
 ### 元编程
+模板的一些特性，可以在编译期表现出分支、循环等语义。因此就具备了计算的能力。最基本的方式有
+1. 分支：借助SFINAE特性，对模板进行选择，从而达到控制分支
+2. 计算：在C++11、C++14之前，计算只能通过模板进行。但新标准已经开始用```constexpr```提示编译器尝试编译期计算。
+3. 循环：同样的也受标准进步的影响，以前循环只能用递归实现，现在也可以还是使用```for```了
+
+元编程的技巧非常多，这里先用一些例子说明
+1. 计算质数
+    ```cpp
+    template<unsigned p, unsigned d> // p: number to check, d: current divisor
+    struct DoIsPrime {
+        static constexpr bool value = (p%d != 0) && DoIsPrime<p,d-1>::value;
+    };
+
+    template<unsigned p> // end recursion if divisor is 2
+    struct DoIsPrime<p,2> {
+        static constexpr bool value = (p%2 != 0);
+    };
+
+    template<unsigned p> // primary template
+    struct IsPrime {
+        // start recursion with divisor from p/2:
+        static constexpr bool value = DoIsPrime<p,p/2>::value;
+    };
+
+    template<>
+    struct IsPrime<0> { static constexpr bool value = false; };
+    template<>
+    struct IsPrime<1> { static constexpr bool value = false; };
+    template<>
+    struct IsPrime<2> { static constexpr bool value = true; };
+    ```
+2. 
 
 
 ## 设计思路

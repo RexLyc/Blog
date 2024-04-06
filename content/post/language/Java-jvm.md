@@ -8,7 +8,6 @@ tags:
 - Java系列
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/java.jpg
-draft: true
 ---
 本篇记录Java的JVM的一些设计、实现细节，对程序开发和面试有一定帮助。
 <!--more-->

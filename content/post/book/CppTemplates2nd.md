@@ -480,6 +480,11 @@ foo<123>();
     template<typename T = std::string>
     void f(T = "") {}
     ```
+1. 函数模板不允许进行部分特化。只能进行全特化。如果一定需要做类似特化的事情，可以选择
+   1. 使用有 ```static``` 函数的类
+   2. 使用```enable_if```
+   3. 编译期if，要求C++17以上
+   4. SFNIAE特性
 
 ## 类模板
 ### 基本结构
@@ -594,6 +599,73 @@ public:
 > ToDo：仍然存有疑问，友元函数模板，如何进行函数模板特化？
 
 ## 难点
+### SFINAE
+SFINAE是模板开发中最重要的理解要点之一。SFINAE（substitution failure is not an error）。是模板参数在替换过程中，如果发生了错误，则不认为是个错误，只是说明这一个模板不适合当前的实参，不继续进行实例化。
+
+但是其替换范围仅限于模板声明中的相关内容：模板参数列表、函数声明。**不包括函数体**。见下面的例子。
+
+```cpp
+// 所有能替换到T(&)[N]的都可以，即各种数组
+template<typename T, unsigned N>
+std::size_t len (T(&)[N])
+{
+    return N;
+}
+// number of elements for a type having size_type:
+// 只有存在size_type成员的，才可以实例化这个函数
+template<typename T>
+typename T::size_type len (T const& t)
+{
+    return t.size();
+}
+
+// 对所有类型的应急选项，不论是什么，都可以用这个，但使用前提是没有其他更优解
+// 只要上面两个中的任何一个，能够通过SFINAE测试，都不会去调用这个函数
+std::size_t len (...)
+{
+    return 0;
+}
+
+int a[10];
+std::cout << len(a); // OK: len() for array is best match
+std::cout << len("tmp"); //OK: len() for array is best match
+std::vector<int> v;
+std::cout << len(v); // OK: len() for a type with size_type is best match
+int* p;
+std::cout << len(p); // OK: only fallback len() matches
+std::allocator<int> x;
+std::cout << len(x); // ERROR: 2nd len() function matches best, but can’t call size() for x
+```
+
+对于函数模板，SFINAE过程也有另外的说法，该XX函数不应该参与重载解析过程。这种说法就代表这种实例化将不会通过替换。
+
+在编译期if和concept出现之前，在函数模板中，对SFINAE的更精细的使用方式，可以通过decltype完成，这时的语法相对丑陋。同时利用了```尾置返回类型语法```，和```逗号表达式```。这里给出了一个例子，用于避免上面第二种```len```函数的尴尬情况（替换通过，但是编译错误）。
+```cpp
+// 尾置auto XXX() -> xxx {}
+// 利用逗号表达式，依次计算的特性，将对类型的要求写道前面，并在最后一个表达式，给出真正的返回值
+// 此时如果想通过SFINAE替换，则也需要满足具备t.size()函数，使用void避免返回值未使用的warning
+template<typename T>
+auto len (T const& t) -> decltype( (void)(t.size()), T::size_type() )
+{
+    return t.size();
+}
+```
+
+### 编译期if
+这是C++17之后引入的特性。通过引入```if constexpr```，控制编译期保留下来的语句。这里一定要理解，不同的分支路径所具备的实际的形参环境可能完全不同。
+
+这种if，需要的是一个编译期常量bool类型。
+```cpp
+template<typename T, typename... Types>
+void print (T const& firstArg, Types const&... args)
+{
+    std::cout << firstArg << '\n';
+    if constexpr(sizeof...(args) > 0) {
+        print(args…); //code only available if sizeof…(args)>0 (sinceC++17)
+    }
+}
+```
+
 ### 移动语义
 模板的设计中，对移动语义的考虑是非常重要的。在模板编程中，最重要的相关点在于利用```std::forward```，完成完美转发
 1. 可变对象被转发之后依然可变。
@@ -698,11 +770,12 @@ Person(STR&& n) : name(std::forward<STR>(n)) {}
 ### 元编程
 模板的一些特性，可以在编译期表现出分支、循环等语义。因此就具备了计算的能力。最基本的方式有
 1. 分支：借助SFINAE特性，对模板进行选择，从而达到控制分支
-2. 计算：在C++11、C++14之前，计算只能通过模板进行。但新标准已经开始用```constexpr```提示编译器尝试编译期计算。
-3. 循环：同样的也受标准进步的影响，以前循环只能用递归实现，现在也可以还是使用```for```了
+2. 计算：在C++11、C++14之前，计算只能通过模板进行。但新标准已经开始用```constexpr```提示编译器尝试编译期计算。当然并不一定真的在编译期计算（根据调用位置总和决定）。而且限制越来越少。
+    > constexpr表现上已经和模板的关系不那么大了，它就是编译器提供了尝试提前计算的关键字。
+4. 循环：同样的也受标准进步的影响，以前循环只能用递归实现，现在也可以还是使用```for```了
 
 元编程的技巧非常多，这里先用一些例子说明
-1. 计算质数
+1. 计算质数（比较原始的方法）
     ```cpp
     template<unsigned p, unsigned d> // p: number to check, d: current divisor
     struct DoIsPrime {
@@ -727,7 +800,43 @@ Person(STR&& n) : name(std::forward<STR>(n)) {}
     template<>
     struct IsPrime<2> { static constexpr bool value = true; };
     ```
-2. 
+2. 计算质数（C++14以上）
+    ```cpp
+    constexpr bool isPrime(unsigned int val) {
+        for (int i = 2; i <= val/2; ++i) {
+            if (val % i == 0)
+                return false;
+        }
+        return val>1;
+    }
+
+    // 
+    isPrime(10);
+    isPrime(1000000);
+    ```
+    > 注意受编译器限制，实际上，constexpr并不保证一定能编译通过，比如在Visual Studio下，有控制编译期验证步骤的选项，如果constexpr修饰的函数，在指定步骤之后仍未完成计算，仍会被认为不是一个编译期表达式。这里是又一个停机问题。
+
+
+将元编程和模板结合起来，就可以实现一些特别的模板选择，例如
+```cpp
+// 对于输入的SZ，计算其是否是质数
+template<int SZ, bool = isPrime(SZ)>
+struct Helper;
+
+// 并提供特化的模板，作为具体实现
+// implementation if SZ is not a prime number:
+template<int SZ>
+struct Helper<SZ, false>
+{
+    // ...
+};
+
+template<int SZ>
+struct Helper<SZ, true>
+{
+    // ...
+};
+```
 
 
 ## 设计思路
@@ -826,15 +935,11 @@ T const& max(T const& a, T const& b, T const& c)
 ```
 
 ## 未翻译章节
-### 12
-### 13
-### 14
-### 15
-### 16
-### 17
-### 26
-### 27
-### 28
+### 12~17 Templates In Depth
+
+### 26 Discriminated Unions
+### 27 Expression Template
+### 28 Debugging Templates
 ### 附录
 
 ## 存疑

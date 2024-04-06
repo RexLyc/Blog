@@ -7,7 +7,6 @@ categories:
 tags:
 - C/C++系列
 - 滚动更新
-# draft: true
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/cpp.png
 ---

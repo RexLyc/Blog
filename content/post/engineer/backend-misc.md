@@ -10,7 +10,7 @@ tags:
 - 滚动更新
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/engineer.png
-# draft: true
+
 ---
 本文记录一些在后端开发中常见的一些工程技术，用来提高稳定性，提高性能等。可能是一些设计思路或实现范式。
 <!--more-->

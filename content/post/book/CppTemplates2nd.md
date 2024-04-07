@@ -548,55 +548,94 @@ T const& Stack<T>::top () const
 ```
 
 ### 特殊点
-友元。在前面的基本结构中，已经展示了一个类模板中的友元函数的定义方式（注意此时友元函数**不是模板**）。这种方式也是最推荐的。如果要将声明和定义分开。是很麻烦的一件事情。因为此时我们实际上必须要在外部定义一个```operator<<``函数模板（类内定义的时候不是）。此时一方面不能丢失模板参数的定义，另一方面也需要保证不出现模板参数冲突。这个问题虽然意义不大，但是对理解函数模板和类模板之间参数的关系有很大意义。
-```cpp
-// 错误示范
-template<typename T>
-class MyTemplate
-{
-private:
-	T value;
-public:
-	MyTemplate(T t):value(T) {}
+1. 友元。
+   在前面的基本结构中，已经展示了一个类模板中的友元函数的定义方式（注意此时友元函数**不是模板**）。这种方式也是最推荐的。如果要将声明和定义分开。是很麻烦的一件事情。因为此时我们实际上必须要在外部定义一个```operator<<``函数模板（类内定义的时候不是）。此时一方面不能丢失模板参数的定义，另一方面也需要保证不出现模板参数冲突。这个问题虽然意义不大，但是对理解函数模板和类模板之间参数的关系有很大意义。
+    ```cpp
+    // 错误示范
+    template<typename T>
+    class MyTemplate
+    {
+    private:
+        T value;
+    public:
+        MyTemplate(T t):value(T) {}
 
-	//template<typename T>
-	friend std::ostream& operator<<(std::ostream& out, MyTemplate<T> const& t);
-};
+        //template<typename T>
+        friend std::ostream& operator<<(std::ostream& out, MyTemplate<T> const& t);
+    };
 
-// 该模板，不被认可为友元函数的实现。编译仍然会报未定义的引用。
-// 个人的理解时，这个定义在友元函数声明的下方，在随类模板对友元函数实例化时，看不到这个定义
-template<typename T>
-std::ostream& operator<<(std::ostream& out, MyTemplate<T> const& t) {
-	out << "in my template" << t.value;
-	return out;
-}
+    // 该模板，不被认可为友元函数的实现。编译仍然会报未定义的引用。
+    // 个人的理解时，这个定义在友元函数声明的下方，在随类模板对友元函数实例化时，看不到这个定义
+    template<typename T>
+    std::ostream& operator<<(std::ostream& out, MyTemplate<T> const& t) {
+        out << "in my template" << t.value;
+        return out;
+    }
 
-// 该函数，则不被认为是友元函数，无法访问value
-template<>
-std::ostream& operator<<(std::ostream& out, MyTemplate<int> const& t) {
-	out << "in my template" << t.value;
-	return out;
-}
-```
+    // 该函数，则不被认为是友元函数，无法访问value
+    template<>
+    std::ostream& operator<<(std::ostream& out, MyTemplate<int> const& t) {
+        out << "in my template" << t.value;
+        return out;
+    }
+    ```
 
-正确示范
-```cpp
-// 前置声明
-template<typename T>
-class Stack;
-// 定义函数模板
-template<typename T>
-std::ostream& operator<< (std::ostream&, Stack<T> const&) { /*...*/ }
+    正确示范
+    ```cpp
+    // 前置声明
+    template<typename T>
+    class Stack;
+    // 定义函数模板
+    template<typename T>
+    std::ostream& operator<< (std::ostream&, Stack<T> const&) { /*...*/ }
 
-template<typename T>
-class Stack {
-public:
-    // 注意此时，需要对其指定一个模板参数<T>，因为我们需要的是一个用T类型的实例化的函数模板
-    friend std::ostream& operator<< <T> (std::ostream&, Stack<T> const&);
-}
-```
+    template<typename T>
+    class Stack {
+    public:
+        // 注意此时，需要对其指定一个模板参数<T>，因为我们需要的是一个用T类型的实例化的函数模板
+        friend std::ostream& operator<< <T> (std::ostream&, Stack<T> const&);
+    }
+    ```
 
-> ToDo：仍然存有疑问，友元函数模板，如何进行函数模板特化？
+    > ToDo：仍然存有疑问，友元函数模板，如何进行函数模板特化？
+1. 构造函数模板和类生成的成员函数。注意：构造函数模板永远不会覆盖类生成的成员函数。
+    1. 构造函数模板，不会覆盖拷贝构造函数、移动构造函数。
+        ```cpp
+        class C {
+        public:
+            C() {}
+
+            // 这里的T，永远不会被实例化替换为C，即使不存在用户自定义的拷贝构造
+            // 也就是说这里的函数模板，只是扩展了普通构造函数的范围（提供了更多类型的重载）
+            template<typename T>
+            C(T const&) {
+                std::cout << "tmpl copy constructor, " << typeid(T).name() << std::endl;
+            }
+
+            C(const C&) {
+                std::cout << "copy construction" << std::endl;
+            }
+
+            C(C&&) {
+                std::cout << "move construction" << std::endl;
+            }
+        };
+        ```
+    1. 构造函数模板，也不会覆盖用户编写的非模板的构造函数
+        ```cpp
+        class C {
+        public:
+            C() {}
+            
+            C(int) { std::cout << "int constructor" << std::endl; }
+
+            // 如果已经有了上面的非模板的构造函数，则函数模板的T不会再被实例化替换为int
+            template<typename T>
+            C(T const&) {
+                std::cout << "tmpl copy constructor, " << typeid(T).name() << std::endl;
+            }
+        }
+        ```
 
 ## 难点
 ### SFINAE
@@ -947,3 +986,5 @@ T const& max(T const& a, T const& b, T const& c)
 
 ## 参考
 1. [博客园：C++ 模板元编程 笔记](https://www.cnblogs.com/SovietPower/p/17929538.html)
+2. [C++中构造函数，拷贝构造函数和赋值函数的区别和实现](https://www.cnblogs.com/liushui-sky/p/7728902.html)
+3. [Cpp Reference explicit 说明符](https://zh.cppreference.com/w/cpp/language/explicit)

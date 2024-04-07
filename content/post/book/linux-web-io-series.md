@@ -83,7 +83,60 @@ TCP最重要的特性之一就是提供可靠服务。而这一点是通过超�
 2. 应用程序可以通过它们来修改内核中各层协议的某些头部信息或其他数据结构，从而精细地控制底层通信的行为。
 3. 不仅可以访问TCP/IP协议栈，也可以访问其他网络协议栈。例如UNIX本地域协议栈。
 
+```cpp
+// 摘抄，一个最基本的TCP Server例子
+#include <iostream>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <signal.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
 
+using namespace std;
+
+static bool stop=false;
+/*SIGTERM信号的处理函数,触发时结束主程序中的循环*/
+static void handle_term(int sig ){
+    stop =true;
+}
+int main( int argc,char* argv[]){
+	cout << "hello world!" <<endl;
+    signal(SIGTERM,handle_term);
+    if(argc<= 3) {
+        printf( "usage:%s ip_address port_number backlog\n", basename(argv[0]));
+        return 1;
+    }
+    const char *ip=argv[1];
+    int port = atoi( argv[2]);
+    int backlog=atoi(argv[3]);
+    int sock=socket(PF_INET,SOCK_STREAM,0);
+    assert(sock>=0);
+    /*创建一个IPy4 socket抢址*/
+    struct sockaddr_in address;
+    bzero(&address,sizeof(address));
+    address.sin_family = AF_INET;
+    inet_pton(AF_INET,ip,&address.sin_addr);
+    address.sin_port = htons(port);
+    int ret=bind(sock,(struct sockaddr*)&address, sizeof( address ));
+    assert(ret!=-1);
+    ret=listen(sock,backlog);
+    assert(ret!=-1);
+    /*循环等待连接,直到有SIGTERM信号将它中断*/
+    while(!stop )
+        sleep(1);
+    /*关闭socket,见后文*/
+    close( sock);
+    return 0;
+}
+```
+
+### 细节要点
+1. socket编程的运行时效果，受到程序内运行时参数，和内核参数的共同影响。而二者的最终影响效果，受内核版本影响。在不同版本有不同的表现。例如
+   1. Linux2.2之前和之后，backlog值对半连接和全连接队列的控制含义不同。而且在更高版本中（版本不详），超出backlog的将不再建立半连接（因为建立了也无法accept）。这时可以通过netstat观察到连接队列溢出的情况。参考[backlog参数对TCP连接建立的影响](https://switch-router.gitee.io/blog/TCP-Backlog/)
 
 
 ## 参考

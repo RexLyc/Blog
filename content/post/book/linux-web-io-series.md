@@ -153,6 +153,9 @@ int main( int argc,char* argv[]){
 1. socket编程的运行时效果，受到程序内运行时参数，和内核参数的共同影响。而二者的最终影响效果，受内核版本影响。在不同版本有不同的表现。例如
    1. Linux2.2之前和之后，backlog值对半连接和全连接队列的控制含义不同。而且在更高版本中（版本不详），超出backlog的将不再建立半连接（因为建立了也无法accept）。这时可以通过netstat观察到连接队列溢出的情况。参考[backlog参数对TCP连接建立的影响](https://switch-router.gitee.io/blog/TCP-Backlog/)
 
+## 实践项目
+在学习过程中所编写的项目代码，存储于[linux-web-concurrency-learn](https://github.com/RexLyc/linux-web-concurrency-learn)。
+
 
 ## 参考
 - [[译] Linux 异步 I/O 框架 io_uring：基本原理、程序示例与性能压测（2020）](https://arthurchiao.art/blog/intro-to-io-uring-zh/)

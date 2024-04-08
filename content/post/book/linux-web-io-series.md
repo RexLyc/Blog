@@ -199,7 +199,8 @@ int main( int argc,char* argv[]){
     | getsockopt / setsockopt | 查询、设置socket选项 | 比如修改缓冲区大小、设置允许TIME_WAIT地址重用等 |
     | gethostbyname / gethostbyaddr / getservbyname / getservbyport / getaddrinfo / getnameinfo | 查询dns、根据名称（比如telnet）查询服务的基本信息（端口等） | 不可重入 |
 
-1. 
+1. 其他基本Linux的API
+    | API | 
 
 ## 参考
 - [[译] Linux 异步 I/O 框架 io_uring：基本原理、程序示例与性能压测（2020）](https://arthurchiao.art/blog/intro-to-io-uring-zh/)

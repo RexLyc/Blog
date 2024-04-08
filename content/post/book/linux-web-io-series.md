@@ -92,6 +92,26 @@ TCP最重要的特性之一就是提供可靠服务。而这一点是通过超�
 
 > HTTPS主要是在传输层和应用层之间引入了一个安全套接字层（TLS/SSL），其对HTTP来说是透明的，应用将数据输入到安全套接字管道中，安全套接字层进行加密，并输出到传输层。
 
+## 其他背景知识
+1. 字节序：大（尾）端（Big Endian，高位字节存储在低位，更好记得就是尾部字节在高位）、小端反之
+    ```cpp
+    int a = 0x12345678;
+    if(*(char*)(&a) == 0x12) {
+        // 大尾端
+    } else {
+        // 小尾端
+    }
+    ```
+    字节序不仅和平台有关，有时也和语言相关
+    | 平台 | 字节序 |
+    | --- | --- |
+    | 网络传输 | 大端 |
+    | x86 CPU（INTEL） | 小端 |
+    | Moto CPU 摩托罗拉 | 大端 |
+    | Arm CPU | 小端 |
+    | Java虚拟机 | 大端 |
+1. 
+
 ## socket编程
 是Linux的网络编程的抽象。由于从传输层及往下，都是由内核实现的。因此内核向上提供的系统调用，即socket编程，需要提供一组接口，满足
 1. 将应用程序数据从用户缓冲区中复制到 TCP/UDP内核发送缓冲区，以交付内核来发送数据，或者是从内核TCP/UDP接收缓冲区中复制数据到用户缓冲区，以读取数据
@@ -151,11 +171,35 @@ int main( int argc,char* argv[]){
 
 ### 细节要点
 1. socket编程的运行时效果，受到程序内运行时参数，和内核参数的共同影响。而二者的最终影响效果，受内核版本影响。在不同版本有不同的表现。例如
-   1. Linux2.2之前和之后，backlog值对半连接和全连接队列的控制含义不同。而且在更高版本中（版本不详），超出backlog的将不再建立半连接（因为建立了也无法accept）。这时可以通过netstat观察到连接队列溢出的情况。参考[backlog参数对TCP连接建立的影响](https://switch-router.gitee.io/blog/TCP-Backlog/)
+   1. Linux2.2之前和之后，backlog值对半连接和全连接队列的控制含义不同。而且在更高版本中（版本不详，不早于3.10，不晚于4.4），超出backlog的将不再建立半连接（因为建立了也无法accept）。这时可以通过netstat观察到连接队列溢出（SYNC_RECV状态）的情况。参考[backlog参数对TCP连接建立的影响](https://switch-router.gitee.io/blog/TCP-Backlog/)。
 
 ## 实践项目
 在学习过程中所编写的项目代码，存储于[linux-web-concurrency-learn](https://github.com/RexLyc/linux-web-concurrency-learn)。
 
+## 工具库、数据结构函数
+1. 基本网络库
+    | API/数据结构 | 功能 | 备注 |
+    | --- | --- | --- |
+    | sockaddr_storage | 通用，存储协议族、协议所用地址 | 内存对齐 |
+    | sockaddr_un | 存储unix套接字协议，地址 |  |
+    | sockaddr_in / sockaddr_in6 | 存储ipv4/ipv6协议，地址，端口，标记 |  |
+    | in_addr / in6_addr | 存储ipv4/ipv6地址 |  |
+    | getpeername / getsockname | 获取对端、本端地址信息 |  |
+    | htonl() / ntohl() / ... | 网络字节序到主机字节序的各种数据类型转换 |  |
+    | inet_addr() / inet_aton() / inet_ntoa() / inet_ntop() / inet_pton() | 字符串地址到ipv4/ipv6地址转换 | 有个别是不可重入函数，其返回的char*是一个内部静态变量，如有需要必须深拷贝 |
+    | socket | 指定服务协议族、服务、子协议，创建套接字 |  |
+    | bind | 绑定地址 |  |
+    | listen | 开始监听 | 创建监听队列，如tcp有半连接队列和全连接队列 |
+    | connect | 发起连接 |  |
+    | close / shutdown  | 关闭连接 | close是将文件描述符的引用计数减一（计数归零会真正关闭）、shutdown则是直接强制关闭 |
+    | recv / send | 发送、接受tcp流数据 | 通过flag控制发送、接收细节，例如发送和接收带外数据（URG） |
+    | recvfrom / sendto | 发送、接收数据（TCP、UDP都可以） |  |
+    | recvmsg / sendmsg | 发送、接收数据（TCP、UDP都可以） |  |
+    | sockatmask | 查询当前套接字是否有带外标记的数据 | 需要结合recv，以及MSG_OOB标志，读取带外数据 |
+    | getsockopt / setsockopt | 查询、设置socket选项 | 比如修改缓冲区大小、设置允许TIME_WAIT地址重用等 |
+    | gethostbyname / gethostbyaddr / getservbyname / getservbyport / getaddrinfo / getnameinfo | 查询dns、根据名称（比如telnet）查询服务的基本信息（端口等） | 不可重入 |
+
+1. 
 
 ## 参考
 - [[译] Linux 异步 I/O 框架 io_uring：基本原理、程序示例与性能压测（2020）](https://arthurchiao.art/blog/intro-to-io-uring-zh/)

@@ -59,9 +59,14 @@ C++真正使用的对象模型是从简单对象模型派生而来的。从成�
 
 而额外的空间和时间成本来自于两种情况。
 1. 虚函数机制：每一个有多态的基类，会增加一个虚函数表指针。
-2. 虚继承：
-    1. 为了满足虚基类只有一个内存实例的要求，在不同的继承路径上，均需要增加一个指针来保存到虚基类的地址。虚基类的subobject单独存放在派生类成员前面。
+    1. 虚函数表：表内有若干虚函数指针，同时，还会通过thunk的方式，保存到其他虚表的距离，因为如果是以非第一继承顺序的类型指针/引用进行多态调用，需要调整此时的指针。才能获取到完整的虚表。
+2. 虚继承：参考[C++普通继承、多继承、虚继承内存空间排布分析](https://blog.csdn.net/Go_bro/article/details/122578288)、[C++：类的内存布局](https://zhuanlan.zhihu.com/p/590939285)
+    1. 为了满足虚基类只有一个内存实例的要求，因此需要再建立若干个虚基类表，在不同的虚继承路径上，均需要增加一个vbptr指针来保存对应虚基表的地址。虚基类的subobject一般存放在最底层派生类成员的后面。如果是完全虚继承（即所有的基类都是virtual，则按顺序都在派生类成员后面排列，可见此时结构和常规的继承完全相反了）
+        > 虚基类指针vbptr指向虚基类表vbtable，虚基类表中存放的是，数据相对于虚基类指针的偏移，从而根据偏移找到数据
+        > 虚基类表是一个存储了，当前vbptr地址到自己和其他所有自己的虚基类的vfptr的偏移量的表格。派生类的虚基类表是最大的
     2. 因为虚基类被单独存储，所以继承路径上，如果有添加了新的虚函数，不从虚基类重写的，也不能存储在虚基类的虚函数表中，而是要存储在路径中的对应类型自己的虚函数表内。
+    3. 在派生类和虚基类之间，可能插入0x00000000（有一些条件），一个四字节的填充物。在该填充物之前，派生类可能会再有一些padding。在visual studio下，可以通过```#pragma vtordisp(off)```控制。
+    > 设计上，不建议在虚基表中，存储任何非静态成员。
 
 ### padding
 为了对齐需求，所进行的数据填充。padding有两种可能性
@@ -104,12 +109,57 @@ struct Test2 {
 以上两种方式，最大的问题是引入了过多的间接级数，而且这种级数随着继承深度加深而变深。当然也不是完全没有好处，使用指针的话，可以允许基类在某些修改情况之后，不需要对派生类进行重新编译。
 
 1. 单继承：内存布局按照先基类、再派生类进行排列
-2. 多继承：内存布局按照声明的继承顺序排列，最后是派生类的成员
+2. 多继承：内存布局按照声明的继承顺序排列，最后是派生类的成员。派生类会将自己的所有虚函数，放到第一个基类的虚函数表中。
 3. 菱形多继承（非虚继承）：和多继承一样，而且不同的路径上都会各自有一份基类的内存布局，如果有虚函数，其虚函数表也是不同的
 4. 虚继承：
-    1. 部分虚继承：
-    2. 完全虚继承：
-5. 菱形多继承（虚继承）：
+    1. 部分虚继承：即仍有非虚基类，派生类还可以将自己的虚函数放到该非虚基类的虚函数表中
+    2. 完全虚继承：全都是虚基类，此时派生类只要有一个新的虚函数，就必须为自己准备一个新的虚函数表。（注意虚析构函数不算新的虚函数）
+5. 菱形多继承（虚继承）：综合上面的3、4
+
+如下代码
+```cpp
+struct Test {
+	int a;
+	int b;
+	virtual void func() {
+		cout << "in Test" << endl;
+	}
+	virtual ~Test() {
+		cout << "Test ?" << endl;
+	}
+};
+
+struct TestA : virtual public Test {
+	int Aa;
+	//virtual void func()override {
+	//	cout << "in TestA" << endl;
+	//}
+
+	virtual void func2() {
+		cout << "in TestA func2" << endl;
+	}
+	virtual ~TestA() {}
+};
+
+struct TestB : virtual public Test {
+	int Ba;
+	virtual void func()override {
+		cout << "in TestB" << endl;
+	}
+	virtual ~TestB() {}
+};
+
+struct Test3 : virtual public TestA, virtual public TestB {
+	int cc;
+	virtual void func() {
+		cout << "in Test3" << endl;
+	}
+	virtual ~Test3() {}
+};
+```
+最终形成的内存布局如下
+![带有vbptr的完全虚继承](memory_layout_with_vbptr.png)
+
 
 > 虚析构函数和普通虚函数一样，是会被覆盖的。派生类的析构函数会覆盖到基类的虚析构函数原本所在虚表中的位置。析构函数调用顺序和构造相反，由编译器按顺序执行。（尚不清楚原理，如何保证调用链）
 
@@ -244,3 +294,13 @@ int main(){
 
 ## 和内存布局有关的错误使用
 1. 虚析构问题，再次参考[c++内存分布之虚析构函数](https://www.cnblogs.com/pandamohist/p/13884117.html)
+
+## 工具
+1. 在Visual Studio下，可以通过提供的Native Tool，查看内存布局，具体方法是
+    ```sh
+    # 搜索命令，x64或x86 Native Tools Command Prompt for VS 20XX
+    cd /path/to/your/source/
+    # 将下面的{YourClass}整体替换为你想看的类型
+    cl /d1 reportSingleClassLayout{YourClass} YourCpp.cpp
+    ```
+    G++有类似的方法，是```g++ -fdump-lang-class -c YourCpp.cpp```，不管你有什么疑惑，看一下这个布局，就全明白了

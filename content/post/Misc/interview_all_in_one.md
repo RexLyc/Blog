@@ -120,7 +120,7 @@ thumbnailImage: /images/thumbnail/interview.jpg
 29. 为什么C++标准限制，不允许部分特化函数模板？
     - 参考[该不该特化函数模板？](https://www.jianshu.com/p/e78d9d3bf535)
 30. 有没有看过无锁数据结构？
-    - To Do
+    - boost中有三个LockFree数据结构，多写者多读者的queue、stack，以及单写单读的环状队列spec_queue。
     - 参考[1.84.0版本boost，第20章Boost.Lockfree](https://www.boost.org/doc/libs/1_84_0/doc/html/lockfree.html)
 ### Java-Spring
 1. 压测如何分析性能？

@@ -214,7 +214,10 @@ public:
 };
 ```
 
-## 无锁数据结构
+## 无锁数据结构速览
+
+## 无锁数据结构设计和开发
+> 本章节内容大幅来自于CppCon 2014: Herb Sutter "Lock-Free Programming。见参考文献中的相关链接。
 ### 基本概念
 首先问一个问题，为什么要无锁？
 1. 减少算法、数据结构的阻塞、等待时间
@@ -229,8 +232,9 @@ public:
 2. 在C++中是```atomic<T>```，在C11中是```atomic_*```。这些原子变量提供的能力是
     1. 对他们的读写都是原子性的，无锁的
     2. 根据设计需要，可以控制这些原子读写之间的重排情况
-    3. 支持CAS指令。对于C++，提供```compare_exchange_strong```、```compare_exchange_weak```和```exchange```。关于这三者的语义，可以参考[C++ 多线程：原子类型(std::atomic)](https://juejin.cn/post/7086226046931959838)。弱版本允许(spuriously 地)返回 false(即原子对象所封装的值与参数 expected 的物理内容相同，但却仍然返回 false)，即使在预期的实际情况与所包含的对象相比较时也是如此。对于某些循环算法来说，这可能是可接受的行为，并且可能会在某些平台上带来显著的性能提升。在这些虚假的失败中，函数返回false，而不修改预期。对于非循环算法来说， ```compare_exchange_strong``` 通常是首选。
-    4. 允许原子化的类型是有限的，而且此时其内存布局可能发生变化。
+    3. 支持CAS指令。对于C++，提供```compare_exchange_strong```、```compare_exchange_weak```和```exchange```。
+        > 关于这三者的语义，可以参考[C++ 多线程：原子类型(std::atomic)](https://juejin.cn/post/7086226046931959838)。弱版本允许(spuriously 地)返回 false(即原子对象所封装的值与参数 expected 的物理内容相同，但却仍然返回 false)，即使在预期的实际情况与所包含的对象相比较时也是如此。对于某些循环算法来说，这可能是可接受的行为，并且可能会在某些平台上带来显著的性能提升。在这些虚假的失败中，函数返回false，而不修改预期。对于非循环算法来说， ```compare_exchange_strong``` 通常是首选。
+    5. 允许原子化的类型是有限的，而且此时其内存布局可能发生变化。
         > 如果模板参数类型很大，甚至会使用锁来完成
 
 无锁的三种级别：
@@ -239,6 +243,8 @@ public:
 3. obstruction-free：最弱的级别，在其他线程都暂停的情况下，才有一个线程能在给定操作时间内完成
 
 > 这三个级别，在编写代码的时候，是可以起到一定的指导意义的。比如针对一个给定的数据规模，我们可以知道在使用K个线程上下时，算法是wait-free还是lock-free，还是obstruction-free。一般来说，当线程超过一定量级时，性能将会不可避免的从wait-free变为lock-free。
+
+> 另外，要记得，我们最终的数据结构，不应该再要求外部的使用者，有任何同步操作。当然，使用者还是需要遵守构造、析构等生命周期的规范。换言之，超出生命周期的错误就不由数据结构负责了。
 
 ### 基本例子
 1. DCL：double-checked lock。控制锁的粒度，我们可以用无锁方法先去读一下。在需要的时候再上锁。而且在这种情况下，我们还可以进一步优化原子变量的读取/写入次数。
@@ -262,11 +268,278 @@ public:
 
     ```
 2. 生产者消费者场景:
-    考虑一个有若干槽位的，邮箱一样的数据结构。可以向其中任意的槽输入数据，并由消费者消费。
+    考虑一个有若干槽位的，邮箱一样的数据结构。可以向其中任意的槽输入数据，并由消费者消费。注意下面的图片说明了在一个数据结构中，可能混合着wait-free部分，和obstruction-free部分。
     ![生产者的无锁设计](/images/book/cpp-concurrency/producer-lockfree.png)
     ![消费者的无锁设计](/images/book/cpp-concurrency/consumer-lockfree.png)
     上面的设计并没有很完整（缺少了必备的CAS部分），但从上面的设计可以看出，无论无锁数据结构的场景多么复杂。其实最终关心的事情都是同样的，就是Compare And Set。
-   
+3. lock-free的单向链表：看起来简单，实际很复杂
+    先来看一下接口需求，这里只要5个：构造、析构、查找、push_front、pop_front。
+
+    下面是一个半成品。
+    ```cpp
+    template<typename T>
+    class slist{
+    public:
+        // 什么都不用做
+        slist() = default;
+
+        // 
+        ~slist() {
+            auto first = head.load();
+            while(first){
+                auto unlinked = first;
+                first = first->next;
+                delete unlinked;
+            }
+        }
+
+        T* find(T t) const {
+            // 这里就能看出无锁的优势，获取堆头只需要一个load，不用锁，之后的遍历也不需要锁住
+            auto p = head.load();
+            while (p && p->t != t) {
+                p = p->next;
+            }
+            return p? &p->t : nullptr;
+        }
+
+        // push_front 会稍微复杂一点，因为可能有多个线程同时进入这里
+        void push_front(T t) {
+            auto p = new Node;
+            p->t = t;
+            // 这里涉及到一次head的load，head存储的是之前的队头
+            p->next = head;
+            // 交换，注意这里需要用weak，用strong也不会改变什么
+            // 我们需要的是循环直到成功，包括避免假失败
+            // 注意这里是另一个精妙设计，在compare_exchange_weak失败时，会令p->next=head;
+            while (!head.compare_exchange_weak(p->next, p)) {}
+        }
+
+        // 但是，这里变得无法处理了
+        void pop_front() {
+            // ...
+            // 首先要保证，如果find还在使用，那么不能删除
+            // 其次要保证，如果和push_front交错运行。head能够正确表示。
+            // 很遗憾，这都不能优雅的简单做到
+        }
+    private:
+        struct Node{
+            T t;
+            Node* next;
+        }
+        atomic<Node*> head{nullptr};
+
+        // 对于这种结构，一般都会禁止拷贝
+        slist(const slist&) = delete;
+        slist& operator=(const slist&)=delete;
+    }
+    ```
+    在pop_front中就会遇到ABA问题了。如果在pop的过程中，删除了一个节点，但是过一会儿因为push又被原地重建。此时head是无法区分出来，这是两个对象。解决ABA有很多种方案，针对本文可以延迟GC、添加辅助数据、不做真正删除等等。可能没有非常完美的，但是CppCon教程给出了一种常用办法。这需要对数据结构做重新设计。加入最重要的：```智能指针```。
+
+    ```cpp
+    // slist 的实现，实际上可以当作一个栈来使用了
+    template<typename T>
+    class slist{
+    public:
+        // 什么都不用做
+        slist() = default;
+
+        // 有趣的是，因为这一次我们使用共享指针，析构什么都不用做了
+        ~slist() = default;
+
+        // 这里使用reference提供更好的封装，可以控制对T的访问能力
+        // 而且如果有需要，也可以进一步控制复制能力，避免直接返回shared_ptr后，使用者多次复制增加引用计数
+        class reference {
+            shared_ptr<Node> p;
+        public:
+            reference(shared_ptr<Node> p_): p{p_} {}
+            
+            // 可以根据自己的需要进行接口封装
+            T& operator*() { return p->t; }
+            T* operator->() { return &p->t; }
+        }
+
+        auto find(T t) const {
+            auto p = head.load();
+            // 这里看似简单，但是要知道的一个问题是，每一次的p = p->next; 都在修改共享指针的引用计数。
+            while (p && p->t != t) {
+                p = p->next;
+            }
+            // 使用move，减少一次引用计数的变动。
+            return reference(move(p));
+        }
+
+        // push_front 除了make_shared，并无大的改变
+        void push_front(T t) {
+            auto p = make_shared<Node>();
+            p->t = t;
+            p->next = head;
+            while (!head.compare_exchange_weak(p->next, p)) {}
+        }
+
+        // 
+        void pop_front() {
+            auto p = head.load();
+            while (p && !head.compare_exchange_waek(p, p->next)) {}
+            // 在这里，共享指针显示出了强大的能力。此时的delete将会是自动的 
+            // 如果有其他线程在持有共享引用，它也会被保留
+        }
+    private:
+        struct Node{
+            T t;
+            // 引入共享指针，解决并发过程中的删除问题（延迟删除）
+            shared_ptr<Node> next;
+        }
+        atomic<shared_ptr<Node>> head;
+
+        // 对于这种结构，一般都会禁止拷贝
+        slist(const slist&) = delete;
+        slist& operator=(const slist&)=delete;
+    }
+    ```
+
+1. 再来看一个逐渐进行优化的例子
+    来看一个队列，这里先暂时不再考虑回收内存的问题。
+    ```cpp
+    template<typename T>
+    class LowLockQueue {
+        struct Node {
+            Node (T val) : value(val), next(nullptr) {}
+            T value;
+            atomic<Node*> next;
+        }
+    public:
+
+        LowLockQueue() {
+            // 建立一个虚拟的节点，这个节点不作为有效数据
+            first = divider = last = new Node(T());
+            producerLock = consumerLock = false;
+        }
+
+        ~LowLockQueue() {
+            while (first != nullptr) {
+                Node* tmp = first;
+                first = tmp->next;
+                delete tmp;
+            }
+        }
+
+        Node *first, *last;
+
+        // 生产者消费者边界
+        atomic<Node*> divider;
+
+        atomic<bool> consumerLock;
+        atomic<bool> producerLock;
+
+        bool Produce(const T& t) {
+            Node* tmp = new Node(t);
+            while (producerLock.exchange(true)) {}
+            last = last->next = tmp;
+            while (first != divider) {
+                Node* tmp = first;
+                first = first->next;
+                delete tmp;
+            }
+            producerLock = false;
+            return true;
+        }
+        
+        bool Consume( T& result) {
+            // 一个非常经典的利用exchange做锁的写法
+            while(consumerLock.exchange(true)) {}
+            if(divider->next != nullptr) {
+                result = divider->next->value;
+                divider = divider->next;
+                consumerLock = false;
+                return true;
+            }
+            consumerLock = false;
+            return false;
+        }
+    }
+    ```
+    性能分析，通过建立不同数量的producer、consumer，来考察：吞吐量、伸缩性。结果见下面这张图。
+    
+    ![在24核机器上进行的测试](/images/book/cpp-concurrency/lowlockqueue-throughput.png)
+    
+    可见，在这种设计下，最终的性能和核数（24个）相关，当超过系统的物理核心数量之后，吞吐量不再上升，甚至下降。但是并没有很好的体现，线程数量上升时，吞吐量呈现类似的线性上升的趋势。
+
+    当然上面有很大的优化空间，先让我们看一下。堆优化，不要再将拷贝这样的操作，放在临界区内。
+    ```cpp
+    // 以下只列出改动的部分
+    struct Node {
+        Node(T *val): value(val), next(nullptr) {}
+        T* value;
+        atomic<Node*> next;
+    }
+
+    LowLockQueue() {
+        first = divider = last = new Node(nullptr);
+        producerLock = consumerLock = false;
+    }
+
+    bool Consumer(T& result) {
+        while (consumerLock.exchange(true)) {}
+        if (divider->next != nullptr) {
+            T* value = divider->next->value;
+            divider->next->value = nullptr;
+            divider = divider->next;
+            consumerLock = false;
+            result = *value;
+            delete value;
+            return true;
+        }
+        consumerLock = false;
+        return false;
+    }
+    ```
+
+    还可以进一步的减少消费者的争抢。这里有几点关于之前的优化思路值得思考。Todo。
+    ```cpp
+    LowLockQueue() {
+        // 不再使用divider
+        first = last = new Node(nullptr);
+        producerLock = consumerLock = false;
+    }
+
+    bool Consume(T& result) {
+        while(consumerLock.exchange(true)) {}
+        if(first->next != nullptr){
+            Node* oldFirst = first;
+            first = first->next;
+            T* value = first->value;
+            first->value = nullptr;
+            consumerLock = false;
+            result = *value;
+            delete value;
+            delete oldFirst;
+            return true;
+        }
+        consumerLock = false;
+        return false;
+    }
+
+    bool Produce(const T& t) {
+        Node* tmp = new Node(t);
+        while (producerLock.exchange(true)) {}
+        last->next = tmp;
+        last = tmp;
+        producerLock = false;
+        return true;
+    }
+    ```
+
+    最后，还要考虑cache对齐。只要两个变量，可能被不同的线程使用，就应该考虑为其分配在不同的缓存行上
+    ```cpp
+    struct alignas(CACHE_LINE_SIZE) Node {
+        // ... 内容不变
+    }
+
+    alignas(CACHE_LINE_SIZE) Node* first;
+    alignas(CACHE_LINE_SIZE) atomic<bool> consumerLock;
+    alignas(CACHE_LINE_SIZE) Node* last;
+    alignas(CACHE_LINE_SIZE) atomic<bool> producerLock;
+    ```
 
 ## 重点推荐参考
 1. [1.84.0版本boost，第20章Boost.Lockfree](https://www.boost.org/doc/libs/1_84_0/doc/html/lockfree.html)

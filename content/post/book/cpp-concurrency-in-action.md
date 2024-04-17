@@ -18,6 +18,7 @@ draft: true
 ## 术语
 1. interleaving：指来自不同线程的指令交错执行
 2. discipline：约束，比如lock-free discipline
+3. contention：争用
 
 ## 并发编程基础概念
 1. 为什么并发？
@@ -398,7 +399,7 @@ public:
     ```
 
 1. 再来看一个逐渐进行优化的例子
-    来看一个队列，这里先暂时不再考虑回收内存的问题。
+    来看一个队列
     ```cpp
     template<typename T>
     class LowLockQueue {
@@ -425,7 +426,7 @@ public:
 
         Node *first, *last;
 
-        // 生产者消费者边界
+        // 生产者消费者边界，只有这个需要原子化
         atomic<Node*> divider;
 
         atomic<bool> consumerLock;
@@ -433,13 +434,17 @@ public:
 
         bool Produce(const T& t) {
             Node* tmp = new Node(t);
+            // 其实是利用原子变量上锁了
             while (producerLock.exchange(true)) {}
+            // 将虚拟节点last进一步向后移动
             last = last->next = tmp;
+            // 在插入时进行内存回收，惰性回收（莫名其妙的）
             while (first != divider) {
                 Node* tmp = first;
                 first = first->next;
                 delete tmp;
             }
+            // 离开临界区
             producerLock = false;
             return true;
         }
@@ -447,7 +452,10 @@ public:
         bool Consume( T& result) {
             // 一个非常经典的利用exchange做锁的写法
             while(consumerLock.exchange(true)) {}
+            // 由于虚拟节点的存在，因此当divider->next为空说明没有元素可以消费
             if(divider->next != nullptr) {
+                // consume时不做删除，只返回数据，并移动divider
+                // 这里有拷贝，而且是在临界区内，堆争用
                 result = divider->next->value;
                 divider = divider->next;
                 consumerLock = false;
@@ -462,9 +470,9 @@ public:
     
     ![在24核机器上进行的测试](/images/book/cpp-concurrency/lowlockqueue-throughput.png)
     
-    可见，在这种设计下，最终的性能和核数（24个）相关，当超过系统的物理核心数量之后，吞吐量不再上升，甚至下降。但是并没有很好的体现，线程数量上升时，吞吐量呈现类似的线性上升的趋势。
+    可见，在这种设计下，最终的性能和核数（24个）相关，当超过系统的物理核心数量之后，吞吐量不再上升，甚至下降。但是并没有很好的体现，线程数量上升时，吞吐量呈现类似的线性上升的趋势。也就是说scalability是有问题的。
 
-    当然上面有很大的优化空间，先让我们看一下。堆优化，不要再将拷贝这样的操作，放在临界区内。
+    当然上面有很大的优化空间，先让我们看一下。避免堆争用，不要再将对数据元素的拷贝这样的操作，放在临界区内。
     ```cpp
     // 以下只列出改动的部分
     struct Node {
@@ -485,6 +493,7 @@ public:
             divider->next->value = nullptr;
             divider = divider->next;
             consumerLock = false;
+            // 核心修改，现在拷贝在临界区外面了
             result = *value;
             delete value;
             return true;
@@ -492,9 +501,13 @@ public:
         consumerLock = false;
         return false;
     }
+
+    // producer也要做简单的修改，只需要创建一个指针。不过producer准备一个Node是在临界区之前的工作
     ```
 
-    还可以进一步的减少消费者的争抢。这里有几点关于之前的优化思路值得思考。Todo。
+    还可以进一步的减少消费者的争抢。这里有几点关于之前的优化思路值得思考。
+    1. 为了让producer做延迟删除，牺牲了consumer操作时本身就具有的局部性
+    2. 在之前的版本中，要么producer、要么consumer，要负责删除工作，这时这个线程不得不同时访问队列的两端，缓存性能会变差
     ```cpp
     LowLockQueue() {
         // 不再使用divider
@@ -503,15 +516,19 @@ public:
     }
 
     bool Consume(T& result) {
+        // consumer之间隔离
         while(consumerLock.exchange(true)) {}
         if(first->next != nullptr){
+            // 每一次first都是一个虚拟节点，只有first->next才是可以消费的
             Node* oldFirst = first;
             first = first->next;
             T* value = first->value;
             first->value = nullptr;
             consumerLock = false;
+            // 在临界区之外进行拷贝
             result = *value;
             delete value;
+            // 删除更早的虚拟节点
             delete oldFirst;
             return true;
         }
@@ -520,8 +537,10 @@ public:
     }
 
     bool Produce(const T& t) {
+        // 临界区之前，准备新节点
         Node* tmp = new Node(t);
         while (producerLock.exchange(true)) {}
+        // 生产者临界区很简单，只需要修改last即可
         last->next = tmp;
         last = tmp;
         producerLock = false;
@@ -540,6 +559,11 @@ public:
     alignas(CACHE_LINE_SIZE) Node* last;
     alignas(CACHE_LINE_SIZE) atomic<bool> producerLock;
     ```
+
+1. 总结下来就是
+    1. 更小的临界区
+    2. 不同线程，尽量访问数据结构的不同部分，获取更好的缓存性能（比如上面的first、last）。尤其是first的边界测试也不用```first==last```，而是```first->next==nullptr```
+    3. 缓存行的对齐设置，减少假共享
 
 ## 重点推荐参考
 1. [1.84.0版本boost，第20章Boost.Lockfree](https://www.boost.org/doc/libs/1_84_0/doc/html/lockfree.html)

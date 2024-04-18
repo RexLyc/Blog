@@ -10,7 +10,6 @@ tags:
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/cpp.png
 math: true
-draft: true
 ---
 本文记录对C/C++内存对象模型的学习，内容主要来自于《深度探索C++对象模型》。
 <!--more-->
@@ -158,7 +157,7 @@ struct Test3 : virtual public TestA, virtual public TestB {
 };
 ```
 最终形成的内存布局如下
-![带有vbptr的完全虚继承](memory_layout_with_vbptr.png)
+![带有vbptr的完全虚继承](/images/Cpp/memory_layout_with_vbptr.png)
 
 
 > 虚析构函数和普通虚函数一样，是会被覆盖的。派生类的析构函数会覆盖到基类的虚析构函数原本所在虚表中的位置。析构函数调用顺序和构造相反，由编译器按顺序执行。（尚不清楚原理，如何保证调用链）
@@ -185,7 +184,7 @@ struct Test3 : virtual public TestA, virtual public TestB {
 这一点可能令人困惑，为什么C++中使用多态，必须要以指针，或者引用的形式。
 
 而这从内存布局上就能很好的理解。考虑下面这个混合了堆栈空间分配的情况
-![一个混合堆栈空间分配的情况](why_pointer_or_reference.png)
+![一个混合堆栈空间分配的情况](/images/Cpp/why_pointer_or_reference.png)
 
 在栈上，我们为每个类型分配的空间是固定长度的。因此对于此时的```za```来说，如果调用```za=*pp```，那么编译器必须为其去除所有超出za类型部分的内容，才能将其存储在```za```的空间中。在这个过程中，甚至连派生类中，和自己相关的虚函数表指针都没法保留（因为保留之后也没有意义，za失去了派生类的所有数据成员，已经失去了能运行派生类虚函数的环境了，即使这个虚函数是从自己这里重写的也一样）。相反，```pza```，或者```ZooAnimal&```引用可以保存任何的派生类对象，例如图中的```pza=&b```，因为这种保存只是修改了指针，改变了对一段内存区域的内容解释方式。
 

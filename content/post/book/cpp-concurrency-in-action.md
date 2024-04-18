@@ -9,8 +9,7 @@ tags:
 - 施工中
 - 读书笔记
 thumbnailImagePosition: left
-draft: true
-
+thumbnailImage: /images/thumbnail/book/cpp-concurrency.png
 ---
 本文重点关注一下并发代码设计，无锁数据结构设计。内容主要来自于书籍《C++ Concurrency In Action》，以及一些网络课程，如CppCon、Mit OpenCourse。
 <!--more-->

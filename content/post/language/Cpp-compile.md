@@ -379,6 +379,19 @@ math: true
     (gdb) condition 3 value>100
     ```
 ## 常用项目级工具
+### autotools系列
+如果所开发软件的主要平台是GNU Linux平台，那么使用autotools系列是一个很好的选择。它通过一系列组件，完成对Makefile的生成，并且由于已经有成熟稳定的GNU规范，通过相关命令和所要求的：install-sh、missing、depcomp、INSTALL、NEWS、 README、AUTHORS、ChangeLog、COPYING共9个文件。可以自动的完成在Linux系统平台上的组织、构建、安装、部署等工作。具体的顺序和作用如下：
+1. autoscan：在给定目录及其子目录树中检查源文件。扫描源代码以搜寻普通的可移植性问题，比如检查编译器，库，头文件等。生成configure.scan文件，该文件是configure.in（或configure.ac）的原型。
+2. aclocal：一个perl脚本程序。根据已经安装的宏，用户定义的宏和acinclude.m4文件（如果有的话）中的宏，将configure.in（或configure.ac）文件所需要的宏集中地定义到文件aclocal.m4中。
+3. autoheader：扫描configure.ac（或configure.in），根据其中的某些宏（比如cpp宏定义）产生宏定义的模板文件config.h.in
+4. autoconf：将configure.ac中的宏展开，生成configure脚本文件
+5. automake：选要自己写一个Makefile.am文件，然后automake根据configure.ac和Makefile.am中定义的结构，生成Makefile.in文件。automake需要上面提到的9种文件作为一个标准GPU程序的构建流程。
+6. configure：configure脚本会收集系统的信息，创建config.status（这个文件可用来重新创建configure脚本），使用Makefile.in来创建Makefile文件，使用config.h.in（如果有的话）来创建config.h文件，并生成一个日志文件config.log（记录一些创建时的调试信息等）
+7. make & make install & make dist & make uninstall
+
+> 根据自己的需要，并不一定使用所有的工具，比如项目结构已经固定了，那么可以提供一个固定的aclocal.m4和configure.ac，后面的工作直接由autoconf开始完成。
+参考[GNU Autotools的研究(转)](https://www.cnblogs.com/fengwei/p/4394164.html)
+
 ### CMakeLists
 1. 概述：CMake是一个跨平台的C/C++构建文件生成工具，也支持一些其他语言。但是最主要的功能还是给C/C++语言项目使用。其在Windows上一般生成Visual Studio工程，在Linux下一般生成Makefile。
 2. 用法：

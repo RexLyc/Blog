@@ -318,10 +318,53 @@ C/C++中有一些经常会出现的难点，也是深入学习使用的要点。
 3. 参考
     - [函数指针使用总结](https://www.cnblogs.com/lvchaoshun/p/7806248.html)似乎并不完全正确，**等待确认**。
 
+## const
+在C++中，提供了对于const的重载能力。这在其他语言中往往是不具备的。见下面的例子。
+```cpp
+class Test {
+public:
+    void func() const {
+        // const func
+    }
+
+    void func() {
+
+    }
+}
+
+int main(){
+    Test non_const_test;
+    const Test const_test;
+    
+    non_const_test.func();
+    const_test.func(); 
+}
+```
+
+注意，const函数是可以作为重载存在的。而在决定重载函数调用时的规则如下
+1. 非常量对象，可以调用任意一种重载，优先调用的是非常量函数
+2. 常量对象，只能调用常量函数。
+
+注意const函数和形参中带有const并不同，形参中如果使用const，必须是指针或者引用，否则会发生重载错误（实参是传值的时候，无法用const做出重载区分）
+```cpp
+void func(const int i) {}
+// 错误，函数重复定义
+void func(int i) {}
+
+void funcStr(const char *) {}
+// 可以
+void funcStr(char *) {}
+
+void funcRef(const int&) {}
+// 可以
+void funcRef(int&) {}
+```
+
+参考[C++函数重载(3) - 函数重载中的const关键字](https://blog.csdn.net/shltsh/article/details/45939977)
 
 ## 其他坑
 1. 由于C++目前越发庞大，在标准的演化过程中，可能出现一些未定义行为，在编程时需要注意
-1. 内存对齐是默认发生的，可以通过__attibute__((packed))禁用，如果想要自定义则可以在aligned()中使用大于0的任何2的幂，代表需要对齐到的字节数（对象的占用大小）
+1. 内存对齐是默认发生的，可以通过__attibute__((packed))禁用，如果想要自定义则可以在aligned()中使用大于0的任何2的幂，代表需要对齐到的字节数（对象的占用大小）。对内存对齐的控制已经进入C++标准定义范围。```pragma pack```。
 1. 注意delete和delete\[\]的区别，要和new、new\[\]分别成对使用。delete虽然也会释放等量的内存，但是只会调用一次析构
 
 ## 参考

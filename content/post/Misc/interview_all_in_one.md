@@ -194,6 +194,9 @@ thumbnailImage: /images/thumbnail/interview.jpg
 1. 压测如何分析性能？
     - 使用系统分析器，例如linux的perf，可以分析系统性能
     - JVM分析器，例如hprof，jprofiler，也可以用jdk自带的工具，如jstack、jmap、jstat、jcmd，以及JMX、JFR等工具。
+1. Java线程和操作系统线程之间的对应关系
+    - 曾经有绿色线程和本地线程的区别，但目前都是本地线程，也就是Java线程和操作系统线程是1:1的。
+    - 参考[深入聊聊java线程模型实现？](https://www.zhihu.com/question/263955521/answer/296521081)
 2. CMS和G1的区别
     - 参考[JVM收集器CMS与G1区别和优缺点分析](https://juejin.cn/post/6975890045060251678)、[这三大特性让G1取代了CMS](https://www.51cto.com/article/717309.html)
     - G1（标记整理）相比于CMS（标记清除），使用了分Region的思想，并不再将分代内存连续分配（可以eden、survivor、old乱序相邻），衡量回收内存效益最大的Region，以在回收时达到控制GC停顿时间的目的（目标是可预测的停顿时间，相比之下CMS扫描整个老年代）
@@ -225,7 +228,7 @@ thumbnailImage: /images/thumbnail/interview.jpg
    - 在这个配置类中通过条件注解来决定一个配置是否生效（条件注解就是Spring 中原本就有的），然后它还会提供一系列的默认配置，也允许开发者根据实际情况自定义相关配置，然后通过类型安全的属性注入将这些配置属性注入进来，新注入的属性会代替掉默认属性。正因为如此，很多第三方框架，我们只需要引入依赖就可以直接使用了。
 8. 什么是 JavaConfig？
    - Spring JavaConfig 是 Spring 社区的产品，它提供了配置 Spring IoC 容器的纯 Java 方法。因此有助于避免使用 XML 配置。JavaConfig在SpringBoot中被广泛使用。
-9. tomcat、servlet、spring之间的关系？
+9.  tomcat、servlet、spring之间的关系？
    - tomcat是http服务器，提供最基础的监听端口，建立连接，获取请求的功能。具体的业务，需要由满足接口定义的servlet实现。servlet设计上是单实例多线程的。通过web.xml的定义和tomcat进行配合。
    - springboot内直接集成了tomcat、以及DispatcherServlet。
    - 参考[Servlet／Tomcat/ Spring 之间的关系](https://www.cnblogs.com/shawshawwan/p/9002126.html)

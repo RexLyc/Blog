@@ -626,10 +626,46 @@ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 100
 # 当你有多个候选版本，就可以选择具体的环境
 sudo update-alternatives --config gcc
 ```
+> 需要先学一下gnu的autoconf工具族，至少要明白configure.ac/in、autoconf，以及configure之间的关系。必要的时候可能需要上手修改，甚至是修改Makefile。
 
-如果过程中遇到了一些依赖库，找不到合适的安装包，也清大胆的自行编译吧！
+如果过程中遇到了一些依赖库，找不到合适的安装包，也清大胆的自行编译吧！下面记录了一个在只有arm-linux-gcc编译套件的情况下，编译arm侧arm-linux-gdb和pc侧gdb的过程。
+1. 对于arm-linux-gdb：全程使用arm-linux-gcc进行交叉编译。
+    1. 由于提供的arm-linux-gcc版本较低（4.4.3），尝试了多次不同版本的gdb，最终确定7.3版本的gdb是可用的
+    2. 编译平台（pc）的ncurses-dev并不能用，我们需要为交叉编译环境，准备单独的ncurses。这里准备的是5.7版本。注意需要对ncurses进行交叉编译，而且需要准备动态库版本
+        ```./configure --build=i686-linux --host=arm-linux --target=arm-linux --with-shared```
+    3. 在准备好ncurses后，需要修改gdb中的configure.ac，主要是指定到ncurses的库路径，例如
+        ```bash
+        LDFLAGS="$LDFLAGS -L/your/path/to/your/ncurses/lib"
+        LIBS="$LIBS -lncurses"
+        # 此后会有AC_CHECK_LIB负责寻找库
+        # AC_CHECK_LIB(...)
+        ```
+    4. ```./configure --build=i686-linux --host=arm-linux --target=arm-linux --prefix=./arm-gdb --enable-tui```。enable-tui能够指定使用ncurses，而不是更老旧的termcap。实际上由于不需要编译sim，在libiberty、opcode等子模块完成编译后，就可以直接去gdb子目录下，只编译剩余的gdb的部分。并不需要将整个工程全部编译出来。在这一步也能得到gdb-server
+    5. 在gdb目录下，由于使用了ncurses依赖，我们需要修改config.in，将其中的ncurses宏改为如下的状态。并在工程的根目录下的include文件夹中，为其准备include所需的头文件
+        ```c
+        // #undef HAVE_NCURSES_NCURSES_H
+        #define HAVE_NCURSES_NCURSES_H 1
+        ```
+5. 对于pc侧的gdb：使用pc侧gcc（我用的版本是ubuntu17.04，gcc6.3）进行编译，**一定不要偷懒**直接在arm-linux-gdb工程下弄，新开一个工程（否则可能有之前没删干净的东西）
+    1. 整体流程基本一致，但是需要注意ncurses也要生成pc侧版本（这一步系统内安装的ncurses其实是可用的了）。gdb的configure参数是比较特别的```--host=i686-linux --target=arm-linux```
+    2. 但是值得注意的是，gcc6.3会报很多在arm-linux-gcc下不报的错误，对于这些情况，修改Makefile（Makefile.in），例如
+        ```makefile
+        # 对bfd
+        -Wno-error=sizeof-pointer-memaccess -Wno-error=unused-value
+        # 对opcode
+        -Wno-error=shift-negative-value
+        ```
+    3. 最后```make install```
+    
+    > 在这一步，由于我是在虚拟机内编译的gdb，并尝试远程链接一个arm板子上刚刚自己编译出来的gdb-server。虽然能够连接，但是并不好用，感觉还是有问题。在arm板子性能足够的情况下，还是直接在板子上使用arm-linux-gdb，直接调试。
+
+    > 怀疑可能是缺少了一些依赖。现在会报错remote packet g reply is too long。
+
+
+在这次编译的过程中，还尝试过gdb5.3和gdb6.0版本的代码。但是这两个版本的代码中，有很多问题，比如对ncurses的include路径准备的不好。甚至代码中存在很多的错误（转型的临时变量做了左值）等。在尝试修改之后，也能得到编译结果，但是最终在嵌入式平台和pc侧运行起来的时候。gdb会崩溃。总之在编译gdb的时候，不要企图改代码，如果有问题，换个版本试一下。
 
 参考:
+1. [gnu代码官方ftp仓库](http://ftp.gnu.org/)
 1. [gdbserver: error: sys/reg.h: No such file or directory](https://blog.csdn.net/chenbang110/article/details/7505907)
 2. [linux下gcc版本切换](https://blog.csdn.net/qq_31932311/article/details/124967563)
 3. [arm-linux-gdb & gdbserver 远程调试工具的搭建与使用](https://blog.csdn.net/u012101561/article/details/82110199)

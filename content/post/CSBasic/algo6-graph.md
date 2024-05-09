@@ -1222,6 +1222,9 @@ def relabel_to_front(C, source: int, sink: int) -> int:
     return sum(F[source])
 ```
 
+## 求图的割边集
+割边集，即图中所有的桥。删除这些边，将会增大图的联通子图数量。内容在[算法进阶]({{<relref "/content/post/CSBasic/algo10-advance.md#图论-求桥">}})给出。
+
 ## 回收封面
 - 首先很感谢你有耐心看到这里。这一小节的内容是想把封面回收。计算机领域的一个经典问题就是P与NP问题。
 - 术语：

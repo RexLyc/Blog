@@ -142,6 +142,7 @@ math: true
 18. :red_circle: 6093：[设计一个文本编辑器](https://leetcode.cn/problems/design-a-text-editor/)。（看了题解）脑筋急转弯级别的困难题。很容易陷入到写一个链表结构的数据结构中（很难写）。但实际上，可以看作是类似两个栈，分别是前缀和后缀。左右移动就是两个栈来回压入，插入删除则是对前缀的压入和弹出。
 
 ###  动态规划
+1. :red_circle: 1883：[准时抵达会议现场的最小跳过休息次数](https://leetcode.cn/problems/minimum-skips-to-arrive-at-meeting-on-time/description/)。转移方程很好想，问题在于浮点数的精度问题。个人觉得即使使用了极小量EPS和数字相减（比如取$10^-7$），也不能保证ceil的正确性（单纯浮点数的运算没问题，但是对浮点数进行ceil/floor都是有风险的）。最好的办法就是做离散化，用整数直接运算，而且不做浮点除法，速度还能更快。
 1. :red_circle: 2581：[统计可能的树根数目](https://leetcode.cn/problems/count-number-of-possible-root-nodes/description/)。自己写的是普通的记忆化搜索。题解的意思是树上DP，不过也是DFS实现的。所谓的动态规划，是指每一步，进行**换根操作**。这在树类题目中是一个很常见的操作，因为一般来说，一次换根，只有两个节点之间的父子关系发生了变化，很容易计算状态转移。不过时间复杂度是一样的。
 1. :red_circle: 1125：[最小的必要团队](https://leetcode.cn/problems/smallest-sufficient-team/description/)。想到了状态压缩，但是没想到DP。看了一下题解思路很简单。对状态压缩进行DP，最暴力的方式就是枚举当前所有状态，再加上一个新状态，构成状态转移即可。
 1. :yellow_circle: 1567：[乘积为正数的最长子数组长度](https://leetcode.cn/problems/maximum-length-of-subarray-with-positive-product/description/)。自己写了一个用前缀乘积的。题解也是类似的分类讨论（dp[i]以i为结尾的正数、负数的最长长度）的动态规划思想。没什么特别的，注意细节就行。

@@ -48,6 +48,8 @@ thumbnailImage: /images/thumbnail/book/linux-web-io-series.png
 作为网络层协议，IP协议提供无连接、不可靠、无状态的服务。它的核心任务是进行数据报的路由，即决定将数据发送的目标机器所需的路径。下图可以从右向左去看。
 ![ip模块的工作流程](/images/book/linux-web-series/ip-module-workflow.png)
 
+IP数据报中比较重要的一点就是：在传输过程中，其源IP和目的IP，在转发的过程中一般保持不变。变动的是源MAC、和目标MAC地址。这也说明了IP协议是建立在数据链路层之上的协议。因此其实际在发送时，底层协议是按MAC地址进行发送的。
+
 对于一台机器来说，接收到IP数据报之后，根据数据报中选择的路由机制，为其进行路由选择。同时也考虑是否是到本机，以及本机是否允许转发IP数据报。对于一个路由来说，允许数据报转发，它需要做一系列事情：
 1. 检查TTL（TimeToLive，存活时间），如果已经是0，则丢弃
 2. 检查源路由选择（IP协议可以基于源地址，选择自己的路由策略）。并根据该选项的需要，反馈ICMP报文，通知选站失败或者重定向。
@@ -77,14 +79,128 @@ TCP最重要的特性之一就是提供可靠服务。而这一点是通过超�
 5. MSS：最大报文长度
 6. ssthresh：慢启动阈值
 
+### HTTP协议
+参考[http协议]({{<relref "/content/post/Web/fullstack-protocol.md#HTTP">}})
+
+考虑正向/反向代理的情况下，一次HTTP的连接过程。
+
+1. 检查本地host文件，检查本地resolv.conf中的DNS服务器配置
+2. 如果需要DNS，由代理服务器访问DNS服务器，查询目标域名IP（这个过程中会发送UDP数据报、并且可能需要再先发送ARP，查询配置的路由的MAC地址）
+3. 代理服务器查询路由路径（MAC、IP）
+4. http客户端，发送请求到代理服务器。（建立TCP连接、HTTP连接）
+5. 代理服务器，发送请求到HTTP服务器。（建立TCP连接、HTTP连接）
+
+> HTTPS主要是在传输层和应用层之间引入了一个安全套接字层（TLS/SSL），其对HTTP来说是透明的，应用将数据输入到安全套接字管道中，安全套接字层进行加密，并输出到传输层。
+
+## 其他背景知识
+1. 字节序：大（尾）端（Big Endian，高位字节存储在低位，更好记得就是尾部字节在高位）、小端反之
+    ```cpp
+    int a = 0x12345678;
+    if(*(char*)(&a) == 0x12) {
+        // 大尾端
+    } else {
+        // 小尾端
+    }
+    ```
+    字节序不仅和平台有关，有时也和语言相关
+    | 平台 | 字节序 |
+    | --- | --- |
+    | 网络传输 | 大端 |
+    | x86 CPU（INTEL） | 小端 |
+    | Moto CPU 摩托罗拉 | 大端 |
+    | Arm CPU | 小端 |
+    | Java虚拟机 | 大端 |
+1. 
+
 ## socket编程
 是Linux的网络编程的抽象。由于从传输层及往下，都是由内核实现的。因此内核向上提供的系统调用，即socket编程，需要提供一组接口，满足
 1. 将应用程序数据从用户缓冲区中复制到 TCP/UDP内核发送缓冲区，以交付内核来发送数据，或者是从内核TCP/UDP接收缓冲区中复制数据到用户缓冲区，以读取数据
 2. 应用程序可以通过它们来修改内核中各层协议的某些头部信息或其他数据结构，从而精细地控制底层通信的行为。
 3. 不仅可以访问TCP/IP协议栈，也可以访问其他网络协议栈。例如UNIX本地域协议栈。
 
+```cpp
+// 摘抄，一个最基本的TCP Server例子
+#include <iostream>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <signal.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
 
+using namespace std;
 
+static bool stop=false;
+/*SIGTERM信号的处理函数,触发时结束主程序中的循环*/
+static void handle_term(int sig ){
+    stop =true;
+}
+int main( int argc,char* argv[]){
+	cout << "hello world!" <<endl;
+    signal(SIGTERM,handle_term);
+    if(argc<= 3) {
+        printf( "usage:%s ip_address port_number backlog\n", basename(argv[0]));
+        return 1;
+    }
+    const char *ip=argv[1];
+    int port = atoi( argv[2]);
+    int backlog=atoi(argv[3]);
+    int sock=socket(PF_INET,SOCK_STREAM,0);
+    assert(sock>=0);
+    /*创建一个IPy4 socket抢址*/
+    struct sockaddr_in address;
+    bzero(&address,sizeof(address));
+    address.sin_family = AF_INET;
+    inet_pton(AF_INET,ip,&address.sin_addr);
+    address.sin_port = htons(port);
+    int ret=bind(sock,(struct sockaddr*)&address, sizeof( address ));
+    assert(ret!=-1);
+    ret=listen(sock,backlog);
+    assert(ret!=-1);
+    /*循环等待连接,直到有SIGTERM信号将它中断*/
+    while(!stop )
+        sleep(1);
+    /*关闭socket,见后文*/
+    close( sock);
+    return 0;
+}
+```
+
+### 细节要点
+1. socket编程的运行时效果，受到程序内运行时参数，和内核参数的共同影响。而二者的最终影响效果，受内核版本影响。在不同版本有不同的表现。例如
+   1. Linux2.2之前和之后，backlog值对半连接和全连接队列的控制含义不同。而且在更高版本中（版本不详，不早于3.10，不晚于4.4），超出backlog的将不再建立半连接（因为建立了也无法accept）。这时可以通过netstat观察到连接队列溢出（SYNC_RECV状态）的情况。参考[backlog参数对TCP连接建立的影响](https://switch-router.gitee.io/blog/TCP-Backlog/)。
+
+## 实践项目
+在学习过程中所编写的项目代码，存储于[linux-web-concurrency-learn](https://github.com/RexLyc/linux-web-concurrency-learn)。
+
+## 工具库、数据结构函数
+1. 基本网络库
+    | API/数据结构 | 功能 | 备注 |
+    | --- | --- | --- |
+    | sockaddr_storage | 通用，存储协议族、协议所用地址 | 内存对齐 |
+    | sockaddr_un | 存储unix套接字协议，地址 |  |
+    | sockaddr_in / sockaddr_in6 | 存储ipv4/ipv6协议，地址，端口，标记 |  |
+    | in_addr / in6_addr | 存储ipv4/ipv6地址 |  |
+    | getpeername / getsockname | 获取对端、本端地址信息 |  |
+    | htonl() / ntohl() / ... | 网络字节序到主机字节序的各种数据类型转换 |  |
+    | inet_addr() / inet_aton() / inet_ntoa() / inet_ntop() / inet_pton() | 字符串地址到ipv4/ipv6地址转换 | 有个别是不可重入函数，其返回的char*是一个内部静态变量，如有需要必须深拷贝 |
+    | socket | 指定服务协议族、服务、子协议，创建套接字 |  |
+    | bind | 绑定地址 |  |
+    | listen | 开始监听 | 创建监听队列，如tcp有半连接队列和全连接队列 |
+    | connect | 发起连接 |  |
+    | close / shutdown  | 关闭连接 | close是将文件描述符的引用计数减一（计数归零会真正关闭）、shutdown则是直接强制关闭 |
+    | recv / send | 发送、接受tcp流数据 | 通过flag控制发送、接收细节，例如发送和接收带外数据（URG） |
+    | recvfrom / sendto | 发送、接收数据（TCP、UDP都可以） |  |
+    | recvmsg / sendmsg | 发送、接收数据（TCP、UDP都可以） |  |
+    | sockatmask | 查询当前套接字是否有带外标记的数据 | 需要结合recv，以及MSG_OOB标志，读取带外数据 |
+    | getsockopt / setsockopt | 查询、设置socket选项 | 比如修改缓冲区大小、设置允许TIME_WAIT地址重用等 |
+    | gethostbyname / gethostbyaddr / getservbyname / getservbyport / getaddrinfo / getnameinfo | 查询dns、根据名称（比如telnet）查询服务的基本信息（端口等） | 不可重入 |
+
+1. 其他基本Linux的API
+    | API | 
 
 ## 参考
 - [[译] Linux 异步 I/O 框架 io_uring：基本原理、程序示例与性能压测（2020）](https://arthurchiao.art/blog/intro-to-io-uring-zh/)

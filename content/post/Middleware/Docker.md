@@ -9,7 +9,6 @@ tags:
 - 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/docker.jpg
-# draft: true
 ---
 
 <!--more-->

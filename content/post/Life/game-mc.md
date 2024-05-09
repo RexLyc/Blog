@@ -9,8 +9,6 @@ tags:
 - 教程
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/mc.png
-# draft: true
-
 ---
 Minecraft!
 <!--more-->

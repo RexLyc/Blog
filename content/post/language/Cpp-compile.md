@@ -90,12 +90,12 @@ math: true
 1. 静态链接：
     1. 地址和空间分配（Address and Storage Allocation）
     1. 符号解析（Symbol Resolution）
-        1. 局部符号的解析是显而易见的，只需要保证定义且唯一即可
-        1. 外部符号的解析相对复杂。一般的符号将会被划分为强弱两种类型：
+        1. 局部符号的解析是显而易见的，只需要保证定义且唯一即可。而且在这一步，编译器就不允许有同名符号。
+        1. 外部符号的解析相对复杂。一般的符号将会被划分为强弱两种类型：注意下面的这些区分是针对链接器的，编译器对不同单元的符号，并不会进行区分。
             - 强符号：函数和已初始化的全局变量
             - 弱符号：未初始化的全局变量
-            - 一般的匹配规则：不允许多个同名强符号、强符号和强符号同名选强符号、多个弱符号同名则任选其一
-            > 可以通过选项控制这些默认规则的行为，例如将这些编译、链接警告提升为错误
+            - 一般的匹配规则：不允许多个同名强符号、强符号和强符号同名选强符号、多个弱符号同名则任选其一（优先选择占用空间最大的一个）
+            > 可以通过选项控制这些默认规则的行为，例如将这些编译、链接警告提升为错误。参考[强符号和弱符号](https://www.cnblogs.com/yongdaimi/p/8084634.html)、[C/C++多个链接库含有同名函数，编译会报错吗](https://blog.csdn.net/zxpoiu/article/details/115178193)
         1. 解析过程：链接器维护一个可重定位目标文件集合E，一个未解析符号集合U，一个已定位符号集合D。对于输入处理的目标文件（.o）和存档文件（.a），将会按顺序添加、更新E、U、D三个集合
             > 目标文件和存档文件的顺序可能非常重要，如果解析一个存档文件时，其符号均不在U集合内，则该存档文件将会被直接跳过，即使后面有需要，也会产生“无法解析的符号”的错误
     1. 重定位（Relocation）
@@ -379,6 +379,19 @@ math: true
     (gdb) condition 3 value>100
     ```
 ## 常用项目级工具
+### autotools系列
+如果所开发软件的主要平台是GNU Linux平台，那么使用autotools系列是一个很好的选择。它通过一系列组件，完成对Makefile的生成，并且由于已经有成熟稳定的GNU规范，通过相关命令和所要求的：install-sh、missing、depcomp、INSTALL、NEWS、 README、AUTHORS、ChangeLog、COPYING共9个文件。可以自动的完成在Linux系统平台上的组织、构建、安装、部署等工作。具体的顺序和作用如下：
+1. autoscan：在给定目录及其子目录树中检查源文件。扫描源代码以搜寻普通的可移植性问题，比如检查编译器，库，头文件等。生成configure.scan文件，该文件是configure.in（或configure.ac）的原型。
+2. aclocal：一个perl脚本程序。根据已经安装的宏，用户定义的宏和acinclude.m4文件（如果有的话）中的宏，将configure.in（或configure.ac）文件所需要的宏集中地定义到文件aclocal.m4中。
+3. autoheader：扫描configure.ac（或configure.in），根据其中的某些宏（比如cpp宏定义）产生宏定义的模板文件config.h.in
+4. autoconf：将configure.ac中的宏展开，生成configure脚本文件
+5. automake：选要自己写一个Makefile.am文件，然后automake根据configure.ac和Makefile.am中定义的结构，生成Makefile.in文件。automake需要上面提到的9种文件作为一个标准GPU程序的构建流程。
+6. configure：configure脚本会收集系统的信息，创建config.status（这个文件可用来重新创建configure脚本），使用Makefile.in来创建Makefile文件，使用config.h.in（如果有的话）来创建config.h文件，并生成一个日志文件config.log（记录一些创建时的调试信息等）
+7. make & make install & make dist & make uninstall
+
+> 根据自己的需要，并不一定使用所有的工具，比如项目结构已经固定了，那么可以提供一个固定的aclocal.m4和configure.ac，后面的工作直接由autoconf开始完成。
+参考[GNU Autotools的研究(转)](https://www.cnblogs.com/fengwei/p/4394164.html)
+
 ### CMakeLists
 1. 概述：CMake是一个跨平台的C/C++构建文件生成工具，也支持一些其他语言。但是最主要的功能还是给C/C++语言项目使用。其在Windows上一般生成Visual Studio工程，在Linux下一般生成Makefile。
 2. 用法：
@@ -599,6 +612,63 @@ VSCode中也可以进行一定程度的跨平台开发构建。其配置文件�
 1. GPerfTools
 2. FlameGraph
 3. GProf
+
+## 交叉编译环境
+C/C++很多时候可能需要自己准备交叉编译环境。这是一个相对复杂的构建需求。需要熟悉```configure```，以及gcc的一些基本原理参数。
+
+首先我们必须有厂商提供的gcc、g++编译器。然后根据情况，可以自己试着（如果厂商没给），编译gdb和gdbserver。
+
+而且由于一般来说交叉编译器会和既有的gcc冲突，推荐使用update-alternatives工具，进行gcc的版本管理
+```bash
+# 如果有需要，可以手动添加某个程序的候选版本，这里就是为/usr/bin/gcc这个软连接，创建了一个gcc-9的候选版本
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 100
+
+# 当你有多个候选版本，就可以选择具体的环境
+sudo update-alternatives --config gcc
+```
+> 需要先学一下gnu的autoconf工具族，至少要明白configure.ac/in、autoconf，以及configure之间的关系。必要的时候可能需要上手修改，甚至是修改Makefile。
+
+如果过程中遇到了一些依赖库，找不到合适的安装包，也清大胆的自行编译吧！下面记录了一个在只有arm-linux-gcc编译套件的情况下，编译arm侧arm-linux-gdb和pc侧gdb的过程。
+1. 对于arm-linux-gdb：全程使用arm-linux-gcc进行交叉编译。
+    1. 由于提供的arm-linux-gcc版本较低（4.4.3），尝试了多次不同版本的gdb，最终确定7.3版本的gdb是可用的
+    2. 编译平台（pc）的ncurses-dev并不能用，我们需要为交叉编译环境，准备单独的ncurses。这里准备的是5.7版本。注意需要对ncurses进行交叉编译，而且需要准备动态库版本
+        ```./configure --build=i686-linux --host=arm-linux --target=arm-linux --with-shared```
+    3. 在准备好ncurses后，需要修改gdb中的configure.ac，主要是指定到ncurses的库路径，例如
+        ```bash
+        LDFLAGS="$LDFLAGS -L/your/path/to/your/ncurses/lib"
+        LIBS="$LIBS -lncurses"
+        # 此后会有AC_CHECK_LIB负责寻找库
+        # AC_CHECK_LIB(...)
+        ```
+    4. ```./configure --build=i686-linux --host=arm-linux --target=arm-linux --prefix=./arm-gdb --enable-tui```。enable-tui能够指定使用ncurses，而不是更老旧的termcap。实际上由于不需要编译sim，在libiberty、opcode等子模块完成编译后，就可以直接去gdb子目录下，只编译剩余的gdb的部分。并不需要将整个工程全部编译出来。在这一步也能得到gdb-server
+    5. 在gdb目录下，由于使用了ncurses依赖，我们需要修改config.in，将其中的ncurses宏改为如下的状态。并在工程的根目录下的include文件夹中，为其准备include所需的头文件
+        ```c
+        // #undef HAVE_NCURSES_NCURSES_H
+        #define HAVE_NCURSES_NCURSES_H 1
+        ```
+5. 对于pc侧的gdb：使用pc侧gcc（我用的版本是ubuntu17.04，gcc6.3）进行编译，**一定不要偷懒**直接在arm-linux-gdb工程下弄，新开一个工程（否则可能有之前没删干净的东西）
+    1. 整体流程基本一致，但是需要注意ncurses也要生成pc侧版本（这一步系统内安装的ncurses其实是可用的了）。gdb的configure参数是比较特别的```--host=i686-linux --target=arm-linux```
+    2. 但是值得注意的是，gcc6.3会报很多在arm-linux-gcc下不报的错误，对于这些情况，修改Makefile（Makefile.in），例如
+        ```makefile
+        # 对bfd
+        -Wno-error=sizeof-pointer-memaccess -Wno-error=unused-value
+        # 对opcode
+        -Wno-error=shift-negative-value
+        ```
+    3. 最后```make install```
+    
+    > 在这一步，由于我是在虚拟机内编译的gdb，并尝试远程链接一个arm板子上刚刚自己编译出来的gdb-server。虽然能够连接，但是并不好用，感觉还是有问题。在arm板子性能足够的情况下，还是直接在板子上使用arm-linux-gdb，直接调试。
+
+    > 怀疑可能是缺少了一些依赖。现在会报错remote packet g reply is too long。
+
+
+在这次编译的过程中，还尝试过gdb5.3和gdb6.0版本的代码。但是这两个版本的代码中，有很多问题，比如对ncurses的include路径准备的不好。甚至代码中存在很多的错误（转型的临时变量做了左值）等。在尝试修改之后，也能得到编译结果，但是最终在嵌入式平台和pc侧运行起来的时候。gdb会崩溃。总之在编译gdb的时候，不要企图改代码，如果有问题，换个版本试一下。
+
+参考:
+1. [gnu代码官方ftp仓库](http://ftp.gnu.org/)
+1. [gdbserver: error: sys/reg.h: No such file or directory](https://blog.csdn.net/chenbang110/article/details/7505907)
+2. [linux下gcc版本切换](https://blog.csdn.net/qq_31932311/article/details/124967563)
+3. [arm-linux-gdb & gdbserver 远程调试工具的搭建与使用](https://blog.csdn.net/u012101561/article/details/82110199)
 
 ## 一些坑
 1. Linux/Ubuntu

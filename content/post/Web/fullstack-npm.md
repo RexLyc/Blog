@@ -84,7 +84,22 @@ Node.JS是基于Chrome V8开发的JS服务器端运行环境，NPM则是Node.JS�
     1. electron-package：打成安装包的工具，打包功能稍弱
     1. electron-builder：打成安装包的工具，打包功能更为强大
 - 注意：
-    1. npm设置代理或镜像的方式都不够稳定，怎么解决？
+    1. npm设置代理或镜像的方式都不够稳定，怎么解决？最终推荐方案，参考[设置代理解决 npm 下载安装 Electron 慢的问题](https://blog.wardchan.com/posts/set-proxy-for-downloading-electron-when-use-npm.html)
+        ```bash
+        # linux下
+        export ELECTRON_GET_USE_PROXY=1 #设置为 1 或 true
+        # export GLOBAL_AGENT_HTTP_PROXY=http://127.0.0.1:1080
+        # export GLOBAL_AGENT_HTTPS_PROXY=http://127.0.0.1:1080
+        # windows下
+        set ELECTRON_GET_USE_PROXY=1 #设置为 1 或 true，主要是这一句
+        # set GLOBAL_AGENT_HTTP_PROXY=http://127.0.0.1:1080
+        # set GLOBAL_AGENT_HTTPS_PROXY=http://127.0.0.1:1080
+        ```
+        此外，在```~/.npmrc```中可以设置代理，例如
+        ```ini
+        proxy = "socks5://127.0.0.1:23456"
+        ```
+        但以上配置对electron-builder仍然无效，在第一次build时，会拉取所需的打包依赖，见下一条。
     1. electron-builder据说可以设置ELECTRON_MIRROR环境变量，未验证是否真的有效。否则builder也经常去拉github上的资源，容易失败。
         ```sh
         # windows下

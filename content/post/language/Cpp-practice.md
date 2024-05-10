@@ -32,6 +32,31 @@ public:
 
 移动语义只应该在有必要的时候才进行使用。如果类型中，不涉及到资源管理，那么移动就不一定有价值。比如类型中都是内置类型（int、float），对他们的移动和拷贝没有性能上的区别。
 
+另外如果内部成员有混合的情况，比如一些内置类型，和一些资源类型。这时的移动需要格外注意。编译器生成的默认的移动语义的函数，在对待内置类型是拷贝，而资源类型则会进行移动。此时可能造成后续下标越界。例如
+```cpp
+struct Item;
+struct Container {
+    vector<Item> items;
+    int chooseItem;
+
+    Item getChoose(){
+        return items[chooseItem];
+    }
+}
+
+Container a;
+// 一系列赋值
+// a.push_back(Item());
+// a.push_back(Item());
+// a.push_back(Item());
+a.chooseItem = 2;
+auto b = std::move(a);
+// 强烈不推荐，对move后的内容进行操作本身就不安全
+// 这里演示只是为了说明，默认的移动赋值运算符，在对待内置类型是直接拷贝
+auto i = a.getChoose(); // 异常（chooseItem已经超过items范围）
+
+```
+
 ## noexcept
 在移动构造、移动赋值运算符、析构函数中，鼓励添加noexcept，以提示编译器进行优化。当然如果你的程序里确实需要抛出异常，那就还是抛出来。
 

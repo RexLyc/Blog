@@ -7,8 +7,8 @@ categories:
 tags:
 - 部署
 - 工程
-# thumbnailImagePosition: left
-# thumbnailImage: //example.com/image.jpg
+thumbnailImagePosition: left
+thumbnailImage: /images/thumbnail/engineer.png
 ---
 
 <!--more-->

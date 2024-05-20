@@ -55,7 +55,16 @@ thumbnailImage: /images/thumbnail/interview.jpg
     - 当满足优化条件的函数返回一个对象时，RVO和NRVO会消除掉临时变量的构造，以及赋值时产生的复制构造，直接在外部调用处进行一次构造
     - 函数返回值不应当使用std::move，这样会导致无法进行RVO、NRVO优化，性能更低
 12. static_cast、dynamic_cast、const_cast、reinterpret_cast区别？
-    - 分别主要用于静态强转（类似C的转换）、类型继承关系内的下行转换、移除const、指针转换
+    - 简单的答案是：分别主要用于静态强转（类似C的转换）、类型继承关系内的下行转换、移除const、指针转换
+    - 更完整一些的回答：
+        - static_cast是代替C风格的类型强转，支持对象、指针、引用的转换。通常用于有继承关系的类型之间，或者内置类型之间。是静态的转型，发生在编译期。因此对于具有虚函数RTTI信息的类型，使用static_cast意味着放弃了运行时的安全检验。但除此缺点之外。static_cast是能够进行父类子类之间（无论有没有虚函数）的上行、下行转换（会自动调整继承顺序内的指针位置，并恢复指针位置），而且速度更快。
+        - dynamic_cast是动态的转换，只对有多态属性（具备虚函数）的类型的引用和指针生效，发生在运行期。如果无法进行转换，对指针会返回nullptr，对引用会抛出异常。
+        - const_cast用于移除const属性（无论是引用、变量、指针），但是一定要清楚这个操作不会对数据的一致性产生错误的影响。而且对于字符串字面值，他的内容是存储在程序的只读内存区，对它的修改是未定义行为，不应该这样使用。
+        - reinterpret_cast是对内存的重新解释。同样的指针之间的转型，static_cast还会对其进行父类子类之间的起始位置的变化，而reinterpret_cast则完全不会，就是从当前地址重新解释。非常适合用于直接读取二进制数据，并重建对象。
+    - static_cast还承担了std::move的功能，实际上std::move的实现近似于```static_cast<remove_reference_t<T>&&>(value)```。
+13. C/C++中一次malloc/new的完整流程？系统分配内存的系统调用是什么？
+    - 这个问题是比较复杂的，可以参考[new和delete底层实现原理](https://developer.aliyun.com/article/990203)。[2万字30张图带你领略glibc内存管理精髓](https://mp.weixin.qq.com/s/pdv5MMUQ9ACpeCpyGnxb1Q)。
+    - 用来分配内存的系统调用是brk、mmap、munmap。C库还提供了sbrk。
 13. make_shared和传递裸指针给shared_ptr的区别？
     - make_shared更安全，而且由于make_shared是统一的一次内存分配，shared_ptr实际上是两次内存分配，使用make_shared，智能指针和实际对象会存储在相近的位置。
 14. 构造函数中能否调用虚函数？

@@ -115,6 +115,13 @@ C/C++中有一些经常会出现的难点，也是深入学习使用的要点。
     - 《STL源码剖析》
     - [GCC 源代码获取](https://gcc.gnu.org/git.html)
     - [Cpp reference: allocator](https://en.cppreference.com/w/cpp/memory/allocator)
+### 内存管理
+上一小节讲了一下allocator的一个基本实现。这一小节从整体上，整理一下malloc/free，和new/delete的处理流程。从一次调用，到最终获得可用的内存，中间所有的库、操作系统、硬件的操作。
+1. 库函数以上
+2. malloc库
+3. 系统调用
+4. 硬件
+
 ### 高性能IO
 1. 流
     1. 参考：

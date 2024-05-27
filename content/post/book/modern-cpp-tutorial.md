@@ -635,7 +635,7 @@ int main(){
 ```
 
 ### 协程
-C++20引入协程，具体内容可参考[CppReference协程](https://zh.cppreference.com/w/cpp/language/coroutines)，[非常推荐：渡劫C++协程](https://www.bennyhuo.com/2022/03/09/cpp-coroutines-01-intro/)。在C++20标准下，协程的使用比较底层，并不适合直接使用，实际上官方的目的也是提供给库编写者使用，实际工程中需要自行封装或者用其他封装好的库。
+C++20引入协程，具体内容可参考[CppReference协程](https://zh.cppreference.com/w/cpp/language/coroutines)，[非常推荐：渡劫C++协程](https://www.bennyhuo.com/2022/03/09/cpp-coroutines-01-intro/)。在C++20标准下，协程的使用比较底层，并不适合直接使用，实际上官方的目的也是提供给库编写者使用，实际工程中需要自行封装或者用其他封装好的库。另外也有5篇很好的英文博客，地址[Lewis Baker：Asymmetric Transfer](https://lewissbaker.github.io/)，可以从原理上学习一下。
 
 什么是协程，这一点在不同的语言中有着类似但是又不完全相同的定义。C++20引入的协程，要求是**必须**在函数体内部包含```co_await```、```co_yield```、```co_return```，其基本语法如下，
 ```cpp

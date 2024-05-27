@@ -27,6 +27,8 @@ draft: true
         return s;
     }
     ```
-1. 
+1. 异常处理的原则
+    1. C/C++缺少对契约的形式化方式。需要编码者自行明确编写代码的契约：调用者要保证先验条件，被调用者要满足后验条件，调用过程中满足不变式。
 
 ## 参考资料
+[协程 by Lewis Baker](https://lewissbaker.github.io/)

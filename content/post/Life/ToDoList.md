@@ -121,6 +121,16 @@ thumbnailImage: /images/thumbnail/todo.jpg
     - [ ] Docker 容器与容器云（第2版）
     - [ ] Kubernetes中文指南
     - [ ] Prometheus操作指南
+    - [ ] kubernetes 源码剖析
+    - [ ] 深入剖析kubernetes (kubernetes deep dive)
+    - [ ] 深入理解go语言
+    - [ ] go专家编程（第二版）
+    - [ ] 深入理解linux网络
+    - [ ] containerd原理剖析与实战
+    - [ ] 云原生数据中心网络
+    - [ ] 网络虚拟化技术详解 NFV与SDN
+    - [ ] kubernetes网络权威指南 基础、原理与实践
+
 - 其他：
    - [ ] 3D数学基础：图形和游戏开发
    - [ ] Physically Based Rendering: From Theory to Implemention 3rd

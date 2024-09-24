@@ -7,7 +7,7 @@ categories:
 tags:
 - 合集
 - Web
-- 施工中
+- 暂停更新
 - WebRTC
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/webrtc.png

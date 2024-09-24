@@ -6,7 +6,7 @@ categories:
 - 全栈
 tags:
 - 全栈
-- 施工中
+- 暂停施工
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/fullstack.jpg
 ---

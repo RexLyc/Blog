@@ -7,7 +7,7 @@ categories:
 tags:
 - web
 - io
-- 施工中
+- 暂停更新
 - 工程
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/book/linux-web-io-series.png

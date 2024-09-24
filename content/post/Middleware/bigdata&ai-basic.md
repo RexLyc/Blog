@@ -6,7 +6,7 @@ categories:
 - 人工智能
 tags:
 - 人工智能
-- 施工中
+- 暂停更新
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/bigdata&ai.jpg
 math: true

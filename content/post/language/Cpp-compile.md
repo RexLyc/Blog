@@ -6,7 +6,6 @@ categories:
 - 编程语言
 tags:
 - C/C++系列
-- 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/cpp.png
 math: true

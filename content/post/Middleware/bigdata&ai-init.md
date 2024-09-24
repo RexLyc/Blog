@@ -7,7 +7,7 @@ categories:
 tags:
 - 系列开坑
 - 人工智能
-- 施工中
+- 暂停更新
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/bigdata&ai.jpg
 ---

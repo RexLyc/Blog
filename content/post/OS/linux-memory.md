@@ -6,7 +6,7 @@ categories:
 - 操作系统
 tags:
 - 操作系统系列
-- 施工中
+- 滚动更新
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/linux.jpg
 math: true

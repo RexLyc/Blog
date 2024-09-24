@@ -6,7 +6,6 @@ categories:
 - 数据中间件
 tags:
 - 数据中间件
-- 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/logo-elasticsearch-32-color.png
 math: true

@@ -6,7 +6,7 @@ categories:
 - 设计模式
 tags:
 - 设计模式
-- 施工中
+- 滚动更新
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/design-pattern.svg
 ---

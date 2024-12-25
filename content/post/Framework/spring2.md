@@ -6,14 +6,13 @@ categories:
 - Spring
 tags:
 - Spring
-- 暂停更新
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/spring.jpg
 ---
 框架中有一些特别重要，或者基础而通用的注解，在这里进行一定的讲解。本文尚未完成。
 <!--more-->
 ## 注解的原理
-- 请移步至Java系列阅读。
+- 请移步至[Java系列：注解篇]({{<ref "/content/post/language/Java-annotation.md">}})阅读。
 ## 常用注解
 - 在此并不直接区分Spring、SpringCloud等，如有必要会单独列出。
 ### 配置篇
@@ -376,8 +375,8 @@ thumbnailImage: /images/thumbnail/spring.jpg
 1. @Scheduled
     1. 概述：启动定时任务，需提供一个cron格式的字符串代表任务启动时间。
         - cron字符串解释：秒 分 时 日 月 星期 \[年\]
-    1. 搭配：入口类需要提供注解，@EnableScheduling，启用定时任务
-    1. 用法：
+    2. 搭配：入口类需要提供注解，@EnableScheduling，启用定时任务
+    3. 用法：
         ```java
         @Component
         public class MyJobs {

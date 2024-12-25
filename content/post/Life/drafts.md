@@ -1,16 +1,20 @@
 ---
-title: "ToReorganize"
-date: 2022-10-17T23:20:25+08:00
+title: "草稿箱"
+date: 2023-07-15T13:26:13+08:00
 categories:
-- 
+- 草稿箱
 tags:
-- 
-# thumbnailImagePosition: left
-# thumbnailImage: //example.com/image.jpg
+- 草稿箱
+weight: 1100
+thumbnailImagePosition: left
+thumbnailImage: /images/thumbnail/todo.jpg
 draft: true
 ---
-这篇博客是不应对外展示的，这里用于记录一些还无法形成完整博客的内容，等到时机成熟再统一搬出去
+这个是专门用于记录每天的一些问题和想法，不会公开。也记录一些还无法形成完整博客的内容，等到时机成熟再统一搬出去。
 <!--more-->
+
+## 每日问题
+- [x] UE5.2，对UUserWidget子类，设置Visiblity无效，在蓝图中永远都是可视（蓝图中的可视性修改有两个方式，哪个是对的呢）
 
 ## 摄影技术记录
 1. 光圈大小：即使是人像拍摄，也并不是光圈越大越好，大光圈会带来过多的背景虚化，景深过浅也会导致人物脸部对焦困难，一般的，一定有限对焦到眼睛。另外在逆光时，过大的光圈将会导致严重的眩光。

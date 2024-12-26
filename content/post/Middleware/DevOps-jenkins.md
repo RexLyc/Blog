@@ -3,14 +3,13 @@ title: "CI/CD系列：Jenkins"
 date: 2022-04-14T15:14:51+08:00
 categories:
 - 计算机科学与技术
-- 中间件
+- DevOps
 tags:
-- 中间件
-- 暂停更新
+- DevOps
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/jenkins.png
 ---
-Jenkins是CI/CD工具中非常重要的一个持续集成工具。本文进行简要介绍总结。
+Jenkins是CI/CD工具中非常重要的一个持续集成工具。本文总结在搭建本博客过程中的用法。
 <!--more-->
 ## 基本原理
 ## 安装使用实战
@@ -74,16 +73,7 @@ Jenkins是CI/CD工具中非常重要的一个持续集成工具。本文进行�
     - 提示错误：gnutls_handshake() failed: The TLS connection was non-properly terminated. 
     - apt安装curl
 
-## K8s部署
-参考[官方教程](https://www.jenkins.io/doc/book/installing/kubernetes/)。
 
-里面有几个要点别忘记了：
-1. 修改volume种配置的```worker-node```，这个要根据具体的集群节点进行配置，如果使用的是```minikube```的话，就填写```minikube```
-2. 最后的网络转发阶段不太明确，其实只需要对pod进行转发即可，不需要非得配置那个```service.yaml```，方法形如
-    ```bash
-    # 8080是jenkins在容器上暴露的端口，32000是宿主机向外部所有ip暴露的端口
-    kubectl -n devops-tools port-forward jenkins-658f9489bf-928l7 32000:8080 --address=0.0.0.0
-    ```
 
 ## 参考
 1. [官方中文网站](https://www.jenkins.io/zh/doc/book/installing/#setup-wizard)

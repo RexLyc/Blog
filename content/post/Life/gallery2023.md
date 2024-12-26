@@ -109,7 +109,7 @@ gallery:
 - /images/gallery2023/_DSF9273.jpg
 - /images/gallery2023/_DSF9288.jpg
 ---
-这本影集记录2023年全年作品选集
+这本影集记录2023年全年摄影选集
 <!--more-->
 ## 包含内容
 - 小鸭子和其他飞鸟

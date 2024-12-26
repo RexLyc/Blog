@@ -9,6 +9,7 @@ tags:
 - 个人项目
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/ue-logo.png
+draft: true
 ---
 本章节主要记录一些游戏设计，以及一些游戏设计相关术语。
 <!--more-->

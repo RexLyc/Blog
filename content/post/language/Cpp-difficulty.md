@@ -7,7 +7,6 @@ categories:
 tags:
 - C/C++系列
 - 开坑篇
-- 滚动更新
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/cpp.png
 ---

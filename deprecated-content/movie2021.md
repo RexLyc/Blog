@@ -5,7 +5,6 @@ categories:
 - 摄影
 - 视频
 tags:
-- 滚动更新
 - 摄影
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/bilibili.jpg

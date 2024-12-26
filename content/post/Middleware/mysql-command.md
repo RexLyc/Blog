@@ -6,7 +6,6 @@ categories:
 - 中间件
 tags:
 - 中间件
-- 滚动更新
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/mysql-logo.png
 ---

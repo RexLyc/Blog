@@ -1,12 +1,11 @@
 ---
-title: "Wheel：好用轮子合集篇"
+title: "Wheel：实用轮子/算法合集篇"
 date: 2023-02-19T22:44:36+08:00
 categories:
 - 计算机科学与技术
 - 轮子
 tags:
 - 轮子
-- 滚动更新
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/wheel.png
 ---

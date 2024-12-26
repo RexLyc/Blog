@@ -9,6 +9,7 @@ tags:
 - 个人项目
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/ue-logo.png
+draft: true
 ---
 本文是学习使用蓝图方式建立一个游戏工程的教学视频的课程笔记。
 <!--more-->
@@ -174,7 +175,6 @@ thumbnailImage: /images/thumbnail/ue-logo.png
     - temperate vegetations
 ## 其他常用添加
 - 玩家出生点
-- 
 
 ## 其他特性
 - Nanite：一个大幅度优化密集多变形场景绘制的系统。目前对静态网格体效果最好，比如岩石、戈壁场景，使用Nanite优化的模型能够大幅度提升性能。在网格体的细节窗口设置中开启

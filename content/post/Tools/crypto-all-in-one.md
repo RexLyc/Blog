@@ -6,7 +6,6 @@ categories:
 - 信息安全
 tags:
 - 信息安全
-- 滚动更新
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/security.jpg
 ---

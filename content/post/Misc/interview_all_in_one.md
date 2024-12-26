@@ -5,7 +5,6 @@ categories:
 - 求职面试
 tags:
 - 求职面试
-- 滚动更新
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/interview.jpg
 ---

@@ -124,7 +124,7 @@ gallery:
 - /images/gallery2022/_DSF5192.jpg
 - /images/gallery2022/_DSF5237.jpg
 ---
-这本影集记录2022年全年作品
+这本影集记录2022年全年摄影选集
 <!--more-->
 ## 包含内容
 - 疫情后的返乡

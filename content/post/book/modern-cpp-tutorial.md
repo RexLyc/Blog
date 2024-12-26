@@ -6,7 +6,6 @@ categories:
 - 技术书
 tags:
 - C/C++
-- 滚动更新
 - 编程语言
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/cpp.png

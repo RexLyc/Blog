@@ -5,12 +5,11 @@ categories:
 - 生活
 - 料理
 tags:
-- 滚动更新
 - 自己动手丰衣足食
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/braveCattle.jpg
 ---
-在大城市生活独自生活的你，是否经常思念家乡的菜，是否想吃点家常便饭。自己动手丰衣足食。今天是手残博主，明天就是美食大手子。滚动更新，欢迎推荐菜谱。
+在大城市生活独自生活的你，是否经常思念家乡的菜，是否想吃点家常便饭。自己动手丰衣足食。今天是手残博主，明天就是美食大手子。，欢迎推荐菜谱。
 <!--more-->
 
 ## 热菜

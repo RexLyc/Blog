@@ -7,7 +7,6 @@ categories:
 tags:
 - 计划
 - 网站建设
-- 滚动更新
 # 置顶方式是添加权重
 weight: 1000
 thumbnailImagePosition: left
@@ -53,51 +52,26 @@ thumbnailImage: /images/thumbnail/todo.jpg
 3. [ ] 博客填充
     - 所有内容较少的页面，尽量填充（也就是说快点把该学的东西补上来）
     - 在复习的过程中，补齐应有的图片
-4. [ ] 基于UE5的地铁数字孪生系统
-    - 智能维修、[爆炸动画](https://docs.unrealengine.com/5.1/zh-CN/setting-up-xr-explode-animations-in-unreal-engine/)
-5. [ ] 把PC版的页面文章宽度增加一些
-6. [ ] 算法分析，所有的分析方式（尤其是势函数法）
-7. [ ] 跑通一个跨端WebRTC Demo。PC + Web。
-8. [ ] 把菜谱章节更新一下。
-9. [ ] 找一下二胡的乐谱，偶尔练一练。
+4. [ ] 把PC版的页面文章宽度增加一些
+5. [ ] 算法分析，所有的分析方式（尤其是势函数法）
+6. [ ] 跑通一个跨端WebRTC Demo。PC + Web。
+7. [ ] 把菜谱章节更新一下。
+8. [ ] 找一下二胡的乐谱，偶尔练一练。
+9.  [ ] redis尽快写完。
+10. [ ] 整理cs_misc
+11. [ ] davinci学习
 
 ## 更新一
-1. [x] linux-shell - 8h
-2. [x] spring1 - 8h
-3. [x] design-pattern-init - 16h(各种模式找一个样例代码)
-4. [x] git - 4h
-5. [x] cpp-compile - 24h
-    - [x] 编译链接装配
-    - [x] linux gcc & windows vs
-    - [x] gdb
-    - [x] cmake
-6. [X] cpp-standard - 16h
-    - [X] C & C++
-    - [X] C++ 98 03 11 14 17 20
-7. [x] qt-all-in-one - 8h(后续可以再补充，尤其是针对嵌入式、针对模块的单独使用)
-8. [x] jmeter-all-in-one - 2h(稍加补充)
-9. [x] Unreal Engine5 入门 - 48h
-10. [x] ibmmq-all-in-one - 2h(稍加补充)
-11. [ ] linux-file - 30h
-12. [ ] linux-system-run - 16h 
+1.  [ ] linux-file - 30h
+2.  [ ] linux-system-run - 16h 
     - https://www.liuvv.com/p/c9c96ac3.html
     - https://blog.csdn.net/lina_acm/article/details/79767414
-13. [ ] linux-process - 30h
-14. [x] spring2 - 8h(稍加补充)
-15. [ ] cicd-jenkins - 2h(稍加补充，后续可以更新不同项目的一些build的坑)
-16. [ ] mysql-backend - 16h(整理之前的笔记)
-17. [ ] mysql-command - 4h
-    - https://www.csdn.net/tags/OtDaIg1sNzA2Ni1ibG9n.html
-18. [ ] mysql-practice - 8h(整理一些sql实用脚本)
-19. [ ] fullstack-jsts-basic - 8h
-20. [ ] fullstack-jsts-aporia - 8h
-21. [ ] design-concurrency - 24h
-22. [ ] design-pattern-terms - 2h(后续不断补充)
-23. [ ] redis-single - 8h
-24. ~~[ ] WebLab-init - 30h(快点做完吧球球了)~~
-    ~~- 可以看看BliKVM，以KVM形式做一个控制器~~
-25. [ ] algo1 - 4h(重看一遍视频，把这部分博客补了)
-- 合计：270h，预计需花费90天
+3.  [ ] linux-process - 30h
+4.  [ ] design-concurrency - 24h
+5.  [ ] design-pattern-terms - 2h
+6.  [ ] redis-single - 8h
+7.  [ ] algo1 - 4h(重看一遍视频，把这部分博客补了)
+
 ## 更新二
 1. [ ] 权限系统相关：
     - [ ] RBAC等模型
@@ -107,28 +81,23 @@ thumbnailImage: /images/thumbnail/todo.jpg
     - [ ] dns
     - [ ] 代理和反向代理
     - [ ] 网络安全（firewalld、selinux），常见攻击手段和防御方式
-3. [ ] java-构建（maven、gradle）
-    maven 常见的几个解决办法：
-    1. [ ] 仍然使用自带maven（有的时候用自己下载的高版本maven就是有问题）
-    2. [ ] 使用解决冲突的一个插件，一般来说是exclude一些不要的包
-4. [ ] java annotation：一些注解处理中常用的设计模式
-5. [ ] linux-mod：内核模块开发
+3. [ ] java annotation：一些注解处理中常用的设计模式
+4. [ ] linux-mod：内核模块开发
     - lsusb、modprobe、dkms
-6. [ ] 大数据
+5. [ ] 大数据
     - [ ] pearson相关性系数、xgboost、随机森林、sklearn、lgboost、linear regression、交叉验证
     - [ ] 数据标注和预处理
-7. [ ] 运维
+6. [ ] 运维
     - [ ] google sre、docker、k8s
-8. [ ] 面试
+7. [ ] 面试
     - [ ] orm框架原理（mybatis）
     - [ ] rabbitmq & kafka
-9. [ ] C++配套设施
+8. [ ] C++配套设施
     - [ ] 内存泄漏检测（-fsanitize=address）
 
 ## 长期型
 1. 参加一些线下技术论坛、创业论坛
 1. read&write (可以写一些有意义的活动心得、感悟)
-1. 玩一下历年的年度游戏
 2. 学英语，主要是听力、词汇量
 
 ## 待读书清单

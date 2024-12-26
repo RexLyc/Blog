@@ -6,7 +6,6 @@ categories:
 - 算法
 tags:
 - 算法系列
-- 滚动更新
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/algorithm.jpg
 math: true

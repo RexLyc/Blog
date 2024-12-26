@@ -6,7 +6,6 @@ categories:
 - DevOps
 tags:
 - DevOps
-- 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/DevOps.jpg
 ---
@@ -75,12 +74,15 @@ thumbnailImage: /images/thumbnail/DevOps.jpg
 4. 推荐视频：
    1. [Docker Containers and Kubernetes Fundamentals – Full Hands-On Course](https://www.youtube.com/watch?v=kTp5xUtcalw)
    2. [Docker Tutorial for Beginners](https://www.youtube.com/watch?v=pTFZFxd4hOI)
-### Kubemetes
+
+
+### Kubenetes
 k8s简单介绍：支持灵活的调度机制、丰富的组件元语（支持无状态、有状态服务的组件元语，方便扩缩容）、支持高性能的服务注册/订阅功能、扩展性强支持插件化二次开发。
 
 service port：集群内部应用访问方式。node port：集群外部服务访问方式。k8s通过改写相关iptable支持请求转发到相关pod。
 
 调度机制：亲和性和反亲和性（出于容灾考虑）。【基于pod的label进行匹配】
+
 
 ## 总结
 &emsp;&emsp;软件开发行业需要解决的若干问题总而言之就是：提高代码和组件分发、开发、合并、测试、部署上线、回滚的效率。

@@ -6,7 +6,6 @@ categories:
 - DevOps
 tags:
 - DevOps
-- 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/DevOps.jpg
 ---
@@ -21,6 +20,9 @@ thumbnailImage: /images/thumbnail/DevOps.jpg
 
 ## 工具
 测试工具的种类非常多，而且也没有放诸四海皆有效的一个通用完整工具。
+
+### JMeter
+具体参考[JMeter]({{<ref "/content/post/Tools/JMeter-all-in-one.md">}})
 
 ### Perf
 Linux下内核级支持的一个工具，主要用于对当前CPU上的执行情况进行采样分析。但其数据可视化效果比较差，一般会和其他工具结合。下面列举一些性能测试场景的使用案例。

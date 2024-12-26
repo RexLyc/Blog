@@ -6,7 +6,6 @@ categories:
 - 全栈
 tags:
 - 全栈
-- 滚动更新
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/fullstack.jpg
 
@@ -185,4 +184,3 @@ Node.JS是基于Chrome V8开发的JS服务器端运行环境，NPM则是Node.JS�
 
 ## 参考资料
 - [菜鸟教程](https://www.runoob.com/nodejs/nodejs-tutorial.html)
-- 

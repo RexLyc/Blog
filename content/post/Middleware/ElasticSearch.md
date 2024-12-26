@@ -3,9 +3,9 @@ title: "ElasticSearch：合集篇"
 date: 2024-01-09T20:59:38+08:00
 categories:
 - 计算机科学与技术
-- 数据中间件
+- 中间件
 tags:
-- 数据中间件
+- 中间件
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/logo-elasticsearch-32-color.png
 math: true

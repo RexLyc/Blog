@@ -7,7 +7,6 @@ categories:
 tags:
 - C/C++系列
 - 开坑篇
-- 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/cpp.png
 ---
@@ -115,6 +114,13 @@ C/C++中有一些经常会出现的难点，也是深入学习使用的要点。
     - 《STL源码剖析》
     - [GCC 源代码获取](https://gcc.gnu.org/git.html)
     - [Cpp reference: allocator](https://en.cppreference.com/w/cpp/memory/allocator)
+### 内存管理
+上一小节讲了一下allocator的一个基本实现。这一小节从整体上，整理一下malloc/free，和new/delete的处理流程。从一次调用，到最终获得可用的内存，中间所有的库、操作系统、硬件的操作。
+1. 库函数以上
+2. malloc库
+3. 系统调用
+4. 硬件
+
 ### 高性能IO
 1. 流
     1. 参考：
@@ -318,7 +324,7 @@ C/C++中有一些经常会出现的难点，也是深入学习使用的要点。
 3. 参考
     - [函数指针使用总结](https://www.cnblogs.com/lvchaoshun/p/7806248.html)似乎并不完全正确，**等待确认**。
 
-## const
+## const重载
 在C++中，提供了对于const的重载能力。这在其他语言中往往是不具备的。见下面的例子。
 ```cpp
 class Test {
@@ -361,6 +367,15 @@ void funcRef(int&) {}
 ```
 
 参考[C++函数重载(3) - 函数重载中的const关键字](https://blog.csdn.net/shltsh/article/details/45939977)
+
+## &&重载
+和const函数一样，C++允许对右值在重载决议时，使用对应的&&重载版本。例如
+```cpp
+struct Foo {
+    auto func() && {}
+    auto func() {}
+}
+```
 
 ## 其他坑
 1. 由于C++目前越发庞大，在标准的演化过程中，可能出现一些未定义行为，在编程时需要注意

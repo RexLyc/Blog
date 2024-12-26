@@ -7,7 +7,6 @@ categories:
 tags:
 - Lua系列
 - 合集篇
-- 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/Lua-Logo.png
 ---
@@ -315,11 +314,6 @@ thumbnailImage: /images/thumbnail/Lua-Logo.png
     - file:close、file:seek
 1. os
     - os.clock、os.execute
-### 外部库
-1. 日志
-1. 网络
-1. GUI
-1. 性能
 
 ## 参考
 1. [Lua Tutorials](http://lua-users.org/wiki/TutorialDirectory)

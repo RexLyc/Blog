@@ -5,12 +5,11 @@ categories:
 - 生活
 - 料理
 tags:
-- 滚动更新
 - 自己动手丰衣足食
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/braveCattle.jpg
 ---
-在大城市生活独自生活的你，是否经常思念家乡的菜，是否想吃点家常便饭。自己动手丰衣足食。今天是手残博主，明天就是美食大手子。滚动更新，欢迎推荐菜谱。
+在大城市生活独自生活的你，是否经常思念家乡的菜，是否想吃点家常便饭。自己动手丰衣足食。今天是手残博主，明天就是美食大手子。，欢迎推荐菜谱。
 <!--more-->
 
 ## 热菜
@@ -224,12 +223,12 @@ thumbnailImage: /images/thumbnail/braveCattle.jpg
 ## To Do List:
 - 肉菜类：
     - 咖喱牛肉
-    - 酱牛肉
+    - ~~酱牛肉~~
     - 麻辣小龙虾
     - 宫保鸡丁
     - ~~糖醋~~ & 清蒸鱼
-    - 大盘鸡
-    - 水煮牛肉
+    - ~~大盘鸡~~
+    - ~~水煮牛肉~~
     - 锅塌胸口
     - 辣子鸡
     - 青椒肉丝
@@ -239,7 +238,7 @@ thumbnailImage: /images/thumbnail/braveCattle.jpg
     - 麻辣豆腐
     - 海带土豆
     - 酸辣土豆丝
-    - 地瓜 & 鸡蛋挂浆
+    - 地瓜 & ~~鸡蛋~~挂浆
     - 西芹百合腰果
     - 炒娃娃菜
     - 蒜蓉茄子
@@ -251,8 +250,8 @@ thumbnailImage: /images/thumbnail/braveCattle.jpg
     - ~~炒面~~
     - 拉条子
 - 喝的
-    - 银耳雪梨汤
-    - 百香果蜂蜜水
+    - ~~银耳雪梨汤~~
+    - ~~百香果蜂蜜水~~
 
 > 不要问为什么没有XXX，因为XXX我可能不爱吃。这里面列的都是我很想吃的。
 

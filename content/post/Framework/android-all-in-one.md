@@ -5,7 +5,6 @@ categories:
 - 计算机科学与技术
 - 安卓
 tags:
-- 滚动更新
 - 安卓
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/android.jpeg
@@ -167,11 +166,8 @@ String getBuildDate() {
     - 创建Handler、创建Looper，启动Looper
     - 将Handler发给不同的线程
     - 各线程内自己组Message并发送
-- 示例代码
-    - 待补充
 ### Camera2和TextureView
 - 关键词
-    - 待补充
     - 补充一张Camera2的类图
 - 基本流程
     - 为TextureView添加SurfaceViewListener

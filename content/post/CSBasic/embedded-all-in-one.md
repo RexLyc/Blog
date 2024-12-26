@@ -5,7 +5,6 @@ categories:
 - 计算机科学与技术
 - 嵌入式
 tags:
-- 滚动更新
 - 合集
 - 嵌入式
 thumbnailImagePosition: left
@@ -44,4 +43,3 @@ math: true
 - 参考：
     - [Modbus Poll/Slave 模拟器使用教程](https://blog.csdn.net/qq_35029061/article/details/125865898)
     - [知乎：Modbus协议详解与案例演示](https://zhuanlan.zhihu.com/p/537762158)
-## ToDo

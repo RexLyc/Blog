@@ -6,7 +6,6 @@ categories:
 - DevOps
 tags:
 - DevOps
-- 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/docker.jpg
 ---

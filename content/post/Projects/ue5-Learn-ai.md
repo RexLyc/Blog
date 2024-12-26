@@ -9,6 +9,7 @@ tags:
 - 个人项目
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/ue-logo.png
+draft: true
 ---
 AI是游戏机制中构成玩法的非常重要的一部分，本篇记录UE开发中的AI编写方法。
 <!--more-->

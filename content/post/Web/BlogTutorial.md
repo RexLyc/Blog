@@ -5,7 +5,6 @@ categories:
 - 计算机科学与技术
 - 博客搭建
 tags:
-- 滚动更新
 - 网站建设
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/lycStamp.png

@@ -9,6 +9,7 @@ tags:
 - 个人项目
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/ue-logo.png
+draft: true
 ---
 联机功能能给大多数游戏增加非常多的乐趣，因此有必要在一开始就考虑联机功能，考虑联机服务器的开发。
 <!--more-->
@@ -28,7 +29,6 @@ thumbnailImage: /images/thumbnail/ue-logo.png
     1. RPC：远程过程调用，有服务器、客户端、广播三种方式，需要制定可靠或不可靠属性（即保证到达和不保证到达）
 1. 基本原理：
     - UE5引擎通过数据同步，维持不同类型的实例（或者一部分属性）在多台机器上具有相同的副本
-    - 
 
 ## 编译和交叉编译
 1. 为什么要编译：官方的二进制安装包只能进行本地开发，无法进行服务器开发

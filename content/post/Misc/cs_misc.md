@@ -6,7 +6,6 @@ categories:
 - 杂项
 tags:
 - 杂项
-- 滚动更新
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/misc.jpg
 ---

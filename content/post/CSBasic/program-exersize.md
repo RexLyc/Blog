@@ -5,7 +5,6 @@ categories:
 - 求职
 - 习题
 tags:
-- 滚动更新
 - 习题
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/algo-exercises.jpg

@@ -6,7 +6,6 @@ categories:
 - 随笔
 tags:
 - 随笔
-- 滚动更新
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/diary.jpg
 ---

@@ -39,8 +39,8 @@ enableEmoji = true
 [author]
   name = "李奕成"
   bio = "每天都是最好的一天"
-  job = "京投 软件研发"
-  location = "北京·朝阳"
+  job = "蚂蚁 软件研发"
+  location = "北京·海淀"
   # Your Gravatar email. Overwrite `author.picture` everywhere in the blog
   # gravatarEmail = "thibaud.lepretre@gmail.com"
   # Your profile picture

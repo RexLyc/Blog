@@ -1,19 +1,16 @@
 ---
-title: "信息安全-理论专栏"
+title: "信息安全：合集"
 date: 2023-10-26T16:17:36+08:00
 categories:
 - 计算机科学与技术
 - 信息安全
 tags:
 - 信息安全
-- 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/security.jpg
 ---
 本文从原理出发，记录所有的信息安全中的加解密知识，库，实用工具。也包括鉴权、访问控制、抗抵赖相关知识。
 <!--more-->
-
-> 对于实际工程实施、命令应用内容，请查看文章[信息安全-工程实施专栏]({{<relref "/content/post/engineer/security.md">}})
 
 ## 基础假设
 1. 从系统角度来说，任何应用都是不安全的，不应被信任的，因此不应给予超过必需部分的权限和数据。
@@ -86,3 +83,37 @@ thumbnailImage: /images/thumbnail/security.jpg
         - 流程：第三方应用程序访问授权层，在资源所有者控制下授权令牌（可指定范围和有效期），服务提供商根据令牌想第三方应用程序提供服务。
         - 模式：授权码模式（第三方服务器-服务提供商服务器）、简化模式（用户代理-服务器提供商服务器）、密码模式（直接给第三方密码）、客户端模式（第三方把自己视作用户）
     3. JWT（JSON Web Token）：JWT本身只是一种Token的实现方式，但同时这种方式能够很好的支持单点登录。用户在登录之后，会获取到认证服务生成的JWT，每次访问均携带JWT，由网关等对JWT进行核验。由于JWT本身并不一定加密（只是一定会做签名），所以需要搭配https，总之应当尽量保证JWT不被泄露。
+
+## 具体实践
+### Linux系统
+1. 配置审计日志
+    ```bash
+    # 记录所有对/etc/passwd文件的读取行为，以pass_audit做key插入审计日志
+    auditctl -w /etc/passwd -p r -k pass_audit
+    ```
+1. 配置更详细的访问控制ACL
+    ```bash
+    # 对用户userA，设置允许对/opt/test.txt具备读写权限
+    setfacl -m u:userA:rw /opt/test.txt
+    ```
+1. 安全的删除文件
+    ```bash
+    # 使用伪随机数据填充/opt/secret.txt（默认三次），并删除文件
+    shred /opt/secret.txt && rm /opt/secret.txt
+    ```
+1. 数据完整性和摘要
+    ```bash
+    md5sum xxxfile
+    # 不同的sha算法生成的摘要长度不同
+    sha512sum xxxfile
+    ```
+### 数据库
+1. 设置密码策略
+    ```mysql
+    
+    ```
+1. 从数据库历史中查看可疑命令
+    ```mysql
+    // 查看是否有写入了文件的注入行为，例如
+    select "<?php eval...?" into outfile xxx
+    ```

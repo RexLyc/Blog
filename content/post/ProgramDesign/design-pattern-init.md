@@ -7,7 +7,6 @@ categories:
 tags:
 - 系列开坑
 - 设计模式
-- 施工中
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/design-pattern.svg
 ---

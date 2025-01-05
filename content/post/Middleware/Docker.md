@@ -291,6 +291,61 @@ struct cgroup_subsys {
   ```
 2. docker-compose
 
+## 坑
+### 安装后root
+官方文档中有提到，默认安装后使用root用户，因此需要sudo。如果不想用sudo权限，则需要配置添加当前用户到docker，并重启或注销。
+参考[Linux post-installation steps for Docker Engine](https://docs.docker.com/engine/install/linux-postinstall/)
+```bash
+sudo groupadd docker
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+
+### 代理
+docker使用过程中需要代理的一共有三个部分，一个是docker pull的时候使用的代理，另一个是为容器提供的代理，最后是docker build时。
+参考[如何优雅的给 Docker 配置网络代理](https://www.cnblogs.com/Chary/p/18096678)
+
+简单总结如下
+```bash
+# docker pull代理
+# 准备daemon配置
+sudo mkdir -p /etc/systemd/system/docker.service.d
+sudo touch /etc/systemd/system/docker.service.d/proxy.conf
+
+# 文件内容
+# [Service]
+# Environment="HTTP_PROXY=http://proxy.example.com:8080/"
+# Environment="HTTPS_PROXY=http://proxy.example.com:8080/"
+# Environment="NO_PROXY=localhost,127.0.0.1,.example.com"
+
+# ========================
+# 容器内代理
+vim ~/.docker/config.json
+# {
+#  "proxies":
+#  {
+#    "default":
+#    {
+#      "httpProxy": "http://proxy.example.com:8080",
+#      "httpsProxy": "http://proxy.example.com:8080",
+#      "noProxy": "localhost,127.0.0.1,.example.com"
+#    }
+#  }
+# }
+
+# ========================
+# 参考博客中提到docker build需要使用时配置，用户级配置无效
+docker build . \
+    --build-arg "HTTP_PROXY=http://proxy.example.com:8080/" \
+    --build-arg "HTTPS_PROXY=http://proxy.example.com:8080/" \
+    --build-arg "NO_PROXY=localhost,127.0.0.1,.example.com" \
+    --network host
+    -t your/image:tag
+
+```
+
+
 ## 参考
 《Docker容器与容器云》
 

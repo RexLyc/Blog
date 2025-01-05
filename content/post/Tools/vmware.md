@@ -12,6 +12,14 @@ thumbnailImage: /images/thumbnail/VMware.jpg
 ---
 VMWare作为Windows上最常用的虚拟机。是跨平台开发必不可少的帮手。本文记录一些实用的VMWare知识
 <!--more-->
+
+## vmware tools
+在workstation较高版本之后，vmware tools只提供windows虚拟机实用了。如果安装ubuntu虚拟机。请实用open-vm-tools。
+```bash
+sudo apt update
+sudo apt install open-vm-tools
+```
+
 ## 共享文件夹
 1. 需要虚拟机内系统支持该特性（VMWare Tools）
 2. 设置-选项-共享文件夹-选择主机内指定目录

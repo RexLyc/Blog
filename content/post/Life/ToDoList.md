@@ -34,7 +34,8 @@ thumbnailImage: /images/thumbnail/todo.jpg
 
 ## 更新列表
 1. [ ] 删除/归档博客中不再有阅读意义的文章内容，甚至是文章
-1. [x] 一个测试框架
+2. [ ] 逐步完成所有施工中、暂停施工的文章
+3. [x] 一个测试框架
     - [x] 开发语言和图形接口选择（建议前后端分离）
         - vue+js+electron：[DrawFlow](https://github.com/jerosoler/Drawflow)
         - 后端python/cpp/java
@@ -43,23 +44,24 @@ thumbnailImage: /images/thumbnail/todo.jpg
     - [x] 测试中的异常处理
     - [ ] 网络化、批量化
     - [ ] 添加重做撤销功能（可持久化数据结构）
-2. [ ] 技能准备
+4. [ ] 技能准备
     - 中间件学习：ElasticSearch、HDFS & HBase、Hadoop & MapReduce & HIVE、Flink、Impala
     - 中间件复习：Redis、NginX、MySQL、Kafka
     - 分布式：一致性哈希、Raft、分布式事务
     - 容器：Docker、k8s
     - 工具：perf、gperftool、gprof、gdb、flamegraph
-3. [ ] 博客填充
+5. [ ] 博客填充
     - 所有内容较少的页面，尽量填充（也就是说快点把该学的东西补上来）
     - 在复习的过程中，补齐应有的图片
-4. [ ] 把PC版的页面文章宽度增加一些
-5. [ ] 算法分析，所有的分析方式（尤其是势函数法）
-6. [ ] 跑通一个跨端WebRTC Demo。PC + Web。
-7. [ ] 把菜谱章节更新一下。
-8. [ ] 找一下二胡的乐谱，偶尔练一练。
-9.  [ ] redis尽快写完。
-10. [ ] 整理cs_misc
-11. [ ] davinci学习
+6. [ ] 把PC版的页面文章宽度增加一些
+7. [ ] 算法分析，所有的分析方式（尤其是势函数法）
+8. [ ] 跑通一个跨端WebRTC Demo。PC + Web。
+9. [ ] 把菜谱章节更新一下。
+10. [ ] 找一下二胡的乐谱，偶尔练一练。
+11. [ ] redis尽快写完。
+12. [ ] 整理cs_misc
+13. [ ] davinci学习
+14. [ ] Envoy学习
 
 ## 更新一
 1.  [ ] linux-file - 30h

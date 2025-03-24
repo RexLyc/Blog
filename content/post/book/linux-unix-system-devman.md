@@ -7,7 +7,7 @@ categories:
 tags:
 - 操作系统
 - Linux
-- 施工中
+- 暂停施工
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/book/LinuxUnixSystemDev.png
 draft: true

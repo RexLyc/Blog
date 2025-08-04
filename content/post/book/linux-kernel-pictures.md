@@ -16,6 +16,8 @@ mermaid: true
 本书提供了大量的插图，来学习Linux内核。
 <!--more-->
 
+<!-- 可从https://fliphtml5.com/ytimv/nlep/%E5%9B%BE%E8%A7%A3Linux%E5%86%85%E6%A0%B8%EF%BC%88%E5%9F%BA%E4%BA%8E6.x%EF%BC%89_%28%E5%A7%9C%E4%BA%9A%E5%8D%8E%29_%28Z-Library%29/21/  在线阅读 -->
+
 > 阅读期间，使用[linux kernel](https://kernel.org)，下载版本6.12.7
 
 > 本书有很多细节，汇编代码，因此也建议作为科普，工具书阅读。有需要的时候可以回来看看。
@@ -37,6 +39,15 @@ mermaid: true
     - 其他（本书不涉及的）：net、crypto、certs、security、tools、virt（虚拟化）
 1. 基础数据结构
     - Linux目前仍以C为主，所以其数据结构，以struct、和container_of等宏的方式形成，不像其他面向对象的语言提供的那种数据结构的形式
+        ```c
+        // 再复习一下 container of
+        // typeof 是gnu c关键字
+        #define container_of(ptr, type, member) ({   \
+            const typeof(((type *)0)->member) * __mptr = (ptr); \
+            (type *)((char *)__mptr - offsetof(type, member)); })
+
+        #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+        ```
     - 一对多的描述方式：将链表结构嵌入到有需要的数据结构中
         ```c
         // 方式一
@@ -48,6 +59,8 @@ mermaid: true
             struct list_head node;
             // other member
         };
+
+        // 用于串联的list_head
         struct list_head {
             struct list_head *next, *prev;
         };
@@ -113,17 +126,18 @@ mermaid: true
             // other member
         }
         ```
-        <!-- TODO：可考虑插入P13的图片 -->
-1. 设计模式：注意内核的设计方式，是面向对象的
-    - 模板方法模式：Template Method。即开发者实现固定的借口，系统会根据流程进行调用。
+2. 设计模式：注意内核的设计方式，是面向对象的
+    - 模板方法模式：Template Method。即开发者实现固定的接口，系统会根据流程进行调用。
     - 观察者模式：内核中，xxx_listener、xxx_notify
-1. 中断
+3. 中断
     
     广义的中断可进一步细分为中断（interrupt）和异常（exception）。更进一步的，中断分为可屏蔽和不可屏蔽，都是来自I/O设备的。异常则是程序主动进行的，包括陷阱、故障和终止。不论是哪种，CPU只会在一个指令执行完成后再检查，**不会在执行中检查**。
+    
+    ![中断处理流程](/images/book/linux-pic/idt.png)
 
-    中断处理需要软硬件分工合作。CPU提供了处理的指令、以及相应的寄存器位来存储。
+    中断处理需要软硬件分工合作。中断控制器和CPU相连，单CPU架构和SMP架构中分别是PIC（可编程中断控制器），IOAPIC（高级可编程中断控制器）。CPU提供了处理的指令、以及相应的寄存器位来存储。
 
-    中断处理程序是整个处理过程，从保护现场、处理、恢复现场。其中需要开发人员做的，一般是中断服务例程。涉及到两个关键的结构体：`irq_desc`、`irqaction`，是一对多，因为一个中断是可以被共享的。一个irq号对应一个`irq_desc`，会有通用的handler，而一个`irqaction`则代表一种设备更具体的处理，会有自己的handler供`irq_desc`中的handler调用。
+    区分两个概念：**中断处理程序**是指整个处理过程，从保护现场、处理、恢复现场。**中断服务例程**是其中的一部分，是专门处理产生中断的设备的相关逻辑的。中断服务例程涉及到两个关键的结构体：`irq_desc`、`irqaction`，是一对多，因为一个中断是可以被共享的。一个irq号对应一个`irq_desc`，会有通用的handler，而一个`irqaction`则代表一种设备更具体的处理，会有自己的handler供`irq_desc`中的handler调用。
 
     Top Half和Bottom Half，一些函数可看到th、bh的后缀，代表前半段、后半段。中断处理应当快速，头半段不能做复杂的处理。复杂逻辑应当使用工作队列、软中断，或启动单独的线程工作。
 
@@ -139,3 +153,23 @@ mermaid: true
     这里有一个具体的例子，键盘和鼠标等外设，可以是共享相同irq（例如200）的设备，但是二者并不会直接拉起一次中断处理程序，会是由GPIO再发起一个irq（例如50），GPIO的设备将会负责相应的`irq_desc`的处理。键盘和鼠标只需要完成自己的对应200的，`irq_desc`，`irq_action`。共享中断需要该设备的驱动能够区分出来，是否是自己设备发出的，如果不能，那么不能进行共享。
 
     中断处理还有很多细节：比如中断处理时，又有新中断发生（一般来说是会继续处理最新的中断，如果有多个新中断，会丢失中间的）；是否还有软中断需要处理；中断处理结束后，需要返回内核态还是用户态等
+
+    **软中断**：对于timer、tasklet等，内核支持一些软中断来完成这些事情。主要包括定时器，小任务，网络读写，块读写等。注意这里说的都是内核空间的事情，是内核可以使用的能力。
+
+    从处理流程上来看，系统调用其实也是中断（异常）的一种。因此减少系统调用对优化是有一定作用的。
+
+4. Linux的时间
+    
+    内核的时间功能分为两种：一个是作为时钟源，提供时间戳信息。另一个是提供时钟中断，以供一次性或周期性事件的触发。
+
+    内核的时间单位：jiffy，滴答。以及```ktime_t```。
+
+    核心的数据结构，```timekeeper```、```clocksource```、```clock_event_device```时钟事件。
+    
+    时钟源是有等级的，内核会选择一个作为“看门狗”，其他时钟源可以受此监督，如果某个其他时钟源误差过大，将会置为不稳定。时钟芯片有很多种，RTC、PIT、TSC、HPET、APIC Timer。
+
+    内核维护的事件有多种，常见的有：REALTIME（系统时间，也是WALL TIME墙上时间）、MONOTONIC（非休眠时间）、BOOTTIME（启动时间，包括休眠）
+
+    时钟中断是触发进程调度的最常见的情景之一。在中断章节中也可以，这种情况下，中断程序负责标记进程需要调度，并在中断返回时，内核态下检查标记在内核态进一步完成调度。
+
+    <!-- page 40 -->

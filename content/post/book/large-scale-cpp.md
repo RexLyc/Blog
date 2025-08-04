@@ -1,6 +1,6 @@
 ---
 title: "大规模C++软件开发：卷1过程与架构"
-date: 2024-03-26T20:41:51+08:00
+date: 2025-08-03T20:41:51+08:00
 categories:
 - 计算机科学与技术
 - C++
@@ -9,7 +9,7 @@ tags:
 - 施工中
 - 读书笔记
 thumbnailImagePosition: left
-# thumbnailImage: /images/thumbnail/k8s-logo.png
+thumbnailImage: /images/thumbnail/large-scale-cpp-1.jpg
 draft: true
 
 ---

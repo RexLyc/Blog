@@ -32,7 +32,7 @@ thumbnailImage: /images/thumbnail/todo.jpg
 3. 实用工具和技巧（AI回答不好的部分）
 4. 其他兴趣内容
 
-## 更新列表
+## 计划更新列表
 1. [ ] 删除/归档博客中不再有阅读意义的文章内容，甚至是文章
 2. [ ] 逐步完成所有施工中、暂停施工的文章
 3. [x] 一个测试框架
@@ -119,6 +119,7 @@ thumbnailImage: /images/thumbnail/todo.jpg
     - [ ] 云原生数据中心网络
     - [ ] 网络虚拟化技术详解 NFV与SDN
     - [ ] kubernetes网络权威指南 基础、原理与实践
+    - [ ] 色彩与光线（Color and lights）
 
 - 其他：
    - [ ] 3D数学基础：图形和游戏开发

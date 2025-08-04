@@ -17,7 +17,7 @@ thumbnailImage: /images/thumbnail/book/linux-web-io-series.png
 ## 参考书籍列表
 | 书籍名称 | C++版本 | 重点 |
 | --- | --- | --- |
-|Linux多线程服务端编程：使用muduo C++网络库 | 早于C++11 | 线程安全 |
+| Linux多线程服务端编程：使用muduo C++网络库 | 早于C++11 | 线程安全 |
 | Linux高性能服务器编程 |  | TCP/IP和IO模型 |
 | C++服务器开发精髓 |  |  |
 

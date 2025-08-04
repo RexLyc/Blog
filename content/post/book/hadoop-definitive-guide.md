@@ -7,7 +7,6 @@ categories:
 tags:
 - Hadoop
 - 中间件
-- 暂停施工
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/hadoop-logo.jpg
 ---
@@ -342,25 +341,17 @@ mapred streaming -input input -output output3 -mapper /bin/cat -reducer /usr/bin
 - 提供了作业完成通知选项供配置
 
 ## 生态
-### HBase和Hive
 
-### ZooKeeper
-
-### Spark
-
-### Flink
-
-### Avro
-
-### Flume
-
-### Sqoop
-
-### Pig
-
-### Solr
-
-### 其他
+- HBase和Hive
+- ZooKeeper
+- Spark
+- Flink
+- Avro
+- Flume
+- Sqoop
+- Pig
+- Solr
+- 其他
 
 
 ## 一些坑：

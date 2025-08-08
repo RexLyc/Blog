@@ -183,10 +183,13 @@ mermaid: true
     而且内存空间并不是连续的，会有一些用不到的空洞Hole。
 
     内存管理，实际上需要维护内存介质（RAM + MMIO）、内存空间、虚拟内存**三者之间**的关系。其中前两者之间的映射，由BIOS完成。
+    ![mmio](/images/book/linux-pic/mmio.png)
 
-    Linux中共有三种地址：虚拟地址（Virtual Address）、线性地址（Linear Address）、物理地址（Physical Address）。应用程序使用的是虚拟地址，虚拟地址通过分段机制（用户代码段、用户数据段、内核代码段、内核数据段）后就变为线性地址。内存管理单元MMU将会把线性地址转换为物理地址（即内存分页）。Linux上虚拟地址和线性地址其实几乎相同。
+    Linux中共有三种地址：虚拟地址（Virtual Address）、线性地址（Linear Address）、物理地址（Physical Address）。应用程序使用的是虚拟地址，虚拟地址通过分段机制（用户代码段、用户数据段、内核代码段、内核数据段）后就变为线性地址。内存管理单元MMU将会用分页机制，把线性地址转换为物理地址。Linux上虚拟地址和线性地址其实几乎相同（段描述符基准地址为0）。
 
-    MMU寻址部分就是多级页表的机制。32位和64位有一些区别。
+    MMU寻址部分就是多级页表的机制。32位和64位有一些区别。这里强调几点：寻址由MMU硬件完成，各级页表项所包含的地址都是物理地址，页框是指划分好的一块连续的物理内存，页/页面是指对应页框大小虚拟内存。P.S.:可以再去[复习一下](https://blog.csdn.net/weixin_49342084/article/details/142773491)CR3寄存器（PDBR）、PTBR，相比于分页机制，理解页表的加载也很重要。
+
+    即使有了MMU，操作系统仍然需要完成虚拟地址到物理地址的映射的建立。或者说页表的一些属性需要操作系统来设置。这里可以结合一些博客来学习，如[Linux Kernel直接映射区的构建](https://zhuanlan.zhihu.com/p/692536727)、[Linux Kernel内存管理之分页](https://zhuanlan.zhihu.com/p/661911303)
 
 2. 物理内存的管理
 
@@ -196,7 +199,7 @@ mermaid: true
 
     而zone则是对node内的资源再进行划分。zonelist中存储的就是对node中的内存的划分。划分至少是出于兼容性的考虑，比如有些设备只能访问指定的部分，因此需要将这部分内存保留出来。
 
-    一页物理内存对应一个Linux中的```page```对象。Linux管理物理内存实际上有三种模式：Flat（hole也占用物理内存）、SPARSEMEM（将内存空间划分为section，section下有各自的page对象，section动态分配，因此hole不会再分配）、
+    一页物理内存对应一个Linux中的```page```对象。Linux管理物理内存实际上有三种模式：Flat（hole也占用物理内存）、SPARSEMEM（将内存空间划分为section，section下有各自的page对象，section动态分配，因此hole不会再分配）
 
     > 内存配置情况，可以通过```/sys/firmware/memmap```查看
     

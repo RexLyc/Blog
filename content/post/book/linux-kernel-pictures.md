@@ -187,9 +187,76 @@ mermaid: true
 
     Linux中共有三种地址：虚拟地址（Virtual Address）、线性地址（Linear Address）、物理地址（Physical Address）。应用程序使用的是虚拟地址，虚拟地址通过分段机制（用户代码段、用户数据段、内核代码段、内核数据段）后就变为线性地址。内存管理单元MMU将会用分页机制，把线性地址转换为物理地址。Linux上虚拟地址和线性地址其实几乎相同（段描述符基准地址为0）。
 
-    MMU寻址部分就是多级页表的机制。32位和64位有一些区别。这里强调几点：寻址由MMU硬件完成，各级页表项所包含的地址都是物理地址，页框是指划分好的一块连续的物理内存，页/页面是指对应页框大小虚拟内存。P.S.:可以再去[复习一下](https://blog.csdn.net/weixin_49342084/article/details/142773491)CR3寄存器（PDBR）、PTBR，相比于分页机制，理解页表的加载也很重要。
+    MMU寻址部分就是多级页表的机制。32位和64位有一些区别。这里强调几点：寻址由MMU硬件完成，各级页表项所包含的地址都是物理地址。页框是指划分好的一块连续的物理内存，而页/页面是指对应页框大小虚拟内存。P.S.:可以再去[复习一下](https://blog.csdn.net/weixin_49342084/article/details/142773491)CR3寄存器（PDBR）、PTBR。页表的加载和寻址是从CR3赋值开始的，这一数据存储在每个进程的进程控制块task_struct中。
 
-    即使有了MMU，操作系统仍然需要完成虚拟地址到物理地址的映射的建立。或者说页表的一些属性需要操作系统来设置。这里可以结合一些博客来学习，如[Linux Kernel直接映射区的构建](https://zhuanlan.zhihu.com/p/692536727)、[Linux Kernel内存管理之分页](https://zhuanlan.zhihu.com/p/661911303)
+    即使有了MMU，操作系统仍然需要完成虚拟地址到物理地址的映射的建立。就是说页表需要操作系统来设置，内核提供了大量的函数和宏来做这些事情。如果有需要，这里可以结合一些博客来学习，强烈推荐如[Linux Kernel直接映射区的构建](https://zhuanlan.zhihu.com/p/692536727)、[Linux Kernel内存管理之分页](https://zhuanlan.zhihu.com/p/661911303)。另外也可以考虑参考[Intel x86-64开发人员手册](https://www.intel.cn/content/www/cn/zh/content-details/858440/intel-64-and-ia-32-architectures-software-developer-s-manual-combined-volumes-1-2a-2b-2c-2d-3a-3b-3c-3d-and-4.html)，该手册内有很多图表值得一看。不看这些博客的话，简单看一下下面也可以。
+    
+    目前分页最多的时候有5级页表，页全局目录PGD、页四级目录P4D、页上级目录PUD、页中级目录PMD、页表PT（第一级）。而且一般如果只有2级，则P4D、PUD、PMD的项数均为0，即10、0、0、0、10，最后页表内有12位物理地址偏移，总共32位。常规4K页面的分页下的一个内核直接映射内存区【存疑】，映射方法如下。
+
+    ```c
+    /*
+    * 页表导航说明：
+    *
+    * pgd, p4d, pud, pmd, pte 均为指向各级页表项的虚拟地址指针。
+    * pfn（页框号）为物理页帧编号，此处为 0x12，对应物理地址 0x12000（即 0x12 << PAGE_SHIFT）。
+    *
+    * 本代码目标：为指定的物理页帧 pfn 建立对应的页表映射（线性地址空间中）。
+    */
+
+    // 计算给定物理页帧在线性地址空间中的 PGD（Page Global Directory）索引
+    // 注意：(pfn << PAGE_SHIFT) + PAGE_OFFSET 将物理页帧转换为对应的线性地址
+    // PAGE_OFFSET 是内核线性映射的起始虚拟地址偏移（如 0xFFFF888000000000 在 x86_64）
+    pgd_idx = pgd_index((pfn << PAGE_SHIFT) + PAGE_OFFSET);
+    pgd = pgd_base + pgd_idx;  // 获取该线性地址对应的 PGD 项指针
+
+    /*
+    * 在当前配置（通常为 4-level 分页但启用兼容模式或线性映射平坦）下，
+    * p4d、pud、pmd 层级可能被折叠或直接透传，因此偏移量为 0。
+    * 使用 p4d_offset/pud_offset/pmd_offset 获取下一级页表指针。
+    */
+    p4d = p4d_offset(pgd, 0);
+    pud = pud_offset(p4d, 0);
+    pmd = pmd_offset(pud, 0);
+
+    /*
+    * 检查 PMD 项是否已存在且有效（即指向一个页表页）。
+    * 如果对应页表页未分配（_PAGE_PRESENT 位未设置），则需分配一个新页表。
+    */
+    pte_ofs = pte_index((pfn << PAGE_SHIFT) + PAGE_OFFSET);  // 计算 PTE 索引（页内偏移）
+    if (! (pmd_val(*pmd) & _PAGE_PRESENT)) {
+        // 分配一个位于低地址区域的物理页作为页表页（页表本身存储空间）
+        pte_t *page_table = (pte_t*) alloc_low_page();
+
+        /*
+        * 构造 PMD 项值：
+        *   - __pa(page_table): 获取 page_table 的物理地址
+        *   - _PAGE_TABLE: 标志位，表示该 PMD 指向一个页表（而非大页）
+        *   - __pmd(): 将整型值封装为 PMD 类型
+        *   - set_pmd(): 安全地更新 PMD 项
+        */
+        set_pmd(pmd, __pmd(__pa(page_table) | _PAGE_TABLE));
+    }
+
+    /*
+    * 获取最终的 PTE（Page Table Entry）指针。
+    * pte_offset_kernel() 根据 PMD 和线性地址中的页内偏移计算出 PTE 位置。
+    */
+    pte = pte_offset_kernel(pmd, pte_ofs);
+
+    /*
+    * 设置 PTE 项，建立最终的物理页映射：
+    *   - pfn_pte(pfn, prot): 将页帧号 pfn 与访问权限 prot 组合成一个 PTE 值
+    *   - set_pte(): 将生成的 PTE 值写入页表项
+    */
+    set_pte(pte, pfn_pte(pfn, prot));
+
+    /*
+    * 至此，物理页帧 pfn 已成功映射到线性地址空间中对应的位置。
+    * 后续可通过 (pfn << PAGE_SHIFT) + PAGE_OFFSET 访问该物理页。
+    */
+    ```
+
+    不过注意虽然现代计算机已经开始64位了，但其实并不允许使用全部的64位寻址，而通常只使用48位（而且用户空间为高16位为0，内核空间高16位为1）。中间空洞的地址是非法的，因此实际上一共只能使用256T内存。
 
 2. 物理内存的管理
 

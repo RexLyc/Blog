@@ -20,6 +20,8 @@ mermaid: true
 
 > 阅读期间，使用[linux kernel](https://kernel.org)，下载版本6.12.7
 
+> 也推荐直接来这个网站看linux kernel：[bootlin](https://elixir.bootlin.com/linux/v5.0/source/Documentation/x86/x86_64/mm.txt)。也有很多其他重量级开源项目。
+
 > 本书有很多细节，汇编代码，因此也建议作为科普，工具书阅读。有需要的时候可以回来看看。
 
 ## 概述和基础知识
@@ -191,7 +193,9 @@ mermaid: true
 
     即使有了MMU，操作系统仍然需要完成虚拟地址到物理地址的映射的建立。就是说页表需要操作系统来设置，内核提供了大量的函数和宏来做这些事情。如果有需要，这里可以结合一些博客来学习，强烈推荐如[Linux Kernel直接映射区的构建](https://zhuanlan.zhihu.com/p/692536727)、[Linux Kernel内存管理之分页](https://zhuanlan.zhihu.com/p/661911303)。另外也可以考虑参考[Intel x86-64开发人员手册](https://www.intel.cn/content/www/cn/zh/content-details/858440/intel-64-and-ia-32-architectures-software-developer-s-manual-combined-volumes-1-2a-2b-2c-2d-3a-3b-3c-3d-and-4.html)，该手册内有很多图表值得一看。不看这些博客的话，简单看一下下面也可以。
     
-    目前分页最多的时候有5级页表，页全局目录PGD、页四级目录P4D、页上级目录PUD、页中级目录PMD、页表PT（第一级）。而且一般如果只有2级，则P4D、PUD、PMD的项数均为0，即10、0、0、0、10，最后页表内有12位物理地址偏移，总共32位。常规4K页面的分页下的一个内核直接映射内存区【存疑】，映射方法如下。
+    目前分页最多的时候有5级页表，页全局目录PGD、页四级目录P4D、页上级目录PUD、页中级目录PMD、页表PT（第一级）。而且一般如果只有2级，则P4D、PUD、PMD的项数均为0，即10、0、0、0、10，最后页表内有12位物理地址偏移，总共32位。常规4K页面的分页下的一个内核直接映射内存区的页表建立方法如下：
+
+    > 内存直接映射区：**内核空间**中一个大的，连续的虚拟内存空间，他映射了部分或所有物理内存。
 
     ```c
     /*
@@ -204,7 +208,7 @@ mermaid: true
     */
 
     // 计算给定物理页帧在线性地址空间中的 PGD（Page Global Directory）索引
-    // 注意：(pfn << PAGE_SHIFT) + PAGE_OFFSET 将物理页帧转换为对应的线性地址
+    // 注意：(pfn << PAGE_SHIFT) + PAGE_OFFSET 将物理页帧转换为对应的线性地址（内核线性地址直接映射区）
     // PAGE_OFFSET 是内核线性映射的起始虚拟地址偏移（如 0xFFFF888000000000 在 x86_64）
     pgd_idx = pgd_index((pfn << PAGE_SHIFT) + PAGE_OFFSET);
     pgd = pgd_base + pgd_idx;  // 获取该线性地址对应的 PGD 项指针
@@ -258,6 +262,8 @@ mermaid: true
 
     不过注意虽然现代计算机已经开始64位了，但其实并不允许使用全部的64位寻址，而通常只使用48位（而且用户空间为高16位为0，内核空间高16位为1）。中间空洞的地址是非法的，因此实际上一共只能使用256T内存。
 
+    > 其他扩展阅读：[linux kernel pwn之ret2dir攻击学习](https://www.anquanke.com/post/id/185408)
+
 2. 物理内存的管理
 
     概念：节点（node）、区域（zone）、非统一内存访问（NUMA，和传统SMP架构相对，以socket为区分，将CPU和内存分组为不同的node，一组CPU访问自己组内的内存更快）。可以在```lscpu```中看到cpu的分组信息。
@@ -271,4 +277,11 @@ mermaid: true
     > 内存配置情况，可以通过```/sys/firmware/memmap```查看
     
     <!-- 阅读位置P53页 -->
-3. 
+
+
+## 课后问题
+1. 进程控制块中包含了进程页表的基址，那进程控制块本身所在的虚拟内存，由谁的页表管理，以及其内存基址如何存储？如何避免套娃问题？
+   
+   涉及到内核启动、分页机制、进程管理的启动
+
+1. 

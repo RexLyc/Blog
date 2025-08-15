@@ -272,11 +272,21 @@ mermaid: true
 
     而zone则是对node内的资源再进行划分。zonelist中存储的就是对node中的内存的划分。划分至少是出于兼容性的考虑，比如有些设备只能访问指定的部分，因此需要将这部分内存保留出来。
 
-    一页物理内存对应一个Linux中的```page```对象。Linux管理物理内存实际上有三种模式：Flat（hole也占用物理内存）、SPARSEMEM（将内存空间划分为section，section下有各自的page对象，section动态分配，因此hole不会再分配）
+    ![node-zone](/images/book/linux-pic/node-zone.png)
 
-    > 内存配置情况，可以通过```/sys/firmware/memmap```查看
-    
-    <!-- 阅读位置P53页 -->
+    内核分配内存时，每一个NUMA节点就会从节点保存的zonelist上寻找。如果有多个node且允许尝试其他node的内存，则需要维护一个更复杂的zonelist（维护所有node的所有zone）。注意不同的NUMA节点，其zonelist会略有差别。总的来说会按照优先本地，优先高位地址的顺序排列。
+
+    一页物理内存对应一个Linux中的```page```对象。在这个思路指导下，Linux管理物理内存实际上有三种模式：FLATMEM、SPARSEMEM、SPARSEMEM_VMEMMAP。区别在于对物理内存的认定，以及对page对象的管理方式不同，page对象和pfn（页框号）的转换方式不同。
+
+    内存配置情况，可以通过```/sys/firmware/memmap```查看，这里会列出每一段bios提供的物理内存段。但是注意其中并不是所有的部分都可以用作内存分配，有一些内存会预留给其他模块使用。这些不能用物理内存也称为hole。
+
+    - FLATMEM：把内存看作连续的，即使中间有上面说到的hole，这些hole也是有page对象对应的。显然会造成一些page对象的浪费。
+    - SPARSEMEM：将内存做切分，有效的部分分配若干连续的section，section内是若干page，无效的hole部分不再分配section&page。
+    - SPARSEMEM_VMEMMAP模式：依然会为有效的部分分配若干的section，但是要求分配出来的page对象的地址位于虚拟地址连续的区间上。也就是说page对应的虚拟内存地址从一开始就是确定了的。不过只有活跃的部分才会得到真正的物理内存。这种模式下，对于某个物理页而言，其pfn对应的page对象的虚拟地址是```vmemmap + pfn```。
+
+    ![SPARSEMEM_VMEMMAP](/images/book/linux-pic/sparsemem_vmemmap.png)
+
+    <!-- 阅读位置P57页 -->
 
 
 ## 课后问题

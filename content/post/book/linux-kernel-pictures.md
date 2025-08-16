@@ -12,6 +12,7 @@ thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/book/linux-kernel-pictures.jpg
 draft: true
 mermaid: true
+math: true
 ---
 本书提供了大量的插图，来学习Linux内核。
 <!--more-->
@@ -286,7 +287,14 @@ mermaid: true
 
     ![SPARSEMEM_VMEMMAP](/images/book/linux-pic/sparsemem_vmemmap.png)
 
-    <!-- 阅读位置P57页 -->
+    内存申请有三个阶段：启动程序、memblock、buddy。启动阶段即grub程序，grub程序可以通过```mem```参数来限制内核可管理的内存上限。memblock也可以通过将内存块加入```reserve```数据组扣留一部分，最后才是buddy系统管理。对于操作系统而言，memblock是内存管理的第一个阶段，buddy系统会接替他的工作。
+
+    buddy系统的名字恰如其实。buddy将内存分为不同大小的块，1页，2页，4页...1024页（对应4K、8K、16K...4M）共11个级别（阶）。如果块的伙伴也是以空闲，就可以合并为一个更大的块。确定伙伴的规则包括：
+    1. 两个块相邻，且位于同一个zone
+    2. 每个块大小都是2的整数次幂。合并后也要是，所以两个快的阶要相同
+    3. 两个块的地址必须是$2^n$对齐的，合并之后第一个块的地址则需要是$2^(n+1)$对齐的
+
+<!-- 阅读位置，电子书71/纸质书59页 -->
 
 
 ## 课后问题

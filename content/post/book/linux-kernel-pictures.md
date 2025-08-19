@@ -175,161 +175,183 @@ math: true
 
 ## 内存管理篇
 
-1. 内存寻址
+### 内存寻址
    
-    广义的内存管理，也就是CPU所说的内存管理，其实是包括所有有效的连接在总线上的存储。换言之CPU访问的物理地址并不一定真的在RAM里。
+广义的内存管理，也就是CPU所说的内存管理，其实是包括所有有效的连接在总线上的存储。换言之CPU访问的物理地址并不一定真的在RAM里。
+
+既然内存空间包括多种存储设备，Linux系统将会把所有的这些映射到内存空间中，即MMIO（memory mapped io）。可以通过```/proc/iomem```。设备寄存器、显存等都可以是MMIO的一部分。不过这一点需要CPU架构的支持。
+
+而且内存空间并不是连续的，会有一些用不到的空洞Hole。
+
+内存管理，实际上需要维护内存介质（RAM + MMIO）、内存空间、虚拟内存**三者之间**的关系。其中前两者之间的映射，由BIOS完成。
+![mmio](/images/book/linux-pic/mmio.png)
+
+Linux中共有三种地址：虚拟地址（Virtual Address）、线性地址（Linear Address）、物理地址（Physical Address）。应用程序使用的是虚拟地址，虚拟地址通过分段机制（用户代码段、用户数据段、内核代码段、内核数据段）后就变为线性地址。内存管理单元MMU将会用分页机制，把线性地址转换为物理地址。Linux上虚拟地址和线性地址其实几乎相同（段描述符基准地址为0）。
+
+MMU寻址部分就是多级页表的机制。32位和64位有一些区别。这里强调几点：寻址由MMU硬件完成，各级页表项所包含的地址都是物理地址。页框是指划分好的一块连续的物理内存，而页/页面是指对应页框大小虚拟内存。P.S.:可以再去[复习一下](https://blog.csdn.net/weixin_49342084/article/details/142773491)CR3寄存器（PDBR）、PTBR。页表的加载和寻址是从CR3赋值开始的，这一数据存储在每个进程的进程控制块task_struct中。
+
+即使有了MMU，操作系统仍然需要完成虚拟地址到物理地址的映射的建立。就是说页表需要操作系统来设置，内核提供了大量的函数和宏来做这些事情。如果有需要，这里可以结合一些博客来学习，强烈推荐如[Linux Kernel直接映射区的构建](https://zhuanlan.zhihu.com/p/692536727)、[Linux Kernel内存管理之分页](https://zhuanlan.zhihu.com/p/661911303)。另外也可以考虑参考[Intel x86-64开发人员手册](https://www.intel.cn/content/www/cn/zh/content-details/858440/intel-64-and-ia-32-architectures-software-developer-s-manual-combined-volumes-1-2a-2b-2c-2d-3a-3b-3c-3d-and-4.html)，该手册内有很多图表值得一看。不看这些博客的话，简单看一下下面也可以。
+
+目前分页最多的时候有5级页表，页全局目录PGD、页四级目录P4D、页上级目录PUD、页中级目录PMD、页表PT（第一级）。而且一般如果只有2级，则P4D、PUD、PMD的项数均为0，即10、0、0、0、10，最后页表内有12位物理地址偏移，总共32位。常规4K页面的分页下的一个内核直接映射内存区的页表建立方法如下：
+
+> 内存直接映射区：**内核空间**中一个大的，连续的虚拟内存空间，他映射了部分或所有物理内存。
+
+```c
+/*
+* 页表导航说明：
+*
+* pgd, p4d, pud, pmd, pte 均为指向各级页表项的虚拟地址指针。
+* pfn（页框号）为物理页帧编号，此处为 0x12，对应物理地址 0x12000（即 0x12 << PAGE_SHIFT）。
+*
+* 本代码目标：为指定的物理页帧 pfn 建立对应的页表映射（线性地址空间中）。
+*/
+
+// 计算给定物理页帧在线性地址空间中的 PGD（Page Global Directory）索引
+// 注意：(pfn << PAGE_SHIFT) + PAGE_OFFSET 将物理页帧转换为对应的线性地址（内核线性地址直接映射区）
+// PAGE_OFFSET 是内核线性映射的起始虚拟地址偏移（如 0xFFFF888000000000 在 x86_64）
+pgd_idx = pgd_index((pfn << PAGE_SHIFT) + PAGE_OFFSET);
+pgd = pgd_base + pgd_idx;  // 获取该线性地址对应的 PGD 项指针
+
+/*
+* 在当前配置（通常为 4-level 分页但启用兼容模式或线性映射平坦）下，
+* p4d、pud、pmd 层级可能被折叠或直接透传，因此偏移量为 0。
+* 使用 p4d_offset/pud_offset/pmd_offset 获取下一级页表指针。
+*/
+p4d = p4d_offset(pgd, 0);
+pud = pud_offset(p4d, 0);
+pmd = pmd_offset(pud, 0);
+
+/*
+* 检查 PMD 项是否已存在且有效（即指向一个页表页）。
+* 如果对应页表页未分配（_PAGE_PRESENT 位未设置），则需分配一个新页表。
+*/
+pte_ofs = pte_index((pfn << PAGE_SHIFT) + PAGE_OFFSET);  // 计算 PTE 索引（页内偏移）
+if (! (pmd_val(*pmd) & _PAGE_PRESENT)) {
+    // 分配一个位于低地址区域的物理页作为页表页（页表本身存储空间）
+    pte_t *page_table = (pte_t*) alloc_low_page();
+
+    /*
+    * 构造 PMD 项值：
+    *   - __pa(page_table): 获取 page_table 的物理地址
+    *   - _PAGE_TABLE: 标志位，表示该 PMD 指向一个页表（而非大页）
+    *   - __pmd(): 将整型值封装为 PMD 类型
+    *   - set_pmd(): 安全地更新 PMD 项
+    */
+    set_pmd(pmd, __pmd(__pa(page_table) | _PAGE_TABLE));
+}
+
+/*
+* 获取最终的 PTE（Page Table Entry）指针。
+* pte_offset_kernel() 根据 PMD 和线性地址中的页内偏移计算出 PTE 位置。
+*/
+pte = pte_offset_kernel(pmd, pte_ofs);
+
+/*
+* 设置 PTE 项，建立最终的物理页映射：
+*   - pfn_pte(pfn, prot): 将页帧号 pfn 与访问权限 prot 组合成一个 PTE 值
+*   - set_pte(): 将生成的 PTE 值写入页表项
+*/
+set_pte(pte, pfn_pte(pfn, prot));
+
+/*
+* 至此，物理页帧 pfn 已成功映射到线性地址空间中对应的位置。
+* 后续可通过 (pfn << PAGE_SHIFT) + PAGE_OFFSET 访问该物理页。
+*/
+```
+
+不过注意虽然现代计算机已经开始64位了，但其实并不允许使用全部的64位寻址，而通常只使用48位（而且用户空间为高16位为0，内核空间高16位为1）。中间空洞的地址是非法的，因此实际上一共只能使用256T内存。
+
+> 其他扩展阅读：[linux kernel pwn之ret2dir攻击学习](https://www.anquanke.com/post/id/185408)
+
+### 物理内存的管理
     
-    既然内存空间包括多种存储设备，Linux系统将会把所有的这些映射到内存空间中，即MMIO（memory mapped io）。可以通过```/proc/iomem```。设备寄存器、显存等都可以是MMIO的一部分。不过这一点需要CPU架构的支持。
+> 联动一下博客中的：[边学边用linux-内存管理]({{<relref "/content/post/OS/linux-memory.md#Buddy">}})
 
-    而且内存空间并不是连续的，会有一些用不到的空洞Hole。
+概念：节点（node）、区域（zone）、非统一内存访问（NUMA，和传统SMP架构相对，以socket为区分，将CPU和内存分组为不同的node，一组CPU访问自己组内的内存更快）。可以在```lscpu```中看到cpu的分组信息。
 
-    内存管理，实际上需要维护内存介质（RAM + MMIO）、内存空间、虚拟内存**三者之间**的关系。其中前两者之间的映射，由BIOS完成。
-    ![mmio](/images/book/linux-pic/mmio.png)
+BIOS提供了SRAT（System Resource Affinity Table）、SLIT（System Locality Information Table）两个表，用来确定系统资源亲和性和延迟的信息。系统会进一步用来控制CPU上进程的对应的物理内存申请。
 
-    Linux中共有三种地址：虚拟地址（Virtual Address）、线性地址（Linear Address）、物理地址（Physical Address）。应用程序使用的是虚拟地址，虚拟地址通过分段机制（用户代码段、用户数据段、内核代码段、内核数据段）后就变为线性地址。内存管理单元MMU将会用分页机制，把线性地址转换为物理地址。Linux上虚拟地址和线性地址其实几乎相同（段描述符基准地址为0）。
+而zone则是对node内的资源再进行划分。zonelist中存储的就是对node中的内存的划分。划分至少是出于兼容性的考虑，比如有些设备只能访问指定的部分，因此需要将这部分内存保留出来。
 
-    MMU寻址部分就是多级页表的机制。32位和64位有一些区别。这里强调几点：寻址由MMU硬件完成，各级页表项所包含的地址都是物理地址。页框是指划分好的一块连续的物理内存，而页/页面是指对应页框大小虚拟内存。P.S.:可以再去[复习一下](https://blog.csdn.net/weixin_49342084/article/details/142773491)CR3寄存器（PDBR）、PTBR。页表的加载和寻址是从CR3赋值开始的，这一数据存储在每个进程的进程控制块task_struct中。
+![node-zone](/images/book/linux-pic/node-zone.png)
 
-    即使有了MMU，操作系统仍然需要完成虚拟地址到物理地址的映射的建立。就是说页表需要操作系统来设置，内核提供了大量的函数和宏来做这些事情。如果有需要，这里可以结合一些博客来学习，强烈推荐如[Linux Kernel直接映射区的构建](https://zhuanlan.zhihu.com/p/692536727)、[Linux Kernel内存管理之分页](https://zhuanlan.zhihu.com/p/661911303)。另外也可以考虑参考[Intel x86-64开发人员手册](https://www.intel.cn/content/www/cn/zh/content-details/858440/intel-64-and-ia-32-architectures-software-developer-s-manual-combined-volumes-1-2a-2b-2c-2d-3a-3b-3c-3d-and-4.html)，该手册内有很多图表值得一看。不看这些博客的话，简单看一下下面也可以。
-    
-    目前分页最多的时候有5级页表，页全局目录PGD、页四级目录P4D、页上级目录PUD、页中级目录PMD、页表PT（第一级）。而且一般如果只有2级，则P4D、PUD、PMD的项数均为0，即10、0、0、0、10，最后页表内有12位物理地址偏移，总共32位。常规4K页面的分页下的一个内核直接映射内存区的页表建立方法如下：
+内核分配内存时，每一个NUMA节点就会从节点保存的zonelist上寻找。如果有多个node且允许尝试其他node的内存，则需要维护一个更复杂的zonelist（维护所有node的所有zone）。注意不同的NUMA节点，其zonelist会略有差别。总的来说会按照优先本地，优先高位地址的顺序排列。
 
-    > 内存直接映射区：**内核空间**中一个大的，连续的虚拟内存空间，他映射了部分或所有物理内存。
+一页物理内存对应一个Linux中的```page```对象。在这个思路指导下，Linux管理物理内存实际上有三种模式：FLATMEM、SPARSEMEM、SPARSEMEM_VMEMMAP。区别在于对物理内存的认定，以及对page对象的管理方式不同，page对象和pfn（页框号）的转换方式不同。
 
-    ```c
-    /*
-    * 页表导航说明：
-    *
-    * pgd, p4d, pud, pmd, pte 均为指向各级页表项的虚拟地址指针。
-    * pfn（页框号）为物理页帧编号，此处为 0x12，对应物理地址 0x12000（即 0x12 << PAGE_SHIFT）。
-    *
-    * 本代码目标：为指定的物理页帧 pfn 建立对应的页表映射（线性地址空间中）。
-    */
+内存配置情况，可以通过```/sys/firmware/memmap```查看，这里会列出每一段bios提供的物理内存段。但是注意其中并不是所有的部分都可以用作内存分配，有一些内存会预留给其他模块使用。这些不能用物理内存也称为hole。
 
-    // 计算给定物理页帧在线性地址空间中的 PGD（Page Global Directory）索引
-    // 注意：(pfn << PAGE_SHIFT) + PAGE_OFFSET 将物理页帧转换为对应的线性地址（内核线性地址直接映射区）
-    // PAGE_OFFSET 是内核线性映射的起始虚拟地址偏移（如 0xFFFF888000000000 在 x86_64）
-    pgd_idx = pgd_index((pfn << PAGE_SHIFT) + PAGE_OFFSET);
-    pgd = pgd_base + pgd_idx;  // 获取该线性地址对应的 PGD 项指针
+- FLATMEM：把内存看作连续的，即使中间有上面说到的hole，这些hole也是有page对象对应的。显然会造成一些page对象的浪费。
+- SPARSEMEM：将内存做切分，有效的部分分配若干连续的section，section内是若干page，无效的hole部分不再分配section&page。
+- SPARSEMEM_VMEMMAP模式【理解存疑】：依然会为有效的部分分配若干的section，但是要求分配出来的page对象的地址位于虚拟地址连续的区间上。也就是说page对应的虚拟内存地址从一开始就是确定了的。不过只有活跃的部分才会得到真正的物理内存。这种模式下，对于某个物理页而言，其pfn对应的page对象的虚拟地址是```vmemmap + pfn```。
 
-    /*
-    * 在当前配置（通常为 4-level 分页但启用兼容模式或线性映射平坦）下，
-    * p4d、pud、pmd 层级可能被折叠或直接透传，因此偏移量为 0。
-    * 使用 p4d_offset/pud_offset/pmd_offset 获取下一级页表指针。
-    */
-    p4d = p4d_offset(pgd, 0);
-    pud = pud_offset(p4d, 0);
-    pmd = pmd_offset(pud, 0);
+> 区分对内存连续性的要求，虚拟地址连续性是比较好满足的，但仍然有一些场景，比如使用DMA时，可能需要物理地址也连续。
 
-    /*
-    * 检查 PMD 项是否已存在且有效（即指向一个页表页）。
-    * 如果对应页表页未分配（_PAGE_PRESENT 位未设置），则需分配一个新页表。
-    */
-    pte_ofs = pte_index((pfn << PAGE_SHIFT) + PAGE_OFFSET);  // 计算 PTE 索引（页内偏移）
-    if (! (pmd_val(*pmd) & _PAGE_PRESENT)) {
-        // 分配一个位于低地址区域的物理页作为页表页（页表本身存储空间）
-        pte_t *page_table = (pte_t*) alloc_low_page();
+![SPARSEMEM_VMEMMAP](/images/book/linux-pic/sparsemem_vmemmap.png)
 
-        /*
-        * 构造 PMD 项值：
-        *   - __pa(page_table): 获取 page_table 的物理地址
-        *   - _PAGE_TABLE: 标志位，表示该 PMD 指向一个页表（而非大页）
-        *   - __pmd(): 将整型值封装为 PMD 类型
-        *   - set_pmd(): 安全地更新 PMD 项
-        */
-        set_pmd(pmd, __pmd(__pa(page_table) | _PAGE_TABLE));
-    }
+内存申请管理一般有三个阶段：启动程序、memblock、buddy。启动阶段即grub程序，grub程序可以通过```mem```参数来限制内核可管理的内存上限。memblock也可以通过将内存块加入```reserve```数据组扣留一部分，最后才是buddy系统管理。对于操作系统而言，memblock是内存管理的第一个阶段，buddy系统会接替他的工作。
 
-    /*
-    * 获取最终的 PTE（Page Table Entry）指针。
-    * pte_offset_kernel() 根据 PMD 和线性地址中的页内偏移计算出 PTE 位置。
-    */
-    pte = pte_offset_kernel(pmd, pte_ofs);
+> 内存管理还有更多方案：比如huge tlb，但本书并未讨论。
 
-    /*
-    * 设置 PTE 项，建立最终的物理页映射：
-    *   - pfn_pte(pfn, prot): 将页帧号 pfn 与访问权限 prot 组合成一个 PTE 值
-    *   - set_pte(): 将生成的 PTE 值写入页表项
-    */
-    set_pte(pte, pfn_pte(pfn, prot));
+buddy系统的名字恰如其实。buddy将内存分为不同大小的块，1页，2页，4页...1024页（对应4K、8K、16K...4M）共11个级别（order阶）。如果块的伙伴也是空闲的（实际上已分配出去的块，不再属于伙伴系统），就可以合并为一个更大的块。确定伙伴的规则包括：
+1. 两个块相邻，且位于同一个zone
+2. 每个块大小都是2的整数次幂。合并后也要是，所以两个快的阶要相同
+3. 两个块的地址必须是$2^n$对齐的，合并之后第一个块的地址则需要是$2^(n+1)$对齐的
 
-    /*
-    * 至此，物理页帧 pfn 已成功映射到线性地址空间中对应的位置。
-    * 后续可通过 (pfn << PAGE_SHIFT) + PAGE_OFFSET 访问该物理页。
-    */
-    ```
+zone和page是上下层级的关系。完整的层级是section（内存初始化和热插拔单位）→zone（分配管理单元）→page（页）。zone内按照阶，存储了所有阶```free_area```，其中每个还分为可迁移和不可迁移等类型。具体如下图。
 
-    不过注意虽然现代计算机已经开始64位了，但其实并不允许使用全部的64位寻址，而通常只使用48位（而且用户空间为高16位为0，内核空间高16位为1）。中间空洞的地址是非法的，因此实际上一共只能使用256T内存。
+![zone_page](/images/book/linux-pic/zone_page.png)
 
-    > 其他扩展阅读：[linux kernel pwn之ret2dir攻击学习](https://www.anquanke.com/post/id/185408)
+页的申请和释放函数，是上面曾见到过的：```alloc_page/pages```,```free_page/pages```等。```alloc```函数在使用时有很多参数，包含优先选择的zone和其他影响内存分配的行为，比如分配的优先级（是否需要保持zone内的分配水位，更高优先级可以使用一些预留的内存）。
 
-2. 物理内存的管理
-    
-    > 联动一下博客中的：[边学边用linux-内存管理]({{<relref "/content/post/book/linux-memory.md#Buddy">}})
-
-    概念：节点（node）、区域（zone）、非统一内存访问（NUMA，和传统SMP架构相对，以socket为区分，将CPU和内存分组为不同的node，一组CPU访问自己组内的内存更快）。可以在```lscpu```中看到cpu的分组信息。
-
-    BIOS提供了SRAT（System Resource Affinity Table）、SLIT（System Locality Information Table）两个表，用来确定系统资源亲和性和延迟的信息。系统会进一步用来控制CPU上进程的对应的物理内存申请。
-
-    而zone则是对node内的资源再进行划分。zonelist中存储的就是对node中的内存的划分。划分至少是出于兼容性的考虑，比如有些设备只能访问指定的部分，因此需要将这部分内存保留出来。
-
-    ![node-zone](/images/book/linux-pic/node-zone.png)
-
-    内核分配内存时，每一个NUMA节点就会从节点保存的zonelist上寻找。如果有多个node且允许尝试其他node的内存，则需要维护一个更复杂的zonelist（维护所有node的所有zone）。注意不同的NUMA节点，其zonelist会略有差别。总的来说会按照优先本地，优先高位地址的顺序排列。
-
-    一页物理内存对应一个Linux中的```page```对象。在这个思路指导下，Linux管理物理内存实际上有三种模式：FLATMEM、SPARSEMEM、SPARSEMEM_VMEMMAP。区别在于对物理内存的认定，以及对page对象的管理方式不同，page对象和pfn（页框号）的转换方式不同。
-
-    内存配置情况，可以通过```/sys/firmware/memmap```查看，这里会列出每一段bios提供的物理内存段。但是注意其中并不是所有的部分都可以用作内存分配，有一些内存会预留给其他模块使用。这些不能用物理内存也称为hole。
-
-    - FLATMEM：把内存看作连续的，即使中间有上面说到的hole，这些hole也是有page对象对应的。显然会造成一些page对象的浪费。
-    - SPARSEMEM：将内存做切分，有效的部分分配若干连续的section，section内是若干page，无效的hole部分不再分配section&page。
-    - SPARSEMEM_VMEMMAP模式【理解存疑】：依然会为有效的部分分配若干的section，但是要求分配出来的page对象的地址位于虚拟地址连续的区间上。也就是说page对应的虚拟内存地址从一开始就是确定了的。不过只有活跃的部分才会得到真正的物理内存。这种模式下，对于某个物理页而言，其pfn对应的page对象的虚拟地址是```vmemmap + pfn```。
-  
-    > 区分对内存连续性的要求，虚拟地址连续性是比较好满足的，但仍然有一些场景，比如使用DMA时，可能需要物理地址也连续。
-
-    ![SPARSEMEM_VMEMMAP](/images/book/linux-pic/sparsemem_vmemmap.png)
-
-    内存申请管理一般有三个阶段：启动程序、memblock、buddy。启动阶段即grub程序，grub程序可以通过```mem```参数来限制内核可管理的内存上限。memblock也可以通过将内存块加入```reserve```数据组扣留一部分，最后才是buddy系统管理。对于操作系统而言，memblock是内存管理的第一个阶段，buddy系统会接替他的工作。
-
-    > 内存管理还有更多方案：比如huge tlb，但本书并未讨论。
-
-    buddy系统的名字恰如其实。buddy将内存分为不同大小的块，1页，2页，4页...1024页（对应4K、8K、16K...4M）共11个级别（order阶）。如果块的伙伴也是空闲的（实际上已分配出去的块，不再属于伙伴系统），就可以合并为一个更大的块。确定伙伴的规则包括：
-    1. 两个块相邻，且位于同一个zone
-    2. 每个块大小都是2的整数次幂。合并后也要是，所以两个快的阶要相同
-    3. 两个块的地址必须是$2^n$对齐的，合并之后第一个块的地址则需要是$2^(n+1)$对齐的
-
-    zone和page是上下层级的关系。完整的层级是section（内存初始化和热插拔单位）→zone（分配管理单元）→page（页）。zone内按照阶，存储了所有阶```free_area```，其中每个还分为可迁移和不可迁移等类型。具体如下图。
-
-    ![zone_page](/images/book/linux-pic/zone_page.png)
-
-    页的申请和释放函数，是上面曾见到过的：```alloc_page/pages```,```free_page/pages```等。```alloc```函数在使用时有很多参数，包含优先选择的zone和其他影响内存分配的行为，比如分配的优先级（是否需要保持zone内的分配水位，更高优先级可以使用一些预留的内存）。
-
-    可以看出，buddy系统所能提供的物理内存，要么可以物理地址连续但不能超过4M，要么可以超过4M但物理地址不能保证连续了。
+可以看出，buddy系统所能提供的物理内存，要么可以物理地址连续但不能超过4M，要么可以超过4M但物理地址不能保证连续了。
 
 
-3. 虚拟内存的管理
+### 虚拟内存的管理
    
-   每一个进程的线性地址空间（虚拟地址）划分分为内核态和用户态。内核态起始位置就是之前见到过的宏，```PAGE_OFFSET```。
+每一个进程的线性地址空间（虚拟地址）划分分为内核态和用户态。内核态起始位置就是之前见到过的宏，```PAGE_OFFSET```。而且内核空间实际上是进程间直接、或者间接共享的。可以理解为用户态空间互相独立，内核态空间共享。正因如此，用户空间的页表需要进程自行维护，是用户页表。而内核页表很多情况下是相同的，属于公共的部分。
 
-   在x86时期，空间有限，内核虽然一般有1G的线性空间，但是并不能直接映射1G的物理内存。一般只能直接映射一部分（896M），剩下的部分保留满足其他需秋，直接映射的部分叫```Low Memory```,剩下的部分是```High Memory```。注意x86时期，物理内存是可以超过4G的，但是线性空间只有4G。
+在x86时期，空间有限，内核虽然一般有1G的线性空间，但是并不能直接映射1G的物理内存。一般只能直接映射一部分（896M），剩下的部分保留满足其他需秋，直接映射的部分叫```Low Memory```,剩下的部分是```High Memory```。注意x86时期，物理内存是可以超过4G的，但是线性空间只有4G。
 
-   所谓直接映射，就是映射后的虚拟地址和物理地址有直接关系，在前面的代码中也能看到：$va = vp + PAGEOFFSET$。此时映射状态（左侧物理内存，右侧线性空间）
+所谓直接映射，就是映射后的虚拟地址和物理地址有直接关系，在前面的代码中也能看到：$va = vp + PAGEOFFSET$。此时映射状态（左侧物理内存，右侧线性空间）
 
-   ![x86-va-pa](/images/book/linux-pic/x86-va-pa.png)
+![x86-va-pa](/images/book/linux-pic/x86-va-pa.png)
 
-   到了x86-64时代，线性空间足够大了，不再区分```Low/High Memory```。
+而等到了x86-64时代，线性空间足够大了，不再区分```Low/High Memory```。
 
-   内核线性空间（从高地址到低地址）内部还分为若干区域：
-   - 32位：固定映射区、永久映射区、CPU Entry区、动态映射区、直接映射区
-   - 64位：-
+具体来看，内核线性空间（从高地址到低地址）内部还分为若干区域：
+- 32位：固定映射区、永久映射区、CPU Entry区、动态映射区、直接映射区
+- 64位：-
 
-    ![x86-va-space](x86-va-space.png)
-    ![x64-va-space](x64-va-space.png)
-    > 64位可能有4、5级页表等不同情况，这里是5级的布局。
+![x86-va-space](/images/book/linux-pic/x86-va-space.png)
+上图为32位
 
-   内核空间实际上是进程间直接、或者间接共享的。可以理解为用户态空间互相独立，内核态空间共享。正因如此，用户空间的页表需要进程自行维护，是用户页表。而内核页表很多情况下是相同的，属于公共的部分。
+![x64-va-space](/images/book/linux-pic/x64-va-space.png)
+上图为64位
+> 64位可能有4、5级页表等不同情况，这里是5级的布局。
 
-   <!-- 阅读位置，电子书81/纸质书69页 -->
+接下来介绍一下内核线性空间中的各个区：
+1. 直接映射区：大小理论上是MAXMEM，不考虑```High Memory```的情况下，会一直映射到没有物理内存为止。映射完成后在运行期内不变，因此需要稳定存在的数据结构需要用直接映射区。
+2. 动态映射区：其他区域多少都有限制，但动态映射区能满足各类需求。常见的```ioremap```都在此区域实现。由```get_vm_area```函数族来分配此区域空间。用红黑树管理。
+3. 永久映射区：x86-64上已经不再有这一区域。内核使用```kmap```函数将一页物理内存映射到该区。```kmap```的参数就是page结构体，如果page对应的物理页在```High Memory```会占用永久映射区，如果不再，则返回直接映射下的虚拟地址。该区域也只能以页的单位来进行分配。实际上和“永久”并没有关系。可能会用于和一些设备通信的内存区域。
+4. 固定映射区：内部分为若干小区间，每个区间有特定用途。值得提到的是其中有一个临时映射区，为每一个CPU准备了一些页，通过```kmap_tomic```等函数操作物理内存映射到该区域，申请释放都很快，适合临时使用。
+
+
+#### 详解用户空间内存映射mmap
+mmap其实并不陌生，用于将文件/设备映射进内存，后续可以项访问内存一样访问。但要注意mmap使用的一定是用户线性空间。函数原型如下
+```c
+void* mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);
+int munmap(void *addr, size_t length);
+```
+
+其中```flags```有一些讲究了，比如MAP_PRIVATE、MAP_SHARED。前者采用COW策略（Copy On Write），对映射区的更新将会对其他映射了同一区域的进程不可见，也不会写回文件。后者则是共享所有更新，并且会写文件。
+
+当然，由于mmap也可以映射设备，因此并不是所有对文件的操作都可以用，具体支持情况依赖于设备驱动。
+
+用户线性空间是以```vm_area_struct```来描述一个一个的用户线性空间中的区域的。
+
+
+<!-- 阅读位置，电子书85/纸质书73页 -->
 
 <!-- 可从https://fliphtml5.com/ytimv/nlep/%E5%9B%BE%E8%A7%A3Linux%E5%86%85%E6%A0%B8%EF%BC%88%E5%9F%BA%E4%BA%8E6.x%EF%BC%89_%28%E5%A7%9C%E4%BA%9A%E5%8D%8E%29_%28Z-Library%29/21/  在线阅读 -->
 
@@ -338,4 +360,6 @@ math: true
    
    涉及到内核启动、分页机制、进程管理的启动
 
-1. low memory、high memory是什么
+2. 物理内存是否可以热插拔，热插拔是否会引起直接映射区的重新映射？将被拔出的内存中的数据如何保存？
+3. 
+4. 

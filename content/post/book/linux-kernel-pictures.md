@@ -17,9 +17,7 @@ math: true
 本书提供了大量的插图，来学习Linux内核。
 <!--more-->
 
-> 阅读期间，使用[linux kernel](https://kernel.org)，下载版本6.12.7
-
-> 也推荐直接来这个网站看linux kernel：[bootlin](https://elixir.bootlin.com/linux/v5.0/source/Documentation/x86/x86_64/mm.txt)。也有很多其他重量级开源项目。
+> 推荐直接来这个网站看linux kernel：[bootlin](https://elixir.bootlin.com/linux/v5.0/source/Documentation/x86/x86_64/mm.txt)，这个页面是mm.txt的，不过版本较低（v5.0）。也有很多其他重量级开源项目。
 
 > 本书有很多细节，汇编代码，因此也建议作为科普，工具书阅读。有需要的时候可以回来看看。
 
@@ -344,14 +342,110 @@ void* mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)
 int munmap(void *addr, size_t length);
 ```
 
-其中```flags```有一些讲究了，比如MAP_PRIVATE、MAP_SHARED。前者采用COW策略（Copy On Write），对映射区的更新将会对其他映射了同一区域的进程不可见，也不会写回文件。后者则是共享所有更新，并且会写文件。
+其中```flags```有一些讲究了，比如MAP_PRIVATE、MAP_SHARED。前者采用COW策略（Copy On Write），对映射区的更新将会对其他映射了同一区域的进程不可见，也不会写回文件。后者则是共享所有更新，并且会写文件。这里提前说一下，共享是针对物理内存的，后面会详细展开。
 
 当然，由于mmap也可以映射设备，因此并不是所有对文件的操作都可以用，具体支持情况依赖于设备驱动。
 
-用户线性空间是以```vm_area_struct```来描述一个一个的用户线性空间中的区域的。
+用户线性空间是以```vm_area_struct```来描述一个一个的用户线性空间中的区域的。进一步整合到进程结构体中的`mm_struct`。
+```c
+/*
+ * This struct defines a memory VMM memory area. There is one of these
+ * per VM-area/task.  A VM area is any part of the process virtual memory
+ * space that has a special rule for the page-fault handlers (ie a shared
+ * library, the executable area etc).
+ */
+struct vm_area_struct {
+	/* The first cache line has the info for VMA tree walking. */
 
+	unsigned long vm_start;		/* Our start address within vm_mm. */
+	unsigned long vm_end;		/* The first byte after our end address
+					   within vm_mm. */
 
-<!-- 阅读位置，电子书85/纸质书73页 -->
+	/* linked list of VM areas per task, sorted by address */
+	struct vm_area_struct *vm_next, *vm_prev;
+
+	struct rb_node vm_rb;
+
+	/*
+	 * Largest free memory gap in bytes to the left of this VMA.
+	 * Either between this VMA and vma->vm_prev, or between one of the
+	 * VMAs below us in the VMA rbtree and its ->vm_prev. This helps
+	 * get_unmapped_area find a free area of the right size.
+	 */
+	unsigned long rb_subtree_gap;
+
+	/* Second cache line starts here. */
+
+	struct mm_struct *vm_mm;	/* The address space we belong to. */
+	pgprot_t vm_page_prot;		/* Access permissions of this VMA. */
+	unsigned long vm_flags;		/* Flags, see mm.h. */
+
+	/*
+	 * For areas with an address space and backing store,
+	 * linkage into the address_space->i_mmap interval tree.
+	 */
+	struct {
+		struct rb_node rb;
+		unsigned long rb_subtree_last;
+	} shared;
+
+	/*
+	 * A file's MAP_PRIVATE vma can be in both i_mmap tree and anon_vma
+	 * list, after a COW of one of the file pages.	A MAP_SHARED vma
+	 * can only be in the i_mmap tree.  An anonymous MAP_PRIVATE, stack
+	 * or brk vma (with NULL file) can only be in an anon_vma list.
+	 */
+	struct list_head anon_vma_chain; /* Serialized by mmap_sem &
+					  * page_table_lock */
+	struct anon_vma *anon_vma;	/* Serialized by page_table_lock */
+
+	/* Function pointers to deal with this struct. */
+	const struct vm_operations_struct *vm_ops;
+
+	/* Information about our backing store: */
+	unsigned long vm_pgoff;		/* Offset (within vm_file) in PAGE_SIZE
+					   units */
+	struct file * vm_file;		/* File we map to (can be NULL). */
+	void * vm_private_data;		/* was vm_pte (shared mem) */
+
+	atomic_long_t swap_readahead_info;
+#ifndef CONFIG_MMU
+	struct vm_region *vm_region;	/* NOMMU mapping region */
+#endif
+#ifdef CONFIG_NUMA
+	struct mempolicy *vm_policy;	/* NUMA policy for the VMA */
+#endif
+	struct vm_userfaultfd_ctx vm_userfaultfd_ctx;
+} __randomize_layout;
+
+// 这段代码也要在旧一点的版本中才能找到，
+struct mm_struct {
+	struct {
+        // 映射区域链表头
+		struct vm_area_struct *mmap;
+        // 映射区域红黑树
+		struct rb_root mm_rb;
+    }
+    // ... 其他成员暂时忽略
+}
+```
+
+mmap的实现细节，都在```do_mmap```函数中。
+
+![do_mmap](/images/book/linux-pic/do_mmap.png)
+
+调用流程中，`get_unmmapped_area`用来获取可用的线性空间（也就是书中所说的“坑”）。物理内存在书中则用“萝卜”指代。如果用户不指定`addr`的话，这一步会根据当前进程`mm_struct`对象中`mm_mt`字段来查找合适区域。如果指定了，确认线性空间长度足够则返回，否则忽略`addr`重新分配。
+
+而`mmap_region`则进行具体映射。初始化映射对应的`vm_area_struct`，完成映射，将对象插入红黑树。
+
+物理内存的使用情况，也就是mmap最终的效果主要是由对应的文件/设备提供的驱动决定的。这有几种分类
+1. 驱动有自己的物理内存（比如MMIO下的显存），驱动可以使用ioremap将其映射到内核线性空间的动态映射区。
+2. 驱动需要申请内存然后在做映射。这里根据需要还会分为是否要申请连续物理内存。
+3. 驱动中的mmap不提供映射，由后续的内存访问异常，触发内核调用驱动的fault操作，申请物理内存page赋值给vm_fault字段。
+
+书中提到`/dev/mem`设备，这是一个影射了物理内存的设备，我们可以用mmap将此设备进行映射，并直接操作物理内存。当然这一操作由于危险性极高，很多情况下已经被禁止直接使用（对应的区域禁止映射）。如果要用的话，可能需要编写驱动，以MMIO的方式进行使用。
+
+<!-- 阅读位置，电子书91/纸质书79页 -->
 
 <!-- 可从https://fliphtml5.com/ytimv/nlep/%E5%9B%BE%E8%A7%A3Linux%E5%86%85%E6%A0%B8%EF%BC%88%E5%9F%BA%E4%BA%8E6.x%EF%BC%89_%28%E5%A7%9C%E4%BA%9A%E5%8D%8E%29_%28Z-Library%29/21/  在线阅读 -->
 
@@ -361,5 +455,5 @@ int munmap(void *addr, size_t length);
    涉及到内核启动、分页机制、进程管理的启动
 
 2. 物理内存是否可以热插拔，热插拔是否会引起直接映射区的重新映射？将被拔出的内存中的数据如何保存？
-3. 
+3. malloc、free的底层原理，他们是如何操作brk这个系统调用的
 4. 

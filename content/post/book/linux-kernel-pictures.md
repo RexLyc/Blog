@@ -493,12 +493,16 @@ mmap的实现细节，都在```do_mmap```函数中。
     ![handle page fault](/images/book/linux-pic/handle_page_fault.png)
 
     根据地址位于内核还是用户空间，分别调用不同的处理程序。
+    
+    地址位于内核空间的情况下：如果进程是用户态，那么只有`vmalloc`和`spurious`两种情况可以处理。因为vmalloc的内存分配情况存储在内核页表，使用了vmalloc申请的内存会缺页异常，需要将页表拷贝给进程页表。spurious则是指的TLB刷新不及时（内存已经变为可读写，但是TLB中仍只读）的情况，产生的虚假错误。各种`bad_area`函数用来处理其它的情况，如果发生缺页异常时，进程处于内核态，会尽量尝试修复错误，否则直接发送SIGSEGV给用户态进程。
+
+    地址位于用户空间的情况下：核心目标就是为地址找到对应的vma并映射内存。
 
 
 4. 
 
 
-<!-- 阅读位置，电子书99/纸质书87页 -->
+<!-- 阅读位置，电子书100/纸质书88页 -->
 
 <!-- 可从https://fliphtml5.com/ytimv/nlep/%E5%9B%BE%E8%A7%A3Linux%E5%86%85%E6%A0%B8%EF%BC%88%E5%9F%BA%E4%BA%8E6.x%EF%BC%89_%28%E5%A7%9C%E4%BA%9A%E5%8D%8E%29_%28Z-Library%29/21/  在线阅读 -->
 

@@ -344,7 +344,7 @@ void* mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)
 int munmap(void *addr, size_t length);
 ```
 
-其中```flags```有一些讲究了，比如MAP_PRIVATE、MAP_SHARED。前者采用COW策略（Copy On Write），对映射区的更新将会对其他映射了同一区域的进程不可见，也不会写回文件。后者则是共享所有更新，并且会写文件。这里提前说一下，共享是针对物理内存的，后面会详细展开。
+其中```flags```有一些讲究了，比如MAP_PRIVATE、MAP_SHARED。前者采用COW策略（Copy On Write），对映射区的更新将会对其他映射了同一区域的进程不可见，也不会写回文件。后者则是共享所有更新，并且会写文件。这里提前说一下，共享是针对物理内存的，后面会详细展开。大的费雷上，mmap分为匿名映射（不由文件映射而来）和非匿名映射（有具体映射的文件/设备）
 
 当然，由于mmap也可以映射设备，因此并不是所有对文件的操作都可以用，具体支持情况依赖于设备驱动。
 
@@ -496,15 +496,411 @@ mmap的实现细节，都在```do_mmap```函数中。
     
     地址位于内核空间的情况下：如果进程是用户态，那么只有`vmalloc`和`spurious`两种情况可以处理。因为vmalloc的内存分配情况存储在内核页表，使用了vmalloc申请的内存会缺页异常，需要将页表拷贝给进程页表。spurious则是指的TLB刷新不及时（内存已经变为可读写，但是TLB中仍只读）的情况，产生的虚假错误。各种`bad_area`函数用来处理其它的情况，如果发生缺页异常时，进程处于内核态，会尽量尝试修复错误，否则直接发送SIGSEGV给用户态进程。
 
-    地址位于用户空间的情况下：核心目标就是为地址找到对应的vma并映射内存。
+    地址位于用户空间的情况下：核心目标就是为地址找到对应的vma（就是我们前面提到过的vm_area_struct）并映射内存。在确认vma和当前的操作权限匹配后，开始真正的缺页处理。这里还要分为三种情况
+    1. 没有完整的物理内存映射，需要申请内存并映射。
+    2. 映射存在，但是物理页被交换了，需要将其读到内存。
+    3. 映射完整，内存可写，但是页表中权限是只读，写内存异常。这对应的也是前面的COW等场景。
+
+    这里需要格外强调：用户空间虚拟内存访问权限分成两个部分。内存映射的权限（在`vma->vm_flags`中），以及页表的权限。前者是全集，在其之外的是错误，没有讨论余地。后者则是表示实际的访问权限，就是说页表中的权限可能发生变化，来适应对应的需求。另外这里所说的两个权限，都是再`vma`的结构体中（flag和prot）。而DMA访问内存实际上是用pte访问的，因此内存实际上一共有三个权限在共同工作。
+
+    `handle_pte_fault`比较重要，是站在pte的角度，处理以上的这些问题。按照书上的内容，补充了一些注释。
+
+    ```c
+    static vm_fault_t handle_pte_fault(struct vm_fault *vmf)
+    {
+        pte_t entry;
+
+        // 这一段if + else，是在处理第一种问题。等待后续分配并映射。
+        if (unlikely(pmd_none(*vmf->pmd))) {
+            /*
+            * Leave __pte_alloc() until later: because vm_ops->fault may
+            * want to allocate huge page, and if we expose page table
+            * for an instant, it will be difficult to retract from
+            * concurrent faults and from rmap lookups.
+            */
+            vmf->pte = NULL;
+            vmf->flags &= ~FAULT_FLAG_ORIG_PTE_VALID;
+        } else {
+            /*
+            * If a huge pmd materialized under us just retry later.  Use
+            * pmd_trans_unstable() via pmd_devmap_trans_unstable() instead
+            * of pmd_trans_huge() to ensure the pmd didn't become
+            * pmd_trans_huge under us and then back to pmd_none, as a
+            * result of MADV_DONTNEED running immediately after a huge pmd
+            * fault in a different thread of this mm, in turn leading to a
+            * misleading pmd_trans_huge() retval. All we have to ensure is
+            * that it is a regular pmd that we can walk with
+            * pte_offset_map() and we can do that through an atomic read
+            * in C, which is what pmd_trans_unstable() provides.
+            */
+            if (pmd_devmap_trans_unstable(vmf->pmd))
+                return 0;
+            /*
+            * A regular pmd is established and it can't morph into a huge
+            * pmd from under us anymore at this point because we hold the
+            * mmap_lock read mode and khugepaged takes it in write mode.
+            * So now it's safe to run pte_offset_map().
+            */
+            vmf->pte = pte_offset_map(vmf->pmd, vmf->address);
+            vmf->orig_pte = *vmf->pte;
+            vmf->flags |= FAULT_FLAG_ORIG_PTE_VALID;
+
+            /*
+            * some architectures can have larger ptes than wordsize,
+            * e.g.ppc44x-defconfig has CONFIG_PTE_64BIT=y and
+            * CONFIG_32BIT=y, so READ_ONCE cannot guarantee atomic
+            * accesses.  The code below just needs a consistent view
+            * for the ifs and we later double check anyway with the
+            * ptl lock held. So here a barrier will do.
+            */
+            barrier();
+            if (pte_none(vmf->orig_pte)) {
+                pte_unmap(vmf->pte);
+                vmf->pte = NULL;
+            }
+        }
+
+        // 继续处理第一种问题（此时pte为NULL）
+        if (!vmf->pte) {
+            if (vma_is_anonymous(vmf->vma))
+                return do_anonymous_page(vmf);
+            else
+                /*
+                非匿名映射，内部根据不同情况进行处理
+                1. 读操作异常：do_read_fault
+                2. 写MAP_PRIVATE映射的内存：do_cow_fault
+                3. 写MAP_SHARED映射的内存：do_shared_fault
+
+                总之最终都会回调vma->vm_ops->fault得到一页内存，再用finish_fault更新页表
+
+                这里do_cow_fault会申请到一页新的物理内存（vmf->cow_page），初始内容是从之前的页vmf->page拷贝过来的
+                */
+                return do_fault(vmf);
+        }
+
+        // 处理第二种情况，加载交换出去的内存
+        if (!pte_present(vmf->orig_pte))
+            return do_swap_page(vmf);
+        
+        if (pte_protnone(vmf->orig_pte) && vma_is_accessible(vmf->vma))
+            return do_numa_page(vmf);
+
+        vmf->ptl = pte_lockptr(vmf->vma->vm_mm, vmf->pmd);
+        spin_lock(vmf->ptl);
+        entry = vmf->orig_pte;
+        if (unlikely(!pte_same(*vmf->pte, entry))) {
+            update_mmu_tlb(vmf->vma, vmf->address, vmf->pte);
+            goto unlock;
+        }
+
+        // 处理第三种情况，写操作异常，没有写权限
+        // 注意区分，上面是pte为NULL的流程，而这里pte是存在的。但是pte中缺少写权限，而禁止了这次访问。
+        // PROT_WRITE且MAP_SHARED，调用相关函数修改权限为可写
+        // PROT_WRITE且MAP_PRIVATE，是COW，申请新的物理内存，复制内容，更新页表
+        if (vmf->flags & (FAULT_FLAG_WRITE|FAULT_FLAG_UNSHARE)) {
+            if (!pte_write(entry))
+                return do_wp_page(vmf);
+            else if (likely(vmf->flags & FAULT_FLAG_WRITE))
+                entry = pte_mkdirty(entry);
+        }
+        entry = pte_mkyoung(entry);
+        if (ptep_set_access_flags(vmf->vma, vmf->address, vmf->pte, entry,
+                    vmf->flags & FAULT_FLAG_WRITE)) {
+            update_mmu_cache(vmf->vma, vmf->address, vmf->pte);
+        } else {
+            /* Skip spurious TLB flush for retried page fault */
+            if (vmf->flags & FAULT_FLAG_TRIED)
+                goto unlock;
+            /*
+            * This is needed only for protection faults but the arch code
+            * is not yet telling us if this is a protection fault or not.
+            * This still avoids useless tlb flushes for .text page faults
+            * with threads.
+            */
+            if (vmf->flags & FAULT_FLAG_WRITE)
+                flush_tlb_fix_spurious_fault(vmf->vma, vmf->address);
+        }
+    unlock:
+        pte_unmap_unlock(vmf->pte, vmf->ptl);
+        return 0;
+    }
+    ```
+
+    COW有一个非常经典的应用场景：fork子进程。因为子进程需要继承父进程的很多信息，这部分信息复制实际上由`dup_mmap`完成。在复制的过程中，主要就是在做COW。
+
+    ![fork-cow](/images/book/linux-pic/fork-cow.png)
+
+    为了保证COW的效果，实际上父子进程的pte项中的权限都会降级。仔细想想这里其实会有一个问题。就是如果父进程此时想写这里的内存，那么COW的优化意义实际上就失效了，父进程必须复制这段内存（因为父进程要修改了），即使后面并子进程不需要写，这其实可能出现浪费。所以子进程先执行COW更合理。而且如果子进程执行新的程序，那么很多内存都不需要复制，出于这个考虑，内核有一个变量来控制子进程是否可以抢占父进程。
 
 
-4. 
+### 内存回收
 
+前文在伙伴系统的讲解中，忽略了内存回收这个大问题。这个问题主要由`_alloc_pages_slowpath`完成。
 
-<!-- 阅读位置，电子书100/纸质书88页 -->
+进行回收时可能有几种情况：
+1. 空闲内存足够，但是碎片过多，没有连续内存。这是需要移动并合并一些内存碎片，进行规整（`compact`）。
+2. 空闲内存不足，需要释放一些已经被占用的内存,就是回收（`reclaim`）。典型的例子是mmap的内存，如果释放的话，就写回`swap`（匿名映射），或者写回文件（非匿名映射）
 
-<!-- 可从https://fliphtml5.com/ytimv/nlep/%E5%9B%BE%E8%A7%A3Linux%E5%86%85%E6%A0%B8%EF%BC%88%E5%9F%BA%E4%BA%8E6.x%EF%BC%89_%28%E5%A7%9C%E4%BA%9A%E5%8D%8E%29_%28Z-Library%29/21/  在线阅读 -->
+**扫描**是回收的第一步。扫描过程由`scan_control`结构体控制。其内容如下
+```c
+// code from kernel 6.2
+struct scan_control {
+	/* How many pages shrink_list() should reclaim */
+	unsigned long nr_to_reclaim;
+
+	/*
+	 * Nodemask of nodes allowed by the caller. If NULL, all nodes
+	 * are scanned.
+	 */
+	nodemask_t	*nodemask;
+
+	/*
+	 * The memory cgroup that hit its limit and as a result is the
+	 * primary target of this reclaim invocation.
+	 */
+	struct mem_cgroup *target_mem_cgroup;
+
+	/*
+	 * Scan pressure balancing between anon and file LRUs
+	 */
+	unsigned long	anon_cost;
+	unsigned long	file_cost;
+
+	/* Can active folios be deactivated as part of reclaim? */
+#define DEACTIVATE_ANON 1
+#define DEACTIVATE_FILE 2
+	unsigned int may_deactivate:2;
+	unsigned int force_deactivate:1;
+	unsigned int skipped_deactivate:1;
+
+	/* Writepage batching in laptop mode; RECLAIM_WRITE */
+	unsigned int may_writepage:1;
+
+	/* Can mapped folios be reclaimed? */
+	unsigned int may_unmap:1;
+
+	/* Can folios be swapped as part of reclaim? */
+	unsigned int may_swap:1;
+
+	/* Proactive reclaim invoked by userspace through memory.reclaim */
+	unsigned int proactive:1;
+
+	/*
+	 * Cgroup memory below memory.low is protected as long as we
+	 * don't threaten to OOM. If any cgroup is reclaimed at
+	 * reduced force or passed over entirely due to its memory.low
+	 * setting (memcg_low_skipped), and nothing is reclaimed as a
+	 * result, then go back for one more cycle that reclaims the protected
+	 * memory (memcg_low_reclaim) to avert OOM.
+	 */
+	unsigned int memcg_low_reclaim:1;
+	unsigned int memcg_low_skipped:1;
+
+	unsigned int hibernation_mode:1;
+
+	/* One of the zones is ready for compaction */
+	unsigned int compaction_ready:1;
+
+	/* There is easily reclaimable cold cache in the current node */
+	unsigned int cache_trim_mode:1;
+
+	/* The file folios on the current node are dangerously low */
+	unsigned int file_is_tiny:1;
+
+	/* Always discard instead of demoting to lower tier memory */
+	unsigned int no_demotion:1;
+
+#ifdef CONFIG_LRU_GEN
+	/* help kswapd make better choices among multiple memcgs */
+	unsigned int memcgs_need_aging:1;
+	unsigned long last_reclaimed;
+#endif
+
+	/* Allocation order */
+	s8 order;
+
+	/* Scan (total_size >> priority) pages at once */
+    // 补充：就是说priority是右移参数，越小的话，扫描的页数越多
+	s8 priority;
+
+	/* The highest zone to isolate folios for reclaim from */
+	s8 reclaim_idx;
+
+	/* This context's GFP mask */
+	gfp_t gfp_mask;
+
+	/* Incremented by the number of inactive pages that were scanned */
+	unsigned long nr_scanned;
+
+	/* Number of pages freed so far during a call to shrink_zones() */
+	unsigned long nr_reclaimed;
+
+	struct {
+		unsigned int dirty;
+		unsigned int unqueued_dirty;
+		unsigned int congested;
+		unsigned int writeback;
+		unsigned int immediate;
+		unsigned int file_taken;
+		unsigned int taken;
+	} nr;
+
+	/* for recording the reclaimed slab by now */
+	struct reclaim_state reclaim_state;
+};
+```
+
+从结构体中可以看到。包含了需要回收的页数，已扫描的页数、已回收的页数等等信息。具体的回收函数`shrink_zones`是在一个循环中进行的，在某次调用后，可能出现的情况有：
+1. 当已回收的页数大于需要回收的页数，函数成功退出
+2. 已回收的页数不够，增加下次扫描的页数
+3. 如果扫描页数最大化还是找不到足够的内存。可尝试不跳过active的页（默认跳过）再试一下。还不行就只能返回失败了
+
+而这个回收函数，老内核调用`shrink_zones`，内部再调用`shrink_node`。高版本直接调用后者，也就是直接以node为单位了。可扫描的页都存储在一个LRU list上。不同版本中所在的位置页不同，老版本在`zone`中（`zone.lruvec`），新版本在`pglist_data.__lruvec`
+
+`lruvec`实际上是一个链表数组，里面每一个元素都是一个链表，链表元素也就是一系列被扫描的页。链表的类型有多种：匿名页链表、文件页链表。并且还分为活跃、非活跃（最近一段时间是否被访问），每个链表内部还是按照LRU处理的。这些`lru`上的页都是内核申请的页。应用、驱动都不感知这些页的信息，只是能够使用而已，因此回收过程，实际上我们只要保证下一次再访问时内容正确，将他们暂时从物理内存移除是完全ok的。
+
+不过当然，不是所有内存都可以放到lru链表中。比如在驱动中使用`alloc_pages`申请内存，驱动在使用完成后将他们释放掉（`free_pages`）。虽然这些内存还是buddy系统分配的，但是这些内存的生命周期由模块本身负责，内核并不能直接回收这部分。但是内核也为模块留了一个口子，就是`shrinker`，如果模块实现了回收方法，并注册到内核，在回收时，也会尝试由模块释放一些内存。
+
+`shrink_lruvec`的逻辑比较清晰：
+1. 计算各类LRU需要扫描的页数
+2. 循环调用`shrink_list`，每次尝试一种类型的LRU链表
+
+```c
+// code from kernel 6.2
+static void shrink_lruvec(struct lruvec *lruvec, struct scan_control *sc)
+{
+	unsigned long nr[NR_LRU_LISTS];
+	unsigned long targets[NR_LRU_LISTS];
+	unsigned long nr_to_scan;
+	enum lru_list lru;
+	unsigned long nr_reclaimed = 0;
+	unsigned long nr_to_reclaim = sc->nr_to_reclaim;
+	bool proportional_reclaim;
+	struct blk_plug plug;
+
+	if (lru_gen_enabled()) {
+		lru_gen_shrink_lruvec(lruvec, sc);
+		return;
+	}
+
+    // 计算各类LRU扫描数量
+	get_scan_count(lruvec, sc, nr);
+
+	/* Record the original scan target for proportional adjustments later */
+	memcpy(targets, nr, sizeof(nr));
+
+	/*
+	 * Global reclaiming within direct reclaim at DEF_PRIORITY is a normal
+	 * event that can occur when there is little memory pressure e.g.
+	 * multiple streaming readers/writers. Hence, we do not abort scanning
+	 * when the requested number of pages are reclaimed when scanning at
+	 * DEF_PRIORITY on the assumption that the fact we are direct
+	 * reclaiming implies that kswapd is not keeping up and it is best to
+	 * do a batch of work at once. For memcg reclaim one check is made to
+	 * abort proportional reclaim if either the file or anon lru has already
+	 * dropped to zero at the first pass.
+	 */
+	proportional_reclaim = (!cgroup_reclaim(sc) && !current_is_kswapd() &&
+				sc->priority == DEF_PRIORITY);
+
+	blk_start_plug(&plug);
+	while (nr[LRU_INACTIVE_ANON] || nr[LRU_ACTIVE_FILE] ||
+					nr[LRU_INACTIVE_FILE]) {
+		unsigned long nr_anon, nr_file, percentage;
+		unsigned long nr_scanned;
+
+        // 遍历每一种lru
+		for_each_evictable_lru(lru) {
+			if (nr[lru]) {
+				nr_to_scan = min(nr[lru], SWAP_CLUSTER_MAX);
+				nr[lru] -= nr_to_scan;
+
+                // shink_list内有对inactive、active的分别回收
+				nr_reclaimed += shrink_list(lru, nr_to_scan,
+							    lruvec, sc);
+			}
+		}
+
+		cond_resched();
+
+		if (nr_reclaimed < nr_to_reclaim || proportional_reclaim)
+			continue;
+
+		/*
+		 * For kswapd and memcg, reclaim at least the number of pages
+		 * requested. Ensure that the anon and file LRUs are scanned
+		 * proportionally what was requested by get_scan_count(). We
+		 * stop reclaiming one LRU and reduce the amount scanning
+		 * proportional to the original scan target.
+		 */
+		nr_file = nr[LRU_INACTIVE_FILE] + nr[LRU_ACTIVE_FILE];
+		nr_anon = nr[LRU_INACTIVE_ANON] + nr[LRU_ACTIVE_ANON];
+
+		/*
+		 * It's just vindictive to attack the larger once the smaller
+		 * has gone to zero.  And given the way we stop scanning the
+		 * smaller below, this makes sure that we only make one nudge
+		 * towards proportionality once we've got nr_to_reclaim.
+		 */
+		if (!nr_file || !nr_anon)
+			break;
+
+		if (nr_file > nr_anon) {
+			unsigned long scan_target = targets[LRU_INACTIVE_ANON] +
+						targets[LRU_ACTIVE_ANON] + 1;
+			lru = LRU_BASE;
+			percentage = nr_anon * 100 / scan_target;
+		} else {
+			unsigned long scan_target = targets[LRU_INACTIVE_FILE] +
+						targets[LRU_ACTIVE_FILE] + 1;
+			lru = LRU_FILE;
+			percentage = nr_file * 100 / scan_target;
+		}
+
+		/* Stop scanning the smaller of the LRU */
+		nr[lru] = 0;
+		nr[lru + LRU_ACTIVE] = 0;
+
+		/*
+		 * Recalculate the other LRU scan count based on its original
+		 * scan target and the percentage scanning already complete
+		 */
+		lru = (lru == LRU_FILE) ? LRU_BASE : LRU_FILE;
+		nr_scanned = targets[lru] - nr[lru];
+		nr[lru] = targets[lru] * (100 - percentage) / 100;
+		nr[lru] -= min(nr[lru], nr_scanned);
+
+		lru += LRU_ACTIVE;
+		nr_scanned = targets[lru] - nr[lru];
+		nr[lru] = targets[lru] * (100 - percentage) / 100;
+		nr[lru] -= min(nr[lru], nr_scanned);
+	}
+	blk_finish_plug(&plug);
+	sc->nr_reclaimed += nr_reclaimed;
+
+	/*
+	 * Even if we did not try to evict anon pages at all, we want to
+	 * rebalance the anon lru active/inactive ratio.
+	 */
+	if (can_age_anon_pages(lruvec_pgdat(lruvec), sc) &&
+	    inactive_is_low(lruvec, LRU_INACTIVE_ANON))
+		shrink_active_list(SWAP_CLUSTER_MAX, lruvec,
+				   sc, LRU_ACTIVE_ANON);
+}
+```
+
+LRU链表的一些添加和移除的细节情况。
+1. 访问页时，会导致active和inactive链表之箭的移动。为了优化，这个移动操作被批量化了，保存在LRU cache中。在扫描inactive list之前，`lru_add_drain`必须将这部分排空，加入到对应的LRU链表中，避免漏扫。
+2. 页隔离，`isolate_lru_folios/isolate_lru_pages`用来将待扫描的页从所在的`LRU list`中删除，并加入到`folio_list`链表，这样接下来就不回被重复扫描了。当然也就能避免重复回收。
+
+> **性能思考**：为什么隔离采用了删除的方式，而不是添加标记之类的方式。其实可以认为，删除的方式，锁的粒度很小，而且失败了的线程可以直接跳过，去隔离其他的页。另外，将待扫描的页统一到folio_list中，后续批量处理速度更快。
+
+folio（英文原意，对开本）看起来是一个突然出现的概念。但其实一定程度上就是复合页（compound pages），比如某些情况下一个folio中包括的页数是2的整数次幂。注意folio这个概念是在逐渐取代page。但目前内核中仍然会同时存在：page、Compound page（复合页）、folio。folio和page大部分字段都是一致的。所以在高版本中，会用`isolate_lru_folios`，其实是在向folios做迁移。
+
+隔离到了足够多的页之后，就可以开始回收了。`shrink_folio_list`在500行左右（有不少的注释）,这里不再贴代码，可以直接[点击链接](https://elixir.bootlin.com/linux/v6.2/source/mm/vmscan.c#L1651)。这里直接总结一下书中整理的10个步骤，也就是在循环中执行：
+1. 从folio_list（隔离出来的页的列表）中取下一个folio
+2. 如果folio正在写回，等待其写完，并重新插入folio_list尾部，下次继续循环处理
+3. 检查folio的活跃程度，即上次扫描到现在，**访问了物理页的映射的数量**（也就是访问了的pte的数量，而不是访问的数量）。（使用这个数据是因为MMU硬件上是在PTE中提供一个访问标记，而不是访问次数）
 
 
 ## 课后问题
@@ -514,4 +910,13 @@ mmap的实现细节，都在```do_mmap```函数中。
 
 2. 物理内存是否可以热插拔，热插拔是否会引起直接映射区的重新映射？将被拔出的内存中的数据如何保存？
 3. malloc、free的底层原理，他们是如何操作brk这个系统调用的
+   【TODO】 再补充一些，尤其是brk。
+   堆内存由glibc管理。每次调用brk改变堆内存大小。系统调用是有代价的，所以每次申请实际上会多申请一些。反正返回的也是虚拟地址，只有访问的时候，才会触发缺页中断而产生实际物理内存映射。
 4. 缺页异常的信息由CPU提供，但是映射是MMU负责，CPU是如何知道这些信息的呢？
+
+
+<!-- 阅读位置，电子书121/纸质书109页 -->
+
+<!-- 可从https://fliphtml5.com/ytimv/nlep/%E5%9B%BE%E8%A7%A3Linux%E5%86%85%E6%A0%B8%EF%BC%88%E5%9F%BA%E4%BA%8E6.x%EF%BC%89_%28%E5%A7%9C%E4%BA%9A%E5%8D%8E%29_%28Z-Library%29/21/  在线阅读 -->
+
+<!-- https://elixir.bootlin.com/linux/v5.0/source/Documentation/x86/x86_64/mm.txt -->

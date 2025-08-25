@@ -19,7 +19,7 @@ math: true
 
 > 推荐直接来这个网站看linux kernel：[bootlin](https://elixir.bootlin.com/linux/v5.0/source/Documentation/x86/x86_64/mm.txt)，这个页面是mm.txt的，不过版本较低（v5.0）。也有很多其他重量级开源项目。
 
-> 本书有很多细节，汇编代码，因此也建议作为科普，工具书阅读。有需要的时候可以回来看看。
+> 本书有很多细节，汇编代码，因此也建议作为科普，工具书阅读。有需要的时候可以回来看看。这里会尽量精简重点内容。目标就是看一遍能有个大概。
 
 > 书中所使用的两个Linux版本，分别为3.10和6.2。如果某一个版本代码和书中对不上，就去看另一个版本吧。
 
@@ -899,8 +899,144 @@ folio（英文原意，对开本）看起来是一个突然出现的概念。但
 
 隔离到了足够多的页之后，就可以开始回收了。`shrink_folio_list`在500行左右（有不少的注释）,这里不再贴代码，可以直接[点击链接](https://elixir.bootlin.com/linux/v6.2/source/mm/vmscan.c#L1651)。这里直接总结一下书中整理的10个步骤，也就是在循环中执行：
 1. 从folio_list（隔离出来的页的列表）中取下一个folio
-2. 如果folio正在写回，等待其写完，并重新插入folio_list尾部，下次继续循环处理
-3. 检查folio的活跃程度，即上次扫描到现在，**访问了物理页的映射的数量**（也就是访问了的pte的数量，而不是访问的数量）。（使用这个数据是因为MMU硬件上是在PTE中提供一个访问标记，而不是访问次数）
+2. 如果folio正在写回，等待其写完（对应第6步），并重新插入folio_list尾部，下次继续循环处理
+3. 检查folio的活跃程度。active/inactive维度，是由上次扫描到现在，**访问了物理页的映射的数量**来决定（也就是访问了的pte的数量，而不是访问的数量），使用这个数据是因为MMU硬件上是在PTE中提供一个Accessed（A）访问标记，而不是访问次数。referenced/unreferenced维度，只要有一个PTE带有Accessed标记，就是referenced
+4. 开始尝试回收。如果可以被swap出去，则开始准备。
+5. 尝试取消folio之前的映射。取消成功后，folio原有的虚拟地址到物理页的映射就无效了。**需要**从物理地址反向遍历所有相关的PTE，并将它们设置为无效。
+6. 处理有dirty标记的情况。也就是需要将数据写回（对应第2步）。
+7. 现在folio已经完全准备好回收，插入free_folios
+8. 处理回收没有成功，且变为active的folio。
+9. 将上一步中的folio重新插回folio_list，之后会被返回。
+
+收尾工作，再之前的结尾处会发现，在函数返回时，folio_list中有一些folio实际上回收失败了。但是情况可能有好几种
+1. 回收失败（比如正在写回等，反正是回收的几步操作失败了），将会被重新放回inactive_lru
+2. 有过访问，需要重新放回inactive lru
+3. 访问活跃，要被提升为active，将要被插入active lru
+
+以上的扫描将会进行多次，按顺序分别是先匿名页，后文件页。并且每一种内部是先inactive，后active。当然不同的种类，循环中的步骤会有所差别，比如：active类型的folio不回直接被回收，最多被降级为inactive，因此没有回收的几个步骤。
+
+![folio-active](/images/book/linux-pic/folio-active.png)
+
+#### 反向映射
+
+上面忽略了一个问题，就是从一个页面（folio/page），如何获得映射这个页面的PTE。低版本内核将所有映射到某一个页面的PTE维护为一个链表，这样显然非常浪费。一个更合理的方式就是利用已有字段，`folio->mapping/page->mapping`。这里还要分为匿名和文件两种情况。这里我们还是贴一下folio的代码吧。
+
+```c
+/**
+ * struct folio - Represents a contiguous set of bytes.
+ * @flags: Identical to the page flags.
+ * @lru: Least Recently Used list; tracks how recently this folio was used.
+ * @mlock_count: Number of times this folio has been pinned by mlock().
+ * @mapping: The file this page belongs to, or refers to the anon_vma for
+ *    anonymous memory.
+ * @index: Offset within the file, in units of pages.  For anonymous memory,
+ *    this is the index from the beginning of the mmap.
+ * @private: Filesystem per-folio data (see folio_attach_private()).
+ *    Used for swp_entry_t if folio_test_swapcache().
+ * @_mapcount: Do not access this member directly.  Use folio_mapcount() to
+ *    find out how many times this folio is mapped by userspace.
+ * @_refcount: Do not access this member directly.  Use folio_ref_count()
+ *    to find how many references there are to this folio.
+ * @memcg_data: Memory Control Group data.
+ * @_flags_1: For large folios, additional page flags.
+ * @_head_1: Points to the folio.  Do not use.
+ * @_folio_dtor: Which destructor to use for this folio.
+ * @_folio_order: Do not use directly, call folio_order().
+ * @_compound_mapcount: Do not use directly, call folio_entire_mapcount().
+ * @_subpages_mapcount: Do not use directly, call folio_mapcount().
+ * @_pincount: Do not use directly, call folio_maybe_dma_pinned().
+ * @_folio_nr_pages: Do not use directly, call folio_nr_pages().
+ * @_flags_2: For alignment.  Do not use.
+ * @_head_2: Points to the folio.  Do not use.
+ * @_hugetlb_subpool: Do not use directly, use accessor in hugetlb.h.
+ * @_hugetlb_cgroup: Do not use directly, use accessor in hugetlb_cgroup.h.
+ * @_hugetlb_cgroup_rsvd: Do not use directly, use accessor in hugetlb_cgroup.h.
+ * @_hugetlb_hwpoison: Do not use directly, call raw_hwp_list_head().
+ *
+ * A folio is a physically, virtually and logically contiguous set
+ * of bytes.  It is a power-of-two in size, and it is aligned to that
+ * same power-of-two.  It is at least as large as %PAGE_SIZE.  If it is
+ * in the page cache, it is at a file offset which is a multiple of that
+ * power-of-two.  It may be mapped into userspace at an address which is
+ * at an arbitrary page offset, but its kernel virtual address is aligned
+ * to its size.
+ */
+struct folio {
+	/* private: don't document the anon union */
+	union {
+		struct {
+	/* public: */
+			unsigned long flags;
+			union {
+				struct list_head lru;
+	/* private: avoid cluttering the output */
+				struct {
+					void *__filler;
+	/* public: */
+					unsigned int mlock_count;
+	/* private: */
+				};
+	/* public: */
+			};
+			struct address_space *mapping;
+			pgoff_t index;
+			void *private;
+			atomic_t _mapcount;
+			atomic_t _refcount;
+#ifdef CONFIG_MEMCG
+			unsigned long memcg_data;
+#endif
+	/* private: the union with struct page is transitional */
+		};
+		struct page page;
+	};
+	union {
+		struct {
+			unsigned long _flags_1;
+			unsigned long _head_1;
+			unsigned char _folio_dtor;
+			unsigned char _folio_order;
+			atomic_t _compound_mapcount;
+			atomic_t _subpages_mapcount;
+			atomic_t _pincount;
+#ifdef CONFIG_64BIT
+			unsigned int _folio_nr_pages;
+#endif
+		};
+		struct page __page_1;
+	};
+	union {
+		struct {
+			unsigned long _flags_2;
+			unsigned long _head_2;
+			void *_hugetlb_subpool;
+			void *_hugetlb_cgroup;
+			void *_hugetlb_cgroup_rsvd;
+			void *_hugetlb_hwpoison;
+		};
+		struct page __page_2;
+	};
+};
+```
+
+1. 匿名映射的mapping
+   
+   在代码注释中也可以看到，匿名映射时，mapping字段是anon_vma地址。通过vma信息，可以得出映射的虚拟地址address，并用来定位PTE。而所有映射到同一个folio的vma，通过`anon_vma_chain`数据结构（avc），串联在了一起。自然就可以通过每一个vma拿到所有的虚拟地址address，并定位PTE。如下图所示。当然实际的细节要复杂很多。
+
+   ![anon_vma_chain](/images/book/linux-pic/anon-vma-chain.png)
+   ![anon_vma_chain with cow](/images/book/linux-pic/anon-vma-chain-cow.png)
+   
+2. 文件映射的mapping
+   
+   文件映射的mapping字段则相对简洁，此时的mapping可以用来直接遍历vma，不需要`anon_vma`。
+
+> 反向映射相关的vma结构，实际由区间树实现（用线性空间地址作为划分），效率还是可以的。更多反向映射的细节可以进一步阅读`rmap_walk_contrl`相关的内容。
+
+> 文件映射的页也可以是匿名页。这一点是针对MAP_ANONYMOUSE|MAP_SHARED的情况，内核会分配一个虚拟文件。这类页写回的时候，只能写回swap分区。
+
+
+## 文件系统篇
+
 
 
 ## 课后问题
@@ -913,9 +1049,10 @@ folio（英文原意，对开本）看起来是一个突然出现的概念。但
    【TODO】 再补充一些，尤其是brk。
    堆内存由glibc管理。每次调用brk改变堆内存大小。系统调用是有代价的，所以每次申请实际上会多申请一些。反正返回的也是虚拟地址，只有访问的时候，才会触发缺页中断而产生实际物理内存映射。
 4. 缺页异常的信息由CPU提供，但是映射是MMU负责，CPU是如何知道这些信息的呢？
+5. vma结构是区间树，不同vma的线性空间完全不同，这个区间是针对什么进行划分的呢？
 
 
-<!-- 阅读位置，电子书121/纸质书109页 -->
+<!-- 阅读位置，电子书134/纸质书122页 -->
 
 <!-- 可从https://fliphtml5.com/ytimv/nlep/%E5%9B%BE%E8%A7%A3Linux%E5%86%85%E6%A0%B8%EF%BC%88%E5%9F%BA%E4%BA%8E6.x%EF%BC%89_%28%E5%A7%9C%E4%BA%9A%E5%8D%8E%29_%28Z-Library%29/21/  在线阅读 -->
 

@@ -1278,6 +1278,8 @@ struct file {
   __attribute__((aligned(4)));	/* lest something weird decides that 2 is OK */
 ```
 
+超级块super_block的内容稍微有些多，这里放一下[链接](https://elixir.bootlin.com/linux/v6.2.16/source/include/linux/fs.h#L1473)可以自行查看。
+
 #### 文件系统的挂载
 
 文件系统可以分为三类：基于磁盘的、基于内存的、网络文件系统。但从设计上可以则将他们分为：虚拟文件系统VFS，和挂载到VFS的实际上的文件系统（比如ext4、sysfs等）。
@@ -1286,7 +1288,16 @@ struct file {
 
 ![do mount](/images/book/linux-pic/do-mount.png)
 
+> 这里的my_，或者xx_都是一种代指，因为文件系统众多，实际上调用的可能有多种
 
+如果是新挂载一个文件系统。那么`do_new_mount`中需要经过的步骤主要是
+1. 根据fstype找到对应的file_system_type
+2. 初始化`fs_context`，后续简称为fc。初始化操作由`file_system_type->init_fs_context`完成。主要是要定义`fc->ops`，也就是文件系统的一些操作。
+3. `vfs_get_tree`回调`fc->ops->get_tree`。获取文件结构树。最终获取到了这个文件操作系统对应的super_block（当然如果没有的话会创建一个super_block）。超级块里面的s_root，也就是dentry类型指针，对应的文件系统的root文件，名字一般就是我们熟悉的`/`。
+    1. 这一步流程内部，在已建立super_block之后，是由对应的文件系统提供获取文件的inode的方式`xx_get_inode`。
+
+
+super_block的创建是看需求的，如果之前已有的super_block不能满足当前的新的mount的需求，就会创建一个，比如文件系统类型不同、mount参数冲突等。
 
 
 ## 课后问题
@@ -1302,7 +1313,7 @@ struct file {
 5. vma结构是区间树，不同vma的线性空间完全不同，这个区间是针对什么进行划分的呢？
 
 
-<!-- 阅读位置，电子书137/纸质书125页 -->
+<!-- 阅读位置，电子书142/纸质书130页 -->
 
 <!-- 可从https://fliphtml5.com/ytimv/nlep/%E5%9B%BE%E8%A7%A3Linux%E5%86%85%E6%A0%B8%EF%BC%88%E5%9F%BA%E4%BA%8E6.x%EF%BC%89_%28%E5%A7%9C%E4%BA%9A%E5%8D%8E%29_%28Z-Library%29/21/  在线阅读 -->
 

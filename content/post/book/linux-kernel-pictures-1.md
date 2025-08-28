@@ -1,5 +1,5 @@
 ---
-title: "图解Linux内核 读书笔记"
+title: "图解Linux内核 读书笔记（上）"
 date: 2025-01-01T16:28:33+08:00
 categories:
 - 计算机科学与技术
@@ -22,6 +22,8 @@ math: true
 > 本书有很多细节，汇编代码，因此也建议作为科普，工具书阅读。有需要的时候可以回来看看。这里会尽量精简重点内容。目标就是看一遍能有个大概。
 
 > 书中所使用的两个Linux版本，分别为3.10和6.2。如果某一个版本代码和书中对不上，就去看另一个版本吧。
+
+> 本页为上半部分，包括内存和文件系统
 
 ## 概述和基础知识
 1. 内核代码结构：
@@ -1294,11 +1296,86 @@ struct file {
 1. 根据fstype找到对应的file_system_type
 2. 初始化`fs_context`，后续简称为fc。初始化操作由`file_system_type->init_fs_context`完成。主要是要定义`fc->ops`，也就是文件系统的一些操作。
 3. `vfs_get_tree`回调`fc->ops->get_tree`。获取文件结构树。最终获取到了这个文件操作系统对应的super_block（当然如果没有的话会创建一个super_block）。超级块里面的s_root，也就是dentry类型指针，对应的文件系统的root文件，名字一般就是我们熟悉的`/`。
-    1. 这一步流程内部，在已建立super_block之后，是由对应的文件系统提供获取文件的inode的方式`xx_get_inode`。
+    1. 这一步流程内部，在已建立super_block之后，是由对应的文件系统提供获取文件的inode的方式`xx_get_inode`，这里的inode是由该文件系统内部查询或者创建出来的。
+4. `do_new_mount_fc`，根据得到的超级块和root文件为mount结构体赋值。
+    1. 调用`lock_mount`找到/创建对应的`mountpoint`挂载点。调用`do_add_mount & graft_tree`完成挂载关系。为了方便查找子mount，在哈希链表中，子mount的下标，是用父mount的信息计算的。
+
+这里有几个要点值得理解一下：
+1. super_block的创建是看需求的，如果之前已有的super_block不能满足当前的新的mount的需求，就会创建一个，比如文件系统类型不同、mount参数冲突等。
+2. 一个路径可以被挂载多次，后挂载的文件系统将会覆盖之前挂载到这个路径的文件系统，`unmount`之后又会恢复。书上的比喻是：一层一层穿过所有的墙（递归检查指定路径上的挂载），在最后一面墙的后面再起新墙（本次的挂载，覆盖了前面的所有挂载）。子mount会覆盖父mount。
+3. 继续第2点。路径解析是自顶向下。但挂载点查找是自底向上的，即给定一个路径，查找最深的覆盖他的mount（mountpoint lookup）。从另一个角度理解，就是mnt_mountpoint 不是“挂载的目标路径”，而是“在父文件系统中被覆盖的目录”
+
+下图是路径/test被先后挂载ext4、sysfs、proc文件系统之后的状态。
+![mount](/images/book/linux-pic/mount.png)
 
 
-super_block的创建是看需求的，如果之前已有的super_block不能满足当前的新的mount的需求，就会创建一个，比如文件系统类型不同、mount参数冲突等。
+mount和、vfsmount结构体如下。一些书中重点已单独备注
+```c
+struct mount {
+    // 将当前mount对象链接到hash链表
+	struct hlist_node mnt_hash;
+    // 父mount，因为挂载是可以嵌套的，所以需要有这个
+	struct mount *mnt_parent;
+    // 挂载点
+	struct dentry *mnt_mountpoint;
+    // 内嵌vfsmount
+	struct vfsmount mnt;
+	union {
+		struct rcu_head mnt_rcu;
+		struct llist_node mnt_llist;
+	};
+#ifdef CONFIG_SMP
+	struct mnt_pcp __percpu *mnt_pcp;
+#else
+	int mnt_count;
+	int mnt_writers;
+#endif
+    // 子mount也保存了
+	struct list_head mnt_mounts;	/* list of children, anchored here */
+	struct list_head mnt_child;	/* and going through their mnt_child */
+    // 将当前对象链接到超级块的链表中
+	struct list_head mnt_instance;	/* mount instance on sb->s_mounts */
+	const char *mnt_devname;	/* Name of device e.g. /dev/dsk/hda1 */
+	struct list_head mnt_list;
+	struct list_head mnt_expire;	/* link in fs-specific expiry list */
+	struct list_head mnt_share;	/* circular list of shared mounts */
+	struct list_head mnt_slave_list;/* list of slave mounts */
+	struct list_head mnt_slave;	/* slave list entry */
+	struct mount *mnt_master;	/* slave is on master->mnt_slave_list */
+	struct mnt_namespace *mnt_ns;	/* containing namespace */
+	struct mountpoint *mnt_mp;	/* where is it mounted */
+	union {
+		struct hlist_node mnt_mp_list;	/* list mounts with the same mountpoint */
+		struct hlist_node mnt_umount;
+	};
+	struct list_head mnt_umounting; /* list entry for umount propagation */
+#ifdef CONFIG_FSNOTIFY
+	struct fsnotify_mark_connector __rcu *mnt_fsnotify_marks;
+	__u32 mnt_fsnotify_mask;
+#endif
+	int mnt_id;			/* mount identifier */
+	int mnt_group_id;		/* peer group identifier */
+	int mnt_expiry_mark;		/* true if marked for expiry */
+	struct hlist_head mnt_pins;
+	struct hlist_head mnt_stuck_children;
+} __randomize_layout;
 
+struct vfsmount {
+    // 前文说的xx_get_tree所返回的根dentry
+	struct dentry *mnt_root;	/* root of the mounted tree */
+    // 同样是xx_get_tree返回的超级块
+	struct super_block *mnt_sb;	/* pointer to superblock */
+	int mnt_flags;
+	struct mnt_idmap *mnt_idmap;
+} __randomize_layout;
+
+```
+
+#### 文件查找
+
+查找路径有共同的流程：设置起点，查找中间路径，处理目标文件/路径。
+
+![path lookup](/images/book/linux-pic/path-lookup.png)
 
 ## 课后问题
 1. 进程控制块中包含了进程页表的基址，那进程控制块本身所在的虚拟内存，由谁的页表管理，以及其内存基址如何存储？如何避免套娃问题？
@@ -1313,7 +1390,7 @@ super_block的创建是看需求的，如果之前已有的super_block不能满�
 5. vma结构是区间树，不同vma的线性空间完全不同，这个区间是针对什么进行划分的呢？
 
 
-<!-- 阅读位置，电子书142/纸质书130页 -->
+<!-- 阅读位置，电子书145/纸质书133页 -->
 
 <!-- 可从https://fliphtml5.com/ytimv/nlep/%E5%9B%BE%E8%A7%A3Linux%E5%86%85%E6%A0%B8%EF%BC%88%E5%9F%BA%E4%BA%8E6.x%EF%BC%89_%28%E5%A7%9C%E4%BA%9A%E5%8D%8E%29_%28Z-Library%29/21/  在线阅读 -->
 

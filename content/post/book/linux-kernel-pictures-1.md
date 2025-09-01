@@ -1373,7 +1373,10 @@ struct vfsmount {
 
 #### 文件查找
 
-查找路径有共同的流程：设置起点，查找中间路径，处理目标文件/路径。
+查找路径有共同的流程：设置起点，查找中间路径，处理目标文件/路径。过程中用到的，`metaidata`是存储查找阶段配置的结构体。`nameidata`是每一轮查找的一个辅助结构（主要包含本轮找到的path、dentry、文件类型）。
+
+1. 设置起点：。起点在`metaidata->dfd`中表示（int值类型，值是AT_FDCWD当前目录的意思，或者是一个文件描述符fd）。分别处理相对路径和绝对路径，设置起点和对应的inode（`nd->path.dentry->d_inode`）
+2. 
 
 ![path lookup](/images/book/linux-pic/path-lookup.png)
 
@@ -1390,9 +1393,9 @@ struct vfsmount {
 5. vma结构是区间树，不同vma的线性空间完全不同，这个区间是针对什么进行划分的呢？
 
 
-<!-- 阅读位置，电子书145/纸质书133页 -->
+<!-- 阅读位置，电子书147/纸质书135页 -->
 
-<!-- 可从https://fliphtml5.com/ytimv/nlep/%E5%9B%BE%E8%A7%A3Linux%E5%86%85%E6%A0%B8%EF%BC%88%E5%9F%BA%E4%BA%8E6.x%EF%BC%89_%28%E5%A7%9C%E4%BA%9A%E5%8D%8E%29_%28Z-Library%29/21/  在线阅读 -->
+<!-- 可从https://fliphtml5.com/ytimv/nlep/%E5%9B%BE%E8%A7%A3Linux%E5%86%85%E6%A0%B8%EF%BC%88%E5%9F%BA%E4%BA%8E6.x%EF%BC%89_%28%E5%A7%9C%E4%BA%9A%E5%8D%8E%29_%28Z-Library%29/147/  在线阅读 -->
 
 <!-- https://elixir.bootlin.com/linux/v5.0/source/Documentation/x86/x86_64/mm.txt -->
 

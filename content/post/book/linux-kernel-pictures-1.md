@@ -1047,8 +1047,8 @@ struct folio {
 | ------| ------ |
 | 文件系统 | super_block |
 | 文件本身 | inode |
-| 文件入口 | dentry |
-| 文件内容 | file |
+| 文件的代表 | dentry |
+| 文件的内容 | file |
 
 super_block是物理上的文件系统在内存中的抽象。每一块分区格式化完毕的磁盘，都是一个独立的文件系统。super_block按照类型，由`file_system_type`进行链接管理。
 
@@ -1087,6 +1087,7 @@ struct inode {
 	/* Stat data, not accessed from path walking */
     // inode 序号,在同一个文件系统中，应该是唯一的
     // 内核会维护一组哈希链表，每个inode所在的哈希链表，是hash(super_block,i_ino)一起算出来的
+    // 注意因为整个系统范围内inode可能重复，所以hash需要加上代表对应文件系统的超级块
     // 内核中的这组哈希链表是inode_hashtable
 	unsigned long		i_ino;
 	/*
@@ -1229,7 +1230,10 @@ struct dentry {
 } __randomize_layout;
 ```
 
-这里就可以复习一下，软链接和硬链接的区别。由了dentry，就可以遍历父目录、子目录。当然也会有效率更高的，内核维护的`dentry_hashtable`来查找的方式。但是**dentry并不是一开始就有的**，是在访问目录的过程中不断创建出来的，也就是说，实际上我们仍然是在访问inode，从inode中得知文件系统的层级结构。并将其存储到dentry里。因此上面我们说，dentry是协助inode维护目录信息的。
+观察inode结构体可以发现，其实inode本身是不能表示文件间的关系，也就是文件、目录之间的层级关系。层级关系需要dentry协助解决这个问题。也就是说文件系统有两套层级结构，一套是文件系统内部自行维护，另一套是dentry维护。dentry是完全存在于内存的结构。
+
+这里就可以复习一下，软链接和硬链接的区别。有了dentry，就可以遍历父目录、子目录。当然也会有效率更高的，内核维护的`dentry_hashtable`来查找的方式。但是**dentry并不是一开始就有的**，是在访问目录的过程中不断创建出来的，也就是说，实际上我们仍然是在访问inode，从inode中得知文件系统的层级结构。并将其存储到dentry里。因此上面我们说，dentry是协助inode维护目录信息的。硬链接是多了一个dentry，软链接则是多了一个文件。
+
 
 最后我们来看一下文件`file`
 
@@ -1290,7 +1294,7 @@ struct file {
 
 ![do mount](/images/book/linux-pic/do-mount.png)
 
-> 这里的my_，或者xx_都是一种代指，因为文件系统众多，实际上调用的可能有多种
+> 这里的my_，或者xx_都是一种代指，是书中给出的一种实现的模板，因为文件系统众多，实际上的实现因文件系统而异。感兴趣的话，可以去看例如[`ext4_fill_super`](https://elixir.bootlin.com/linux/v6.2.16/source/fs/ext4/super.c#L5041)这些。
 
 如果是新挂载一个文件系统。那么`do_new_mount`中需要经过的步骤主要是
 1. 根据fstype找到对应的file_system_type
@@ -1386,6 +1390,15 @@ lookup的调用流程
 
 lookup的fast和slow的区别，一边是用dentry，一边是用`inode->i_op->lookup`深入文件系统查找
 ![lookup fast/slow](/images/book/linux-pic/lookup-fast-slow.png)
+
+<!-- TODO，这里展开一下从inode创建dentry的过程 -->
+
+从上文的挂载中我们可以知道，挂载时会返回被挂载的文件系统的根'/'文件所对应的dentry。而更多的dentry，则是在查找过程中创建。
+1. 创建根dentry的过程。挂载时的`d_make_root`、`d_alloc_anon`、`d_instantiate`。用super_block和根inode来完成初始化。内核是通过`iget_locked`入口来获取inode的（如果inode不存在，则最终可能需要文件系统提供`s_op.alloc_inode`回调函数创建）
+2. 各文件系统的实现不同。单元里类似。目录文件的inode指向的data block，存储着所有的子文件/一级子目录的"dentry"（这里的dentry是文件系统自己定义的结构，比如`ext4_dir_entry_2`。这些结构里又存储着inode号，重复这个过程。
+
+> 也可以看一下ext4文件系统的一些设计，这样能更好的理解文件系统的结构，以及文件系统结构最终如何被抽象为inode + dentry。参考：[文件系统专栏 | 之ext4文件系统结构](https://cloud.tencent.com/developer/article/2086043)、[ext4文件系统内部结构解析](https://zhuanlan.zhihu.com/p/659069602)
+
 
 #### 文件操作
 > 文件操作指的是对“文件”本身的操作，而不是对文件内容的操作

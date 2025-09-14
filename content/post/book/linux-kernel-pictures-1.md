@@ -1405,12 +1405,278 @@ lookup的fast和slow的区别，一边是用dentry，一边是用`inode->i_op->l
 
 > 实际上无论是什么操作，VFS都是定义框架，具体的实现由各个文件系统决定。
 
-软链接和硬链接核心逻辑位于`do_link_at`函数及`vfs_link`，底层为`inode->i_op->link`。软链接创建一个新的特殊文件（拥有新的inode），但是其内容是链接的目标地址的字符串。而硬链接本质则是同一个inode的多个dentry。而且因此可以知道一些区别：
+##### 软链接和硬链接
+
+硬链接的系统调用为`link`/`linkat`，最终调用`do_linkat`。软链接则是`symlink`/`symlinkat`，最终调用`do_symlinkat`。
+
+目录的硬链接数比较有趣，inode结构中的`i_nlink`字段是一个计数，目录，以及目录的`.`，以及所有的子目录的`..`都指向该目录，都会使得该值+1。
+
+```c
+/*
+ * Hardlinks are often used in delicate situations.  We avoid
+ * security-related surprises by not following symlinks on the
+ * newname.  --KAB
+ *
+ * We don't follow them on the oldname either to be compatible
+ * with linux 2.0, and to avoid hard-linking to directories
+ * and other special files.  --ADM
+ */
+int do_linkat(int olddfd, struct filename *old, int newdfd,
+	      struct filename *new, int flags)
+{
+	struct user_namespace *mnt_userns;
+	struct dentry *new_dentry;
+	struct path old_path, new_path;
+	struct inode *delegated_inode = NULL;
+	int how = 0;
+	int error;
+
+	if ((flags & ~(AT_SYMLINK_FOLLOW | AT_EMPTY_PATH)) != 0) {
+		error = -EINVAL;
+		goto out_putnames;
+	}
+	/*
+	 * To use null names we require CAP_DAC_READ_SEARCH
+	 * This ensures that not everyone will be able to create
+	 * handlink using the passed filedescriptor.
+	 */
+	if (flags & AT_EMPTY_PATH && !capable(CAP_DAC_READ_SEARCH)) {
+		error = -ENOENT;
+		goto out_putnames;
+	}
+
+	if (flags & AT_SYMLINK_FOLLOW)
+		how |= LOOKUP_FOLLOW;
+retry:
+	error = filename_lookup(olddfd, old, how, &old_path, NULL);
+	if (error)
+		goto out_putnames;
+
+	new_dentry = filename_create(newdfd, new, &new_path,
+					(how & LOOKUP_REVAL));
+	error = PTR_ERR(new_dentry);
+	if (IS_ERR(new_dentry))
+		goto out_putpath;
+
+	error = -EXDEV;
+	if (old_path.mnt != new_path.mnt)
+		goto out_dput;
+	mnt_userns = mnt_user_ns(new_path.mnt);
+	error = may_linkat(mnt_userns, &old_path);
+	if (unlikely(error))
+		goto out_dput;
+	error = security_path_link(old_path.dentry, &new_path, new_dentry);
+	if (error)
+		goto out_dput;
+    // new_dentry是新创建的硬链接，old_path.dentry则是已有文件，最终这两个dentry都将指向old_path.dentry->d_inode
+	error = vfs_link(old_path.dentry, mnt_userns, new_path.dentry->d_inode,
+			 new_dentry, &delegated_inode);
+out_dput:
+	done_path_create(&new_path, new_dentry);
+	if (delegated_inode) {
+		error = break_deleg_wait(&delegated_inode);
+		if (!error) {
+			path_put(&old_path);
+			goto retry;
+		}
+	}
+	if (retry_estale(error, how)) {
+		path_put(&old_path);
+		how |= LOOKUP_REVAL;
+		goto retry;
+	}
+out_putpath:
+	path_put(&old_path);
+out_putnames:
+	putname(old);
+	putname(new);
+
+	return error;
+}
+
+int do_symlinkat(struct filename *from, int newdfd, struct filename *to)
+{
+	int error;
+	struct dentry *dentry;
+	struct path path;
+	unsigned int lookup_flags = 0;
+
+	if (IS_ERR(from)) {
+		error = PTR_ERR(from);
+		goto out_putnames;
+	}
+retry:
+	dentry = filename_create(newdfd, to, &path, lookup_flags);
+	error = PTR_ERR(dentry);
+	if (IS_ERR(dentry))
+		goto out_putnames;
+
+	error = security_path_symlink(&path, dentry, from->name);
+	if (!error) {
+		struct user_namespace *mnt_userns;
+
+		mnt_userns = mnt_user_ns(path.mnt);
+        // path.dentry->d_inode就是符号链接将要存在的父目录的inode
+        // 该inode用于判断是否支持符号链接操作，并最终创建一个符号链接文件
+        // 并为创建出来的dentry赋值
+		error = vfs_symlink(mnt_userns, path.dentry->d_inode, dentry,
+				    from->name);
+	}
+	done_path_create(&path, dentry);
+	if (retry_estale(error, lookup_flags)) {
+		lookup_flags |= LOOKUP_REVAL;
+		goto retry;
+	}
+out_putnames:
+	putname(to);
+	putname(from);
+	return error;
+}
+
+```
+
+硬链接核心逻辑位于`do_link_at`函数及`vfs_link`，底层为`inode->i_op->link`。一般的实现是，软链接创建一个新的特殊文件（拥有新的inode），但是其内容是链接的目标地址的字符串。而硬链接本质则是同一个inode的多个dentry。而且因此可以知道一些区别：
 1. 硬链接不能跨文件系统，因为文件系统之间的inode彼此独立。
 2. 不能给目录创建硬链接。主要的理由是防止路径循环，因为硬链接直接用同一个inode，如果允许目录硬链接，那么实际上破坏了文件系统的DAG结构，这是结构上的设计问题（没有必要为了这个特性，在inode中添加信息来维护）。而软链接能够允许则是因为软链接相当于路径重定向（只是一个alias），而且一般也配置了深度限制。而且常见的还有另一个问题，`../`的语义，硬链接在这种情况下也变得模糊，到底是当前目录的上级，还是链接目标目录的上级。
     
-    从实现的角度来看，软链接循环发生在`vfs_follow_link`，内核可以控制，而硬链接目录的循环是静态结构，需要应用层自行防御，完全不可靠。
-3. 
+    另外一个更现实的问题就是，从实现的角度来看，软链接循环发生在`vfs_follow_link`，内核可以加以控制。而硬链接目录的循环是静态结构，在应用层访问时也会发生，需要应用自行防御，完全不可靠。
+
+##### 创建和删除目录
+linux 并没有区分普通文件和目录。区别在于二者支持的操作不同（`inode->i_op`）。对于vfs来说，入口是在vfs_mkdir。
+
+创建目录的特殊点在于要判断父目录是否允许创建目录。
+
+删除目录的特殊点在于判断是否允许删除目录，以及删除的目录上是否挂载了文件系统，有挂载时不能删除。
+
+注意创建和删除目录的操作，都是由父目录的inode执行操作。这也符合前面文件查找时的流程，即分为处理中间路径 + 处理尾巴。
+
+##### 打开和关闭文件
+
+打开、关闭文件都要先查找文件。对于vfs来说，入口在`vfs_open`。
+
+系统最终分配fd，并创建对应的file对象。
+
+文件其实并没有打开、关闭这种说法。其实所谓的打开文件，是指内核完成路径查找，创建fd，创建file，并绑定fd与file，将file返回给用户空间这个过程。后续访问文件，就不需要内核再介入。
+
+关闭文件则相反，就是释放file，回收fd。close过程中，根据需要，依次执行flush、fasync（异步通知）、dput（处理dentry）
+
+##### 创建节点和删除文件
+
+名为创建节点，实际上也是创建文件。入口是`mknod`函数。
+
+创建时先找到目录，然后创建文件的dentry，最后创建文件，一共支持四种：S_IFREG普通文件、字符设备文件S_IFCHR、块设备文件S_IFBLK、FIFO文件S_IFIFO、Socket文件S_IFSOCK。如果是普通文件，其实在前文的open（打开）过程中也是可以创建的。
+
+后四种文件的创建入口是`vfs_mknod`。当然需要判断所在目录inode是否支持对应操作`inode->i_op->mknod`。
+
+删除文件，实际上是系统调用`unlink`，最后调用`vfs_unlink`，由文件系统执行操作。删除成功之后，才会进一步删除dentry，以及从系统哈希链表中删除。之所以叫`unlink`，就是因为这一步`删除的就是硬链接`，文件系统需要判断硬链接删除之后文件是否还有硬链接。如果没有，就可以真正删除了。
+
+
+
+## 个人代码实践
+
+1. 编写ko，打印指定路径文件的inode。【运行环境，ubuntu 24.04】
+    ```c
+    // 本段代码使用AI生成
+
+    // safe_inode_dumper.c
+    #include <linux/module.h>
+    #include <linux/kernel.h>
+    #include <linux/init.h>
+    #include <linux/fs.h>
+    #include <linux/namei.h>  // for kern_path
+    // #include <linux/kstrtol.h>
+
+    MODULE_LICENSE("GPL");
+    MODULE_AUTHOR("YourName");
+    MODULE_DESCRIPTION("Safely dump inode info via path");
+    MODULE_VERSION("0.1");
+
+    static char *target_path = NULL;
+    module_param(target_path, charp, 0);
+    MODULE_PARM_DESC(target_path, "Path to the file/directory whose inode to dump");
+
+    static void dump_inode(struct inode *inode)
+    {
+        if (!inode) return;
+
+        printk(KERN_INFO "=== INODE DUMP: %lu ===\n", inode->i_ino);
+        printk(KERN_INFO "  Size: %lld\n", inode->i_size);
+        printk(KERN_INFO "  Mode: 0%o\n", inode->i_mode);
+        printk(KERN_INFO "  UID: %u, GID: %u\n",
+            from_kuid(&init_user_ns, inode->i_uid),
+            from_kgid(&init_user_ns, inode->i_gid));
+        printk(KERN_INFO "  Links: %u\n", inode->i_nlink);
+        printk(KERN_INFO "  Blocks: %llu\n", inode->i_blocks);
+        printk(KERN_INFO "  Dev: %u:%u\n", MAJOR(inode->i_sb->s_dev), MINOR(inode->i_sb->s_dev));
+        printk(KERN_INFO "  FS: %s\n", inode->i_sb->s_type->name);
+        printk(KERN_INFO "=====================\n");
+    }
+
+    static int __init safe_dumper_init(void)
+    {
+        struct path path;
+        struct inode *inode;
+        int err;
+
+        if (!target_path) {
+            printk(KERN_ERR "safe_dumper: no path specified. use target_path=/path/to/file\n");
+            return -EINVAL;
+        }
+        
+        // 通过路径查找 dentry 和 inode
+        err = kern_path(target_path, LOOKUP_FOLLOW, &path);
+        if (err) {
+            printk(KERN_ERR "safe_dumper: path '%s' not found: %d\n", target_path, err);
+            return err;
+        }
+
+        inode = d_inode(path.dentry);
+        if (!inode) {
+            printk(KERN_ERR "safe_dumper: no inode at path '%s'\n", target_path);
+            path_put(&path);
+            return -ENOENT;
+        }
+
+        printk(KERN_INFO "safe_dumper: Found inode %lu for path '%s'\n", inode->i_ino, target_path);
+        dump_inode(inode);
+
+        path_put(&path);  // 释放引用
+        return 0;
+    }
+
+    static void __exit safe_dumper_exit(void)
+    {
+        printk(KERN_INFO "safe_dumper: unloaded\n");
+    }
+
+    module_init(safe_dumper_init);
+    module_exit(safe_dumper_exit);
+    ```
+
+    配套Makefile，注意C文件名必须为safe_inode_dumper，和obj-m中对应。
+
+    ```makefile
+
+    obj-m += safe_inode_dumper.o
+
+    KDIR := /lib/modules/$(shell uname -r)/build
+
+    all:
+        $(MAKE) -C $(KDIR) M=$(PWD) modules
+
+    clean:
+        $(MAKE) -C $(KDIR) M=$(PWD) clean
+
+    install:
+        sudo insmod safe_inode_dumper.ko target_path='/tmp'
+
+    remove:
+        sudo rmmod safe_inode_dumper
+
+    dmesg:
+        dmesg | tail -20
+    ```
+2. 
 
 
 ## 课后问题
@@ -1427,7 +1693,7 @@ lookup的fast和slow的区别，一边是用dentry，一边是用`inode->i_op->l
 6. 硬链接禁止链接目录，其实说明了inode和dentry在访问上的底层逻辑区别。
 
 
-<!-- 阅读位置，电子书151/纸质书139页 -->
+<!-- 阅读位置，电子书162/纸质书150页 -->
 
 <!-- 但是 硬链接禁止链接目录 这个事情，感觉对inode和dentry的理解还不够透，在课后问题中补充一下吧 -->
 
@@ -1436,3 +1702,5 @@ lookup的fast和slow的区别，一边是用dentry，一边是用`inode->i_op->l
 <!-- https://elixir.bootlin.com/linux/v5.0/source/Documentation/x86/x86_64/mm.txt -->
 
 <!-- https://elixir.bootlin.com/linux/v6.2.16/source -->
+
+<!-- 本文为第一部分，即电子书201页之前，纸质书189页之前。 -->

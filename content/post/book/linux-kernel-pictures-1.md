@@ -21,7 +21,7 @@ math: true
 
 > 本书有很多细节，汇编代码，因此也建议作为科普，工具书阅读。有需要的时候可以回来看看。这里会尽量精简重点内容。目标就是看一遍能有个大概。
 
-> 书中所使用的两个Linux版本，分别为3.10和6.2。如果某一个版本代码和书中对不上，就去看另一个版本吧。
+> 书中所使用的两个Linux版本，分别为3.10和6.2。且未说明情况下，以**6.2**为准。如果某一个版本代码和书中对不上，就去看另一个版本吧。
 
 > 本页为上半部分，包括内存和文件系统
 
@@ -1230,7 +1230,7 @@ struct dentry {
 } __randomize_layout;
 ```
 
-观察inode结构体可以发现，其实inode本身是不能表示文件间的关系，也就是文件、目录之间的层级关系。层级关系需要dentry协助解决这个问题。也就是说文件系统有两套层级结构，一套是文件系统内部自行维护，另一套是dentry维护。dentry是完全存在于内存的结构。
+观察inode结构体可以发现，其实inode本身是不能表示文件间的关系，也就是文件、目录之间的层级关系。层级关系需要dentry协助解决这个问题。**也就是说文件系统有两套层级结构，一套是文件系统内部自行维护，另一套是dentry维护。dentry是完全存在于内存的结构。**
 
 这里就可以复习一下，软链接和硬链接的区别。有了dentry，就可以遍历父目录、子目录。当然也会有效率更高的，内核维护的`dentry_hashtable`来查找的方式。但是**dentry并不是一开始就有的**，是在访问目录的过程中不断创建出来的，也就是说，实际上我们仍然是在访问inode，从inode中得知文件系统的层级结构。并将其存储到dentry里。因此上面我们说，dentry是协助inode维护目录信息的。硬链接是多了一个dentry，软链接则是多了一个文件。
 
@@ -1285,6 +1285,8 @@ struct file {
 ```
 
 超级块super_block的内容稍微有些多，这里放一下[链接](https://elixir.bootlin.com/linux/v6.2.16/source/include/linux/fs.h#L1473)可以自行查看。
+
+一个文件系统的实现，最核心的点就是下面几个部分：挂载、查找、操作、I/O
 
 #### 文件系统的挂载
 
@@ -1570,6 +1572,150 @@ linux 并没有区分普通文件和目录。区别在于二者支持的操作�
 
 删除文件，实际上是系统调用`unlink`，最后调用`vfs_unlink`，由文件系统执行操作。删除成功之后，才会进一步删除dentry，以及从系统哈希链表中删除。之所以叫`unlink`，就是因为这一步`删除的就是硬链接`，文件系统需要判断硬链接删除之后文件是否还有硬链接。如果没有，就可以真正删除了。
 
+#### 文件IO
+
+每次打开文件，都会创建不同的file对象。文件的读写位置是属于file对象的`file->f_pos`。不同file对象之间，读写会互相影响。书中有如下例子
+```c
+int fd1 = open("f.txt", O_RDWR | O_CREATE);
+int fd2 = open("f.txt", O_RDWR | O_CREATE);
+
+char buf1[] = "abcdefg";
+char buf2[] = "hijkl";
+write(fd1, buf1, strlen(buf1));
+close(fd1);
+write(fd2, buf2, strlen(buf2));
+close(fd2);
+// 最终结果是"hijklfg"
+```
+
+vfs入口在`vfs_read`、`vfs_write`。并要求文件系统至少实现`file->f_op->read/read_iter`，`file->f_op->write/write_iter`。旧版中还有`aio_xxx`。
+
+而其中的xxx_iter，要求可以实现同步、异步读写。底层一般实现为异步，并通过添加wait_xxx的方式支持同步。这里需要再次强调一下。同步/异步，阻塞/非阻塞的区别。
+
+| | 阻塞 | 非阻塞 |
+| --- | --- | --- |
+| 同步 | read/write | read/write with O_NONBLOCK |
+| 异步 | poll/select | aio(新版对用read/write_iter) |
+
+> 再次确认理解这两个正交的维度：只要read/write就是同步，只不过阻塞要等待数据读出，而非阻塞则可以直接返回（读取长度为0）。反过来异步则是等待数据就绪的信号通知，此时的阻塞和非阻塞则对应等待数据就绪的过程是否是阻塞的。非阻塞就是事件驱动，阻塞则仍然需要调用poll/select轮询等待。
+
+编写read/write_iter时，可以通过内核提供的`is_sync_kiocb`判断。并区分不同行为。这里出现的iocb，就是i/o control block控制块，控制块作为I/O上下文，包括了I/O必须的信息。
+
+```c
+/*
+ * we always use a 64bit off_t when communicating
+ * with userland.  its up to libraries to do the
+ * proper padding and aio_error abstraction
+ */
+
+struct iocb {
+	/* these are internal to the kernel/libc. */
+	__u64	aio_data;	/* data to be returned in event's data */
+
+#if defined(__BYTE_ORDER) ? __BYTE_ORDER == __LITTLE_ENDIAN : defined(__LITTLE_ENDIAN)
+	__u32	aio_key;	/* the kernel sets aio_key to the req # */
+	__kernel_rwf_t aio_rw_flags;	/* RWF_* flags */
+#elif defined(__BYTE_ORDER) ? __BYTE_ORDER == __BIG_ENDIAN : defined(__BIG_ENDIAN)
+	__kernel_rwf_t aio_rw_flags;	/* RWF_* flags */
+	__u32	aio_key;	/* the kernel sets aio_key to the req # */
+#else
+#error edit for your odd byteorder.
+#endif
+
+	/* common fields */
+	__u16	aio_lio_opcode;	/* see IOCB_CMD_ above */
+	__s16	aio_reqprio;
+	__u32	aio_fildes;
+
+	__u64	aio_buf;
+	__u64	aio_nbytes;
+	__s64	aio_offset;
+
+	/* extra parameters */
+	__u64	aio_reserved2;	/* TODO: use this for a (struct sigevent *) */
+
+	/* flags for the "struct iocb" */
+	__u32	aio_flags;
+
+	/*
+	 * if the IOCB_FLAG_RESFD flag of "aio_flags" is set, this is an
+	 * eventfd to signal AIO readiness to
+	 */
+	__u32	aio_resfd;
+}; /* 64 bytes */
+```
+
+另外对于设备，还有一个`ioctl`，用来控制设备的io等操作。因为linux将设备也抽象为文件，所以对设备的操作，最终会调用`vfs_ioctl`，调用`file->f_op->unlocked_ioctl`。
+
+
+### /proc伪文件系统
+
+/proc文件系统是基于内存的文件系统，方便用户空间访问内核数据结构，更改内核部分设置。
+
+/proc文件系统定义的最重要的结构体就是`proc_dir_entry`，可以用来描述目录、普通文件、符号链接。是proc文件系统的核心实现。
+
+```c
+/*
+ * This is not completely implemented yet. The idea is to
+ * create an in-memory tree (like the actual /proc filesystem
+ * tree) of these proc_dir_entries, so that we can dynamically
+ * add new files to /proc.
+ *
+ * parent/subdir are used for the directory structure (every /proc file has a
+ * parent, but "subdir" is empty for all non-directory entries).
+ * subdir_node is used to build the rb tree "subdir" of the parent.
+ */
+struct proc_dir_entry {
+	/*
+	 * number of callers into module in progress;
+	 * negative -> it's going away RSN
+	 */
+	atomic_t in_use;
+	refcount_t refcnt;
+	struct list_head pde_openers;	/* who did ->open, but not ->release */
+	/* protects ->pde_openers and all struct pde_opener instances */
+	spinlock_t pde_unload_lock;
+	struct completion *pde_unload_completion;
+    // inode操作，inode_operations定义了所有可能的操作函数指针，但根据需求，只需要赋值需要的部分为proc_iops
+	const struct inode_operations *proc_iops;
+	union {
+		const struct proc_ops *proc_ops;
+		const struct file_operations *proc_dir_ops;
+	};
+	const struct dentry_operations *proc_dops;
+	union {
+		const struct seq_operations *seq_ops;
+		int (*single_show)(struct seq_file *, void *);
+	};
+	proc_write_t write;
+	void *data;
+	unsigned int state_size;
+    // 文件的inode号
+	unsigned int low_ino;
+	nlink_t nlink;
+	kuid_t uid;
+	kgid_t gid;
+	loff_t size;
+	struct proc_dir_entry *parent;
+    // 子proc_dir_entry组成的红黑树
+	struct rb_root subdir;
+    // 在父节点的红黑树中
+	struct rb_node subdir_node;
+    // 名字
+	char *name;
+    // 访问权限控制
+	umode_t mode;
+	u8 flags;
+    // 名字长度
+	u8 namelen;
+	char inline_name[];
+} __randomize_layout;
+```
+
+proc的文件是内核创建的，用户空间只有查看，以及个别文件setattr的能力。
+
+因为proc文件系统内并没有存储真正的inode。所以访问时，VFS侧的inode也是根据访问创建并销毁。
+![proc_dir_entry.png](/images/book/linux-pic/proc_dir_entry.png)
 
 
 ## 个人代码实践
@@ -1693,7 +1839,7 @@ linux 并没有区分普通文件和目录。区别在于二者支持的操作�
 6. 硬链接禁止链接目录，其实说明了inode和dentry在访问上的底层逻辑区别。
 
 
-<!-- 阅读位置，电子书162/纸质书150页 -->
+<!-- 阅读位置，电子书166/纸质书154页 -->
 
 <!-- 但是 硬链接禁止链接目录 这个事情，感觉对inode和dentry的理解还不够透，在课后问题中补充一下吧 -->
 

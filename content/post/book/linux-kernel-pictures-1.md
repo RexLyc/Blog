@@ -1717,6 +1717,91 @@ proc的文件是内核创建的，用户空间只有查看，以及个别文件s
 因为proc文件系统内并没有存储真正的inode。所以访问时，VFS侧的inode也是根据访问创建并销毁。
 ![proc_dir_entry.png](/images/book/linux-pic/proc_dir_entry.png)
 
+proc文件列表
+
+| 文件 | 作用 |
+| --- | --- |
+| /proc/cmdline | 内核启动参数 |
+| /proc/interrupts | 系统各种中断信息 |
+| /proc/softirqs | 软中断信息 |
+| /proc/irq/\[num\] | 中断信息 |
+| /proc/filesystems | 支持的文件系统信息 |
+| /proc/mounts | 文件系统挂载信息 |
+| /proc/fs/\[fs_name\] | 文件系统信息 |
+| /proc/meminfo | 内存整体信息 |
+| /proc/zoneinfo | 内存zone信息 |
+| /proc/mtrr | 内存mtrr信息 |
+| /proc/\[num\] | 各进程信息 |
+
+### sysfs文件系统
+sysfs也是一个基于内存的文件系统，挂载于/sys路径。使用频率很高。sysfs将设备的层级结构反映到用户空间中，用户空间的程序可以读取文件来获取设备的信息和状态。
+
+和/dev的区别是，sysfs设计上就是面向文件的，读写文件就是操作，而且是可视化的文件内容，所见即所得。而/dev则是将设备抽象为文件，具体还是块设备或者字符设备，需要进一步借助ioctl，打开设备文件进行操作。两者在效率和易用性上各有优劣。
+
+![sysfs dev](/images/book/linux-pic/sysfs_dev.png)
+
+### kernfs
+较新的内核中提供kernfs模块，作为一个通用的模块。协助内核的各子系统实现对应的伪文件系统。sysfs、cgroup2文件系统都有使用。
+
+```c
+/*
+ * kernfs_node - the building block of kernfs hierarchy.  Each and every
+ * kernfs node is represented by single kernfs_node.  Most fields are
+ * private to kernfs and shouldn't be accessed directly by kernfs users.
+ *
+ * As long as count reference is held, the kernfs_node itself is
+ * accessible.  Dereferencing elem or any other outer entity requires
+ * active reference.
+ */
+struct kernfs_node {
+	atomic_t		count;
+	atomic_t		active;
+#ifdef CONFIG_DEBUG_LOCK_ALLOC
+	struct lockdep_map	dep_map;
+#endif
+	/*
+	 * Use kernfs_get_parent() and kernfs_name/path() instead of
+	 * accessing the following two fields directly.  If the node is
+	 * never moved to a different parent, it is safe to access the
+	 * parent directly.
+	 */
+	struct kernfs_node	*parent;
+	const char		*name;
+
+	struct rb_node		rb;
+
+	const void		*ns;	/* namespace tag */
+	unsigned int		hash;	/* ns + name hash */
+	union {
+		struct kernfs_elem_dir		dir;
+		struct kernfs_elem_symlink	symlink;
+		struct kernfs_elem_attr		attr;
+	};
+
+	void			*priv;
+
+	/*
+	 * 64bit unique ID.  On 64bit ino setups, id is the ino.  On 32bit,
+	 * the low 32bits are ino and upper generation.
+	 */
+	u64			id;
+
+	unsigned short		flags;
+	umode_t			mode;
+	struct kernfs_iattrs	*iattr;
+};
+
+```
+
+和其他文件系统一样，sysfs也要经历四个问题
+1. 挂载：mount操作由`kernfs_get_tree`实现
+2. 文件操作：由`kernfs_get_inode`调用`iget_locked`获取新的inode，再由`kernfs_init_inode`为其赋值。分为目录、文件、链接三种类型，操作也是受限的，用户空间不具备创建能力。
+3. 文件查找：由`kernfs_iop_lookup`查找，其中第一步调用`kernfs_find_ns`找到目标`kernfs_node`对象，第二步调用`kernfs_get_inode`创建文件（inode）。这其实也是各种基于内存的伪文件系统的通用做法。**inode不需要提前创建，访问到的时候创建出来就行**。在此之前，伪文件系统只需要存储所需的底层数据结构即可。kernfs的文件查找还使用了红黑树。和/proc类似，sysfs的层级结构实际上是靠kernfs_node维护的。
+4. I/O：后文展开
+
+#### kernfs其他数据结果
+
+
 
 ## 个人代码实践
 
@@ -1839,11 +1924,11 @@ proc的文件是内核创建的，用户空间只有查看，以及个别文件s
 6. 硬链接禁止链接目录，其实说明了inode和dentry在访问上的底层逻辑区别。
 
 
-<!-- 阅读位置，电子书166/纸质书154页 -->
+<!-- 阅读位置，电子书170/纸质书158页 -->
 
 <!-- 但是 硬链接禁止链接目录 这个事情，感觉对inode和dentry的理解还不够透，在课后问题中补充一下吧 -->
 
-<!-- 可从https://fliphtml5.com/ytimv/nlep/%E5%9B%BE%E8%A7%A3Linux%E5%86%85%E6%A0%B8%EF%BC%88%E5%9F%BA%E4%BA%8E6.x%EF%BC%89_%28%E5%A7%9C%E4%BA%9A%E5%8D%8E%29_%28Z-Library%29/147/  在线阅读 -->
+<!-- 可从https://fliphtml5.com/ytimv/nlep/%E5%9B%BE%E8%A7%A3Linux%E5%86%85%E6%A0%B8%EF%BC%88%E5%9F%BA%E4%BA%8E6.x%EF%BC%89_%28%E5%A7%9C%E4%BA%9A%E5%8D%8E%29_%28Z-Library%29/166/  在线阅读 -->
 
 <!-- https://elixir.bootlin.com/linux/v5.0/source/Documentation/x86/x86_64/mm.txt -->
 

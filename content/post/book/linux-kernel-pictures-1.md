@@ -25,6 +25,8 @@ math: true
 
 > 本页为上半部分，包括内存和文件系统
 
+> 另外学习过程中也发现了一些值得推荐的文档、博客：[Linux系统内核5.10.14-Linux内核教学](https://linux-kernel-labs-zh.xyz/index.html)
+
 ## 概述和基础知识
 1. 内核代码结构：
     - Documentation：文档
@@ -1734,6 +1736,8 @@ proc文件列表
 | /proc/\[num\] | 各进程信息 |
 
 ### sysfs文件系统
+> 本书在讲解sysfs时，只是侧重了作为文件系统的一些设计。并没有深入讲解Linux的设备模型等。对于相关内容可以自行阅读其他教材。
+
 sysfs也是一个基于内存的文件系统，挂载于/sys路径。使用频率很高。sysfs将设备的层级结构反映到用户空间中，用户空间的程序可以读取文件来获取设备的信息和状态。
 
 和/dev的区别是，sysfs设计上就是面向文件的，读写文件就是操作，而且是可视化的文件内容，所见即所得。而/dev则是将设备抽象为文件，具体还是块设备或者字符设备，需要进一步借助ioctl，打开设备文件进行操作。两者在效率和易用性上各有优劣。
@@ -1799,13 +1803,81 @@ struct kernfs_node {
 3. 文件查找：由`kernfs_iop_lookup`查找，其中第一步调用`kernfs_find_ns`找到目标`kernfs_node`对象，第二步调用`kernfs_get_inode`创建文件（inode）。这其实也是各种基于内存的伪文件系统的通用做法。**inode不需要提前创建，访问到的时候创建出来就行**。在此之前，伪文件系统只需要存储所需的底层数据结构即可。kernfs的文件查找还使用了红黑树。和/proc类似，sysfs的层级结构实际上是靠kernfs_node维护的。
 4. I/O：后文展开
 
-#### kernfs其他数据结果
+#### kernfs其他数据结构
+虽然knernfs_node是核心的数据结构，但kernfs为了其他模块使用起来更方便，还定义了几个辅助结构`kobject`、`kset`、`attribute`、`bin_attribute`。这几种辅助结构实际上仍然是直接或者间接关联着对应的`kernfs_node`。kernfs表现上更像是一个内核中很便于使用的依赖库。
 
+kobject 对应kernfs的目录
+```c
+struct kobject {
+	const char		*name;
+    // 将kobject连接到所属的kset
+	struct list_head	entry;
+	struct kobject		*parent;
+	struct kset		*kset;
+	const struct kobj_type	*ktype;
+	struct kernfs_node	*sd; /* sysfs directory entry */
+    // 引用计数
+	struct kref		kref;
+#ifdef CONFIG_DEBUG_KOBJECT_RELEASE
+	struct delayed_work	release;
+#endif
+	unsigned int state_initialized:1;
+	unsigned int state_in_sysfs:1;
+	unsigned int state_add_uevent_sent:1;
+	unsigned int state_remove_uevent_sent:1;
+	unsigned int uevent_suppress:1;
+};
+```
+
+kset 是一组目录，用list组织了一系列kobject，并且本身也携带一个kobject，以目录形式存在。
+```c
+/**
+ * struct kset - a set of kobjects of a specific type, belonging to a specific subsystem.
+ *
+ * A kset defines a group of kobjects.  They can be individually
+ * different "types" but overall these kobjects all want to be grouped
+ * together and operated on in the same manner.  ksets are used to
+ * define the attribute callbacks and other common events that happen to
+ * a kobject.
+ *
+ * @list: the list of all kobjects for this kset
+ * @list_lock: a lock for iterating over the kobjects
+ * @kobj: the embedded kobject for this kset (recursion, isn't it fun...)
+ * @uevent_ops: the set of uevent operations for this kset.  These are
+ * called whenever a kobject has something happen to it so that the kset
+ * can add new environment variables, or filter out the uevents if so
+ * desired.
+ */
+struct kset {
+	struct list_head list;
+	spinlock_t list_lock;
+	struct kobject kobj;
+	const struct kset_uevent_ops *uevent_ops;
+} __randomize_layout;
+```
+
+attribute和bin_attribute则分别对应可视化、二进制格式的syssf中的普通文件
+
+通过这些数据结构，其他内核模块可以更方便的使用kernfs来使用sysfs。
+
+#### 操作
+> 在进一步了解sysfs之前，有必要学习一下Linux 设备驱动模型 （Linux Device Driver，LDD）。推荐参考[Linux设备模型](https://linux-kernel-labs-zh.xyz/labs/device_model.html)。
+
+sysfs部分文件函数
+| 函数 | 效果 |
+| --- | --- |
+| kset_create_and_add | 在parent目录下创建目录 |
+| kset_register/unregister | 注册、回收kset |
+| kobject_create_and_add | 在parent目录下创建目录 |
+| kobject_init/_add | 在parent目录下创建资源 |
+| sysfs_create_file | 在kobject目录下创建文件 |
+| sysfs_create_bin_file | 创建bin文件 |
 
 
 ## 个人代码实践
 
-1. 编写ko，打印指定路径文件的inode。【运行环境，ubuntu 24.04】
+1. 【TODO】找一个内存部分章节适合的作业内容
+2. 编写ko，打印指定路径文件的inode。【运行环境，ubuntu 24.04】
     ```c
     // 本段代码使用AI生成
 
@@ -1907,7 +1979,8 @@ struct kernfs_node {
     dmesg:
         dmesg | tail -20
     ```
-2. 
+3. 【TODO】实现一个自定义文件系统
+4. 
 
 
 ## 课后问题
@@ -1924,11 +1997,11 @@ struct kernfs_node {
 6. 硬链接禁止链接目录，其实说明了inode和dentry在访问上的底层逻辑区别。
 
 
-<!-- 阅读位置，电子书170/纸质书158页 -->
+<!-- 阅读位置，电子书172/纸质书160页 -->
 
 <!-- 但是 硬链接禁止链接目录 这个事情，感觉对inode和dentry的理解还不够透，在课后问题中补充一下吧 -->
 
-<!-- 可从https://fliphtml5.com/ytimv/nlep/%E5%9B%BE%E8%A7%A3Linux%E5%86%85%E6%A0%B8%EF%BC%88%E5%9F%BA%E4%BA%8E6.x%EF%BC%89_%28%E5%A7%9C%E4%BA%9A%E5%8D%8E%29_%28Z-Library%29/166/  在线阅读 -->
+<!-- 可从https://fliphtml5.com/ytimv/nlep/%E5%9B%BE%E8%A7%A3Linux%E5%86%85%E6%A0%B8%EF%BC%88%E5%9F%BA%E4%BA%8E6.x%EF%BC%89_%28%E5%A7%9C%E4%BA%9A%E5%8D%8E%29_%28Z-Library%29/171/  在线阅读 -->
 
 <!-- https://elixir.bootlin.com/linux/v5.0/source/Documentation/x86/x86_64/mm.txt -->
 

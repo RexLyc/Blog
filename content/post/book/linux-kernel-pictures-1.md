@@ -1740,7 +1740,21 @@ proc文件列表
 
 sysfs也是一个基于内存的文件系统，挂载于/sys路径。使用频率很高。sysfs将设备的层级结构反映到用户空间中，用户空间的程序可以读取文件来获取设备的信息和状态。
 
-和/dev的区别是，sysfs设计上就是面向文件的，读写文件就是操作，而且是可视化的文件内容，所见即所得。而/dev则是将设备抽象为文件，具体还是块设备或者字符设备，需要进一步借助ioctl，打开设备文件进行操作。两者在效率和易用性上各有优劣。
+**注意**：sysfs的功能和/dev的区别是，sysfs是将设备的设备模型下的各类信息暴露到用户空间，设计上就是面向文件的，读写文件就是操作，而且是可视化的文件内容，所见即所得。而/dev则是在sysfs建立后，响应内核的uevent，去sysfs下读取属性，并将设备抽象为文件，具体分为块设备或者字符设备，可以进一步借助ioctl，打开设备文件进行操作。两者是上下游协同关系，并且在使用效率和易用性上各有优劣。
+
+sysfs一般具有的子目录及其作用
+| 子目录 | 作用 |
+| --- | --- |
+| block | 块设备 |
+| bus | 总线 |
+| class | 驱动程序类别 |
+| devices | 设备，按层级结构 |
+| firmware | 系统固件 |
+| fs | 挂载的文件系统信息 |
+| kernel | 内核状态 |
+| module | 加载的模块 |
+| power | 电源管理 |
+
 
 ![sysfs dev](/images/book/linux-pic/sysfs_dev.png)
 
@@ -1861,7 +1875,7 @@ attribute和bin_attribute则分别对应可视化、二进制格式的syssf中�
 通过这些数据结构，其他内核模块可以更方便的使用kernfs来使用sysfs。
 
 #### 操作
-> 在进一步了解sysfs之前，有必要学习一下Linux 设备驱动模型 （Linux Device Driver，LDD）。推荐参考[Linux设备模型](https://linux-kernel-labs-zh.xyz/labs/device_model.html)。
+> 在了解sysfs之前，其实有必要学习一下Linux 设备驱动模型 （Linux Device Driver，LDD）。推荐参考[Linux设备模型](https://linux-kernel-labs-zh.xyz/labs/device_model.html)。对这部分的简单拓展，放到后面的[附录章节](### Linux设备驱动模型简介)
 
 sysfs部分文件函数
 | 函数 | 效果 |
@@ -1872,6 +1886,63 @@ sysfs部分文件函数
 | kobject_init/_add | 在parent目录下创建资源 |
 | sysfs_create_file | 在kobject目录下创建文件 |
 | sysfs_create_bin_file | 创建bin文件 |
+
+kernfs_ops是sysfs的文件所支持的操作，根据文件类型不同，支持的操作略有区别。包括open、read、write、mmap等。
+
+用户通过自定义attribute，可以自定义自己的设备所支持的操作。仍然要理解，sysfs和LDD之间的紧密配合。
+
+实际上从device_attribute可以看出来，sysfs中文件，主要就是读写的功能。并且专门命名为show和store。open和close的功能，由kernfs内部完成，用户不需要关心。设备程序只需要处理自己的属性如何展示、如何写入即可。
+
+```c
+/* interface for exporting device attributes */
+// 注意这里是show 和 store
+struct device_attribute {
+	struct attribute	attr;
+	ssize_t (*show)(struct device *dev, struct device_attribute *attr,
+			char *buf);
+	ssize_t (*store)(struct device *dev, struct device_attribute *attr,
+			 const char *buf, size_t count);
+};
+```
+
+kernfs在创建attribute对应时，绑定相关操作`kernfs_dir/file/symlink_fops`
+```c
+static void kernfs_init_inode(struct kernfs_node *kn, struct inode *inode)
+{
+	kernfs_get(kn);
+	inode->i_private = kn;
+	inode->i_mapping->a_ops = &ram_aops;
+	inode->i_op = &kernfs_iops;
+	inode->i_generation = kernfs_gen(kn);
+
+	set_default_inode_attr(inode, kn->mode);
+	kernfs_refresh_inode(kn, inode);
+
+	/* initialize inode according to type */
+	switch (kernfs_type(kn)) {
+	case KERNFS_DIR:
+		inode->i_op = &kernfs_dir_iops;
+		inode->i_fop = &kernfs_dir_fops;
+		if (kn->flags & KERNFS_EMPTY_DIR)
+			make_empty_dir_inode(inode);
+		break;
+	case KERNFS_FILE:
+		inode->i_size = kn->attr.size;
+		inode->i_fop = &kernfs_file_fops;
+		break;
+	case KERNFS_LINK:
+		inode->i_op = &kernfs_symlink_iops;
+		break;
+	default:
+		BUG();
+	}
+
+	unlock_new_inode(inode);
+}
+```
+
+### ext4
+> ext4内容非常庞大，此书以及本文只讲解其关键原理部分。
 
 
 ## 个人代码实践
@@ -1980,7 +2051,417 @@ sysfs部分文件函数
         dmesg | tail -20
     ```
 3. 【TODO】实现一个自定义文件系统
-4. 
+4. 【TODO】实现一个自定义设备的驱动，并支持sysfs、udev子系统
+5. 
+
+
+## 附录
+### 其他内核代码工具
+1. `EXPORT_SYMBOL`：将符号导出为内核全局符号，供其他模块使用
+
+### Linux设备驱动模型简介
+先思考一下，一个支持即插即用的设备模型需要具备的功能：
+1. 自动检测系统中添加和移除的设备
+2. 资源管理，解决不同设备资源间的冲突
+3. 支持对设备进行软件配置
+4. 需要时可以自动加载新设备所需的驱动程序
+5. 需要时可以进行热插拔
+
+在这些需求下，要求BIOS、操作系统、设备都具备相应的支持能力
+
+内核则使用不同的对象来描述一些实体：
+1. device：连接到某种总线的设备
+2. driver：驱动程序
+3. bus：总线，一种用于连接其他设备的设备
+4. class：设备的类别，用于分类描述不同行为
+5. subsystem：子系统
+
+设备驱动模型就是基于前面讲述的kobject来构建层级的。通常kobject被作为成员来整合到设备相关的更大的结构之中。下面摘抄几个经典数据结构。
+
+各种类型的注册和取消注册基本都是：`xxx_register()`、`xxx_unregister()`。
+
+内核&驱动在发现设备之后，需要执行注册设备，创建kobject，创建sysfs的工作，并发出相关的uevent。
+
+基本的设备类型
+```c
+/**
+ * struct device - The basic device structure
+ * @parent:	The device's "parent" device, the device to which it is attached.
+ * 		In most cases, a parent device is some sort of bus or host
+ * 		controller. If parent is NULL, the device, is a top-level device,
+ * 		which is not usually what you want.
+ * @p:		Holds the private data of the driver core portions of the device.
+ * 		See the comment of the struct device_private for detail.
+ * @kobj:	A top-level, abstract class from which other classes are derived.
+ * @init_name:	Initial name of the device.
+ * @type:	The type of device.
+ * 		This identifies the device type and carries type-specific
+ * 		information.
+ * @mutex:	Mutex to synchronize calls to its driver.
+ * @bus:	Type of bus device is on.
+ * @driver:	Which driver has allocated this
+ * @platform_data: Platform data specific to the device.
+ * 		Example: For devices on custom boards, as typical of embedded
+ * 		and SOC based hardware, Linux often uses platform_data to point
+ * 		to board-specific structures describing devices and how they
+ * 		are wired.  That can include what ports are available, chip
+ * 		variants, which GPIO pins act in what additional roles, and so
+ * 		on.  This shrinks the "Board Support Packages" (BSPs) and
+ * 		minimizes board-specific #ifdefs in drivers.
+ * @driver_data: Private pointer for driver specific info.
+ * @links:	Links to suppliers and consumers of this device.
+ * @power:	For device power management.
+ *		See Documentation/driver-api/pm/devices.rst for details.
+ * @pm_domain:	Provide callbacks that are executed during system suspend,
+ * 		hibernation, system resume and during runtime PM transitions
+ * 		along with subsystem-level and driver-level callbacks.
+ * @em_pd:	device's energy model performance domain
+ * @pins:	For device pin management.
+ *		See Documentation/driver-api/pin-control.rst for details.
+ * @msi:	MSI related data
+ * @numa_node:	NUMA node this device is close to.
+ * @dma_ops:    DMA mapping operations for this device.
+ * @dma_mask:	Dma mask (if dma'ble device).
+ * @coherent_dma_mask: Like dma_mask, but for alloc_coherent mapping as not all
+ * 		hardware supports 64-bit addresses for consistent allocations
+ * 		such descriptors.
+ * @bus_dma_limit: Limit of an upstream bridge or bus which imposes a smaller
+ *		DMA limit than the device itself supports.
+ * @dma_range_map: map for DMA memory ranges relative to that of RAM
+ * @dma_parms:	A low level driver may set these to teach IOMMU code about
+ * 		segment limitations.
+ * @dma_pools:	Dma pools (if dma'ble device).
+ * @dma_mem:	Internal for coherent mem override.
+ * @cma_area:	Contiguous memory area for dma allocations
+ * @dma_io_tlb_mem: Pointer to the swiotlb pool used.  Not for driver use.
+ * @archdata:	For arch-specific additions.
+ * @of_node:	Associated device tree node.
+ * @fwnode:	Associated device node supplied by platform firmware.
+ * @devt:	For creating the sysfs "dev".
+ * @id:		device instance
+ * @devres_lock: Spinlock to protect the resource of the device.
+ * @devres_head: The resources list of the device.
+ * @knode_class: The node used to add the device to the class list.
+ * @class:	The class of the device.
+ * @groups:	Optional attribute groups.
+ * @release:	Callback to free the device after all references have
+ * 		gone away. This should be set by the allocator of the
+ * 		device (i.e. the bus driver that discovered the device).
+ * @iommu_group: IOMMU group the device belongs to.
+ * @iommu:	Per device generic IOMMU runtime data
+ * @physical_location: Describes physical location of the device connection
+ *		point in the system housing.
+ * @removable:  Whether the device can be removed from the system. This
+ *              should be set by the subsystem / bus driver that discovered
+ *              the device.
+ *
+ * @offline_disabled: If set, the device is permanently online.
+ * @offline:	Set after successful invocation of bus type's .offline().
+ * @of_node_reused: Set if the device-tree node is shared with an ancestor
+ *              device.
+ * @state_synced: The hardware state of this device has been synced to match
+ *		  the software state of this device by calling the driver/bus
+ *		  sync_state() callback.
+ * @can_match:	The device has matched with a driver at least once or it is in
+ *		a bus (like AMBA) which can't check for matching drivers until
+ *		other devices probe successfully.
+ * @dma_coherent: this particular device is dma coherent, even if the
+ *		architecture supports non-coherent devices.
+ * @dma_ops_bypass: If set to %true then the dma_ops are bypassed for the
+ *		streaming DMA operations (->map_* / ->unmap_* / ->sync_*),
+ *		and optionall (if the coherent mask is large enough) also
+ *		for dma allocations.  This flag is managed by the dma ops
+ *		instance from ->dma_supported.
+ *
+ * At the lowest level, every device in a Linux system is represented by an
+ * instance of struct device. The device structure contains the information
+ * that the device model core needs to model the system. Most subsystems,
+ * however, track additional information about the devices they host. As a
+ * result, it is rare for devices to be represented by bare device structures;
+ * instead, that structure, like kobject structures, is usually embedded within
+ * a higher-level representation of the device.
+ */
+struct device {
+	struct kobject kobj;
+	struct device		*parent;
+
+	struct device_private	*p;
+
+	const char		*init_name; /* initial name of the device */
+	const struct device_type *type;
+
+	struct bus_type	*bus;		/* type of bus device is on */
+	struct device_driver *driver;	/* which driver has allocated this
+					   device */
+	void		*platform_data;	/* Platform specific data, device
+					   core doesn't touch it */
+	void		*driver_data;	/* Driver data, set and get with
+					   dev_set_drvdata/dev_get_drvdata */
+	struct mutex		mutex;	/* mutex to synchronize calls to
+					 * its driver.
+					 */
+
+	struct dev_links_info	links;
+	struct dev_pm_info	power;
+	struct dev_pm_domain	*pm_domain;
+
+#ifdef CONFIG_ENERGY_MODEL
+	struct em_perf_domain	*em_pd;
+#endif
+
+#ifdef CONFIG_PINCTRL
+	struct dev_pin_info	*pins;
+#endif
+	struct dev_msi_info	msi;
+#ifdef CONFIG_DMA_OPS
+	const struct dma_map_ops *dma_ops;
+#endif
+	u64		*dma_mask;	/* dma mask (if dma'able device) */
+	u64		coherent_dma_mask;/* Like dma_mask, but for
+					     alloc_coherent mappings as
+					     not all hardware supports
+					     64 bit addresses for consistent
+					     allocations such descriptors. */
+	u64		bus_dma_limit;	/* upstream dma constraint */
+	const struct bus_dma_region *dma_range_map;
+
+	struct device_dma_parameters *dma_parms;
+
+	struct list_head	dma_pools;	/* dma pools (if dma'ble) */
+
+#ifdef CONFIG_DMA_DECLARE_COHERENT
+	struct dma_coherent_mem	*dma_mem; /* internal for coherent mem
+					     override */
+#endif
+#ifdef CONFIG_DMA_CMA
+	struct cma *cma_area;		/* contiguous memory area for dma
+					   allocations */
+#endif
+#ifdef CONFIG_SWIOTLB
+	struct io_tlb_mem *dma_io_tlb_mem;
+#endif
+	/* arch specific additions */
+	struct dev_archdata	archdata;
+
+	struct device_node	*of_node; /* associated device tree node */
+	struct fwnode_handle	*fwnode; /* firmware device node */
+
+#ifdef CONFIG_NUMA
+	int		numa_node;	/* NUMA node this device is close to */
+#endif
+	dev_t			devt;	/* dev_t, creates the sysfs "dev" */
+	u32			id;	/* device instance */
+
+	spinlock_t		devres_lock;
+	struct list_head	devres_head;
+
+	struct class		*class;
+	const struct attribute_group **groups;	/* optional groups */
+
+    // 设备计数器达到0时将会调用
+	void	(*release)(struct device *dev);
+	struct iommu_group	*iommu_group;
+	struct dev_iommu	*iommu;
+
+	struct device_physical_location *physical_location;
+
+	enum device_removable	removable;
+
+	bool			offline_disabled:1;
+	bool			offline:1;
+	bool			of_node_reused:1;
+	bool			state_synced:1;
+	bool			can_match:1;
+#if defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_DEVICE) || \
+    defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU) || \
+    defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU_ALL)
+	bool			dma_coherent:1;
+#endif
+#ifdef CONFIG_DMA_OPS_BYPASS
+	bool			dma_ops_bypass : 1;
+#endif
+};
+```
+
+总线类型
+```c
+/**
+ * struct bus_type - The bus type of the device
+ *
+ * @name:	The name of the bus.
+ * @dev_name:	Used for subsystems to enumerate devices like ("foo%u", dev->id).
+ * @dev_root:	Default device to use as the parent.
+ * @bus_groups:	Default attributes of the bus.
+ * @dev_groups:	Default attributes of the devices on the bus.
+ * @drv_groups: Default attributes of the device drivers on the bus.
+ * @match:	Called, perhaps multiple times, whenever a new device or driver
+ *		is added for this bus. It should return a positive value if the
+ *		given device can be handled by the given driver and zero
+ *		otherwise. It may also return error code if determining that
+ *		the driver supports the device is not possible. In case of
+ *		-EPROBE_DEFER it will queue the device for deferred probing.
+ * @uevent:	Called when a device is added, removed, or a few other things
+ *		that generate uevents to add the environment variables.
+ * @probe:	Called when a new device or driver add to this bus, and callback
+ *		the specific driver's probe to initial the matched device.
+ * @sync_state:	Called to sync device state to software state after all the
+ *		state tracking consumers linked to this device (present at
+ *		the time of late_initcall) have successfully bound to a
+ *		driver. If the device has no consumers, this function will
+ *		be called at late_initcall_sync level. If the device has
+ *		consumers that are never bound to a driver, this function
+ *		will never get called until they do.
+ * @remove:	Called when a device removed from this bus.
+ * @shutdown:	Called at shut-down time to quiesce the device.
+ *
+ * @online:	Called to put the device back online (after offlining it).
+ * @offline:	Called to put the device offline for hot-removal. May fail.
+ *
+ * @suspend:	Called when a device on this bus wants to go to sleep mode.
+ * @resume:	Called to bring a device on this bus out of sleep mode.
+ * @num_vf:	Called to find out how many virtual functions a device on this
+ *		bus supports.
+ * @dma_configure:	Called to setup DMA configuration on a device on
+ *			this bus.
+ * @dma_cleanup:	Called to cleanup DMA configuration on a device on
+ *			this bus.
+ * @pm:		Power management operations of this bus, callback the specific
+ *		device driver's pm-ops.
+ * @iommu_ops:  IOMMU specific operations for this bus, used to attach IOMMU
+ *              driver implementations to a bus and allow the driver to do
+ *              bus-specific setup
+ * @p:		The private data of the driver core, only the driver core can
+ *		touch this.
+ * @lock_key:	Lock class key for use by the lock validator
+ * @need_parent_lock:	When probing or removing a device on this bus, the
+ *			device core should lock the device's parent.
+ *
+ * A bus is a channel between the processor and one or more devices. For the
+ * purposes of the device model, all devices are connected via a bus, even if
+ * it is an internal, virtual, "platform" bus. Buses can plug into each other.
+ * A USB controller is usually a PCI device, for example. The device model
+ * represents the actual connections between buses and the devices they control.
+ * A bus is represented by the bus_type structure. It contains the name, the
+ * default attributes, the bus' methods, PM operations, and the driver core's
+ * private data.
+ */
+struct bus_type {
+	const char		*name;
+	const char		*dev_name;
+	struct device		*dev_root;
+	const struct attribute_group **bus_groups;
+	const struct attribute_group **dev_groups;
+	const struct attribute_group **drv_groups;
+
+    // 向bus添加新设备、新驱动程序
+	int (*match)(struct device *dev, struct device_driver *drv);
+    // 热插拔事件，用于热插拔设备，旧版为hotplug函数。
+	int (*uevent)(struct device *dev, struct kobj_uevent_env *env);
+	int (*probe)(struct device *dev);
+	void (*sync_state)(struct device *dev);
+	void (*remove)(struct device *dev);
+	void (*shutdown)(struct device *dev);
+
+	int (*online)(struct device *dev);
+	int (*offline)(struct device *dev);
+
+	int (*suspend)(struct device *dev, pm_message_t state);
+	int (*resume)(struct device *dev);
+
+	int (*num_vf)(struct device *dev);
+
+	int (*dma_configure)(struct device *dev);
+	void (*dma_cleanup)(struct device *dev);
+
+	const struct dev_pm_ops *pm;
+
+	const struct iommu_ops *iommu_ops;
+
+    // 总线上的其他操作、属性，都封装到驱动程序的私有数据中
+	struct subsys_private *p;
+	struct lock_class_key lock_key;
+
+	bool need_parent_lock;
+};
+```
+
+设备驱动程序
+```c
+/**
+ * struct device_driver - The basic device driver structure
+ * @name:	Name of the device driver.
+ * @bus:	The bus which the device of this driver belongs to.
+ * @owner:	The module owner.
+ * @mod_name:	Used for built-in modules.
+ * @suppress_bind_attrs: Disables bind/unbind via sysfs.
+ * @probe_type:	Type of the probe (synchronous or asynchronous) to use.
+ * @of_match_table: The open firmware table.
+ * @acpi_match_table: The ACPI match table.
+ * @probe:	Called to query the existence of a specific device,
+ *		whether this driver can work with it, and bind the driver
+ *		to a specific device.
+ * @sync_state:	Called to sync device state to software state after all the
+ *		state tracking consumers linked to this device (present at
+ *		the time of late_initcall) have successfully bound to a
+ *		driver. If the device has no consumers, this function will
+ *		be called at late_initcall_sync level. If the device has
+ *		consumers that are never bound to a driver, this function
+ *		will never get called until they do.
+ * @remove:	Called when the device is removed from the system to
+ *		unbind a device from this driver.
+ * @shutdown:	Called at shut-down time to quiesce the device.
+ * @suspend:	Called to put the device to sleep mode. Usually to a
+ *		low power state.
+ * @resume:	Called to bring a device from sleep mode.
+ * @groups:	Default attributes that get created by the driver core
+ *		automatically.
+ * @dev_groups:	Additional attributes attached to device instance once
+ *		it is bound to the driver.
+ * @pm:		Power management operations of the device which matched
+ *		this driver.
+ * @coredump:	Called when sysfs entry is written to. The device driver
+ *		is expected to call the dev_coredump API resulting in a
+ *		uevent.
+ * @p:		Driver core's private data, no one other than the driver
+ *		core can touch this.
+ *
+ * The device driver-model tracks all of the drivers known to the system.
+ * The main reason for this tracking is to enable the driver core to match
+ * up drivers with new devices. Once drivers are known objects within the
+ * system, however, a number of other things become possible. Device drivers
+ * can export information and configuration variables that are independent
+ * of any specific device.
+ */
+struct device_driver {
+	const char		*name;
+	struct bus_type		*bus;
+
+	struct module		*owner;
+	const char		*mod_name;	/* used for built-in modules */
+
+	bool suppress_bind_attrs;	/* disables bind/unbind via sysfs */
+	enum probe_type probe_type;
+
+	const struct of_device_id	*of_match_table;
+	const struct acpi_device_id	*acpi_match_table;
+
+	int (*probe) (struct device *dev);
+	void (*sync_state)(struct device *dev);
+	int (*remove) (struct device *dev);
+	void (*shutdown) (struct device *dev);
+	int (*suspend) (struct device *dev, pm_message_t state);
+	int (*resume) (struct device *dev);
+	const struct attribute_group **groups;
+	const struct attribute_group **dev_groups;
+
+	const struct dev_pm_ops *pm;
+	void (*coredump) (struct device *dev);
+
+	struct driver_private *p;
+};
+```
+
+
 
 
 ## 课后问题
@@ -1995,9 +2476,13 @@ sysfs部分文件函数
 4. 缺页异常的信息由CPU提供，但是映射是MMU负责，CPU是如何知道这些信息的呢？
 5. vma结构是区间树，不同vma的线性空间完全不同，这个区间是针对什么进行划分的呢？
 6. 硬链接禁止链接目录，其实说明了inode和dentry在访问上的底层逻辑区别。
+7. 设备驱动模型、udev、kernfs之箭的的关系。插入设备是先有kobject，还是/dev下的文件，还是先有struct device对应的内容？
+    1. 最先发生的是内核内部的结构创建：当设备被驱动探测到（例如，PCI 设备枚举、USB 设备插入），内核驱动代码会首先创建 struct device 和 kobject。
+    2. 然后是 kernfs 节点的创建：kobject 的注册会触发 kernfs 在 /sys 文件系统中创建对应的目录和属性文件。
+    3. 最后才是 /dev 下的设备文件：内核通过 netlink 发送 uevent，udev 收到后才在 /dev 下创建设备文件。
 
 
-<!-- 阅读位置，电子书172/纸质书160页 -->
+<!-- 阅读位置，电子书174/纸质书162页 -->
 
 <!-- 但是 硬链接禁止链接目录 这个事情，感觉对inode和dentry的理解还不够透，在课后问题中补充一下吧 -->
 

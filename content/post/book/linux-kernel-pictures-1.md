@@ -1738,6 +1738,8 @@ proc文件列表
 ### sysfs文件系统
 > 本书在讲解sysfs时，只是侧重了作为文件系统的一些设计。并没有深入讲解Linux的设备模型等。对于相关内容可以自行阅读其他教材。
 
+![alt text](/images/book/linux-pic/sysfs-driver.png)
+
 sysfs也是一个基于内存的文件系统，挂载于/sys路径。使用频率很高。sysfs将设备的层级结构反映到用户空间中，用户空间的程序可以读取文件来获取设备的信息和状态。
 
 **注意**：sysfs的功能和/dev的区别是，sysfs是将设备的设备模型下的各类信息暴露到用户空间，设计上就是面向文件的，读写文件就是操作，而且是可视化的文件内容，所见即所得。而/dev则是在sysfs建立后，响应内核的uevent，去sysfs下读取属性，并将设备抽象为文件，具体分为块设备或者字符设备，可以进一步借助ioctl，打开设备文件进行操作。两者是上下游协同关系，并且在使用效率和易用性上各有优劣。
@@ -2486,7 +2488,7 @@ struct device_driver {
 
 <!-- 但是 硬链接禁止链接目录 这个事情，感觉对inode和dentry的理解还不够透，在课后问题中补充一下吧 -->
 
-<!-- 可从https://fliphtml5.com/ytimv/nlep/%E5%9B%BE%E8%A7%A3Linux%E5%86%85%E6%A0%B8%EF%BC%88%E5%9F%BA%E4%BA%8E6.x%EF%BC%89_%28%E5%A7%9C%E4%BA%9A%E5%8D%8E%29_%28Z-Library%29/171/  在线阅读 -->
+<!-- 可从https://fliphtml5.com/ytimv/nlep/%E5%9B%BE%E8%A7%A3Linux%E5%86%85%E6%A0%B8%EF%BC%88%E5%9F%BA%E4%BA%8E6.x%EF%BC%89_%28%E5%A7%9C%E4%BA%9A%E5%8D%8E%29_%28Z-Library%29/174/  在线阅读 -->
 
 <!-- https://elixir.bootlin.com/linux/v5.0/source/Documentation/x86/x86_64/mm.txt -->
 

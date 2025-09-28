@@ -1946,6 +1946,56 @@ static void kernfs_init_inode(struct kernfs_node *kn, struct inode *inode)
 ### ext4
 > ext4内容非常庞大，此书以及本文只讲解其关键原理部分。
 
+ext4核心其实并不是代码，而是ext4的原理和物理布局。一个格式化为ext4的磁盘就已经构成了一个ext4文件系统，无论是否被插在主板上，就是说其信息是完整的。ext4格式下，磁盘中的数据可以分为两部分：
+1. 文件内容
+2. metadata，元数据
+
+ext4用block（块）作为单位来组织磁盘。一般是4KB。为了减少碎片，使同一个文件的内容可以落在相邻的块中以便提高访问效率，ext4使用了block group。一个group包含多个block，其中有一个block是专门用来存放group中各个block的使用情况。也就是bitmap的方式，1是使用，0是未使用。此时，一个group的最大大小为4K
+\*4K\*8=128MB.
+
+ext4整体上的布局如下图所示
+
+![alt text](/images/book/linux-pic/ext4-layout.png)
+
+其中，首个group的特殊结构：
+1. GROUP 0 Padding：是第一个block group特有的，前1024字节，可以用于存放x86的启动信息。其他group不会有padding
+2. EXT4 SUPER BLOCK：包含整个磁盘文件系统的信息，因为前面提到的padding，这个block从1024字节开始。
+3. GROUP DESCRIPTORS：包含所有block group的信息，占用的block数目由磁盘的大小决定。
+    > 为了防止super block和group descriptor坏掉，后续的一些block group内，根据配置可以将这部分数据进行多次拷贝。
+4. RESERVED GDT BLOCKS：留作未来扩展文件系统，也用多个block
+
+如果没有ext4 super block和group descriptors。一个block group将从data block bitmap开始。如下所示
+
+![alt text](/images/book/linux-pic/ext4-other-group.png)
+
+1. DATA BLOCK BITMAP：就是刚才说的用于记录block使用情况的bitmap
+2. INODE BITMAP：和前者类似，但是描述的是inode的使用情况
+3. INODE TABLE：描述block group内所有的inode的信息。占用大小等于group中inode数目*inode的大小。**这里的inode，是文件在磁盘中的元信息，并不直接对应文件系统内存中的inode**
+4. DATA BLOCKS：存放文件内容
+
+ext4特性较多，有几个可能常见的特性
+1. ext4有一个特性：flexible block group。将几个相邻的block group再组成一组，称为flex_bg。一个flex_bg中的所有group的DATA BLOCK BITMAP、INODE BITMAP和INODE TABLE均存放在第一个block group中。这样就可以让大多数后续block group都只包含DATA BLOCKS。当然还有一些可能会因为配置原因，保存冗余的ext4 super block和group descriptor。
+2. Meta Block Groups：其实从前面的定义可以计算，由于group descriptor只能在一个group中存储完整。即使一个block group的descriptor为32字节，那粗略估计，ext4支持的最大磁盘也只能是128MB / 32b * 128MB = 512TB。引入meta_bg，整个文件系统可以被分为多个metablock groups。每一个metablock group包含多个block group，descriptor分别在各自的第一个block group中。磁盘总大小可以扩展更大。
+3. lazy block group initialization：快速初始化。格式化磁盘，没必要将所有的BITMAP、INODE BITMAP、INODE TABLE都初始化完成。只设置标记位即可。
+4. bigalloc：block默认大小4KB。格式化的时候，可以设置默认大小（Block Cluster Size），此后就是以用户设置的大小为单位。
+
+> 单个文件的大小上限如何解决？似乎也存在flexible_bg的限制？【TODO】
+
+> 可以使用`dumpe2fs`命令，来查看文件系统的各种元信息，每个block group的信息。
+
+一般来说，inode表并不是从0开始的，0~10号的inode都是有特殊占用的。
+- 0：不存在
+- 1：EXT4_BAD_INO
+- 2：EXT4_ROOT_INO
+- 3：EXT4_USR_QUOTA_INO
+- 4：EXT4_GRP_QUOTA_INO
+- 5：EXT4_BOOT_LOADER_INO
+- 6：EXT4_UNDEL_DIR_INO
+- 7：EXT4_RESIZE_INO
+- 8：EXT4_JOURNAL_INO
+- 9、10：内核暂无定义
+
+
 
 ## 个人代码实践
 
@@ -2484,7 +2534,7 @@ struct device_driver {
     3. 最后才是 /dev 下的设备文件：内核通过 netlink 发送 uevent，udev 收到后才在 /dev 下创建设备文件。
 
 
-<!-- 阅读位置，电子书174/纸质书162页 -->
+<!-- 阅读位置，电子书178/纸质书166页 -->
 
 <!-- 但是 硬链接禁止链接目录 这个事情，感觉对inode和dentry的理解还不够透，在课后问题中补充一下吧 -->
 

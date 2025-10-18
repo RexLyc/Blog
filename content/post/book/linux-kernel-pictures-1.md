@@ -1946,6 +1946,9 @@ static void kernfs_init_inode(struct kernfs_node *kn, struct inode *inode)
 ### ext4
 > ext4内容非常庞大，此书以及本文只讲解其关键原理部分。
 
+
+#### 整体结构
+
 ext4核心其实并不是代码，而是ext4的原理和物理布局。一个格式化为ext4的磁盘就已经构成了一个ext4文件系统，无论是否被插在主板上，就是说其信息是完整的。ext4格式下，磁盘中的数据可以分为两部分：
 1. 文件内容
 2. metadata，元数据
@@ -1974,10 +1977,10 @@ ext4整体上的布局如下图所示
 4. DATA BLOCKS：存放文件内容
 
 ext4特性较多，有几个可能常见的特性
-1. ext4有一个特性：flexible block group。将几个相邻的block group再组成一组，称为flex_bg。一个flex_bg中的所有group的DATA BLOCK BITMAP、INODE BITMAP和INODE TABLE均存放在第一个block group中。这样就可以让大多数后续block group都只包含DATA BLOCKS。当然还有一些可能会因为配置原因，保存冗余的ext4 super block和group descriptor。
+1. ext4有一个特性：flexible block group。将几个相邻的block group再组成一组，称为flex_bg。一个flex_bg中的所有group的DATA BLOCK BITMAP、INODE BITMAP和INODE TABLE均存放在第一个block group中。这样就可以让大多数后续block group都只包含DATA BLOCKS。当然还有一些可能会因为配置原因，保存冗余的ext4 super block和group descriptor。注意flex_bg只是为了优化大文件的性能，而不是支持更大的文件。
 2. Meta Block Groups：其实从前面的定义可以计算，由于group descriptor只能在一个group中存储完整。即使一个block group的descriptor为32字节，那粗略估计，ext4支持的最大磁盘也只能是128MB / 32b * 128MB = 512TB。引入meta_bg，整个文件系统可以被分为多个metablock groups。每一个metablock group包含多个block group，descriptor分别在各自的第一个block group中。磁盘总大小可以扩展更大。
 3. lazy block group initialization：快速初始化。格式化磁盘，没必要将所有的BITMAP、INODE BITMAP、INODE TABLE都初始化完成。只设置标记位即可。
-4. bigalloc：block默认大小4KB。格式化的时候，可以设置默认大小（Block Cluster Size），此后就是以用户设置的大小为单位。
+4. bigalloc：block默认大小4KB。对于大文件来说这样会占用很多metadata的空间。bigalloc引入了cluster概念。在格式化的时候，可以设置cluster的大小（Block Cluster Size），此后就是以用户设置的大小为单位来申请数据块。但是block、block bitmap仍然存在，引入cluster只是让block的申请分配变为批量，缓存友好，一定程度上能提高速度。而且可以尽量保证block的相邻性。
 
 > 单个文件的大小上限如何解决？似乎也存在flexible_bg的限制？【TODO】
 
@@ -1995,7 +1998,267 @@ ext4特性较多，有几个可能常见的特性
 - 8：EXT4_JOURNAL_INO
 - 9、10：内核暂无定义
 
+#### 详细结构
 
+展开一下超级块的内容
+```c
+/*
+ * Structure of the super block
+ */
+struct ext4_super_block {
+/*00*/	__le32	s_inodes_count;		/* Inodes count */
+	__le32	s_blocks_count_lo;	/* Blocks count */ 
+	__le32	s_r_blocks_count_lo;	/* Reserved blocks count */
+	__le32	s_free_blocks_count_lo;	/* Free blocks count */
+/*10*/	__le32	s_free_inodes_count;	/* Free inodes count */
+	__le32	s_first_data_block;	/* First Data Block */
+	__le32	s_log_block_size;	/* Block size */
+	__le32	s_log_cluster_size;	/* Allocation cluster size */
+/*20*/	__le32	s_blocks_per_group;	/* # Blocks per group */
+	__le32	s_clusters_per_group;	/* # Clusters per group */
+	__le32	s_inodes_per_group;	/* # Inodes per group */
+	__le32	s_mtime;		/* Mount time */
+/*30*/	__le32	s_wtime;		/* Write time */
+	__le16	s_mnt_count;		/* Mount count */
+	__le16	s_max_mnt_count;	/* Maximal mount count */
+	__le16	s_magic;		/* Magic signature */
+	__le16	s_state;		/* File system state */
+	__le16	s_errors;		/* Behaviour when detecting errors */
+	__le16	s_minor_rev_level;	/* minor revision level */
+/*40*/	__le32	s_lastcheck;		/* time of last check */
+	__le32	s_checkinterval;	/* max. time between checks */
+	__le32	s_creator_os;		/* OS */
+	__le32	s_rev_level;		/* Revision level */
+/*50*/	__le16	s_def_resuid;		/* Default uid for reserved blocks */
+	__le16	s_def_resgid;		/* Default gid for reserved blocks */
+	/*
+	 * These fields are for EXT4_DYNAMIC_REV superblocks only.
+	 *
+	 * Note: the difference between the compatible feature set and
+	 * the incompatible feature set is that if there is a bit set
+	 * in the incompatible feature set that the kernel doesn't
+	 * know about, it should refuse to mount the filesystem.
+	 *
+	 * e2fsck's requirements are more strict; if it doesn't know
+	 * about a feature in either the compatible or incompatible
+	 * feature set, it must abort and not try to meddle with
+	 * things it doesn't understand...
+	 */
+	__le32	s_first_ino;		/* First non-reserved inode */
+	__le16  s_inode_size;		/* size of inode structure */
+	__le16	s_block_group_nr;	/* block group # of this superblock */
+	__le32	s_feature_compat;	/* compatible feature set */
+/*60*/	__le32	s_feature_incompat;	/* incompatible feature set */
+	__le32	s_feature_ro_compat;	/* readonly-compatible feature set */
+/*68*/	__u8	s_uuid[16];		/* 128-bit uuid for volume */
+/*78*/	char	s_volume_name[EXT4_LABEL_MAX];	/* volume name */
+/*88*/	char	s_last_mounted[64] __nonstring;	/* directory where last mounted */
+/*C8*/	__le32	s_algorithm_usage_bitmap; /* For compression */
+	/*
+	 * Performance hints.  Directory preallocation should only
+	 * happen if the EXT4_FEATURE_COMPAT_DIR_PREALLOC flag is on.
+	 */
+	__u8	s_prealloc_blocks;	/* Nr of blocks to try to preallocate*/
+	__u8	s_prealloc_dir_blocks;	/* Nr to preallocate for dirs */
+	__le16	s_reserved_gdt_blocks;	/* Per group desc for online growth */
+	/*
+	 * Journaling support valid if EXT4_FEATURE_COMPAT_HAS_JOURNAL set.
+	 */
+/*D0*/	__u8	s_journal_uuid[16];	/* uuid of journal superblock */
+/*E0*/	__le32	s_journal_inum;		/* inode number of journal file */
+	__le32	s_journal_dev;		/* device number of journal file */
+	__le32	s_last_orphan;		/* start of list of inodes to delete */
+	__le32	s_hash_seed[4];		/* HTREE hash seed */
+	__u8	s_def_hash_version;	/* Default hash version to use */
+	__u8	s_jnl_backup_type;
+	__le16  s_desc_size;		/* size of group descriptor */
+/*100*/	__le32	s_default_mount_opts;
+	__le32	s_first_meta_bg;	/* First metablock block group */
+	__le32	s_mkfs_time;		/* When the filesystem was created */
+	__le32	s_jnl_blocks[17];	/* Backup of the journal inode */
+	/* 64bit support valid if EXT4_FEATURE_COMPAT_64BIT */
+/*150*/	__le32	s_blocks_count_hi;	/* Blocks count */
+	__le32	s_r_blocks_count_hi;	/* Reserved blocks count */
+	__le32	s_free_blocks_count_hi;	/* Free blocks count */
+	__le16	s_min_extra_isize;	/* All inodes have at least # bytes */
+	__le16	s_want_extra_isize; 	/* New inodes should reserve # bytes */
+	__le32	s_flags;		/* Miscellaneous flags */
+	__le16  s_raid_stride;		/* RAID stride */
+	__le16  s_mmp_update_interval;  /* # seconds to wait in MMP checking */
+	__le64  s_mmp_block;            /* Block for multi-mount protection */
+	__le32  s_raid_stripe_width;    /* blocks on all data disks (N*stride)*/
+	__u8	s_log_groups_per_flex;  /* FLEX_BG group size */
+	__u8	s_checksum_type;	/* metadata checksum algorithm used */
+	__u8	s_encryption_level;	/* versioning level for encryption */
+	__u8	s_reserved_pad;		/* Padding to next 32bits */
+	__le64	s_kbytes_written;	/* nr of lifetime kilobytes written */
+	__le32	s_snapshot_inum;	/* Inode number of active snapshot */
+	__le32	s_snapshot_id;		/* sequential ID of active snapshot */
+	__le64	s_snapshot_r_blocks_count; /* reserved blocks for active
+					      snapshot's future use */
+	__le32	s_snapshot_list;	/* inode number of the head of the
+					   on-disk snapshot list */
+#define EXT4_S_ERR_START offsetof(struct ext4_super_block, s_error_count)
+	__le32	s_error_count;		/* number of fs errors */
+	__le32	s_first_error_time;	/* first time an error happened */
+	__le32	s_first_error_ino;	/* inode involved in first error */
+	__le64	s_first_error_block;	/* block involved of first error */
+	__u8	s_first_error_func[32] __nonstring;	/* function where the error happened */
+	__le32	s_first_error_line;	/* line number where error happened */
+	__le32	s_last_error_time;	/* most recent time of an error */
+	__le32	s_last_error_ino;	/* inode involved in last error */
+	__le32	s_last_error_line;	/* line number where error happened */
+	__le64	s_last_error_block;	/* block involved of last error */
+	__u8	s_last_error_func[32] __nonstring;	/* function where the error happened */
+#define EXT4_S_ERR_END offsetof(struct ext4_super_block, s_mount_opts)
+	__u8	s_mount_opts[64];
+	__le32	s_usr_quota_inum;	/* inode for tracking user quota */
+	__le32	s_grp_quota_inum;	/* inode for tracking group quota */
+	__le32	s_overhead_clusters;	/* overhead blocks/clusters in fs */
+	__le32	s_backup_bgs[2];	/* groups with sparse_super2 SBs */
+	__u8	s_encrypt_algos[4];	/* Encryption algorithms in use  */
+	__u8	s_encrypt_pw_salt[16];	/* Salt used for string2key algorithm */
+	__le32	s_lpf_ino;		/* Location of the lost+found inode */
+	__le32	s_prj_quota_inum;	/* inode for tracking project quota */
+	__le32	s_checksum_seed;	/* crc32c(uuid) if csum_seed set */
+	__u8	s_wtime_hi;
+	__u8	s_mtime_hi;
+	__u8	s_mkfs_time_hi;
+	__u8	s_lastcheck_hi;
+	__u8	s_first_error_time_hi;
+	__u8	s_last_error_time_hi;
+	__u8	s_first_error_errcode;
+	__u8    s_last_error_errcode;
+	__le16  s_encoding;		/* Filename charset encoding */
+	__le16  s_encoding_flags;	/* Filename charset encoding flags */
+	__le32  s_orphan_file_inum;	/* Inode for tracking orphan inodes */
+	__le32	s_reserved[94];		/* Padding to the end of the block */
+	__le32	s_checksum;		/* crc32c(superblock) */
+};
+
+```
+
+书上做了一个简单的实验，用`sudo dumpe2fs /dev/sdax`来导出文件系统的信息，并用`sudo hexdump /dev/sdax -s 1024 -n 1024`，进行手动解析，最终内容是一样的。不过需要注意的是，由于大小端序的存在，因此ext4设计了一个`s_magic`，用于系统判断磁盘上内容创建时的机器端序是否和当前系统cpu一致。如果不一致，会自动做转换。下面是一点实例。
+
+以下是查看super block
+
+```bash
+$ sudo hexdump /dev/sda2 -s 1024 -n 1024                                                                                                                                                                                            13 ✘ 
+0000400 0000 0064 fd00 018f ffd9 0013 f594 012f
+0000410 d280 005f 0000 0000 0002 0000 0002 0000
+0000420 8000 0000 8000 0000 2000 0000 b4ea 68ef
+0000430 b4e9 68ef 0013 ffff ef53 0001 0001 0000 # 注意ef53就是s_magic
+...
+
+$ sudo dumpe2fs /dev/sda2 | less           
+...
+Inode count: 6553600  # 0000 0064字节序调整后是0x00640000
+Block count: 26213632 # fd00 018f字节序调整后是0x018ffd00
+...
+```
+
+同样的方法，还可以用来查看ext4_group_desc。也就是描述block group的group descriptor。该内容在32位和64位模式下不同。根据布局，我们可以知道，第一个ext4_group_desc在block2中开始。书中的实验查看了第二个block group的desc。`sudo hexdump /dev/sda2 -s 4160 -n 32`。
+
+ext4_inode比较重要。在这里再次展开一下内容。
+```c
+/*
+ * Structure of an inode on the disk
+ */
+struct ext4_inode {
+	__le16	i_mode;		/* File mode 文件模式 */
+	__le16	i_uid;		/* Low 16 bits of Owner Uid */
+	__le32	i_size_lo;	/* Size in bytes 文件大小 */
+	__le32	i_atime;	/* Access time 最后访问时间 */
+	__le32	i_ctime;	/* Inode Change time */
+	__le32	i_mtime;	/* Modification time */
+	__le32	i_dtime;	/* Deletion Time */
+	__le16	i_gid;		/* Low 16 bits of Group Id */
+	__le16	i_links_count;	/* Links count 硬链接数量，从前文我们可以知道，这实际上限制了直接子目录的数量 */
+	__le32	i_blocks_lo;	/* Blocks count “块”数量的低32位，这里的块是512字节，受传统磁盘扇区影响*/
+	__le32	i_flags;	/* File flags */
+	union {
+		struct {
+			__le32  l_i_version;
+		} linux1;
+		struct {
+			__u32  h_i_translator;
+		} hurd1;
+		struct {
+			__u32  m_i_reserved1;
+		} masix1;
+	} osd1;				/* OS dependent 1 */
+	__le32	i_block[EXT4_N_BLOCKS];/* Pointers to blocks */
+	__le32	i_generation;	/* File version (for NFS) */
+	__le32	i_file_acl_lo;	/* File ACL */
+	__le32	i_size_high;
+	__le32	i_obso_faddr;	/* Obsoleted fragment address */
+	union {
+		struct {
+			__le16	l_i_blocks_high; /* were l_i_reserved1 */
+			__le16	l_i_file_acl_high;
+			__le16	l_i_uid_high;	/* these 2 fields */
+			__le16	l_i_gid_high;	/* were reserved2[0] */
+			__le16	l_i_checksum_lo;/* crc32c(uuid+inum+inode) LE */
+			__le16	l_i_reserved;
+		} linux2;
+		struct {
+			__le16	h_i_reserved1;	/* Obsoleted fragment number/size which are removed in ext4 */
+			__u16	h_i_mode_high;
+			__u16	h_i_uid_high;
+			__u16	h_i_gid_high;
+			__u32	h_i_author;
+		} hurd2;
+		struct {
+			__le16	h_i_reserved1;	/* Obsoleted fragment number/size which are removed in ext4 */
+			__le16	m_i_file_acl_high;
+			__u32	m_i_reserved2[2];
+		} masix2;
+	} osd2;				/* OS dependent 2 */
+	__le16	i_extra_isize;
+	__le16	i_checksum_hi;	/* crc32c(uuid+inum+inode) BE */
+	__le32  i_ctime_extra;  /* extra Change time      (nsec << 2 | epoch) */
+	__le32  i_mtime_extra;  /* extra Modification time(nsec << 2 | epoch) */
+	__le32  i_atime_extra;  /* extra Access time      (nsec << 2 | epoch) */
+	__le32  i_crtime;       /* File Creation time */
+	__le32  i_crtime_extra; /* extra FileCreationtime (nsec << 2 | epoch) */
+	__le32  i_version_hi;	/* high 32 bits for 64-bit version */
+	__le32	i_projid;	/* Project ID */
+};
+```
+
+给定一个inode号为ino的文件，其inode项位置计算路径：
+- 所在的block group为`(ino - 1) / ext4_super_block->s_inodes_per_group`。
+- 在block group内的索引号index=`(ino - 1) % ext4_super_block->s_inodes_per_group`。也就是当前block group内的第index个inode。
+- 在inode table内的位置是`index * ext4_super_block->s_inode_size`。当然，这一步需要先找到inode table所在的block。
+  
+【TODO】获取到inode项之后，加载文件内容的计算路径：
+
+
+#### 挂载
+
+挂载通过ext4_get_tree完成。该函数就是一个包装。实际上是get_tree_bdev函数内调用ext4_file_super执行的。步骤
+1. 初步读取ext4_super_block
+2. 从读取到的block大小，重新读取，并得到完整的ext4_super_block
+3. 创建ext4_sb_info
+4. 检查所有的group descriptor合法性
+5. 调用ext4_iget获取root文件。注意上面说过，root文件的ino号是固定的。创建dentry。
+
+注意
+- ext4文件系统并没有要求必须使用32、64位系统，但是挂载时选择的一些特性，可能会导致无法在另一种位宽下使用。
+- 类似的问题，inode on disk结构的大小其实不是固定的，内核需要考虑到文件创建时的ext4版本，与当前系统内核所使用的ext4版本不一定完全一致。
+- ext4不等同于vfs。所以要注意ext4的inode其实是inode on disk（书中所用的表述方式）。`ext4_sb_info`和`ext4_inode_info`辅助建立vfs和ext4之间的关系。
+- 挂载时，因为一开始不知道block的大小（注意是block大小也不知道），所以也不清楚super block的大小。先假定1024，读取一些字段之后再重新计算，并读取完整的super block，这其实对sb的字段设计有一些要求。也就是在读取前几个字段之后，就可以知道真实的super block大小了。
+- 挂载过程中，函数`ext4_geometry_check`：用于检查磁盘上的结构是否满足ext4标准设计。
+- ext4设计中，确实会出现inode和block分配不平衡的问题。就是某一个block group可能inode耗尽但block空闲， 或者反之。flex_bg等手段可以一定程度缓解。
+
+
+
+【TODO】最后用一个实验展开读取文件的过程：
+1. 获取inode
+2. 从inode计算所在block group，以及group内位置
+3. 获得文件所在block，以及block内的偏移
+
+（【TODO】做一个完整的，文件操作从用户空间，到内核系统调用，以及vfs子系统，到驱动的调用关系之类的图）
 
 ## 个人代码实践
 

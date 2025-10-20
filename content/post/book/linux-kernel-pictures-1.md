@@ -2230,8 +2230,26 @@ struct ext4_inode {
 - 所在的block group为`(ino - 1) / ext4_super_block->s_inodes_per_group`。
 - 在block group内的索引号index=`(ino - 1) % ext4_super_block->s_inodes_per_group`。也就是当前block group内的第index个inode。
 - 在inode table内的位置是`index * ext4_super_block->s_inode_size`。当然，这一步需要先找到inode table所在的block。
-  
-【TODO】获取到inode项之后，加载文件内容的计算路径：
+
+对于普通文件，其文件内容存储于最终的block。对于目录也是一样，而且其文件内容是目录下文件的信息。每一个文件的目录项，是如下的结构（两个版本但是互相兼容）。
+```c
+struct ext4_dir_entry {
+	__le32	inode;			/* Inode number 这里也可以复习一下，硬链接其实只是新增了一个entry项*/
+	__le16	rec_len;		/* Directory entry length */
+	__le16	name_len;		/* Name length */
+	char	name[EXT4_NAME_LEN];	/* File name */
+};
+
+struct ext4_dir_entry_2 {
+	__le32	inode;			/* Inode number */
+	__le16	rec_len;		/* Directory entry length */
+	__u8	name_len;		/* Name length */
+	__u8	file_type;		/* See file type macros EXT4_FT_* below */
+	char	name[EXT4_NAME_LEN];	/* File name */
+};
+```
+
+在目录项不多的情况下，就是一个block内可以放下所有entry时，这些entry紧密排列。但当一个block不够之后，目录的组织方式会变为**哈希树**，而不是直接使用更多block。到时一个entry将会根据文件名字做哈希，并存入相关的block，以避免遍历多个block。具体的原理本书并不展开。此时目录文件内容将会改为包括一个`dx_root`结构体的内容。
 
 
 #### 挂载
@@ -2251,14 +2269,65 @@ struct ext4_inode {
 - 挂载过程中，函数`ext4_geometry_check`：用于检查磁盘上的结构是否满足ext4标准设计。
 - ext4设计中，确实会出现inode和block分配不平衡的问题。就是某一个block group可能inode耗尽但block空闲， 或者反之。flex_bg等手段可以一定程度缓解。
 
+#### 文件IO
+> 注意区分，读写某个具体block，是驱动的工作。而VFS中ext4文件系统的实现，只需要负责找到这个block。
 
+ext4_inode的i_block字段是文件IO的寻址过程中的起始数据。这个字段的实际内容，有Direct/Indirect Map和Extent Tree（区段树）两种方式。
 
-【TODO】最后用一个实验展开读取文件的过程：
-1. 获取inode
-2. 从inode计算所在block group，以及group内位置
-3. 获得文件所在block，以及block内的偏移
+如果一个block号需要4个字节，显然这里只能存下15个block，那么文件最大只能15个block。这显然不能满足需求。
 
-（【TODO】做一个完整的，文件操作从用户空间，到内核系统调用，以及vfs子系统，到驱动的调用关系之类的图）
+映射的方案是ext2/ext3就引入了的。前12个元素仍然保存block号，这部分是直接映射。后三个元素分别使用1，2，3级间接映射。每一级的元素中存储的block号，都是指向下一级的映射表所在的block。
+
+ext4则改为使用区段树。之前一个block需要用一个项映射，这太浪费空间了，区段树是用一个数据结构，对应一个区间中的block。既然是树，那么就需要一个完整的树的结构，叶子节点、中间节点、树根分别如下所示。
+
+```c
+/*
+ * This is the extent on-disk structure.
+ * It's used at the bottom of the tree.
+ */
+struct ext4_extent {
+	__le32	ee_block;	/* first logical block extent covers 逻辑块号，可以理解为叶子节点从0到n的编号 */
+	__le16	ee_len;		/* number of blocks covered by extent 块数量 */
+	__le16	ee_start_hi;	/* high 16 bits of physical block 指向的第一个物理块号高16位 */
+	__le32	ee_start_lo;	/* low 32 bits of physical block 指向第一个物理块号低32位 */
+};
+
+/*
+ * This is index on-disk structure.
+ * It's used at all the levels except the bottom.
+ */
+struct ext4_extent_idx {
+	__le32	ei_block;	/* index covers logical blocks from 'block' 逻辑block区间的起始值 */
+	__le32	ei_leaf_lo;	/* pointer to the physical block of the next *
+				 * level. leaf or next index could be there */
+	__le16	ei_leaf_hi;	/* high 16 bits of physical block */
+	__u16	ei_unused;
+};
+
+/*
+ * Each block (leaves and indexes), even inode-stored has header.
+ */
+struct ext4_extent_header {
+	__le16	eh_magic;	/* probably will support different formats */
+	__le16	eh_entries;	/* number of valid entries */
+	__le16	eh_max;		/* capacity of store in entries */
+	__le16	eh_depth;	/* has tree real underlying blocks? */
+	__le32	eh_generation;	/* generation of the tree */
+};
+
+```
+
+注意理解逻辑块号（将当前文件所有块，按叶子节点顺序从0到n来计数），以及物理块号（磁盘上实际读写用的块号）。也正因如此：
+1. 32位的逻辑块号，限制了单文件最多只能是16TiB。
+2. 更多的物理块号空间，使得我们实际上可以支持更大的（虚拟）磁盘容量。
+
+> p.s. 个人认为其实这里细节不用了解太多。ext4出现时64位系统尚未普及。现在看起来，它里面的很多高32位、低32位设计，其实已经是时代的眼泪了。
+
+删除文件实际上只是删除了目录项、inode内容等meta数据。磁盘上实际文件内容是存在的。
+
+![file remove&recover](/images/book/linux-pic/file_remove_recover.png)
+
+【TODO】做一个完整的，文件操作从用户空间，到内核系统调用，以及vfs子系统，具体文件系统模块，以及到磁盘驱动的调用关系之类的图
 
 ## 个人代码实践
 

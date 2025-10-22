@@ -10,11 +10,10 @@ tags:
 - 读书笔记
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/book/linux-kernel-pictures.jpg
-draft: true
 mermaid: true
 math: true
 ---
-本书提供了大量的插图，来学习Linux内核。
+本书提供了大量的插图，很适合用来学习Linux内核。本文是上半部分。
 <!--more-->
 
 > 推荐直接来这个网站看linux kernel：[bootlin](https://elixir.bootlin.com/linux/v5.0/source/Documentation/x86/x86_64/mm.txt)，这个页面是mm.txt的，不过版本较低（v5.0）。也有很多其他重量级开源项目。
@@ -1982,8 +1981,6 @@ ext4特性较多，有几个可能常见的特性
 3. lazy block group initialization：快速初始化。格式化磁盘，没必要将所有的BITMAP、INODE BITMAP、INODE TABLE都初始化完成。只设置标记位即可。
 4. bigalloc：block默认大小4KB。对于大文件来说这样会占用很多metadata的空间。bigalloc引入了cluster概念。在格式化的时候，可以设置cluster的大小（Block Cluster Size），此后就是以用户设置的大小为单位来申请数据块。但是block、block bitmap仍然存在，引入cluster只是让block的申请分配变为批量，缓存友好，一定程度上能提高速度。而且可以尽量保证block的相邻性。
 
-> 单个文件的大小上限如何解决？似乎也存在flexible_bg的限制？【TODO】
-
 > 可以使用`dumpe2fs`命令，来查看文件系统的各种元信息，每个block group的信息。
 
 一般来说，inode表并不是从0开始的，0~10号的inode都是有特殊占用的。
@@ -2327,7 +2324,15 @@ struct ext4_extent_header {
 
 ![file remove&recover](/images/book/linux-pic/file_remove_recover.png)
 
-【TODO】做一个完整的，文件操作从用户空间，到内核系统调用，以及vfs子系统，具体文件系统模块，以及到磁盘驱动的调用关系之类的图
+一个简化的同步阻塞风格的，传统请求队列式的，完整的文件I/O函数调用流程：
+1. 发起流程：read、sys_read、vfs_read、ext4_file_read_iter、generic_file_read_iter、ext4_read_folio、submit_bio、ahci_fill_cmd_slot（发送块设备读取命令）
+2. 后续硬件执行读取/DMA到指定缓冲区、并在读取完成后中断处理：ahci_irq_handler、mpage_end_io、end_page_read、folio_unlock
+4. 再generic_file_read_iter中，等待解锁，完成copy_folio_to_iter、sys_read返回
+
+如果是IOCB_DIRECT直接IO，那么中间不会尝试读缓存页，会直接读盘。否则从generic_file_read_iter到ext4_read_folio中间，其实是包含内存folio的处理流程（后者最终被绑定到mapping->a_ops->read_folio）。而如果使用异步非阻塞，则这里的流程也会更复杂。
+
+额外讲一下，无请求队列的模式（Request-less/mq-deadline），这种将会由bio直接提交到驱动。而不需要再经过bio->request->队列->驱动。
+
 
 ## 个人代码实践
 
@@ -2436,7 +2441,6 @@ struct ext4_extent_header {
     ```
 3. 【TODO】实现一个自定义文件系统
 4. 【TODO】实现一个自定义设备的驱动，并支持sysfs、udev子系统
-5. 
 
 
 ## 附录
@@ -2851,12 +2855,13 @@ struct device_driver {
 ## 课后问题
 1. 进程控制块中包含了进程页表的基址，那进程控制块本身所在的虚拟内存，由谁的页表管理，以及其内存基址如何存储？如何避免套娃问题？
    
-   涉及到内核启动、分页机制、进程管理的启动
+   【TODO】涉及到内核启动、分页机制、进程管理的启动
 
 2. 物理内存是否可以热插拔，热插拔是否会引起直接映射区的重新映射？将被拔出的内存中的数据如何保存？
 3. malloc、free的底层原理，他们是如何操作brk这个系统调用的
-   【TODO】 再补充一些，尤其是brk。
+   
    堆内存由glibc管理。每次调用brk改变堆内存大小。系统调用是有代价的，所以每次申请实际上会多申请一些。反正返回的也是虚拟地址，只有访问的时候，才会触发缺页中断而产生实际物理内存映射。
+
 4. 缺页异常的信息由CPU提供，但是映射是MMU负责，CPU是如何知道这些信息的呢？
 5. vma结构是区间树，不同vma的线性空间完全不同，这个区间是针对什么进行划分的呢？
 6. 硬链接禁止链接目录，其实说明了inode和dentry在访问上的底层逻辑区别。
@@ -2864,9 +2869,6 @@ struct device_driver {
     1. 最先发生的是内核内部的结构创建：当设备被驱动探测到（例如，PCI 设备枚举、USB 设备插入），内核驱动代码会首先创建 struct device 和 kobject。
     2. 然后是 kernfs 节点的创建：kobject 的注册会触发 kernfs 在 /sys 文件系统中创建对应的目录和属性文件。
     3. 最后才是 /dev 下的设备文件：内核通过 netlink 发送 uevent，udev 收到后才在 /dev 下创建设备文件。
-
-
-<!-- 阅读位置，电子书179/纸质书167页 -->
 
 <!-- 但是 硬链接禁止链接目录 这个事情，感觉对inode和dentry的理解还不够透，在课后问题中补充一下吧 -->
 

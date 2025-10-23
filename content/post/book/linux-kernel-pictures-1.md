@@ -2324,14 +2324,19 @@ struct ext4_extent_header {
 
 ![file remove&recover](/images/book/linux-pic/file_remove_recover.png)
 
-一个简化的同步阻塞风格的，传统请求队列式的，完整的文件I/O函数调用流程：
-1. 发起流程：read、sys_read、vfs_read、ext4_file_read_iter、generic_file_read_iter、ext4_read_folio、submit_bio、ahci_fill_cmd_slot（发送块设备读取命令）
+一个简化的同步阻塞风格的，传统请求队列式（request-queue）的，完整的文件I/O函数调用流程：【此处为AI生成、存疑】
+1. 发起流程：read、sys_read、vfs_read、ext4_file_read_iter、generic_file_read_iter、ext4_read_folio、submit_bio、ahci_fill_cmd_slot（发送块设备读取命令，但是我暂时没有找到调用路径）
 2. 后续硬件执行读取/DMA到指定缓冲区、并在读取完成后中断处理：ahci_irq_handler、mpage_end_io、end_page_read、folio_unlock
 4. 再generic_file_read_iter中，等待解锁，完成copy_folio_to_iter、sys_read返回
 
 如果是IOCB_DIRECT直接IO，那么中间不会尝试读缓存页，会直接读盘。否则从generic_file_read_iter到ext4_read_folio中间，其实是包含内存folio的处理流程（后者最终被绑定到mapping->a_ops->read_folio）。而如果使用异步非阻塞，则这里的流程也会更复杂。
 
-额外讲一下，无请求队列的模式（Request-less/mq-deadline），这种将会由bio直接提交到驱动。而不需要再经过bio->request->队列->驱动。
+#### 补充内容
+在刚刚的位置提到了请求队列。这是linux内核处理I/O请求的一个方式。从submit_bio开始，调用进入到linux内核的block layer。目前分为两种
+1. Queue Dispatch：分为单队列（blk-sq）和多队列（blk-mq）。简单来说就是一个块设备一个队列，和一个块设备多个队列。单队列是比较早的linux内核了，因为存储器件速度越来越快，且cpu核数越来越多，导致很多cpu时间被用在单队列的插入锁的竞争中。从linux5.x后期开始，单队列被移除出内核，默认多队列。
+2. Direct Dispatch：这种将会由bio直接提交到驱动，但也需要驱动的支持。满足条件的情况下不需要再经过原有的bio->request queue->驱动的路径，而是blk_mq_make_request中直接提交到驱动。可以阅读函数blk_mq_submit_bio，最终调用到__blk_mq_try_issue_directly。
+
+> 关于设备层的设计和实现又是另一个庞大的话题了，这部分可以稍加参考：[blk-mq架构分析](https://blog.csdn.net/feelabclihu/article/details/106010344)、[Linux IO请求处理流程-蓄洪和泄洪](https://zhuanlan.zhihu.com/p/39778901)。可以简单理解为这里需要实现内核和驱动之间的调度系统，比如排队、批量处理等，以提高块设备的利用效率。
 
 
 ## 个人代码实践

@@ -327,12 +327,15 @@ static __latent_entropy struct task_struct *copy_process(
 	if (retval)
 		goto bad_fork_cleanup_namespaces;
     // 平台相关，配置新进程的状态，thread_struct结构体
+    // 比如保存SP寄存器所需要的值（栈的起点），存储执行起点等
 	retval = copy_thread(p, args);
 	if (retval)
 		goto bad_fork_cleanup_io;
 
 	stackleak_task_init(p);
 
+    // 在指定ns中，申请pid
+    // 注意一个进程需要在自己的pid namespace，以及所有父、祖父，一直到初始init_pid_ns中，都获得一个id。
 	if (pid != &init_struct_pid) {
 		pid = alloc_pid(p->nsproxy->pid_ns_for_children, args->set_tid,
 				args->set_tid_size);
@@ -342,168 +345,40 @@ static __latent_entropy struct task_struct *copy_process(
 		}
 	}
 
-	/*
-	 * This has to happen after we've potentially unshared the file
-	 * descriptor table (so that the pidfd doesn't leak into the child
-	 * if the fd table isn't shared).
-	 */
-	if (clone_flags & CLONE_PIDFD) {
-		retval = get_unused_fd_flags(O_RDWR | O_CLOEXEC);
-		if (retval < 0)
-			goto bad_fork_free_pid;
+    // 省略一些检查和配置
+    // ...
 
-		pidfd = retval;
-
-		pidfile = anon_inode_getfile("[pidfd]", &pidfd_fops, pid,
-					      O_RDWR | O_CLOEXEC);
-		if (IS_ERR(pidfile)) {
-			put_unused_fd(pidfd);
-			retval = PTR_ERR(pidfile);
-			goto bad_fork_free_pid;
-		}
-		get_pid(pid);	/* held by pidfile now */
-
-		retval = put_user(pidfd, args->pidfd);
-		if (retval)
-			goto bad_fork_put_pidfd;
-	}
-
-#ifdef CONFIG_BLOCK
-	p->plug = NULL;
-#endif
-	futex_init_task(p);
-
-	/*
-	 * sigaltstack should be cleared when sharing the same VM
-	 */
-	if ((clone_flags & (CLONE_VM|CLONE_VFORK)) == CLONE_VM)
-		sas_ss_reset(p);
-
-	/*
-	 * Syscall tracing and stepping should be turned off in the
-	 * child regardless of CLONE_PTRACE.
-	 */
-	user_disable_single_step(p);
-	clear_task_syscall_work(p, SYSCALL_TRACE);
-#if defined(CONFIG_GENERIC_ENTRY) || defined(TIF_SYSCALL_EMU)
-	clear_task_syscall_work(p, SYSCALL_EMU);
-#endif
-	clear_tsk_latency_tracing(p);
-
-	/* ok, now we should be set up.. */
-	p->pid = pid_nr(pid);
-	if (clone_flags & CLONE_THREAD) {
-		p->group_leader = current->group_leader;
-		p->tgid = current->tgid;
-	} else {
-		p->group_leader = p;
-		p->tgid = p->pid;
-	}
-
-	p->nr_dirtied = 0;
-	p->nr_dirtied_pause = 128 >> (PAGE_SHIFT - 10);
-	p->dirty_paused_when = 0;
-
-	p->pdeath_signal = 0;
-	INIT_LIST_HEAD(&p->thread_group);
-	p->task_works = NULL;
-	clear_posix_cputimers_work(p);
-
-#ifdef CONFIG_KRETPROBES
-	p->kretprobe_instances.first = NULL;
-#endif
-#ifdef CONFIG_RETHOOK
-	p->rethooks.first = NULL;
-#endif
-
-	/*
-	 * Ensure that the cgroup subsystem policies allow the new process to be
-	 * forked. It should be noted that the new process's css_set can be changed
-	 * between here and cgroup_post_fork() if an organisation operation is in
-	 * progress.
-	 */
-	retval = cgroup_can_fork(p, args);
-	if (retval)
-		goto bad_fork_put_pidfd;
-
-	/*
-	 * Now that the cgroups are pinned, re-clone the parent cgroup and put
-	 * the new task on the correct runqueue. All this *before* the task
-	 * becomes visible.
-	 *
-	 * This isn't part of ->can_fork() because while the re-cloning is
-	 * cgroup specific, it unconditionally needs to place the task on a
-	 * runqueue.
-	 */
-	sched_cgroup_fork(p, args);
-
-	/*
-	 * From this point on we must avoid any synchronous user-space
-	 * communication until we take the tasklist-lock. In particular, we do
-	 * not want user-space to be able to predict the process start-time by
-	 * stalling fork(2) after we recorded the start_time but before it is
-	 * visible to the system.
-	 */
-    // 这里再次更新时间
-	p->start_time = ktime_get_ns();
-	p->start_boottime = ktime_get_boottime_ns();
-
-	/*
-	 * Make it visible to the rest of the system, but dont wake it up yet.
-	 * Need tasklist lock for parent etc handling!
-	 */
-	write_lock_irq(&tasklist_lock);
+    // 接下来有一些赋值，并建立新进程和其他进程间的关系
 
 	/* CLONE_PARENT re-uses the old parent */
 	if (clone_flags & (CLONE_PARENT|CLONE_THREAD)) {
+        // 进入到这个分支，新父进程是当前进程的父进程
+        // CLONE_PARENT选项，代表将父进程标记也保留了下来了
+        // CLONE_THREAD选项，代表创建的是线程，而非进程
+        // 其实这两个选项的功能类似，新创建的进程和当前进程其实是兄弟关系，或者是当前线程组下的一个线程
 		p->real_parent = current->real_parent;
 		p->parent_exec_id = current->parent_exec_id;
+        // exit_signal会用于判断是否是线程组领导
 		if (clone_flags & CLONE_THREAD)
 			p->exit_signal = -1;
 		else
 			p->exit_signal = current->group_leader->exit_signal;
 	} else {
+        // 否则，进入这个分支，新进程的父进程就是当前进程
 		p->real_parent = current;
 		p->parent_exec_id = current->self_exec_id;
 		p->exit_signal = args->exit_signal;
 	}
 
-	klp_copy_process(p);
+    // 省略一些过程
+    // ...
 
-	sched_core_fork(p);
-
-	spin_lock(&current->sighand->siglock);
-
-	rv_task_fork(p);
-
-	rseq_fork(p, clone_flags);
-
-	/* Don't start children in a dying pid namespace */
-	if (unlikely(!(ns_of_pid(pid)->pid_allocated & PIDNS_ADDING))) {
-		retval = -ENOMEM;
-		goto bad_fork_cancel_cgroup;
-	}
-
-	/* Let kill terminate clone/fork in the middle */
-	if (fatal_signal_pending(current)) {
-		retval = -EINTR;
-		goto bad_fork_cancel_cgroup;
-	}
-
-	/* No more failure paths after this point. */
-
-	/*
-	 * Copy seccomp details explicitly here, in case they were changed
-	 * before holding sighand lock.
-	 */
-	copy_seccomp(p);
-
-	init_task_pid_links(p);
 	if (likely(p->pid)) {
+        // 设置进程的parent字段
 		ptrace_init_task(p, (clone_flags & CLONE_PTRACE) || trace);
 
 		init_task_pid(p, PIDTYPE_PID, pid);
-		if (thread_group_leader(p)) {
+		if (thread_group_leader(p)) { // 领导进程，需要链接到父进程的链表：线程组、进程组、会话组的链表中
 			init_task_pid(p, PIDTYPE_TGID, pid);
 			init_task_pid(p, PIDTYPE_PGID, task_pgrp(current));
 			init_task_pid(p, PIDTYPE_SID, task_session(current));
@@ -538,94 +413,20 @@ static __latent_entropy struct task_struct *copy_process(
 			list_add_tail_rcu(&p->thread_node,
 					  &p->signal->thread_head);
 		}
+        // 将p链接到pid的链表中，建立新进程和pid的关系
 		attach_pid(p, PIDTYPE_PID);
 		nr_threads++;
 	}
-	total_forks++;
-	hlist_del_init(&delayed.node);
-	spin_unlock(&current->sighand->siglock);
-	syscall_tracepoint_update(p);
-	write_unlock_irq(&tasklist_lock);
-
-	if (pidfile)
-		fd_install(pidfd, pidfile);
-
-	proc_fork_connector(p);
-	sched_post_fork(p);
-	cgroup_post_fork(p, args);
-	perf_event_fork(p);
-
-	trace_task_newtask(p, clone_flags);
-	uprobe_copy_process(p, clone_flags);
-
-	copy_oom_score_adj(clone_flags, p);
-
-	return p;
-
-bad_fork_cancel_cgroup:
-	sched_core_free(p);
-	spin_unlock(&current->sighand->siglock);
-	write_unlock_irq(&tasklist_lock);
-	cgroup_cancel_fork(p, args);
-bad_fork_put_pidfd:
-	if (clone_flags & CLONE_PIDFD) {
-		fput(pidfile);
-		put_unused_fd(pidfd);
-	}
-bad_fork_free_pid:
-	if (pid != &init_struct_pid)
-		free_pid(pid);
-bad_fork_cleanup_thread:
-	exit_thread(p);
-bad_fork_cleanup_io:
-	if (p->io_context)
-		exit_io_context(p);
-bad_fork_cleanup_namespaces:
-	exit_task_namespaces(p);
-bad_fork_cleanup_mm:
-	if (p->mm) {
-		mm_clear_owner(p->mm, p);
-		mmput(p->mm);
-	}
-bad_fork_cleanup_signal:
-	if (!(clone_flags & CLONE_THREAD))
-		free_signal_struct(p->signal);
-bad_fork_cleanup_sighand:
-	__cleanup_sighand(p->sighand);
-bad_fork_cleanup_fs:
-	exit_fs(p); /* blocking */
-bad_fork_cleanup_files:
-	exit_files(p); /* blocking */
-bad_fork_cleanup_semundo:
-	exit_sem(p);
-bad_fork_cleanup_security:
-	security_task_free(p);
-bad_fork_cleanup_audit:
-	audit_free(p);
-bad_fork_cleanup_perf:
-	perf_event_free_task(p);
-bad_fork_cleanup_policy:
-	lockdep_free_task(p);
-#ifdef CONFIG_NUMA
-	mpol_put(p->mempolicy);
-#endif
-bad_fork_cleanup_delayacct:
-	delayacct_tsk_free(p);
-bad_fork_cleanup_count:
-	dec_rlimit_ucounts(task_ucounts(p), UCOUNT_RLIMIT_NPROC, 1);
-	exit_creds(p);
-bad_fork_free:
-	WRITE_ONCE(p->__state, TASK_DEAD);
-	exit_task_stack_account(p);
-	put_task_stack(p);
-	delayed_free_task(p);
-fork_out:
-	spin_lock_irq(&current->sighand->siglock);
-	hlist_del_init(&delayed.node);
-	spin_unlock_irq(&current->sighand->siglock);
-	return ERR_PTR(retval);
+	
+    // 省略剩余过程、跳转标签、错误返回
+    // ...
 }
 ```
+
+阅读上方代码可以知道，在创建过程中，其实就是通过标志位来区分行为，尤其是区分创建的是进程，还是线程。
+
+而其中`copy_mm`比较复杂。在下方单独展开。
+
 
 <!-- 进度 电子书209 /纸质197 -->
 

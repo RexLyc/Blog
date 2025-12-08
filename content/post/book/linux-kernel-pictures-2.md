@@ -427,6 +427,149 @@ static __latent_entropy struct task_struct *copy_process(
 
 而其中`copy_mm`比较复杂。在下方单独展开。
 
+### 复制mm
+
+#### copy_mm
+
+task_struct中的mm和active_mm字段和内存管理有关。指向mm_struct结构体指针。
+
+- mm：表示进程管理的内存信息。mm管理的内存，至少有一部分是属于进程本身的。
+- active_mm：表示当前进程所使用的内存信息。active_mm使用的内存，可能不属于进程。
+
+回顾一下mm_struct的内容
+```c
+// 依旧是截取部分
+struct mm_struct {
+	struct {
+        // 进程的vma组成的链表头
+		struct maple_tree mm_mt;
+
+        // 指向pgd
+        pgd_t * pgd;
+
+		/**
+		 * @mm_users: The number of users including userspace.
+		 *
+		 * Use mmget()/mmget_not_zero()/mmput() to modify. When this
+		 * drops to 0 (i.e. when the task exits and there are no other
+		 * temporary reference holders), we also release a reference on
+		 * @mm_count (which may then free the &struct mm_struct if
+		 * @mm_count also drops to 0).
+		 */
+        //  引用计数
+		atomic_t mm_users;
+
+		/**
+		 * @mm_count: The number of references to &struct mm_struct
+		 * (@mm_users count as 1).
+		 *
+		 * Use mmgrab()/mmdrop() to modify. When this drops to 0, the
+		 * &struct mm_struct is freed.
+		 */
+        //  引用计数
+		atomic_t mm_count;
+
+		/* Architecture-specific MM context */
+		mm_context_t context;
+
+		/* store ref to file /proc/<pid>/exe symlink points to */
+        // 进程执行的文件，可以为null
+		struct file __rcu *exe_file;
+
+	} __randomize_layout;
+
+	/*
+	 * The mm_cpumask needs to be at the end of mm_struct, because it
+	 * is dynamically sized based on nr_cpu_ids.
+	 */
+	unsigned long cpu_bitmap[];
+};
+```
+
+其中mm_user和mm_count
+1. 分别代表引用的线程数，和引用的线程组的数量。一个线程组的mm_users清为0，只会为mm_count减少1。
+2. 进程之间可以借用内存。借用时就会导致mm_count加一。当某一个进程退出时，或者不再使用内存。就可以释放一部分。
+
+释放的逻辑主要位于mmput。释放是递进的。mm_user为0时，可以释放aio、mmap、exe_file。mm_count为0时，释放pgd、context和mm_struct本身。
+```c
+/*
+ * Decrement the use count and release all resources for an mm.
+ */
+void mmput(struct mm_struct *mm)
+{
+	might_sleep();
+
+	if (atomic_dec_and_test(&mm->mm_users))
+		__mmput(mm);
+}
+
+static inline void __mmput(struct mm_struct *mm)
+{
+	VM_BUG_ON(atomic_read(&mm->mm_users));
+
+	uprobe_clear_state(mm);
+	exit_aio(mm);
+	ksm_exit(mm);
+	khugepaged_exit(mm); /* must run before exit_mmap */
+	exit_mmap(mm);
+	mm_put_huge_zero_page(mm);
+	set_mm_exe_file(mm, NULL);
+	if (!list_empty(&mm->mmlist)) {
+		spin_lock(&mmlist_lock);
+		list_del(&mm->mmlist);
+		spin_unlock(&mmlist_lock);
+	}
+	if (mm->binfmt)
+		module_put(mm->binfmt->module);
+	lru_gen_del_mm(mm);
+	mmdrop(mm);
+}
+
+static inline void mmdrop(struct mm_struct *mm)
+{
+	/*
+	 * The implicit full barrier implied by atomic_dec_and_test() is
+	 * required by the membarrier system call before returning to
+	 * user-space, after storing to rq->curr.
+	 */
+	if (unlikely(atomic_dec_and_test(&mm->mm_count)))
+		__mmdrop(mm);
+}
+
+
+/*
+ * Called when the last reference to the mm
+ * is dropped: either by a lazy thread or by
+ * mmput. Free the page directory and the mm.
+ */
+void __mmdrop(struct mm_struct *mm)
+{
+	int i;
+
+	BUG_ON(mm == &init_mm);
+	WARN_ON_ONCE(mm == current->mm);
+	WARN_ON_ONCE(mm == current->active_mm);
+	mm_free_pgd(mm);
+	destroy_context(mm);
+	mmu_notifier_subscriptions_destroy(mm);
+	check_mm(mm);
+	put_user_ns(mm->user_ns);
+	mm_pasid_drop(mm);
+
+	for (i = 0; i < NR_MM_COUNTERS; i++)
+		percpu_counter_destroy(&mm->rss_stat[i]);
+	free_mm(mm);
+}
+
+```
+
+了解了内存借用，回头来看copy_mm流程
+
+
+#### mm_init
+
+#### dup_mmap
+
 
 <!-- 进度 电子书209 /纸质197 -->
 

@@ -565,11 +565,243 @@ void __mmdrop(struct mm_struct *mm)
 
 了解了内存借用，回头来看copy_mm流程
 
+```c
+static int copy_mm(unsigned long clone_flags, struct task_struct *tsk)
+{
+	struct mm_struct *mm, *oldmm;
+
+	tsk->min_flt = tsk->maj_flt = 0;
+	tsk->nvcsw = tsk->nivcsw = 0;
+#ifdef CONFIG_DETECT_HUNG_TASK
+	tsk->last_switch_count = tsk->nvcsw + tsk->nivcsw;
+	tsk->last_switch_time = 0;
+#endif
+
+	tsk->mm = NULL;
+	tsk->active_mm = NULL;
+
+	/*
+	 * Are we cloning a kernel thread?
+	 *
+	 * We need to steal a active VM for that..
+	 */
+	oldmm = current->mm;
+    // 内核线程是没有自己管理的内存的，因此直接返回
+	if (!oldmm)
+		return 0;
+
+	if (clone_flags & CLONE_VM) {
+		mmget(oldmm);
+		mm = oldmm;
+	} else {
+        // 新建一个mm_struct，并复制当前进程的mm_struct的值
+        // 在下面展开
+		mm = dup_mm(tsk, current->mm);
+		if (!mm)
+			return -ENOMEM;
+	}
+
+	tsk->mm = mm;
+	tsk->active_mm = mm;
+	return 0;
+}
+
+/**
+ * dup_mm() - duplicates an existing mm structure
+ * @tsk: the task_struct with which the new mm will be associated.
+ * @oldmm: the mm to duplicate.
+ *
+ * Allocates a new mm structure and duplicates the provided @oldmm structure
+ * content into it.
+ *
+ * Return: the duplicated mm or NULL on failure.
+ */
+static struct mm_struct *dup_mm(struct task_struct *tsk,
+				struct mm_struct *oldmm)
+{
+	struct mm_struct *mm;
+	int err;
+
+    // 申请新的mm_struct
+	mm = allocate_mm();
+	if (!mm)
+		goto fail_nomem;
+
+    // 复制
+	memcpy(mm, oldmm, sizeof(*mm));
+
+    // 初始化一些字段，在下面展开
+	if (!mm_init(mm, tsk, mm->user_ns))
+		goto fail_nomem;
+    
+    // 同理，初始化一些字段
+	err = dup_mmap(mm, oldmm);
+	if (err)
+		goto free_pt;
+
+	mm->hiwater_rss = get_mm_rss(mm);
+	mm->hiwater_vm = mm->total_vm;
+
+	if (mm->binfmt && !try_module_get(mm->binfmt->module))
+		goto free_pt;
+
+	return mm;
+
+free_pt:
+	/* don't put binfmt in mmput, we haven't got module yet */
+	mm->binfmt = NULL;
+	mm_init_owner(mm, NULL);
+	mmput(mm);
+
+fail_nomem:
+	return NULL;
+}
+```
+
 
 #### mm_init
 
+```c
+static struct mm_struct *mm_init(struct mm_struct *mm, struct task_struct *p,
+	struct user_namespace *user_ns)
+{
+	int i;
+
+	mt_init_flags(&mm->mm_mt, MM_MT_FLAGS);
+	mt_set_external_lock(&mm->mm_mt, &mm->mmap_lock);
+	atomic_set(&mm->mm_users, 1);
+	atomic_set(&mm->mm_count, 1);
+	seqcount_init(&mm->write_protect_seq);
+	mmap_init_lock(mm);
+	INIT_LIST_HEAD(&mm->mmlist);
+	mm_pgtables_bytes_init(mm);
+	mm->map_count = 0;
+	mm->locked_vm = 0;
+	atomic64_set(&mm->pinned_vm, 0);
+	memset(&mm->rss_stat, 0, sizeof(mm->rss_stat));
+	spin_lock_init(&mm->page_table_lock);
+	spin_lock_init(&mm->arg_lock);
+	mm_init_cpumask(mm);
+	mm_init_aio(mm);
+	mm_init_owner(mm, p);
+	mm_pasid_init(mm);
+	RCU_INIT_POINTER(mm->exe_file, NULL);
+	mmu_notifier_subscriptions_init(mm);
+	init_tlb_flush_pending(mm);
+#if defined(CONFIG_TRANSPARENT_HUGEPAGE) && !USE_SPLIT_PMD_PTLOCKS
+	mm->pmd_huge_pte = NULL;
+#endif
+	mm_init_uprobes_state(mm);
+	hugetlb_count_init(mm);
+
+	if (current->mm) {
+		mm->flags = current->mm->flags & MMF_INIT_MASK;
+		mm->def_flags = current->mm->def_flags & VM_INIT_DEF_MASK;
+	} else {
+		mm->flags = default_dump_filter;
+		mm->def_flags = 0;
+	}
+
+	if (mm_alloc_pgd(mm))
+		goto fail_nopgd;
+
+	if (init_new_context(p, mm))
+		goto fail_nocontext;
+
+	for (i = 0; i < NR_MM_COUNTERS; i++)
+		if (percpu_counter_init(&mm->rss_stat[i], 0, GFP_KERNEL_ACCOUNT))
+			goto fail_pcpu;
+
+	mm->user_ns = get_user_ns(user_ns);
+	lru_gen_init_mm(mm);
+	return mm;
+
+fail_pcpu:
+	while (i > 0)
+		percpu_counter_destroy(&mm->rss_stat[--i]);
+	destroy_context(mm);
+fail_nocontext:
+	mm_free_pgd(mm);
+fail_nopgd:
+	free_mm(mm);
+	return NULL;
+}
+
+static inline int mm_alloc_pgd(struct mm_struct *mm)
+{
+	mm->pgd = pgd_alloc(mm);
+	if (unlikely(!mm->pgd))
+		return -ENOMEM;
+	return 0;
+}
+
+// 注意pgd_alloc是平台相关的，下面是x86的实现
+pgd_t *pgd_alloc(struct mm_struct *mm)
+{
+	pgd_t *pgd;
+	pmd_t *u_pmds[MAX_PREALLOCATED_USER_PMDS];
+	pmd_t *pmds[MAX_PREALLOCATED_PMDS];
+
+	pgd = _pgd_alloc();
+
+	if (pgd == NULL)
+		goto out;
+
+	mm->pgd = pgd;
+
+	if (sizeof(pmds) != 0 &&
+			preallocate_pmds(mm, pmds, PREALLOCATED_PMDS) != 0)
+		goto out_free_pgd;
+
+	if (sizeof(u_pmds) != 0 &&
+			preallocate_pmds(mm, u_pmds, PREALLOCATED_USER_PMDS) != 0)
+		goto out_free_pmds;
+
+	if (paravirt_pgd_alloc(mm) != 0)
+		goto out_free_user_pmds;
+
+	/*
+	 * Make sure that pre-populating the pmds is atomic with
+	 * respect to anything walking the pgd_list, so that they
+	 * never see a partially populated pgd.
+	 */
+	spin_lock(&pgd_lock);
+
+	pgd_ctor(mm, pgd);
+	if (sizeof(pmds) != 0)
+		pgd_prepopulate_pmd(mm, pgd, pmds);
+
+	if (sizeof(u_pmds) != 0)
+		pgd_prepopulate_user_pmd(mm, pgd, u_pmds);
+
+	spin_unlock(&pgd_lock);
+
+	return pgd;
+
+out_free_user_pmds:
+	if (sizeof(u_pmds) != 0)
+		free_pmds(mm, u_pmds, PREALLOCATED_USER_PMDS);
+out_free_pmds:
+	if (sizeof(pmds) != 0)
+		free_pmds(mm, pmds, PREALLOCATED_PMDS);
+out_free_pgd:
+	_pgd_free(pgd);
+out:
+	return NULL;
+}
+
+```
+
 #### dup_mmap
 
+
+
+## 疑问
+
+1. 内核线程没有自己管理的内存，那运行时的内存是哪里来的？
+    
+    AI生成，有待确认：内核线程会借用用户线程的mm_struct，但并不使用其中用户部分的，而是借用mm_struct中的页表目录，因为内核空间的虚拟内存映射是通用的。而内核地址部分是所有进程共享的，所以正好。而且这样也能减少页表的切换。
+2. 
 
 <!-- 进度 电子书209 /纸质197 -->
 

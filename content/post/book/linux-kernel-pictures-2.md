@@ -666,42 +666,12 @@ static struct mm_struct *mm_init(struct mm_struct *mm, struct task_struct *p,
 	struct user_namespace *user_ns)
 {
 	int i;
+    // 省略一些mm_struct字段的初始化
+    // ...
 
-	mt_init_flags(&mm->mm_mt, MM_MT_FLAGS);
-	mt_set_external_lock(&mm->mm_mt, &mm->mmap_lock);
-	atomic_set(&mm->mm_users, 1);
-	atomic_set(&mm->mm_count, 1);
-	seqcount_init(&mm->write_protect_seq);
-	mmap_init_lock(mm);
-	INIT_LIST_HEAD(&mm->mmlist);
-	mm_pgtables_bytes_init(mm);
-	mm->map_count = 0;
-	mm->locked_vm = 0;
-	atomic64_set(&mm->pinned_vm, 0);
-	memset(&mm->rss_stat, 0, sizeof(mm->rss_stat));
-	spin_lock_init(&mm->page_table_lock);
-	spin_lock_init(&mm->arg_lock);
-	mm_init_cpumask(mm);
-	mm_init_aio(mm);
-	mm_init_owner(mm, p);
-	mm_pasid_init(mm);
-	RCU_INIT_POINTER(mm->exe_file, NULL);
-	mmu_notifier_subscriptions_init(mm);
-	init_tlb_flush_pending(mm);
-#if defined(CONFIG_TRANSPARENT_HUGEPAGE) && !USE_SPLIT_PMD_PTLOCKS
-	mm->pmd_huge_pte = NULL;
-#endif
-	mm_init_uprobes_state(mm);
-	hugetlb_count_init(mm);
-
-	if (current->mm) {
-		mm->flags = current->mm->flags & MMF_INIT_MASK;
-		mm->def_flags = current->mm->def_flags & VM_INIT_DEF_MASK;
-	} else {
-		mm->flags = default_dump_filter;
-		mm->def_flags = 0;
-	}
-
+    // 初始化进程的 pgd
+    // 回忆一下现在普遍使用的五级页表，PGD、P4D、PUD、PMD、PT
+    // 强烈建议复习内存章节哦！
 	if (mm_alloc_pgd(mm))
 		goto fail_nopgd;
 
@@ -749,6 +719,12 @@ pgd_t *pgd_alloc(struct mm_struct *mm)
 
 	mm->pgd = pgd;
 
+    // 举例1：为什么是平台相关
+    // 仅在x86（即32位），且使能PAE的情况下，预申请PMD
+    // PAE时，三级页表位数 2 + 9 + 9。PGD、PMD、PT
+    // 此时只需4页内存(2^2)，就可以存下所有的PMD
+    // 其实就是此时PMD总量不多，提前分配可以接受
+    // 如果PMD总量很多，肯定没必要这么做了
 	if (sizeof(pmds) != 0 &&
 			preallocate_pmds(mm, pmds, PREALLOCATED_PMDS) != 0)
 		goto out_free_pgd;
@@ -767,7 +743,13 @@ pgd_t *pgd_alloc(struct mm_struct *mm)
 	 */
 	spin_lock(&pgd_lock);
 
+    // 重点：复制内核对应的pgd项
+    // 这一步的重点是，内核空间是高位地址，因此只有后面的部分才是内核空间
+    // 而不同的系统位数，计算方式略有区别
 	pgd_ctor(mm, pgd);
+
+
+    // 将前面申请得到的pmd和pgd进行关联，将pgd指向对应pmd
 	if (sizeof(pmds) != 0)
 		pgd_prepopulate_pmd(mm, pgd, pmds);
 
@@ -792,7 +774,185 @@ out:
 
 ```
 
+> 使能PAE其实已经不再重要了，现在普遍都是x86_64机器。但是这其中带来的，关于多级页表、以及对页表项的理解很重要。
+
+使能PAE，物理地址扩展（Physical Address Extension，简称 PAE）。此时页表项变为64位一个（每一级的页表项都是64位），而非32位一个。在4KB分页情况下，原本一个页中，可以存放1024个页表项，现在只能存512个。但每个页表项的物理页框号，从原来的20位，扩充为最多52位。不过仍受制于CPU实际支持的物理内存大小。**Intel规定，使能PAE至少支持36位物理地址**，因此一般以36位为准。此时虽然系统仍运行在32位，但物理内存可以达到64GB。
+
+另一点，32位情况下，一般默认两级页表，也就是10 + 10。那为什么使能PAE之后，各级页表位数要变为 2 + 9 + 9呢？其实这始终是在配合页的大小4KB。因为页表项变大。所以一个页只能存512个页表项。也就是每一级的索引最多只需要9位。此时就肯定要修改页表的级数了。
+
+另外一个**最重要的事情**，就是理解对内核PGD的复制。`pgd_ctor`内部，会从swappger_pg_dir复制内核项。linux的内核部分是跨进程共享的。为了完成这个共享，就需要共享或者复制内核部分的PGD。并配合惰性修改（内核的PGD大部分静态，但也有动态,比如vmalloc）。具体共享还是复制，受选项的控制，而且使能PAE还会让这一步骤更复杂（和PMD的预分配有关，不仅要共享PGD，还需要拷贝PMD）。
+
+![pgd and swapper_pg_dir](/images/book/linux-pic/pgd_ctor.png)
+
+在这种设计下，如果出现内核内存动态变化，而进程PGD未能更新的情况，此时就会触发缺页中断，并由vmalloc_fault函数完成页的同步。
+
+而到了x86_64，swapper_pg_dir的处理又有不同。因为64位的地址空间相当之大。没有必要扣扣嗖嗖了。PGD中和vmalloc有关的项直接填上固定的值了。此时内核PGD几乎是冻结不变的，
+
+![x86_64 preallocate_vmalloc_pages优化](/images/book/linux-pic/prealloc_vmalloc_pages.png)
+
 #### dup_mmap
+
+上一节我们谈到了内核PGD的共享。当前进程的内存映射也是要共享的啦。这部分工作由`dup_mmap`完成。
+
+```c
+static __latent_entropy int dup_mmap(struct mm_struct *mm,
+					struct mm_struct *oldmm)
+{
+	struct vm_area_struct *mpnt, *tmp;
+	int retval;
+	unsigned long charge = 0;
+	LIST_HEAD(uf);
+	MA_STATE(old_mas, &oldmm->mm_mt, 0, 0);
+	MA_STATE(mas, &mm->mm_mt, 0, 0);
+
+	uprobe_start_dup_mmap();
+	if (mmap_write_lock_killable(oldmm)) {
+		retval = -EINTR;
+		goto fail_uprobe_end;
+	}
+	flush_cache_dup_mm(oldmm);
+	uprobe_dup_mmap(oldmm, mm);
+	/*
+	 * Not linked in yet - no deadlock potential:
+	 */
+	mmap_write_lock_nested(mm, SINGLE_DEPTH_NESTING);
+
+	/* No ordering required: file already has been exposed. */
+	dup_mm_exe_file(mm, oldmm);
+
+	mm->total_vm = oldmm->total_vm;
+	mm->data_vm = oldmm->data_vm;
+	mm->exec_vm = oldmm->exec_vm;
+	mm->stack_vm = oldmm->stack_vm;
+
+	retval = ksm_fork(mm, oldmm);
+	if (retval)
+		goto out;
+	khugepaged_fork(mm, oldmm);
+
+	retval = mas_expected_entries(&mas, oldmm->map_count);
+	if (retval)
+		goto out;
+
+	mt_clear_in_rcu(mas.tree);
+	mas_for_each(&old_mas, mpnt, ULONG_MAX) {
+		struct file *file;
+
+		if (mpnt->vm_flags & VM_DONTCOPY) {
+			vm_stat_account(mm, mpnt->vm_flags, -vma_pages(mpnt));
+			continue;
+		}
+		charge = 0;
+		/*
+		 * Don't duplicate many vmas if we've been oom-killed (for
+		 * example)
+		 */
+		if (fatal_signal_pending(current)) {
+			retval = -EINTR;
+			goto loop_out;
+		}
+		if (mpnt->vm_flags & VM_ACCOUNT) {
+			unsigned long len = vma_pages(mpnt);
+
+			if (security_vm_enough_memory_mm(oldmm, len)) /* sic */
+				goto fail_nomem;
+			charge = len;
+		}
+        // 内存共享只需要共享需要的部分，也就是遍历mm_struct中的mm_mt字段
+        // 该字段是vm_area_struct对象组成的maple_tree，拷贝需要的vma即可
+        // 申请新的vma
+		tmp = vm_area_dup(mpnt);
+		if (!tmp)
+			goto fail_nomem;
+		retval = vma_dup_policy(mpnt, tmp);
+		if (retval)
+			goto fail_nomem_policy;
+		tmp->vm_mm = mm;
+		retval = dup_userfaultfd(tmp, &uf);
+		if (retval)
+			goto fail_nomem_anon_vma_fork;
+		if (tmp->vm_flags & VM_WIPEONFORK) {
+			/*
+			 * VM_WIPEONFORK gets a clean slate in the child.
+			 * Don't prepare anon_vma until fault since we don't
+			 * copy page for current vma.
+			 */
+			tmp->anon_vma = NULL;
+		} else if (anon_vma_fork(tmp, mpnt))
+			goto fail_nomem_anon_vma_fork;
+		tmp->vm_flags &= ~(VM_LOCKED | VM_LOCKONFAULT);
+		file = tmp->vm_file;
+		if (file) {
+			struct address_space *mapping = file->f_mapping;
+
+			get_file(file);
+			i_mmap_lock_write(mapping);
+			if (tmp->vm_flags & VM_SHARED)
+				mapping_allow_writable(mapping);
+			flush_dcache_mmap_lock(mapping);
+			/* insert tmp into the share list, just after mpnt */
+			vma_interval_tree_insert_after(tmp, mpnt,
+					&mapping->i_mmap);
+			flush_dcache_mmap_unlock(mapping);
+			i_mmap_unlock_write(mapping);
+		}
+
+		/*
+		 * Copy/update hugetlb private vma information.
+		 */
+		if (is_vm_hugetlb_page(tmp))
+			hugetlb_dup_vma_private(tmp);
+
+		/* Link the vma into the MT */
+		mas.index = tmp->vm_start;
+		mas.last = tmp->vm_end - 1;
+        // 插入新进程的maple_tree
+		mas_store(&mas, tmp);
+		if (mas_is_err(&mas))
+			goto fail_nomem_mas_store;
+
+		mm->map_count++;
+        // 拷贝对应vma涉及的各级页表
+		if (!(tmp->vm_flags & VM_WIPEONFORK))
+			retval = copy_page_range(tmp, mpnt);
+
+		if (tmp->vm_ops && tmp->vm_ops->open)
+			tmp->vm_ops->open(tmp);
+
+		if (retval)
+			goto loop_out;
+	}
+	/* a new mm has just been created */
+	retval = arch_dup_mmap(oldmm, mm);
+loop_out:
+	mas_destroy(&mas);
+	if (!retval)
+		mt_set_in_rcu(mas.tree);
+out:
+	mmap_write_unlock(mm);
+	flush_tlb_mm(oldmm);
+	mmap_write_unlock(oldmm);
+	dup_userfaultfd_complete(&uf);
+fail_uprobe_end:
+	uprobe_end_dup_mmap();
+	return retval;
+
+fail_nomem_mas_store:
+	unlink_anon_vmas(tmp);
+fail_nomem_anon_vma_fork:
+	mpol_put(vma_policy(tmp));
+fail_nomem_policy:
+	vm_area_free(tmp);
+fail_nomem:
+	retval = -ENOMEM;
+	vm_unacct_memory(charge);
+	goto loop_out;
+}
+```
+
+创建进程时，对于用户空间下的内存共享。是一个很有价值的优化点。目前Linux是以vma为视角对各级页表进行拷贝。只处理那些需要共享的vma。但是需要完整拷贝各级页表，并在页表项上添加一些标记，用于控制COW。另外VMA中也有一些控制访存属性的内容。可以再复习一下内存章节。尤其是[虚拟内存]({{<relref "/content/post/book/linux-kernel-pictures-1.md#虚拟内存的管理">}})部分。
+
+### 其他补充点
 
 
 

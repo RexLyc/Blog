@@ -328,6 +328,7 @@ static __latent_entropy struct task_struct *copy_process(
 		goto bad_fork_cleanup_namespaces;
     // 平台相关，配置新进程的状态，thread_struct结构体
     // 比如保存SP寄存器所需要的值（栈的起点），存储执行起点等
+    // 像在x86平台上，childregs->ax配置的就是fork的返回值
 	retval = copy_thread(p, args);
 	if (retval)
 		goto bad_fork_cleanup_io;
@@ -349,6 +350,12 @@ static __latent_entropy struct task_struct *copy_process(
     // ...
 
     // 接下来有一些赋值，并建立新进程和其他进程间的关系
+
+    // 简单来说，关系由新进程和创建进程共同决定
+    // 新进程可能是一个线程，此时它和创建进程同属一个线程组，因此要设置相同的线程组信息
+    // 同理，创建进程可能是一个线程，也就是说其实可能由4种情况：
+    // 线程/进程 fork出来 线程/进程
+    // 赋值的主要内容，就是看是否创建新的线程组，以及是否加入相关的进程链表。
 
 	/* CLONE_PARENT re-uses the old parent */
 	if (clone_flags & (CLONE_PARENT|CLONE_THREAD)) {
@@ -378,6 +385,7 @@ static __latent_entropy struct task_struct *copy_process(
 		ptrace_init_task(p, (clone_flags & CLONE_PTRACE) || trace);
 
 		init_task_pid(p, PIDTYPE_PID, pid);
+        //
 		if (thread_group_leader(p)) { // 领导进程，需要链接到父进程的链表：线程组、进程组、会话组的链表中
 			init_task_pid(p, PIDTYPE_TGID, pid);
 			init_task_pid(p, PIDTYPE_PGID, task_pgrp(current));
@@ -952,8 +960,24 @@ fail_nomem:
 
 创建进程时，对于用户空间下的内存共享。是一个很有价值的优化点。目前Linux是以vma为视角对各级页表进行拷贝。只处理那些需要共享的vma。但是需要完整拷贝各级页表，并在页表项上添加一些标记，用于控制COW。另外VMA中也有一些控制访存属性的内容。可以再复习一下内存章节。尤其是[虚拟内存]({{<relref "/content/post/book/linux-kernel-pictures-1.md#虚拟内存的管理">}})部分。
 
-### 其他补充点
+### 正式创建
+回到整体视角。创建进程，其实最外层就是我们熟悉的`fork/vfork`系统调用。其内部就是调用`kernel_clone`来实现。还提供了一些参数可以控制一些行为，比如新进程和当前进程的运行顺序、是否共享`mm_struct`等。
+- fork调用，不共享mm_struct，不保证执行顺序。
+- vfork调用，共享mm_struct，保证新进程先执行（比当前进程先调度）。
 
+![CLONE_VM](/images/book/linux-pic/clone_vm_flag.png)
+
+子进程调度执行后，执行的起点是`ret_from_fork`。这也是一个硬件相关的实现。
+
+![fork](fork_ret_twice.png)
+
+
+但是fork只能用来创建进程。clone系统调用提供更多的参数，可以创建线程，底层还是`kernel_clone`。此时POSIX标准在这里就显得很重要，我们不需要关心Linux是如何看待线程的，只需要知道`pthread_create`即可。不过`pthread_create`的流程和`fork`之类的就会稍有区别。
+- 第一点：pthread_create内部会指定CLONE_VM和stackaddr，也就是新线程虽然共享mm_struct，但是有自己的栈。
+
+![thread stack](/images/book/linux-pic/thread_stack.png)
+
+- 另一点：和fork的ret_from_fork不同，对于新线程来说，pthread_create的返回是需要从用户指定的start_thread开始。而这个入口是由glibc维护的`__clone`函数来处理，而不是内核。内核仍然是从ret_from_fork开始返回，然后会执行glibc提供的`__clone`函数的这段逻辑。其内部就是通过将寄存器、或者入栈了的寄存器值，保存pthread_create返回位置，或者用户要执行的函数位置。
 
 
 ## 疑问
@@ -961,7 +985,7 @@ fail_nomem:
 1. 内核线程没有自己管理的内存，那运行时的内存是哪里来的？
     
     AI生成，有待确认：内核线程会借用用户线程的mm_struct，但并不使用其中用户部分的，而是借用mm_struct中的页表目录，因为内核空间的虚拟内存映射是通用的。而内核地址部分是所有进程共享的，所以正好。而且这样也能减少页表的切换。
-2. 
+2. vfork使用CLONE_VM共享了进程的mm_struct，甚至包括栈。那么如果某一方退出当前函数，这个栈不是也会销毁，那另一个进程不会出问题吗？或者两者都需要增长栈，这感觉很难实现？
 
 <!-- 进度 电子书209 /纸质197 -->
 

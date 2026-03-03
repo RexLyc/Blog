@@ -1154,7 +1154,18 @@ init_task拥有大量的init_xxx变量，这里面的命名空间ns也一般都�
 - init进程是第一个用户进程
 - kthreadd负责内核线程
 
-二者都是idle进程在rest_init函数中调用kernel_thread创建的。
+二者都是idle进程在rest_init函数中调用kernel_thread创建的。根据前面的说明，init线程最初也一定是一个内核线程。在创建之后，init线程经历的流程包括：
+1. 执行kernel_init。并按层次调用kernel_init_freeable->do_basic_setup->do_initcalls。_initcalls会完成各个内核模块的初始化。（core、arch、subsys、fs、rootfs、device等等）
+2. kernel_init最终调用kernel_execve执行可执行文件，此后推出了内核线程状态。可执行文件有/sbin/init，/etc/init，/bin/init，/bin/sh四个。
+
+在高版本linux中，/sbin/init指向../lib/systemd/systemd。
+
+> 取代的是传统的sysvinit风格的init启动，以及init.d，/etc/rc*.d这些脚本。
+
+> 从service ** start 转为systemctl start
+
+## 进程退出
+
 
 
 ## 疑问

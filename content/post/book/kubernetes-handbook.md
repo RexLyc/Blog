@@ -7,7 +7,7 @@ categories:
 tags:
 - Kubernetes
 - 中间件
-- 施工中
+- 暂停施工
 thumbnailImagePosition: left
 thumbnailImage: /images/thumbnail/k8s-logo.png
 draft: true

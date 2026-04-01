@@ -1162,9 +1162,46 @@ init_task拥有大量的init_xxx变量，这里面的命名空间ns也一般都�
 
 > 取代的是传统的sysvinit风格的init启动，以及init.d，/etc/rc*.d这些脚本。
 
-> 从service ** start 转为systemctl start
+> 从service * start 转为systemctl start *
 
 ## 进程退出
+
+进程始于fork，最终结束于exit。站在普通编程者角度，退出的情况分为两大种。
+
+正常退出：
+1. 使用return
+2. 使用exit（库函数版）
+3. 使用_exit（库函数版）
+
+异常退出：
+1. abort
+2. 被信号终止
+
+实际上，退出过程最终都会落到两个系统调用，exit/exit_group上。前者直接调用do_exit，后者对线程组中其他线程发送SIGKILL信号强制退出，之后再调用do_exit。
+
+do_exit函数负责清理资源，并将参数code赋值给task_struct的exit_code字段。资源清理步骤包括
+1. exit_signals
+2. exit_mm
+3. exit_sem：IPC信号量
+4. exit_shm：共享内存
+5. exit_files
+6. exit_fs
+7. exit_task_namespaces
+8. exit_task_work：task work
+9. exit_thread
+10. exit_notify：子进程托孤
+11. exit_io_context
+等等
+
+> 在书中的常用叫法下，线程组的领导线程才叫做进程，而其他线程只是普通线程。
+
+其中exit_notify比较有趣，负责处理托孤：
+1. 为子进程/线程选择新的父进程。双向修改（子进程的父进程，父进程的children链表）。这个过程中也会回收一些zombie线程。
+2. 通知父进程，激活父进程的wait函数，并等待响应的信号处理。
+
+在do_exit之后，release_task函数用于回收资源。线程组的领导进程的回收只发生在线程组全部退出之后执行。（普通线程退出时立刻被回收）
+
+## 进程调度
 
 
 
@@ -1174,6 +1211,13 @@ init_task拥有大量的init_xxx变量，这里面的命名空间ns也一般都�
     
     AI生成，有待确认：内核线程会借用用户线程的mm_struct，但并不使用其中用户部分的，而是借用mm_struct中的页表目录，因为内核空间的虚拟内存映射是通用的。而内核地址部分是所有进程共享的，所以正好。而且这样也能减少页表的切换。
 2. vfork使用CLONE_VM共享了进程的mm_struct，甚至包括栈。那么如果某一方退出当前函数，这个栈不是也会销毁，那另一个进程不会出问题吗？或者两者都需要增长栈，这感觉很难实现？
+
+3. 进程pid、线程tid、进程组pgid、线程组tgid、会话之间的关系？
+   
+   Linux 内核中只有 task_struct，"线程组"下的每个线程有自己的task_struct，但是共享了其中的一些字段（资源）。这样的"线程组"就是用户态的"进程"。而"进程组"是用于作业控制的多个进程的集合，"会话"是多个进程组的集合。层级关系为：会话 ⊃ 进程组 ⊃ 线程组（进程） ⊃ 线程。
+
+   使用clone（带CLONE_THREAD设置）、或pthread_create可以创建同一个线程组的线程，而fork只能创建出子进程。
+
 
 <!-- 进度 电子书209 /纸质197 -->
 

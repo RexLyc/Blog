@@ -1203,6 +1203,20 @@ do_exit函数负责清理资源，并将参数code赋值给task_struct的exit_co
 
 ## 进程调度
 
+### 数据结构
+
+每个cpu都有一个专门的结构记录正在和将要运行的进程，`struct rq(runqueue)`，其主要内容有
+- nr_running：running状态的进程数量
+- cfs：完全公平调度rq
+- rt：实时调度rq
+- dl：deadline rq
+- curr：当前进程的task_struct*
+- idle：空闲进程的task_struct*
+- stop：stop进程的task_struct*
+- clock：cpu累计运行时间
+- clock_task：进程累计占用cpu的时间
+
+进程实际要由cfs、rq、dl来进行调度，也就归这三个管理。
 
 
 ## 疑问

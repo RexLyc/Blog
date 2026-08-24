@@ -1209,14 +1209,29 @@ do_exit函数负责清理资源，并将参数code赋值给task_struct的exit_co
 - nr_running：running状态的进程数量
 - cfs：完全公平调度rq
 - rt：实时调度rq
-- dl：deadline rq
+- dl：最后期限调度deadline rq
 - curr：当前进程的task_struct*
 - idle：空闲进程的task_struct*
 - stop：stop进程的task_struct*
 - clock：cpu累计运行时间
 - clock_task：进程累计占用cpu的时间
 
-进程实际要由cfs、rq、dl来进行调度，也就归这三个管理。
+进程实际要由cfs、rt、dl来进行调度，也就归这三个管理。rq中并不会直接保存task_struct。
+- cfs是一个sched_entity组成的红黑树。
+- rt则使用一个按优先级区分的多级链表，保存sched_rt_entity。
+- dl也是红黑树，由sched_dl_entity组成。
+
+### 调度过程
+
+#### 创建
+
+#### 唤醒
+
+#### 中断
+
+#### 切换
+
+
 
 
 ## 疑问
